@@ -1,17 +1,22 @@
-import dynamic from "next/dynamic";
-import {Provider as ReduxProvider} from "react-redux";
+import { Provider as ReduxProvider } from "react-redux";
 import store from "../store";
-
-const DynamicMap = dynamic(() => import("./Map"), {
-  ssr: false,
-});
+import GridLayout from "./GridLayout";
+import FileUpload from "./FileUpload";
+import React, { useState } from 'react';
 
 export default function Home() {
+  const [data, setData] = useState([]);
+
+  const handleFileUpload = (parsedData) => {
+    setData(parsedData);
+  };
+
   return (
-    <div>
-      <ReduxProvider store={store}>
-        <DynamicMap />
-      </ReduxProvider>
-    </div>
+    <ReduxProvider store={store}>
+      <FileUpload onFileUpload={handleFileUpload} />
+      <GridLayout data={data} />
+    </ReduxProvider>
   );
 }
+
+
