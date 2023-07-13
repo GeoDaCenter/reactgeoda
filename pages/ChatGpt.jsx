@@ -2,7 +2,6 @@ import { useState } from 'react'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 
-// Upload your chatgpt api key here
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 const systemMessage = {
@@ -61,10 +60,14 @@ const ChatGpt = ({ data }) => {
       body: JSON.stringify(apiRequestBody)
     }).then(data => data.json()).then(data => {
       console.log(data); 
-      setMessages([...chatMessages, {
-        message: data.choices[0].message.content,
-        sender: "ChatGPT"
-      }]);
+      if (data && data.choices && data.choices.length > 0) {
+        setMessages([...chatMessages, {
+          message: data.choices[0].message.content,
+          sender: "ChatGPT"
+        }]);
+      } else {
+        console.error("The data.choices is undefined or empty.");
+      }
       setIsTyping(false);
     });
   }
