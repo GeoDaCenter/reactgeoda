@@ -1,4 +1,7 @@
 {
     "fileUpload.dropHere": "Solte os arquivos aqui ...",
-    "fileUpload.dragDropClick": "Arraste e solte arquivos csv, geojson ou json aqui, ou clique para selecionar arquivos"
+    "fileUpload.dragDropClick": "Arraste e solte arquivos csv, geojson ou json aqui, ou clique para selecionar arquivos",
+    "chatGpt.initialMessage": "Olá, sou o ChatGPT! Pergunte-me qualquer coisa!",
+    "chatGpt.isTyping": "ChatGPT está digitando",
+    "chatGpt.inputPlaceholder": "Digite a mensagem aqui"
 }

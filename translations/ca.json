@@ -1,5 +1,7 @@
 {
     "fileUpload.dropHere": "Deixa anar els fitxers aquí ...",
-    "fileUpload.dragDropClick": "Arrossega i deixa anar fitxers csv, geojson o json aquí, o fes clic per seleccionar fitxers"
+    "fileUpload.dragDropClick": "Arrossega i deixa anar fitxers csv, geojson o json aquí, o fes clic per seleccionar fitxers",
+    "chatGpt.initialMessage": "Hola, sóc el ChatGPT! Pregunta'm qualsevol cosa!",
+    "chatGpt.isTyping": "ChatGPT està escrivint",
+    "chatGpt.inputPlaceholder": "Escriu el missatge aquí"
 }
-  

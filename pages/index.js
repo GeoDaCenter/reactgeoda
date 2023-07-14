@@ -3,7 +3,8 @@ import store from "../store";
 import GridLayout from "./GridLayout";
 import FileUpload from "./FileUpload";
 import React, { useState } from 'react';
-import { IntlProvider } from "react-intl";
+import LanguageSelector from './LanguageSelector';
+import IntlProviderWrapper from './IntlProviderWrapper';
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -11,14 +12,15 @@ export default function Home() {
   const handleFileUpload = (parsedData) => {
     setData(parsedData);
   };
-
-  return (
-    <IntlProvider messages={{}} locale="en" defaultLocale="en">
-      <ReduxProvider store={store}>
+  
+  return ( 
+    <ReduxProvider store={store}>
+      <IntlProviderWrapper>
+        <LanguageSelector />
         <FileUpload onFileUpload={handleFileUpload} />
         <GridLayout data={data} />
-      </ReduxProvider>
-    </IntlProvider>
+      </IntlProviderWrapper>
+    </ReduxProvider>
   );
 }
 
