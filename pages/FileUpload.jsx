@@ -1,12 +1,15 @@
 import React, { useCallback } from 'react';
+import { useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import { parse } from '@loaders.gl/core';
 import { CSVLoader } from '@loaders.gl/csv';
 import { JSONLoader, GeoJSONLoader } from '@loaders.gl/json';
 import { FormattedMessage } from 'react-intl';
+import { setFileData } from '../actions/fileActions';
 
+const FileUpload = () => {
+  const dispatch = useDispatch();
 
-const FileUpload = ({ onFileUpload }) => {
   const onDrop = useCallback(async (acceptedFiles) => {
     const file = acceptedFiles[0];
     // Identify file format based on extension
@@ -28,8 +31,8 @@ const FileUpload = ({ onFileUpload }) => {
         return;
     }
 
-    onFileUpload(data);
-  }, [onFileUpload]);
+    dispatch(setFileData(data));
+  }, [dispatch]);
 
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
 
