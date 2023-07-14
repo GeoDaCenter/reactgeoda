@@ -1,10 +1,10 @@
 import { Provider as ReduxProvider } from "react-redux";
 import store from "../store";
-import GridLayout from "./GridLayout";
-import FileUpload from "./FileUpload";
+import GridLayout from "../components/GridLayout";
+import FileUpload from "../components/FileUpload";
 import React from 'react';
-import LanguageSelector from './LanguageSelector';
-import IntlProviderWrapper from './IntlProviderWrapper';
+import LanguageSelector from '../components/LanguageSelector';
+import IntlProviderWrapper from '../components/IntlProviderWrapper';
 
 export default function Home() {
   return ( 
