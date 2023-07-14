@@ -12,6 +12,7 @@
     "@chatscope/chat-ui-kit-react": "^1.10.1",
     "@loaders.gl/core": "^2.3.13",
     "@loaders.gl/csv": "^3.4.6",
+    "@loaders.gl/json": "^3.4.7",
     "@nivo/bar": "^0.83.0",
     "ag-grid-community": "^30.0.3",
     "ag-grid-react": "^30.0.4",

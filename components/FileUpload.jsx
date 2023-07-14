@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-import { parse } from '@loaders.gl/core';
+import { parse } from '@loaders.gl/core'; // TODO: use parseinbatches?
 import { CSVLoader } from '@loaders.gl/csv';
 import { JSONLoader, GeoJSONLoader } from '@loaders.gl/json';
 import { FormattedMessage } from 'react-intl';
@@ -30,7 +30,7 @@ const FileUpload = () => {
         alert('Unsupported file format');
         return;
     }
-
+    console.log(data)
     dispatch(setFileData(data));
   }, [dispatch]);
 
