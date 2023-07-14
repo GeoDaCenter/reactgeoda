@@ -13,8 +13,8 @@ const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
   { i: "a", x: 0, y: 0, w: 7, h: 21, static: true }, // Kepler Map
-  { i: "b", x: 10, y: 13, w: 5, h: 8 }, // ChatGPT
-  { i: "c", x: 14, y: 0, w: 5, h: 17 }, // react table
+  { i: "b", x: 10, y: 0, w: 5, h: 8 }, // ChatGPT
+  { i: "c", x: 14, y: 12, w: 5, h: 17 }, // react table
   { i: "d", x: 0, y: 21, w: 3, h: 13, static: true }, // Ag Grid
   { i: "e", x: 14, y: 14, w: 7, h: 10 }, // Nivo Plot
   { i: "f", x: 10, y: 14, w: 5, h: 10 }, // Apache ECharts Plot

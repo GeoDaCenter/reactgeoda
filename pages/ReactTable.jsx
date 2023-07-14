@@ -17,7 +17,7 @@ const ReactTable = ({ data }) => {
     prepareRow,
   } = useTable({ columns, data });
 
-  // Render the UI for your table
+  // Render the UI
   return (
     <table {...getTableProps()} style={{ width: '100%' }}>
       <thead>

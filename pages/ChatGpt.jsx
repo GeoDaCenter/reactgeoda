@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+import { useIntl } from 'react-intl';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
@@ -9,13 +10,18 @@ const systemMessage = {
 }
 
 const ChatGpt = ({ data }) => {
-  const [messages, setMessages] = useState([
-    {
-      message: "Hello, I'm ChatGPT! Ask me anything!",
-      sentTime: "just now",
-      sender: "ChatGPT"
-    }
-  ]);
+  const intl = useIntl();
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    setMessages([
+      {
+        message: intl.formatMessage({ id: "chatGpt.initialMessage", defaultMessage: "Hello, I'm ChatGPT! Ask me anything!" }),
+        sentTime: "just now",
+        sender: "ChatGPT"
+      }
+    ]);
+  }, [intl]);
   const [isTyping, setIsTyping] = useState(false);
 
   const handleSend = async (message) => {
@@ -78,11 +84,11 @@ const ChatGpt = ({ data }) => {
         <ChatContainer>       
           <MessageList 
             scrollBehavior="smooth" 
-            typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
+            typingIndicator={isTyping ? <TypingIndicator content={intl.formatMessage({ id: "chatGpt.isTyping", defaultMessage: "ChatGPT is typing" })} /> : null}
           >
             {messages.map((message, i) => <Message key={i} model={message} />)}
           </MessageList>
-          <MessageInput placeholder="Type message here" onSend={handleSend} />        
+          <MessageInput placeholder={intl.formatMessage({ id: "chatGpt.inputPlaceholder", defaultMessage: "Type message here" })} onSend={handleSend} />
         </ChatContainer>
       </MainContainer>
     </div>

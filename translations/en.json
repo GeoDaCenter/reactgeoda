@@ -1,4 +1,7 @@
 {
     "fileUpload.dropHere": "Drop the files here ...",
-    "fileUpload.dragDropClick": "Drag and drop csv, geojson, or json files here, or click to select files"
+    "fileUpload.dragDropClick": "Drag and drop csv, geojson, or json files here, or click to select files",
+    "chatGpt.initialMessage": "Hello, I'm ChatGPT! Ask me anything!",
+    "chatGpt.isTyping": "ChatGPT is typing",
+    "chatGpt.inputPlaceholder": "Type the message here"
 }
