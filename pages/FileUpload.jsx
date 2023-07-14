@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { parse } from '@loaders.gl/core';
 import { CSVLoader } from '@loaders.gl/csv';
 import { JSONLoader, GeoJSONLoader } from '@loaders.gl/json';
+import { FormattedMessage } from 'react-intl';
 
 
 const FileUpload = ({ onFileUpload }) => {
@@ -37,8 +38,8 @@ const FileUpload = ({ onFileUpload }) => {
       <input {...getInputProps()} />
       {
         isDragActive ?
-          <p>Drop the files here ...</p> :
-          <p>Drag and drop csv, geojson, or json files here, or click to select files</p>
+          <p><FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." /></p> :
+          <p><FormattedMessage id="fileUpload.dragDropClick" defaultMessage="Drag and drop csv, geojson, or json files here, or click to select files" /></p>
       }
     </div>
   )
