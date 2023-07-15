@@ -1,10 +1,11 @@
 import React from 'react';
 import { useTable } from 'react-table';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const ReactTable = ({ data }) => {
 
   // Check if data is available
-  if (!data || data.length === 0) return <p>No data available</p>;
+  if (!data || data.length === 0) return <p><FormattedMessage id='table.noData' defaultMessage='No data available' /></p>;
 
   // For some reason, the loaded data renders repeatedly for react-table so i memoize the data
   const memoData = React.useMemo(() => data, [data]);
