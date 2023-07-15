@@ -3,5 +3,14 @@
     "fileUpload.dragDropClick": "Arraste e solte arquivos csv, geojson ou json aqui, ou clique para selecionar arquivos",
     "chatGpt.initialMessage": "Olá, sou o ChatGPT! Pergunte-me qualquer coisa!",
     "chatGpt.isTyping": "ChatGPT está digitando",
-    "chatGpt.inputPlaceholder": "Digite a mensagem aqui"
+    "chatGpt.inputPlaceholder": "Digite a mensagem aqui",
+    "toolbar.title": "Barra de Ferramentas",
+    "toolbar.plotType": "Tipo de Gráfico",
+    "toolbar.selectPlotType": "Selecione o Tipo de Gráfico",
+    "toolbar.barPlot": "Gráfico de Barras",
+    "toolbar.scatterPlot": "Gráfico de Dispersão",
+    "toolbar.variable1": "Variável 1",
+    "toolbar.variable2": "Variável 2",
+    "toolbar.selectVariable": "Selecione a Variável",
+    "table.noData": "Nenhum dado disponível"
 }
