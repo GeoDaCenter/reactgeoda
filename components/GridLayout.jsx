@@ -7,23 +7,23 @@ import ReactTable from './ReactTable'
 import AgGrid from './AgGrid'
 import NivoPlot from './NivoPlot';
 import EChartsPlot from './EChartsPlot';
+import ToolBar from './ToolBar'
 
 const KeplerMap = dynamic(() => import("./KeplerMap"), { ssr: false });
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
   { i: "a", x: 0, y: 0, w: 7, h: 21, static: true }, // Kepler Map
-  { i: "b", x: 10, y: 0, w: 5, h: 8 }, // ChatGPT
+  { i: "b", x: 10, y: 0, w: 5, h: 5 }, // Toolbar
   { i: "c", x: 14, y: 12, w: 5, h: 17 }, // react table
-  { i: "d", x: 0, y: 21, w: 3, h: 13, static: true }, // Ag Grid
-  { i: "e", x: 14, y: 14, w: 7, h: 10 }, // Nivo Plot
-  { i: "f", x: 10, y: 14, w: 5, h: 10 }, // Apache ECharts Plot
+  // { i: "d", x: 0, y: 21, w: 3, h: 13, static: true }, // Ag Grid
+  { i: "e", x: 0, y: 14, w: 7, h: 10 }, // Nivo Plot
+  // { i: "f", x: 10, y: 14, w: 5, h: 10 }, // Apache ECharts Plot
+  { i: "g", x: 10, y: 14, w: 5, h: 8 }, // ChatGPT
 ];
 
 const GridLayout = () => {
   // For debugging redux state
-  //const state = useSelector(state => state);
-  //console.log(state); // Log the entire state to console
 
   // File data from Redux store
   const data = useSelector(state => state.root.file.fileData);
@@ -50,19 +50,22 @@ const GridLayout = () => {
         />
       </div>
       <div key="b">
-        <ChatGpt data={data} />
+        <ToolBar data={data} />
       </div>
       <div key="c">
         <ReactTable data={data} /> 
       </div>
-      <div key="d">
+      {/* <div key="d">
         <AgGrid data={data} />
-      </div>
+      </div> */}
       <div key="e">
         <NivoPlot data={data} />
       </div>
-      <div key="f">
+      {/* <div key="f">
         <EChartsPlot data={data} />
+      </div> */}
+      <div key="g">
+        <ChatGpt data={data} />
       </div>
     </ReactGridLayout>
   );

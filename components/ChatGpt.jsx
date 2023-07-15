@@ -9,6 +9,8 @@ const systemMessage = {
   "role": "system", "content": "Explain things like you're talking to a software professional with 2 years of experience."
 }
 
+
+
 const ChatGpt = ({ data }) => {
   const intl = useIntl();
   const [messages, setMessages] = useState([]);
@@ -37,6 +39,9 @@ const ChatGpt = ({ data }) => {
 
     await processMessageToChatGPT(newMessages, data);
   };
+
+
+
 
   async function processMessageToChatGPT(chatMessages, data) {
     let apiMessages = chatMessages.map((messageObject) => {
@@ -96,3 +101,127 @@ const ChatGpt = ({ data }) => {
 }
 
 export default ChatGpt;
+
+
+// import React, { useState, useEffect } from 'react';
+// import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+// import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+// import { useIntl } from 'react-intl';
+
+// const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+
+// const systemMessage = {
+//   "role": "system", "content": "Explain things like you're talking to a software professional with 2 years of experience."
+// }
+
+// function chunkData(data, chunkSize = 500) {
+//   const chunked = [];
+//   let index = 0;
+
+//   while (index < data.length) {
+//     chunked.push(data.slice(index, chunkSize + index));
+//     index += chunkSize;
+//   }
+
+//   return chunked;
+// }
+
+// const ChatGpt = ({ data }) => {
+//   const intl = useIntl();
+//   const [messages, setMessages] = useState([]);
+
+//   useEffect(() => {
+//     setMessages([
+//       {
+//         message: intl.formatMessage({ id: "chatGpt.initialMessage", defaultMessage: "Hello, I'm ChatGPT! Ask me anything!" }),
+//         sentTime: "just now",
+//         sender: "ChatGPT"
+//       }
+//     ]);
+//   }, [intl]);
+//   const [isTyping, setIsTyping] = useState(false);
+
+//   const handleSend = async (message) => {
+//     const newMessage = {
+//       message,
+//       direction: 'outgoing',
+//       sender: "user"
+//     };
+
+//     const newMessages = [...messages, newMessage];
+//     setMessages(newMessages);
+//     setIsTyping(true);
+
+//     await processMessageToChatGPT(newMessages, data);
+//   };
+
+//   async function processMessageToChatGPT(chatMessages, data) {
+//     let dataChunks = chunkData(data);
+
+//     for (let dataChunk of dataChunks) {
+//       let apiMessages = chatMessages.map((messageObject) => {
+//         let role = messageObject.sender === "ChatGPT" ? "assistant" : "user";
+//         return { role: role, content: messageObject.message}
+//       });
+
+//       let dataContent = typeof dataChunk === "string" ? dataChunk : JSON.stringify(dataChunk);
+
+
+//       const apiRequestBody = {
+//         "model": "gpt-3.5-turbo",
+//         "messages": [
+//           systemMessage,
+//           { role: "system", content: dataContent }, // passing data
+//           ...apiMessages 
+//         ]
+//       }
+
+//       await fetch("https://api.openai.com/v1/chat/completions", 
+//       {
+//         method: "POST",
+//         headers: {
+//           "Authorization": "Bearer " + API_KEY,
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify(apiRequestBody)
+//       })
+//       .then(data => data.json())
+//       .then(data => {
+//         console.log(data); 
+//         if (data && data.choices && data.choices.length > 0) {
+//           setMessages(prevMessages => [...prevMessages, {
+//             message: data.choices[0].message.content,
+//             sender: "ChatGPT"
+//           }]);
+//         } else {
+//           console.error("The data.choices is undefined or empty.");
+//         }
+//         setIsTyping(false);
+//       })
+//       .catch(error => {
+//         console.error("An error occurred while fetching chat completions: ", error);
+//         setIsTyping(false);
+//       });
+//     }
+//   }
+
+//   return (
+//     <div style={{ position:"relative", height: "100%", width: "100%"  }}>
+//       <MainContainer>
+//         <ChatContainer>       
+//           <MessageList 
+//             scrollBehavior="smooth" 
+//             typingIndicator={isTyping ? <TypingIndicator content={intl.formatMessage({ id: "chatGpt.isTyping", defaultMessage: "ChatGPT is typing" })} /> : null}
+//           >
+//             {messages.map((message, i) => <Message key={i} model={message} />)}
+//           </MessageList>
+//           <MessageInput placeholder={intl.formatMessage({ id: "chatGpt.inputPlaceholder", defaultMessage: "Type message here" })} onSend={handleSend} />
+//         </ChatContainer>
+//       </MainContainer>
+//     </div>
+//   )
+// }
+
+// export default ChatGpt;
+
+
