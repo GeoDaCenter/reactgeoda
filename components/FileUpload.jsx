@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
-import { parse } from '@loaders.gl/core'; // TODO: use parseinbatches?
+import { parse } from '@loaders.gl/core'; // TODO: use parseinbatches? Perhaps w gpt?
 import { CSVLoader } from '@loaders.gl/csv';
 import { JSONLoader, GeoJSONLoader } from '@loaders.gl/json';
 import { FormattedMessage } from 'react-intl';
