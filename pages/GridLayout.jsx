@@ -1,4 +1,5 @@
-import React from "react";
+import React from 'react';
+import { useSelector } from 'react-redux';
 import RGL, { WidthProvider } from "react-grid-layout";
 import dynamic from "next/dynamic";
 import ChatGpt from './ChatGpt';
@@ -8,7 +9,6 @@ import NivoPlot from './NivoPlot';
 import EChartsPlot from './EChartsPlot';
 
 const KeplerMap = dynamic(() => import("./KeplerMap"), { ssr: false });
-
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
@@ -20,8 +20,15 @@ const layout = [
   { i: "f", x: 10, y: 14, w: 5, h: 10 }, // Apache ECharts Plot
 ];
 
-const GridLayout = ({ data }) => {
+const GridLayout = () => {
+  // For debugging redux state
+  //const state = useSelector(state => state);
+  //console.log(state); // Log the entire state to console
 
+  // File data from Redux store
+  const data = useSelector(state => state.root.file.fileData);
+
+  
   // Set Kepler Map size
   const [mapDimensions, setMapDimensions] = React.useState({
     width: 800,    // window.innnerWidth
@@ -62,5 +69,3 @@ const GridLayout = ({ data }) => {
 };
 
 export default GridLayout;
-
-

@@ -1,17 +1,11 @@
 import { combineReducers } from 'redux';
-
-const languageReducer = (state = 'en', action) => {
-  switch (action.type) {
-    case 'SET_LANGUAGE':
-      return action.payload;
-    default:
-      return state;
-  }
-};
+import languageReducer from './languageReducer';
+import fileReducer from './fileReducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
-  // Will add other reducers
+  file: fileReducer,
+  // add other reducers
 });
 
 export default rootReducer;

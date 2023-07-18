@@ -1,5 +1,2 @@
-export const setLanguage = (language) => ({
-    type: 'SET_LANGUAGE',
-    payload: language
-  });
-  
+export * from './languageActions';
+export * from './fileActions';
