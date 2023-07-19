@@ -4,19 +4,17 @@ import { addDataToMap } from "kepler.gl/actions";
 import { useDispatch } from "react-redux";
 import { ReactReduxContext } from "react-redux";
 
-// Upload your mapbox token here
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const KeplerMap = ({ data, width, height }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (data && data.length !== 0) {
-      // Get fields array from the first row's keys
-      const fields = Object.keys(data[0]).map(key => ({name: key, format: '', type: 'real', id: key}));
-
-      // Array of objects --> array of arrays for rows
-      const rows = data.map(rowObj => Object.values(rowObj));
+    if (data && data.fields && data.rows) {
+      const fields = data.fields.map(field => ({name: field.name, format: field.format, type: field.type, id: field.id}));
+  
+      // No need to convert rows anymore, should be in the correct format
+      const rows = data.rows;
 
       const dataset = {
         info: { id: "my_data", label: "my data" },
