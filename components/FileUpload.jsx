@@ -3,9 +3,12 @@ import { useDispatch } from 'react-redux';
 import { useDropzone } from 'react-dropzone';
 import { parse } from '@loaders.gl/core'; // TODO: use parseinbatches? Perhaps w gpt?
 import { CSVLoader } from '@loaders.gl/csv';
-import { JSONLoader, GeoJSONLoader } from '@loaders.gl/json';
+import { JSONLoader } from '@loaders.gl/json';
+import {GeoJSONLoader} from '@loaders.gl/gis';
 import { FormattedMessage } from 'react-intl';
 import { setFileData } from '../actions/fileActions';
+import { processCsvData, processRowObject, processGeojson } from 'kepler.gl/dist/processors';
+
 
 const FileUpload = () => {
   const dispatch = useDispatch();
@@ -19,12 +22,14 @@ const FileUpload = () => {
     switch(ext) {
       case 'csv':
         data = await parse(file, CSVLoader);
+        data = processRowObject(data)
         break;
       case 'json':
-        data = await parse(file, JSONLoader);
+        data = await parse(file, JSONLoader)
         break;
       case 'geojson':
         data = await parse(file, GeoJSONLoader);
+        data = processGeojson(data)
         break;
       default:
         alert('Unsupported file format');

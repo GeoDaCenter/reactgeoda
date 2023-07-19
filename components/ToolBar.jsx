@@ -10,7 +10,7 @@ const Toolbar = () => {
   const plotType = useSelector((state) => state.root.plotType);
   const dispatch = useDispatch();
 
-  const columns = data.length > 0 ? Object.keys(data[0]) : [];
+  const columns = data.fields ? data.fields.map(field => field.name) : [];
 
   const handleVariableChange = (e, index) => {
     const newSelectedVariables = [...selectedVariables];
