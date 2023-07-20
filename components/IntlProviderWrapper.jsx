@@ -1,8 +1,8 @@
-import { useSelector } from "react-redux";
-import { IntlProvider } from "react-intl";
+import {useSelector} from 'react-redux';
+import {IntlProvider} from 'react-intl';
 import MESSAGES from '../translations/translations';
 
-const IntlProviderWrapper = ({ children }) => {
+const IntlProviderWrapper = ({children}) => {
   const language = useSelector(state => state.root.language);
   const messages = MESSAGES[language];
 
@@ -11,6 +11,6 @@ const IntlProviderWrapper = ({ children }) => {
       {children}
     </IntlProvider>
   );
-}
+};
 
 export default IntlProviderWrapper;
