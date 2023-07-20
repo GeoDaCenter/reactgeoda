@@ -8,7 +8,7 @@ import AgGrid from './AgGrid'
 import NivoPlot from './NivoPlot';
 import EChartsPlot from './EChartsPlot';
 import ToolBar from './ToolBar'
-import JsGeoda from './JsGeoda'
+// import JsGeoda from './JsGeoda'
 
 const KeplerMap = dynamic(() => import("./KeplerMap"), { ssr: false });
 const ReactGridLayout = WidthProvider(RGL);
@@ -70,7 +70,7 @@ const GridLayout = () => {
         <ChatGpt data={data} />
       </div>
       <div key="h">
-        <JsGeoda data={data} />
+        h
       </div>
     </ReactGridLayout>
   );
