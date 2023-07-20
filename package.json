@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^1.10.1",
-    "@loaders.gl/core": "^2.3.13",
     "@loaders.gl/csv": "^3.4.6",
     "@loaders.gl/gis": "^3.4.7",
     "@loaders.gl/json": "^3.4.7",
-    "@mapbox/geojson-normalize": "^0.0.1",
+    "@loaders.gl/core": "^3.1.6",
+    "@loaders.gl/shapefile": "^3.1.6",
     "@nivo/bar": "^0.83.0",
     "@nivo/scatterplot": "^0.83.0",
     "ag-grid-community": "^30.0.3",
