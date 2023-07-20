@@ -1,8 +1,14 @@
-import keplerGlReducer, { uiStateUpdaters } from "kepler.gl/reducers";
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import { taskMiddleware } from "react-palm/tasks";
-import rootReducer from "../reducers/index";
-import keplerLanguageMiddleware from "./keplerLanguageMiddleware";
+import keplerGlReducer, {uiStateUpdaters} from 'kepler.gl/reducers';
+import {
+  legacy_createStore as createStore,
+  combineReducers,
+  applyMiddleware,
+  legacy_createStore
+} from 'redux';
+import {enhanceReduxMiddleware} from 'kepler.gl/middleware';
+import rootReducer from '../reducers/index';
+import keplerLanguageMiddleware from './keplerLanguageMiddleware';
+import logger from 'redux-logger';
 
 const customizedKeplerGlReducer = keplerGlReducer.initialState({
   uiState: {
@@ -11,19 +17,16 @@ const customizedKeplerGlReducer = keplerGlReducer.initialState({
     currentModal: null,
     mapLegend: {
       show: true,
-      active: true,
-    },
-  },
+      active: true
+    }
+  }
 });
 
 const reducers = combineReducers({
   keplerGl: customizedKeplerGlReducer,
-  root: rootReducer,
+  root: rootReducer
 });
 
-const store = createStore(
-  reducers,
-  {},
-  applyMiddleware(taskMiddleware, keplerLanguageMiddleware)
-);
+const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, logger]);
+const store = createStore(reducers, {}, applyMiddleware(...middlewares));
 export default store;

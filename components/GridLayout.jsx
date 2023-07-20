@@ -6,7 +6,7 @@ import ChatGpt from './ChatGpt';
 import ReactTable from './ReactTable';
 import NivoPlot from './NivoPlot';
 import ToolBar from './ToolBar';
-// import JsGeoda from './JsGeoda'
+//import JsGeoda from './JsGeoda';
 
 const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
@@ -21,8 +21,6 @@ const layout = [
 ];
 
 const GridLayout = () => {
-  // For debugging redux state
-
   // File data from Redux store
   const data = useSelector(state => state.root.file.fileData); // TODO: Call data from redux store from within the grid components instead of here
 
