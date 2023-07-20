@@ -49,7 +49,7 @@ const FileHandler = () => {
   };
 
 
-  // Now handle the actual file upload
+  // Now handle the actual file upload. TODO: Shapefile geometry looks weird in the react table
   const onDrop = useCallback(async (acceptedFiles) => {
     const shpFiles = acceptedFiles.reduce((acc, file) => {
       const ext = getFileExtension(file.name);
