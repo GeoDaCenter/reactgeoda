@@ -4,6 +4,7 @@ import { addDataToMap } from "kepler.gl/actions";
 import { useDispatch } from "react-redux";
 import { ReactReduxContext } from "react-redux";
 
+// TODO: Map is not reloading when new data inputted.
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 const KeplerMap = ({ data, width, height }) => {
