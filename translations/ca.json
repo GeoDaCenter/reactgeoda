@@ -3,5 +3,14 @@
     "fileUpload.dragDropClick": "Arrossega i deixa anar fitxers csv, geojson o json aquí, o fes clic per seleccionar fitxers",
     "chatGpt.initialMessage": "Hola, sóc el ChatGPT! Pregunta'm qualsevol cosa!",
     "chatGpt.isTyping": "ChatGPT està escrivint",
-    "chatGpt.inputPlaceholder": "Escriu el missatge aquí"
+    "chatGpt.inputPlaceholder": "Escriu el missatge aquí",
+    "toolbar.title": "Barra d'eines",
+    "toolbar.plotType": "Tipus de trama",
+    "toolbar.selectPlotType": "Seleccioneu el tipus de trama",
+    "toolbar.barPlot": "Diagrama de barres",
+    "toolbar.scatterPlot": "Diagrama de dispersió",
+    "toolbar.variable1": "Variable 1",
+    "toolbar.variable2": "Variable 2",
+    "toolbar.selectVariable": "Seleccioneu una variable",
+    "table.noData": "No hi ha dades disponibles"
 }

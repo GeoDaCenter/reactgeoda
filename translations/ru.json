@@ -3,5 +3,14 @@
     "fileUpload.dragDropClick": "Перетащите сюда csv, geojson или json файлы, или нажмите, чтобы выбрать файлы",
     "chatGpt.initialMessage": "Привет, я ChatGPT! Спроси меня о чем угодно!",
     "chatGpt.isTyping": "ChatGPT печатает",
-    "chatGpt.inputPlaceholder": "Введите сообщение здесь"
+    "chatGpt.inputPlaceholder": "Введите сообщение здесь",
+    "toolbar.title": "Панель инструментов",
+    "toolbar.plotType": "Тип графика",
+    "toolbar.selectPlotType": "Выберите тип графика",
+    "toolbar.barPlot": "Гистограмма",
+    "toolbar.scatterPlot": "Диаграмма рассеяния",
+    "toolbar.variable1": "Переменная 1",
+    "toolbar.variable2": "Переменная 2",
+    "toolbar.selectVariable": "Выберите переменную",
+    "table.noData": "Данные недоступны"
 }
