@@ -14,37 +14,58 @@ const NivoPlot = () => {
   let formattedData;
   switch (plotType) {
     case 'scatter':
-      formattedData = data.map(item => ({
-        id: item[selectedVariables[0]],
-        data: [{x: parseFloat(item[selectedVariables[0]]), y: parseFloat(item[selectedVariables[1]])}]
-      }));
+      let scatterFormattedData = [];
+      if (data && data.rows && data.fields && selectedVariables.length >= 2) {
+        const variableIndices = selectedVariables.map(variable => 
+          data.fields.findIndex(field => field.name === variable)
+        );
+
+        scatterFormattedData = data.rows.map(item => ({
+          id: item[variableIndices[0]],
+          data: [{x: item[variableIndices[0]], y: parseFloat(item[variableIndices[1]])}]
+        }));
+      }
+
       return (
         <DynamicResponsiveScatterPlot
-          data={formattedData}
+          data={scatterFormattedData}
           xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
           yScale={{ type: 'linear', min: 'auto', max: 'auto' }}
-          axisBottom={{ legend: selectedVariables[1] }}
-          axisLeft={{ legend: selectedVariables[2] }}
+          axisBottom={{ legend: selectedVariables[0] }}
+          axisLeft={{ legend: selectedVariables[1] }}
           animate
         />
       );
     case 'bar':
     default:
-      formattedData = data.map(item => ({
-        [selectedVariables[0]]: item[selectedVariables[0]],
-        [selectedVariables[1]]: parseFloat(item[selectedVariables[1]])
-      }));
-      return (
-        <DynamicResponsiveBar
-          data={formattedData}
-          keys={[selectedVariables[1]]}
-          indexBy={selectedVariables[0]}
-          margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-          padding={0.3}
-          groupMode="stacked"
-        />
-      );
+      let barFormattedData = [];
+      if (data && data.rows && data.fields && selectedVariables.length >= 2) {
+        const variableIndices = selectedVariables.map(variable => 
+          data.fields.findIndex(field => field.name === variable)
+        );
+
+        barFormattedData = data.rows.map(item => ({
+          [selectedVariables[0]]: item[variableIndices[0]],
+          [selectedVariables[1]]: parseFloat(item[variableIndices[1]])
+        }));
+      }
+
+      if (barFormattedData.length > 0) {
+        return (
+          <DynamicResponsiveBar
+            data={barFormattedData}
+            keys={[selectedVariables[1]]}
+            indexBy={selectedVariables[0]}
+            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+            padding={0.3}
+            groupMode="stacked"
+          />
+        );
+      }
+      break;
   }
+
+  return null;
 };
 
 export default NivoPlot;
