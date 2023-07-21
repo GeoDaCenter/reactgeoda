@@ -3,5 +3,14 @@
     "fileUpload.dragDropClick": "ここにcsv、geojson、またはjsonファイルをドラッグアンドドロップするか、クリックしてファイルを選択します",
     "chatGpt.initialMessage": "こんにちは、ChatGPTです！何でも聞いてください！",
     "chatGpt.isTyping": "ChatGPTが入力中",
-    "chatGpt.inputPlaceholder": "ここにメッセージを入力"
+    "chatGpt.inputPlaceholder": "ここにメッセージを入力",
+    "toolbar.title": "ツールバー",
+    "toolbar.plotType": "プロットタイプ",
+    "toolbar.selectPlotType": "プロットタイプを選択",
+    "toolbar.barPlot": "バープロット",
+    "toolbar.scatterPlot": "スキャッタープロット",
+    "toolbar.variable1": "変数1",
+    "toolbar.variable2": "変数2",
+    "toolbar.selectVariable": "変数を選択",
+    "table.noData": "利用可能なデータがありません"
 }
