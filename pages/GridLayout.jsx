@@ -1,4 +1,5 @@
-import React from "react";
+import React from 'react';
+import { useSelector } from 'react-redux';
 import RGL, { WidthProvider } from "react-grid-layout";
 import dynamic from "next/dynamic";
 import ChatGpt from './ChatGpt';
@@ -8,20 +9,26 @@ import NivoPlot from './NivoPlot';
 import EChartsPlot from './EChartsPlot';
 
 const KeplerMap = dynamic(() => import("./KeplerMap"), { ssr: false });
-
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
-  { i: "a", x: 0, y: 0, w: 4, h: 21, static: true }, // Kepler Map
-  { i: "b", x: 10, y: 13, w: 5, h: 8 }, // ChatGPT
-  { i: "c", x: 14, y: 0, w: 5, h: 15 }, // react table
+  { i: "a", x: 0, y: 0, w: 7, h: 21, static: true }, // Kepler Map
+  { i: "b", x: 10, y: 0, w: 5, h: 8 }, // ChatGPT
+  { i: "c", x: 14, y: 12, w: 5, h: 17 }, // react table
   { i: "d", x: 0, y: 21, w: 3, h: 13, static: true }, // Ag Grid
   { i: "e", x: 14, y: 14, w: 7, h: 10 }, // Nivo Plot
   { i: "f", x: 10, y: 14, w: 5, h: 10 }, // Apache ECharts Plot
 ];
 
-const GridLayout = ({ data }) => {
+const GridLayout = () => {
+  // For debugging redux state
+  //const state = useSelector(state => state);
+  //console.log(state); // Log the entire state to console
 
+  // File data from Redux store
+  const data = useSelector(state => state.root.file.fileData);
+
+  
   // Set Kepler Map size
   const [mapDimensions, setMapDimensions] = React.useState({
     width: 800,    // window.innnerWidth
@@ -62,5 +69,3 @@ const GridLayout = ({ data }) => {
 };
 
 export default GridLayout;
-
-

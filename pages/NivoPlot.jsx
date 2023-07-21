@@ -4,8 +4,6 @@ import dynamic from 'next/dynamic';
 const DynamicResponsiveBar = dynamic(() => import('@nivo/bar').then((mod) => mod.ResponsiveBar), { ssr: false });
 
 
-
-
 const NivoPlot = ({ data }) => {
     const formattedData = data.map(item => ({
         iata: item.iata,

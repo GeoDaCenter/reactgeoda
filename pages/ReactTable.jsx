@@ -2,11 +2,16 @@ import React from 'react';
 import { useTable } from 'react-table';
 
 const ReactTable = ({ data }) => {
+
   // Check if data is available
   if (!data || data.length === 0) return <p>No data available</p>;
 
-  // Prepare columns from data keys
-  const columns = Object.keys(data[0]).map(key => ({ Header: key, accessor: key }));
+  // For some reason, the loaded data renders repeatedly for react-table so i memoize the data
+  const memoData = React.useMemo(() => data, [data]);
+  const memoColumns = React.useMemo(() => 
+    Object.keys(data[0]).map(key => ({ Header: key, accessor: key })), 
+    [data]
+  );
 
   // Create an instance of the table
   const {
@@ -15,9 +20,9 @@ const ReactTable = ({ data }) => {
     headerGroups,
     rows,
     prepareRow,
-  } = useTable({ columns, data });
+  } = useTable({ columns: memoColumns, data: memoData });
 
-  // Render the UI for your table
+  // Render the UI
   return (
     <table {...getTableProps()} style={{ width: '100%' }}>
       <thead>

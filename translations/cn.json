@@ -1,0 +1,7 @@
+{
+    "fileUpload.dropHere": "在此处放下文件...",
+    "fileUpload.dragDropClick": "在此处拖放csv、geojson或json文件，或点击选择文件",
+    "chatGpt.initialMessage": "你好，我是ChatGPT！向我提问！",
+    "chatGpt.isTyping": "ChatGPT正在输入",
+    "chatGpt.inputPlaceholder": "在此输入消息"
+}
