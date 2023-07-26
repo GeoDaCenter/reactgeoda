@@ -1,69 +1,112 @@
-import React, {useState, useEffect} from 'react';
-import {useSelector} from 'react-redux';
-import {GeoJsonLayer} from '@deck.gl/layers';
-import {StaticMap} from 'react-map-gl';
-import colorbrewer from 'colorbrewer';
+import React, {useEffect} from 'react';
+import {useDispatch} from 'react-redux';
+import {addDataToMap} from 'kepler.gl/actions';
+import KeplerGl from 'kepler.gl';
 import jsgeoda from 'jsgeoda';
-import DeckGL from '@deck.gl/react';
+import colorbrewer from 'colorbrewer';
+import {processRowObject, processGeojson} from 'kepler.gl/dist/processors';
+import {color} from 'echarts';
+import {layerVisualChannelChange} from 'kepler.gl/actions';
+import {findDefaultColorField} from 'kepler.gl/dist/utils';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+const DATA_URL = 'https://webgeoda.github.io/data/natregimes.geojson';
+const mapId = 'geoda_map';
 
-const INITIAL_VIEW_STATE = {
-  longitude: -100.4,
-  latitude: 38.74,
-  zoom: 2.5,
-  maxZoom: 20
+const getFillColor = (hr60, breaks) => {
+  for (let i = 1; i < breaks.length; ++i) {
+    if (hr60 < breaks[i]) {
+      return i;
+    }
+  }
+  return breaks.length - 1;
 };
 
-const JsGeoda = () => {
-  const [layer, setLayer] = useState(null);
-  const fileData = useSelector(state => state.root.file.fileData);
+const KeplerGeoda = () => {
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const loadSpatialData = async geoda => {
-      const nat = geoda.readGeoJSON(fileData);
-      const hr60 = geoda.getCol(nat, 'HR60');
-      const cb = geoda.customBreaks(nat, 'natural_breaks', hr60, 5);
-
-      const newLayer = new GeoJsonLayer({
-        id: 'GeoJsonLayer',
-        data: fileData,
-        filled: true,
-        getFillColor: f => getFillColor(f, cb.breaks),
-        stroked: true,
-        pickable: true
-      });
-
-      setLayer(newLayer);
-    };
-
-    const getFillColor = (f, breaks) => {
-      for (let i = 1; i < breaks.length; ++i) {
-        if (f.properties.HR60 < breaks[i]) {
-          return colorbrewer.YlOrBr[breaks.length - 1][i - 1]
-            .match(/[0-9a-f]{2}/g)
-            .map(x => parseInt(x, 16));
-        }
-      }
-    };
-
     jsgeoda.New().then(geoda => {
-      loadSpatialData(geoda);
+      fetch(DATA_URL)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+          const nat = geoda.read_geojson(buffer);
+          const hr60 = geoda.get_col(nat, 'HR60');
+          const cb = geoda.custom_breaks(nat, 'natural_breaks', hr60, 5);
+
+          const jsonData = JSON.parse(new TextDecoder().decode(buffer));
+          jsonData.features.forEach((feature, i) => {
+            feature.properties.color = getFillColor(hr60[i], cb.breaks);
+          });
+
+          const geoDataProcessed = processGeojson(jsonData);
+          let fields = [...geoDataProcessed.fields];
+          fields.push({name: 'color', format: '', type: 'integer'});
+          const rows = geoDataProcessed.rows.map((row, i) => {
+            return [...row, getFillColor(hr60[i], cb.breaks)];
+          });
+
+          const dataset = {
+            data: {
+              fields: fields,
+              rows: rows
+            },
+            info: {id: 'choro_data', label: 'choro data'}
+          };
+
+          const config = {
+            version: 'v1',
+            config: {
+              visState: {
+                filters: [],
+                layers: [
+                  {
+                    type: 'geojson',
+                    config: {
+                      dataId: 'choro_data',
+                      label: 'choro data',
+                      columns: {
+                        geojson: '_geojson'
+                      },
+                      color: [119, 110, 87, 255],
+                      isVisible: true,
+                      visConfig: {
+                        colorDomain: [0, cb.breaks.length - 1],
+                        colorRange: {
+                          colors: colorbrewer.YlOrBr[cb.breaks.length - 1].map(color =>
+                            color.match(/[0-9a-f]{2}/g).map(x => parseInt(x, 16))
+                          )
+                        }
+                      },
+                      visualChannels: {
+                        colorField: {
+                          name: 'color',
+                          type: 'integer'
+                        },
+                        colorScale: 'quantile',
+                        sizeField: null,
+                        sizeScale: 'linear'
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          };
+          dispatch(addDataToMap({datasets: [dataset], config: config}));
+        });
     });
-  }, [fileData]);
+  }, [dispatch]);
 
   return (
-    <div>
-      <DeckGL
-        initialViewState={INITIAL_VIEW_STATE}
-        layers={[layer]}
-        controller={true}
-        getTooltip={({object}) => object && `${object.properties.NAME}: ${object.properties.HR60}`}
-      >
-        <StaticMap mapboxApiAccessToken={MAPBOX_TOKEN} />
-      </DeckGL>
-    </div>
+    <KeplerGl
+      id={mapId}
+      mapboxApiAccessToken={MAPBOX_TOKEN}
+      width={800}
+      height={800}
+      onDataError={e => console.error(e)}
+    />
   );
 };
 
-export default JsGeoda;
+export default KeplerGeoda;

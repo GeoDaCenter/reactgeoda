@@ -6,18 +6,18 @@ import ChatGpt from './ChatGpt';
 import ReactTable from './ReactTable';
 import NivoPlot from './NivoPlot';
 import ToolBar from './ToolBar';
-//import JsGeoda from './JsGeoda';
 
+const ChoroplethMap = dynamic(() => import('./JsGeoda'), {ssr: false});
 const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
-  {i: 'kepler', x: 0, y: 0, w: 7, h: 21, static: true}, // Kepler Map
+  {i: 'kepler', x: 0, y: 0, w: 7, h: 8, static: true}, // Kepler Map
   {i: 'toolbar', x: 10, y: 0, w: 5, h: 5, static: true}, // Toolbar
-  {i: 'table', x: 14, y: 12, w: 5, h: 17}, // react table
-  {i: 'nivoplot', x: 0, y: 14, w: 7, h: 10}, // Nivo Plot
+  {i: 'table', x: 14, y: 12, w: 5, h: 14}, // react table
+  {i: 'nivoplot', x: 10, y: 14, w: 7, h: 10}, // Nivo Plot
   {i: 'chatgpt', x: 10, y: 14, w: 5, h: 8}, // ChatGPT
-  {i: 'jsgeoda', x: 10, y: 14, w: 5, h: 8} // JSGEODA test
+  {i: 'jsgeoda', x: 0, y: 21, w: 5, h: 8, static: true} // JSGEODA test
 ];
 
 const GridLayout = () => {
@@ -47,7 +47,9 @@ const GridLayout = () => {
       <div key="chatgpt">
         <ChatGpt data={data} />
       </div>
-      <div key="jsgeoda">h</div>
+      <div key="jsgeoda">
+        <ChoroplethMap />
+      </div>
     </ReactGridLayout>
   );
 };

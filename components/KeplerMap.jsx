@@ -1,16 +1,15 @@
 import React, {useEffect} from 'react';
+import {connect} from 'react-redux';
 import KeplerGl from 'kepler.gl';
-import {addDataToMap} from 'kepler.gl/actions';
-import {useDispatch} from 'react-redux';
-import {ReactReduxContext} from 'react-redux';
+import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 
-// TODO: Map is not reloading when new data inputted.
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+const mapId = 'kepler_map';
 
-const KeplerMap = ({data, width, height}) => {
-  const dispatch = useDispatch();
-
+const KeplerMap = ({data, width, height, dispatch}) => {
+  const keplerGlDispatch = forwardTo(mapId, dispatch);
   useEffect(() => {
+    console.log('Running KeplerMap useEffect', data, keplerGlDispatch);
     if (data && data.fields && data.rows) {
       const fields = data.fields.map(field => ({
         name: field.name,
@@ -19,29 +18,22 @@ const KeplerMap = ({data, width, height}) => {
         id: field.id
       }));
 
-      // No need to convert rows anymore, should be in the correct format
       const rows = data.rows;
 
       const dataset = {
         info: {id: 'my_data', label: 'my data'},
         data: {fields, rows}
       };
-      dispatch(addDataToMap({datasets: dataset}));
+      keplerGlDispatch(addDataToMap({datasets: dataset}));
+      console.log(dataset);
     }
-  }, [data, dispatch]);
+  }, [data, keplerGlDispatch]);
 
-  return (
-    <ReactReduxContext.Consumer>
-      {({store}) => (
-        <KeplerGl
-          id="map"
-          width={width}
-          mapboxApiAccessToken={MAPBOX_TOKEN}
-          height={height}
-          store={store}
-        />
-      )}
-    </ReactReduxContext.Consumer>
-  );
+  return <KeplerGl id={mapId} width={width} mapboxApiAccessToken={MAPBOX_TOKEN} height={height} />;
 };
-export default KeplerMap;
+
+const mapStateToProps = state => ({
+  data: state.root.file.fileData
+});
+
+export default connect(mapStateToProps)(KeplerMap);
