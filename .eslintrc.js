@@ -1,10 +1,10 @@
 module.exports = {
-  plugins: ['eslint-plugin-prettier'],
+  plugins: ['eslint-plugin-prettier', 'react'],
   env: {
-    es6: true
+    es6: true,
+    node: true
   },
   extends: [
-    'next/core-web-vitals',
     'eslint:recommended',
     'plugin:eslint-comments/recommended',
     'plugin:css/recommended',
@@ -13,5 +13,13 @@ module.exports = {
   ],
   rules: {
     'prettier/prettier': 'error'
+  },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true
+    },
+    ecmaVersion: 12,
+    sourceType: 'module'
   }
 };

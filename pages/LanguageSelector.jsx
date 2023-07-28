@@ -1,12 +1,12 @@
-import { useDispatch, useSelector } from "react-redux";
-import { setLanguage } from "../actions";
+import {useDispatch, useSelector} from 'react-redux';
+import {setLanguage} from '../actions';
 
 const LanguageSelector = () => {
   const dispatch = useDispatch();
   const language = useSelector(state => state.root.language);
   console.log(language);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     dispatch(setLanguage(e.target.value));
   };
 
