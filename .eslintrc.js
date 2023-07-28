@@ -1,5 +1,5 @@
 module.exports = {
-  plugins: ['eslint-plugin-prettier', 'react'],
+  plugins: ['eslint-plugin-prettier', 'react', 'react-hooks'],
   env: {
     es6: true,
     node: true
@@ -12,7 +12,8 @@ module.exports = {
     'prettier'
   ],
   rules: {
-    'prettier/prettier': 'error'
+    'prettier/prettier': 'error',
+    'react-hooks/exhaustive-deps': 'error'
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
