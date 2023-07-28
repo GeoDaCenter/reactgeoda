@@ -1,5 +1,8 @@
 module.exports = {
   plugins: ['eslint-plugin-prettier'],
+  env: {
+    es6: true
+  },
   extends: [
     'next/core-web-vitals',
     'eslint:recommended',
