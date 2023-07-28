@@ -1,12 +1,19 @@
-import { SET_SELECTED_VARIABLES } from '../actions';
+import {SET_SELECTED_GRAPH_VARIABLES, SET_SELECTED_CHOROPLETH_VARIABLE} from '../actions';
 
-const selectedVariablesReducer = (state = [], action) => {
+export const selectedGraphVariablesReducer = (state = [], action) => {
   switch (action.type) {
-    case SET_SELECTED_VARIABLES:
+    case SET_SELECTED_GRAPH_VARIABLES:
       return action.payload;
     default:
       return state;
   }
 };
 
-export default selectedVariablesReducer;
+export const selectedChoroplethVariableReducer = (state = '', action) => {
+  switch (action.type) {
+    case SET_SELECTED_CHOROPLETH_VARIABLE:
+      return action.payload;
+    default:
+      return state;
+  }
+};
