@@ -1,9 +1,12 @@
 import React from 'react';
 import {useTable} from 'react-table';
 import {FormattedMessage} from 'react-intl';
+import {useSelector} from 'react-redux';
 
-const ReactTable = ({data}) => {
+const ReactTable = () => {
   // Prepare data for the table
+  const data = useSelector(state => state.root.file.fileData);
+
   const memoData = React.useMemo(() => (data && data.rows ? data.rows : []), [data]);
   const memoColumns = React.useMemo(
     () =>

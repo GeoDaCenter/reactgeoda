@@ -2,11 +2,34 @@ import React from 'react';
 import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import {useSelector} from 'react-redux';
 
-const AgGrid = ({data}) => {
-  // Check if data exists and it is an array with at least one object
+const AgGrid = () => {
+  const data = useSelector(state => state.root.file.fileData);
+
+  // Check if data and data.fields exist before mapping
+  // TODO: Fix issue where first row shows [object, object] instead of actual variable names
   const columnDefs =
-    data && data.length > 0 ? Object.keys(data[0]).map(key => ({headerName: key, field: key})) : [];
+    data && data.fields
+      ? data.fields
+          .filter(field => field.type !== 'geojson') // filter out geojson
+          .map((field, index) => ({
+            headerName: field.name,
+            field: index.toString(), // Use the index as the field value
+            type: field.type === 'integer' ? 'numericColumn' : undefined // set type only for integer fields
+          }))
+      : [];
+
+  // Transform rows from array to object
+  const rowData =
+    data && data.rows
+      ? data.rows.map(row =>
+          row.reduce((obj, value, index) => {
+            obj[index] = value;
+            return obj;
+          }, {})
+        )
+      : [];
 
   return (
     <div
@@ -16,7 +39,7 @@ const AgGrid = ({data}) => {
         width: '600px'
       }}
     >
-      <AgGridReact columnDefs={columnDefs} rowData={data}></AgGridReact>
+      <AgGridReact rowData={rowData} columnDefs={columnDefs}></AgGridReact>
     </div>
   );
 };

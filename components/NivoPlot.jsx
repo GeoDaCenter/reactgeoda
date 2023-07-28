@@ -12,12 +12,12 @@ const DynamicResponsiveScatterPlot = dynamic(
 
 const NivoPlot = () => {
   const data = useSelector(state => state.root.file.fileData);
-  const selectedVariables = useSelector(state => state.root.selectedVariable);
+  const selectedGraphVariables = useSelector(state => state.root.selectedGraphVariables);
   const plotType = useSelector(state => state.root.plotType);
 
-  if (!data || !data.rows || !data.fields || selectedVariables.length < 2) return null;
+  if (!data || !data.rows || !data.fields || selectedGraphVariables.length < 2) return null;
 
-  const variableIndices = selectedVariables.map(variable =>
+  const variableIndices = selectedGraphVariables.map(variable =>
     data.fields.findIndex(field => field.name === variable)
   );
 
@@ -35,23 +35,23 @@ const NivoPlot = () => {
           data={scatterFormattedData}
           xScale={{type: 'linear', min: 'auto', max: 'auto'}}
           yScale={{type: 'linear', min: 'auto', max: 'auto'}}
-          axisBottom={{legend: selectedVariables[0]}}
-          axisLeft={{legend: selectedVariables[1]}}
+          axisBottom={{legend: selectedGraphVariables[0]}}
+          axisLeft={{legend: selectedGraphVariables[1]}}
           animate
         />
       );
     case 'bar':
       barFormattedData = data.rows.map(item => ({
-        [selectedVariables[0]]: item[variableIndices[0]],
-        [selectedVariables[1]]: parseFloat(item[variableIndices[1]])
+        [selectedGraphVariables[0]]: item[variableIndices[0]],
+        [selectedGraphVariables[1]]: parseFloat(item[variableIndices[1]])
       }));
 
       if (barFormattedData.length > 0) {
         return (
           <DynamicResponsiveBar
             data={barFormattedData}
-            keys={[selectedVariables[1]]}
-            indexBy={selectedVariables[0]}
+            keys={[selectedGraphVariables[1]]}
+            indexBy={selectedGraphVariables[0]}
             margin={{top: 50, right: 130, bottom: 50, left: 60}}
             padding={0.3}
             groupMode="stacked"

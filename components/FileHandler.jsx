@@ -7,7 +7,7 @@ import {CSVLoader} from '@loaders.gl/csv';
 import {JSONLoader} from '@loaders.gl/json';
 import {GeoJSONLoader} from '@loaders.gl/gis';
 import {FormattedMessage} from 'react-intl';
-import {setFileData} from '../actions/fileActions';
+import {setFileData, setRawFileData} from '../actions/fileActions';
 import {processRowObject, processGeojson} from 'kepler.gl/dist/processors';
 
 const FileHandler = () => {
@@ -15,7 +15,6 @@ const FileHandler = () => {
 
   const getFileExtension = fileName => fileName.split('.').pop().toLowerCase();
 
-  // Process the different spatial files
   const processShapeFiles = async shpFiles => {
     if (!shpFiles.has('shp') || !shpFiles.has('dbf')) {
       alert('Missing required Shapefile files (shp, dbf)');
@@ -41,15 +40,16 @@ const FileHandler = () => {
     return processRowObject(data);
   };
 
-  // Delete?
-  const processJSONFile = async file => await parse(file, JSONLoader);
+  const processJSONFile = async file => {
+    const data = await parse(file, JSONLoader);
+    return data; // Delete?
+  };
 
   const processGeoJSONFile = async file => {
     const data = await parse(file, GeoJSONLoader);
     return processGeojson(data);
   };
 
-  // Now handle the actual file upload. TODO: Shapefile geometry looks weird in the react table
   const onDrop = useCallback(
     async acceptedFiles => {
       const shpFiles = acceptedFiles.reduce((acc, file) => {
@@ -58,8 +58,8 @@ const FileHandler = () => {
         return acc;
       }, new Map());
 
-      // Handle the different data formats that are not shapefiles
       let data;
+      let rawData;
       if (shpFiles.size > 0) data = await processShapeFiles(shpFiles);
       else {
         const file = acceptedFiles[0];
@@ -67,12 +67,15 @@ const FileHandler = () => {
         switch (ext) {
           case 'csv':
             data = await processCSVFile(file);
+            rawData = await parse(file, CSVLoader);
             break;
           case 'json':
             data = await processJSONFile(file);
+            rawData = await parse(file, JSONLoader);
             break;
           case 'geojson':
             data = await processGeoJSONFile(file);
+            rawData = await parse(file, GeoJSONLoader);
             break;
           default:
             alert('Unsupported file format');
@@ -80,6 +83,7 @@ const FileHandler = () => {
         }
       }
       dispatch(setFileData(data));
+      dispatch(setRawFileData(rawData));
     },
     [dispatch]
   );

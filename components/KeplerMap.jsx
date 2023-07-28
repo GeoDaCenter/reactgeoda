@@ -1,15 +1,15 @@
 import React, {useEffect} from 'react';
-import {connect} from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import KeplerGl from 'kepler.gl';
 import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const mapId = 'kepler_map';
 
-const KeplerMap = ({data, width, height, dispatch}) => {
+const KeplerMap = ({dispatch}) => {
   const keplerGlDispatch = forwardTo(mapId, dispatch);
+  const data = useSelector(state => state.root.file.fileData);
   useEffect(() => {
-    console.log('Running KeplerMap useEffect', data, keplerGlDispatch);
     if (data && data.fields && data.rows) {
       const fields = data.fields.map(field => ({
         name: field.name,
@@ -25,11 +25,10 @@ const KeplerMap = ({data, width, height, dispatch}) => {
         data: {fields, rows}
       };
       keplerGlDispatch(addDataToMap({datasets: dataset}));
-      console.log(dataset);
     }
   }, [data, keplerGlDispatch]);
 
-  return <KeplerGl id={mapId} width={width} mapboxApiAccessToken={MAPBOX_TOKEN} height={height} />;
+  return <KeplerGl id={mapId} width={700} mapboxApiAccessToken={MAPBOX_TOKEN} height={700} />;
 };
 
 const mapStateToProps = state => ({
