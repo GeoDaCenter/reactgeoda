@@ -156,6 +156,18 @@ const Toolbar = () => {
               <option value="quantile_breaks">
                 {intl.formatMessage({id: 'toolbar.quantileBreaks'})}
               </option>
+              <option value="percentile_breaks">
+                {intl.formatMessage({id: 'toolbar.percentileBreaks'})}
+              </option>
+              <option value="hinge15_breaks">
+                {intl.formatMessage({id: 'toolbar.hinge15Breaks'})}
+              </option>
+              <option value="hinge30_breaks">
+                {intl.formatMessage({id: 'toolbar.hinge30Breaks'})}
+              </option>
+              <option value="stddev_breaks">
+                {intl.formatMessage({id: 'toolbar.standardDeviationBreaks'})}
+              </option>
             </select>
           </div>
           <div style={styles.row}>
