@@ -103,7 +103,7 @@ const ChoroplethMap = () => {
     };
 
     fetchDataAndSetLayer();
-  }, [choroplethMethod, numberOfBreaks, selectedChoroplethVariable]);
+  }, [choroplethMethod, data, numberOfBreaks, selectedChoroplethVariable]);
 
   useEffect(() => {
     if (layer && cb) {
@@ -135,7 +135,7 @@ const ChoroplethMap = () => {
         )
       );
     }
-  }, [layer, layers, cb, jenksIdx]);
+  }, [layer, layers, cb, jenksIdx, rowContainer]);
 
   return <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />;
 };

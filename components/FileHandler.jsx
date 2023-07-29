@@ -17,7 +17,8 @@ const FileHandler = () => {
 
   const processShapeFiles = async shpFiles => {
     if (!shpFiles.has('shp') || !shpFiles.has('dbf')) {
-      alert('Missing required Shapefile files (shp, dbf)');
+      // TODO: @justin-kleid replace it with a React message box
+      console.error('Missing required Shapefile files (shp, dbf)');
       return;
     }
     const fileSystem = new BrowserFileSystem(Array.from(shpFiles.values()));
@@ -78,7 +79,8 @@ const FileHandler = () => {
             rawData = await parse(file, GeoJSONLoader);
             break;
           default:
-            alert('Unsupported file format');
+            // TODO: @justin-kleid replace it with a React message box
+            console.log('Unsupported file format');
             return;
         }
       }
