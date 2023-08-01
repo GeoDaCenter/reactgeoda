@@ -1,5 +1,5 @@
-import { SET_LANGUAGE } from '../actions/languageActions';
-import { ActionTypes } from 'kepler.gl/actions';
+import {SET_LANGUAGE} from '../actions/languageActions';
+import {ActionTypes} from 'kepler.gl/actions';
 
 const keplerLanguageMiddleware = store => next => action => {
   const result = next(action);
@@ -8,7 +8,7 @@ const keplerLanguageMiddleware = store => next => action => {
     const language = store.getState().root.language;
     store.dispatch({
       type: ActionTypes.SET_LOCALE,
-      payload: { locale: language }
+      payload: {locale: language}
     });
   }
 

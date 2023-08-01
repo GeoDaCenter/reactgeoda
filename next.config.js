@@ -2,7 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'export'
+  output: 'export',
+  entry: './pages/map.js',
+  webpack: config => {
+    config.optimization.splitChunks = false;
+    return config;
+  }
 };
 
 module.exports = nextConfig;

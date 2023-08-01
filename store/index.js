@@ -1,14 +1,9 @@
-import keplerGlReducer, {uiStateUpdaters} from 'kepler.gl/reducers';
-import {
-  legacy_createStore as createStore,
-  combineReducers,
-  applyMiddleware,
-  legacy_createStore
-} from 'redux';
+import keplerGlReducer from 'kepler.gl/reducers';
+import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {enhanceReduxMiddleware} from 'kepler.gl/middleware';
 import rootReducer from '../reducers/index';
 import keplerLanguageMiddleware from './keplerLanguageMiddleware';
-import logger, {createLogger} from 'redux-logger';
+import {createLogger} from 'redux-logger';
 
 // Customize logger
 const loggerMiddleware = createLogger({

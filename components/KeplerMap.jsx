@@ -2,11 +2,13 @@ import React, {useEffect} from 'react';
 import {connect, useSelector} from 'react-redux';
 import KeplerGl from 'kepler.gl';
 import {addDataToMap, forwardTo} from 'kepler.gl/actions';
+import {processGeojson} from 'kepler.gl/processors';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const mapId = 'kepler_map';
 
-const KeplerMap = ({dispatch}) => {
+const KeplerMap = ({dispatch, geojsonUrl}) => {
+  console.log(geojsonUrl);
   const keplerGlDispatch = forwardTo(mapId, dispatch);
   const data = useSelector(state => state.root.file.fileData);
   useEffect(() => {
@@ -26,7 +28,19 @@ const KeplerMap = ({dispatch}) => {
       };
       keplerGlDispatch(addDataToMap({datasets: dataset}));
     }
-  }, [data, keplerGlDispatch]);
+    if (geojsonUrl) {
+      fetch(geojsonUrl)
+        .then(response => response.json())
+        .then(data => {
+          keplerGlDispatch(
+            addDataToMap({
+              datasets: {data: processGeojson(data)},
+              options: {centerMap: true, readOnly: true}
+            })
+          );
+        });
+    }
+  }, [data, geojsonUrl, keplerGlDispatch]);
 
   return <KeplerGl id={mapId} width={700} mapboxApiAccessToken={MAPBOX_TOKEN} height={700} />;
 };
