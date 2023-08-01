@@ -1,5 +1,4 @@
-// TODO: get shapefile rawdata working. Fix valueaccessor part
-import React, {useEffect, useState, useCallback, useRef} from 'react';
+import React, {useEffect, useCallback, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   addDataToMap,
@@ -14,33 +13,18 @@ import {processGeojson} from 'kepler.gl/dist/processors';
 import {maybeToDate} from 'kepler.gl/dist/utils';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-const mapId = 'choropleth_map';
+const mapId = 'local_moran_map';
 
-const ChoroplethMap = () => {
+const LocalMoranMap = () => {
   const dispatch = useDispatch();
   const keplerGlDispatch = forwardTo(mapId, dispatch);
   const keplerGlDispatchRef = useRef(keplerGlDispatch);
 
-  useEffect(() => {
-    keplerGlDispatchRef.current = keplerGlDispatch;
-  }, [keplerGlDispatch]);
-
-  const [cb, setCb] = useState(null);
-
-  const choroplethMethod = useSelector(state => state.root.choroplethMethod);
-  const numberOfBreaks = useSelector(state => state.root.numberOfBreaks);
-  const selectedChoroplethVariable = useSelector(state => state.root.selectedChoroplethVariable);
   const data = useSelector(state => state.root.file.rawFileData);
   const layers = useSelector(state => state.keplerGl[mapId]?.visState?.layers);
 
-  const jenksIdx = useSelector(state =>
-    state.keplerGl[mapId]?.visState?.datasets?.choro_data?.fields?.findIndex(
-      field => field.name === 'jenksCategory'
-    )
-  );
-
   const rowContainer = useSelector(
-    state => state.keplerGl[mapId]?.visState?.datasets?.choro_data?.dataContainer
+    state => state.keplerGl[mapId]?.visState?.datasets?.moran_data?.dataContainer
   );
 
   const layer = layers?.[layers.length - 1];
@@ -51,34 +35,17 @@ const ChoroplethMap = () => {
     const buffer = uint8Array.slice(0);
 
     const processedData = geoda.read_geojson(buffer);
+    const w = geoda.get_queen_weights(processedData);
+    const variableValues = geoda.get_column(processedData, 'variableName'); // replace 'variableName' with the name of the variable for which local Moran's I is calculated
 
-    if (typeof selectedChoroplethVariable !== 'string') {
-      console.error('selectedChoroplethVariable must be a string');
-      return;
-    }
-
-    const col = geoda.get_col(processedData, selectedChoroplethVariable);
-
-    if (!col) {
-      console.error('Invalid column selected');
-      return;
-    }
-
-    const breaks = await geoda.custom_breaks(processedData, choroplethMethod, col, numberOfBreaks);
-
-    if (!breaks || !breaks.breaks) {
-      console.error('Failed to calculate breaks');
-      return;
-    }
-
-    setCb(breaks);
+    const localMoranResults = geoda.local_moran(w, variableValues, 999, 'lookup', 0.05, 123456789);
 
     const jsonData = JSON.parse(new TextDecoder().decode(buffer));
     jsonData.features = jsonData.features.map((feature, i) => ({
       ...feature,
       properties: {
         ...feature.properties,
-        jenksCategory: `C${breaks.breaks.findIndex(b => col[i] < b)}`
+        clusterCategory: `C${localMoranResults.clusters[i]}`
       }
     }));
 
@@ -89,25 +56,23 @@ const ChoroplethMap = () => {
         fields: geoDataProcessed.fields,
         rows: geoDataProcessed.rows
       },
-      info: {id: 'choro_data', label: 'choro data'}
+      info: {id: 'moran_data', label: 'moran data'}
     };
 
     keplerGlDispatchRef.current(addDataToMap({datasets: [dataset]}));
-  }, [choroplethMethod, data, numberOfBreaks, selectedChoroplethVariable]);
+  }, [data]);
 
   useEffect(() => {
     fetchDataAndSetLayer();
   }, [fetchDataAndSetLayer]);
 
   useEffect(() => {
-    if (layer && cb) {
+    if (layer) {
       const colorRange = {
         category: 'custom',
         type: 'diverging',
         name: 'ColorBrewer RdBu-5',
-        colors: colorbrewer.YlOrBr[cb.breaks.length - 1].map(
-          color => `#${color.match(/[0-9a-f]{2}/g).join('')}`
-        )
+        colors: colorbrewer.YlOrBr[5]
       };
 
       keplerGlDispatchRef.current(layerVisConfigChange(layer, {colorRange}));
@@ -117,20 +82,17 @@ const ChoroplethMap = () => {
           layer,
           {
             colorField: {
-              name: 'jenksCategory',
-              type: 'string',
-              valueAccessor: function (values) {
-                return maybeToDate.bind(null, false, jenksIdx, '', rowContainer)(values);
-              }
+              name: 'clusterCategory',
+              type: 'string'
             }
           },
           'color'
         )
       );
     }
-  }, [layer, cb, jenksIdx, rowContainer]);
+  }, [layer]);
 
   return <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />;
 };
 
-export default ChoroplethMap;
+export default LocalMoranMap;
