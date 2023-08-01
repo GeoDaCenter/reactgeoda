@@ -8,14 +8,14 @@ import ChineseMessages from './cn.json';
 import RussianMessages from './ru.json';
 
 const MESSAGES = {
-  'en': EnglishMessages,
-  'fi': FinnishMessages,
-  'pt': PortugueseMessages,
-  'es': SpanishMessages,
-  'ca': CatalanMessages,
-  'ja': JapaneseMessages,
-  'cn': ChineseMessages,
-  'ru': RussianMessages
+  en: EnglishMessages,
+  fi: FinnishMessages,
+  pt: PortugueseMessages,
+  es: SpanishMessages,
+  ca: CatalanMessages,
+  ja: JapaneseMessages,
+  cn: ChineseMessages,
+  ru: RussianMessages
 };
 
 export default MESSAGES;

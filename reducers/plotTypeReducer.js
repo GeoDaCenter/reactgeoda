@@ -1,4 +1,4 @@
-import { SET_PLOT_TYPE } from '../actions';
+import {SET_PLOT_TYPE} from '../actions';
 
 const plotTypeReducer = (state = '', action) => {
   switch (action.type) {
