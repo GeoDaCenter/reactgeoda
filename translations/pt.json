@@ -23,5 +23,12 @@
   "toolbar.standardDeviationBreaks": "Intervalos de Desvio Padrão",
   "toolbar.numberOfBreaks": "Número de Intervalos",
   "toolbar.choroplethVariable": "Variável de Coropleta",
-  "toolbar.selectChoroplethVariable": "Selecione Variável de Coropleta"
+  "toolbar.selectChoroplethVariable": "Selecione Variável de Coropleta",
+  "toolbar.localMoranVariable": "Variável Local Moran",
+  "toolbar.selectLocalMoranVariable": "Selecionar Variável Local Moran",
+  "toolbar.localMoranWeights": "Pesos Locais Moran",
+  "toolbar.selectLocalMoranWeights": "Selecionar Pesos Locais Moran",
+  "toolbar.localMoranSignificance": "Significância Local Moran",
+  "toolbar.queenWeights": "Pesos da rainha",
+  "toolbar.rookWeights": "Pesos do rook"
 }

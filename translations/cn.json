@@ -23,5 +23,12 @@
   "toolbar.standardDeviationBreaks": "标准差断层",
   "toolbar.numberOfBreaks": "断层数量",
   "toolbar.choroplethVariable": "等值线变量",
-  "toolbar.selectChoroplethVariable": "选择等值线变量"
+  "toolbar.selectChoroplethVariable": "选择等值线变量",
+  "toolbar.localMoranVariable": "本地莫兰变量",
+  "toolbar.selectLocalMoranVariable": "选择本地莫兰变量",
+  "toolbar.localMoranWeights": "本地莫兰权重",
+  "toolbar.selectLocalMoranWeights": "选择本地莫兰权重",
+  "toolbar.localMoranSignificance": "本地莫兰显著性",
+  "toolbar.queenWeights": "皇后的权重",
+  "toolbar.rookWeights": "战车的权重"
 }

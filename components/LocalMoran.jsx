@@ -22,6 +22,14 @@ const LocalMoranMap = () => {
 
   const data = useSelector(state => state.root.file.rawFileData);
   const layers = useSelector(state => state.keplerGl[mapId]?.visState?.layers);
+  const selectedLocalMoranVariable = useSelector(state => state.root.selectedLocalMoranVariable);
+  const localMoranWeights = useSelector(state => state.root.localMoranWeights);
+  const localMoranSignificance = useSelector(state => state.root.localMoranSignificance);
+  const clusterIdx = useSelector(state =>
+    state.keplerGl[mapId]?.visState?.datasets?.moran_data?.fields?.findIndex(
+      field => field.name === 'clusterCategory'
+    )
+  );
 
   const rowContainer = useSelector(
     state => state.keplerGl[mapId]?.visState?.datasets?.moran_data?.dataContainer
@@ -34,11 +42,36 @@ const LocalMoranMap = () => {
     const uint8Array = new TextEncoder().encode(JSON.stringify(data));
     const buffer = uint8Array.slice(0);
 
-    const processedData = geoda.read_geojson(buffer);
-    const w = geoda.get_queen_weights(processedData);
-    const variableValues = geoda.get_column(processedData, 'variableName'); // replace 'variableName' with the name of the variable for which local Moran's I is calculated
+    const processedData = geoda.readGeoJSON(buffer);
 
-    const localMoranResults = geoda.local_moran(w, variableValues, 999, 'lookup', 0.05, 123456789);
+    let w;
+
+    if (localMoranWeights === 'queen') {
+      w = geoda.getQueenWeights(processedData);
+    } else if (localMoranWeights === 'rook') {
+      w = geoda.getRookWeights(processedData);
+    }
+
+    if (
+      typeof selectedLocalMoranVariable !== 'string' ||
+      !selectedLocalMoranVariable ||
+      !localMoranWeights
+    ) {
+      console.error('local moran vars not defined');
+      return;
+    }
+    const col = geoda.getCol(processedData, selectedLocalMoranVariable);
+    console.log(w);
+    console.log(col);
+
+    const localMoranResults = geoda.localMoran(
+      w,
+      col,
+      999,
+      'lookup',
+      localMoranSignificance,
+      123456789
+    );
 
     const jsonData = JSON.parse(new TextDecoder().decode(buffer));
     jsonData.features = jsonData.features.map((feature, i) => ({
@@ -60,7 +93,7 @@ const LocalMoranMap = () => {
     };
 
     keplerGlDispatchRef.current(addDataToMap({datasets: [dataset]}));
-  }, [data]);
+  }, [data, selectedLocalMoranVariable, localMoranWeights, localMoranSignificance]);
 
   useEffect(() => {
     fetchDataAndSetLayer();
@@ -83,14 +116,17 @@ const LocalMoranMap = () => {
           {
             colorField: {
               name: 'clusterCategory',
-              type: 'string'
+              type: 'string',
+              valueAccessor: function (values) {
+                return maybeToDate.bind(null, false, clusterIdx, '', rowContainer)(values);
+              }
             }
           },
           'color'
         )
       );
     }
-  }, [layer]);
+  }, [layer, layers, clusterIdx, rowContainer]);
 
   return <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />;
 };

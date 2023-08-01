@@ -23,5 +23,12 @@
   "toolbar.standardDeviationBreaks": "Keskihajonnan välit",
   "toolbar.numberOfBreaks": "Välien lukumäärä",
   "toolbar.choroplethVariable": "Karttamuuttuja",
-  "toolbar.selectChoroplethVariable": "Valitse karttamuuttuja"
+  "toolbar.selectChoroplethVariable": "Valitse karttamuuttuja",
+  "toolbar.localMoranVariable": "Paikallinen Moran-muuttuja",
+  "toolbar.selectLocalMoranVariable": "Valitse paikallinen Moran-muuttuja",
+  "toolbar.localMoranWeights": "Paikalliset Moran-painot",
+  "toolbar.selectLocalMoranWeights": "Valitse paikalliset Moran-painot",
+  "toolbar.localMoranSignificance": "Paikallisen Moranin merkitys",
+  "toolbar.queenWeights": "Kuningattaren painot",
+  "toolbar.rookWeights": "Tornin painot"
 }

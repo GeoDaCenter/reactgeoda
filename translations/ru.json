@@ -23,5 +23,12 @@
   "toolbar.standardDeviationBreaks": "Разрывы стандартного отклонения",
   "toolbar.numberOfBreaks": "Количество разрывов",
   "toolbar.choroplethVariable": "Хороплетная переменная",
-  "toolbar.selectChoroplethVariable": "Выберите Хороплетную переменную"
+  "toolbar.selectChoroplethVariable": "Выберите Хороплетную переменную",
+  "toolbar.localMoranVariable": "Локальная переменная Морана",
+  "toolbar.selectLocalMoranVariable": "Выбрать локальную переменную Морана",
+  "toolbar.localMoranWeights": "Локальные веса Морана",
+  "toolbar.selectLocalMoranWeights": "Выбрать локальные веса Морана",
+  "toolbar.localMoranSignificance": "Локальная значимость Морана",
+  "toolbar.queenWeights": "Веса королевы",
+  "toolbar.rookWeights": "Веса ладьи"
 }
