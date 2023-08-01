@@ -50,21 +50,22 @@ const ChoroplethMap = () => {
     const uint8Array = new TextEncoder().encode(JSON.stringify(data));
     const buffer = uint8Array.slice(0);
 
-    const processedData = geoda.read_geojson(buffer);
+    const processedData = geoda.readGeoJSON(buffer);
 
     if (typeof selectedChoroplethVariable !== 'string') {
       console.error('selectedChoroplethVariable must be a string');
       return;
     }
 
-    const col = geoda.get_col(processedData, selectedChoroplethVariable);
+    const col = geoda.getCol(processedData, selectedChoroplethVariable);
 
     if (!col) {
       console.error('Invalid column selected');
       return;
     }
 
-    const breaks = await geoda.custom_breaks(processedData, choroplethMethod, col, numberOfBreaks);
+    console.log(processedData);
+    const breaks = await geoda.customBreaks(choroplethMethod, col, numberOfBreaks);
 
     if (!breaks || !breaks.breaks) {
       console.error('Failed to calculate breaks');
