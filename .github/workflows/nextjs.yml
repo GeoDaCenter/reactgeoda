@@ -4,9 +4,15 @@ on:
   push:
     branches: ['main']
   pull_request:
+<<<<<<< HEAD
+=======
     branches: ['main']
-
-  # Allows you to run this workflow manually from the Actions tab
+    
+# Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:    
+pull_request:
+>>>>>>> 89bc34919d7b4c776992f485e43b53816cbb278e
+    branches: ['main']
   workflow_dispatch:
 
 permissions:
@@ -98,7 +104,7 @@ jobs:
           name: pages
           path: ./out
       - name: Deploy PR Preview
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: rossjrw/pr-preview-action@v1.4.4
         with:
           source-dir: out
           preview-branch: gh-pages
