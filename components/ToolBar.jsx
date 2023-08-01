@@ -171,11 +171,23 @@ const Toolbar = () => {
               onChange={handleChoroplethMethodChange}
             >
               <option value="">{intl.formatMessage({id: 'toolbar.selectChoroplethMethod'})}</option>
-              <option value="natural_breaks">
+              <option value="naturalBreaks">
                 {intl.formatMessage({id: 'toolbar.naturalBreaks'})}
               </option>
-              <option value="quantile_breaks">
+              <option value="quantileBreaks">
                 {intl.formatMessage({id: 'toolbar.quantileBreaks'})}
+              </option>
+              <option value="percentileBreaks">
+                {intl.formatMessage({id: 'toolbar.percentileBreaks'})}
+              </option>
+              <option value="hinge15Breaks">
+                {intl.formatMessage({id: 'toolbar.hinge15Breaks'})}
+              </option>
+              <option value="hinge30Breaks">
+                {intl.formatMessage({id: 'toolbar.hinge30Breaks'})}
+              </option>
+              <option value="standardDeviationBreaks">
+                {intl.formatMessage({id: 'toolbar.standardDeviationBreaks'})}
               </option>
             </select>
           </div>
