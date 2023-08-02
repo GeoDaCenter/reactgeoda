@@ -68,7 +68,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: pages
+          name: github-pages
           path: ./out
 
   deploy:
@@ -92,7 +92,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: pages
+          name: github-pages
           path: ./out
       - name: Deploy PR Preview
         uses: rossjrw/pr-preview-action@v1.4.4
