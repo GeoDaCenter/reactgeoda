@@ -11,7 +11,8 @@ import numberOfBreaksReducer from './numberOfBreaksReducer';
 import {
   localMoranWeightsReducer,
   localMoranSignificanceReducer,
-  selectedLocalMoranVariableReducer
+  selectedLocalMoranVariableReducer,
+  univariateAutocorrelationTypeReducer
 } from './localMoranReducer';
 
 const rootReducer = combineReducers({
@@ -24,7 +25,8 @@ const rootReducer = combineReducers({
   numberOfBreaks: numberOfBreaksReducer,
   localMoranWeights: localMoranWeightsReducer,
   localMoranSignificance: localMoranSignificanceReducer,
-  selectedLocalMoranVariable: selectedLocalMoranVariableReducer
+  selectedLocalMoranVariable: selectedLocalMoranVariableReducer,
+  univariateAutocorrelationType: univariateAutocorrelationTypeReducer
 });
 
 export default rootReducer;

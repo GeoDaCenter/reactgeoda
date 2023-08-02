@@ -30,5 +30,13 @@
   "toolbar.selectLocalMoranWeights": "Выбрать локальные веса Морана",
   "toolbar.localMoranSignificance": "Локальная значимость Морана",
   "toolbar.queenWeights": "Веса королевы",
-  "toolbar.rookWeights": "Веса ладьи"
+  "toolbar.rookWeights": "Веса ладьи",
+  "toolbar.univariateAutocorrelationType": "Тип унивариативной автокорреляции",
+  "toolbar.selectUnivariateAutocorrelationType": "Выберите тип автокорреляции",
+  "toolbar.localMoran": "Локальный Моран",
+  "toolbar.localGeary": "Локальный Геари",
+  "toolbar.localG": "Локальный G",
+  "toolbar.localGStar": "Локальный G*",
+  "toolbar.localJoinCount": "Локальный счетчик соединений",
+  "toolbar.quantileLisa": "Квантиль LISA"
 }
