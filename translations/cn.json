@@ -29,6 +29,6 @@
   "toolbar.localMoranWeights": "本地莫兰权重",
   "toolbar.selectLocalMoranWeights": "选择本地莫兰权重",
   "toolbar.localMoranSignificance": "本地莫兰显著性",
-  "toolbar.queenWeights": "皇后的权重",
-  "toolbar.rookWeights": "战车的权重"
+  "toolbar.queenWeights": "后相邻权重",
+  "toolbar.rookWeights": "车相邻权重"
 }
