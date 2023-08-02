@@ -20,8 +20,15 @@
   "toolbar.percentileBreaks": "百分位断层",
   "toolbar.hinge15Breaks": "1.5铰链断层",
   "toolbar.hinge30Breaks": "3.0铰链断层",
-  "toolbar.standardDeviationBreaks": "标准差断层",
-  "toolbar.numberOfBreaks": "断层数量",
-  "toolbar.choroplethVariable": "等值线变量",
-  "toolbar.selectChoroplethVariable": "选择等值线变量"
+  "toolbar.standardDeviationBreaks": "标准差分类",
+  "toolbar.numberOfBreaks": "分类数量",
+  "toolbar.choroplethVariable": "专题图变量",
+  "toolbar.selectChoroplethVariable": "选择专题图变量",
+  "toolbar.localMoranVariable": "本地莫兰变量",
+  "toolbar.selectLocalMoranVariable": "选择本地莫兰变量",
+  "toolbar.localMoranWeights": "本地莫兰权重",
+  "toolbar.selectLocalMoranWeights": "选择本地莫兰权重",
+  "toolbar.localMoranSignificance": "本地莫兰显著性",
+  "toolbar.queenWeights": "后相邻权重",
+  "toolbar.rookWeights": "车相邻权重"
 }

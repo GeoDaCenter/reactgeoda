@@ -5,7 +5,10 @@ import {
   setSelectedChoroplethVariable,
   setPlotType,
   setChoroplethMethod,
-  setNumberOfBreaks
+  setNumberOfBreaks,
+  setSelectedLocalMoranVariable,
+  setLocalMoranWeights,
+  setLocalMoranSignificance
 } from '../actions';
 import {useIntl} from 'react-intl';
 
@@ -17,6 +20,9 @@ const Toolbar = () => {
   const plotType = useSelector(state => state.root.plotType);
   const choroplethMethod = useSelector(state => state.root.choroplethMethod);
   const numberOfBreaks = useSelector(state => state.root.numberOfBreaks);
+  const selectedLocalMoranVariable = useSelector(state => state.root.selectedLocalMoranVariable);
+  const localMoranWeights = useSelector(state => state.root.localMoranWeights);
+  const localMoranSignificance = useSelector(state => state.root.localMoranSignificance);
   const dispatch = useDispatch();
 
   const handleChoroplethMethodChange = e => {
@@ -44,6 +50,21 @@ const Toolbar = () => {
 
   const handlePlotTypeChange = e => {
     dispatch(setPlotType(e.target.value));
+  };
+
+  const handleLocalMoranVariableChange = e => {
+    dispatch(setSelectedLocalMoranVariable(e.target.value));
+  };
+
+  const handleLocalMoranWeightsChange = e => {
+    dispatch(setLocalMoranWeights(e.target.value));
+  };
+
+  const handleLocalMoranSignificanceChange = e => {
+    const parsedValue = parseFloat(e.target.value);
+    if (!isNaN(parsedValue)) {
+      dispatch(setLocalMoranSignificance(parsedValue));
+    }
   };
 
   const showGraphVariableSelectors = plotType === 'bar' || plotType === 'scatter';
@@ -177,6 +198,48 @@ const Toolbar = () => {
               style={styles.select}
               value={numberOfBreaks}
               onChange={handleNumberOfBreaksChange}
+            />
+          </div>
+        </div>
+        <div style={styles.subRow}>
+          <div style={styles.row}>
+            <label>{intl.formatMessage({id: 'toolbar.localMoranVariable'})}: </label>
+            <select
+              style={styles.select}
+              value={selectedLocalMoranVariable}
+              onChange={handleLocalMoranVariableChange}
+            >
+              <option value="">
+                {intl.formatMessage({id: 'toolbar.selectLocalMoranVariable'})}
+              </option>
+              {columns.map((col, index) => (
+                <option key={index} value={col}>
+                  {col}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={styles.row}>
+            <label>{intl.formatMessage({id: 'toolbar.localMoranWeights'})}: </label>
+            <select
+              style={styles.select}
+              value={localMoranWeights}
+              onChange={handleLocalMoranWeightsChange}
+            >
+              <option value="">
+                {intl.formatMessage({id: 'toolbar.selectLocalMoranWeights'})}
+              </option>
+              <option value="queen">{intl.formatMessage({id: 'toolbar.queenWeights'})}</option>
+              <option value="rook">{intl.formatMessage({id: 'toolbar.rookWeights'})}</option>
+            </select>
+          </div>
+          <div style={styles.row}>
+            <label>{intl.formatMessage({id: 'toolbar.localMoranSignificance'})}: </label>
+            <input
+              type="number"
+              style={styles.select}
+              value={localMoranSignificance}
+              onChange={handleLocalMoranSignificanceChange}
             />
           </div>
         </div>

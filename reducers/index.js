@@ -8,6 +8,11 @@ import {
 import plotTypeReducer from './plotTypeReducer';
 import choroplethMethodReducer from './choroplethMethodReducer';
 import numberOfBreaksReducer from './numberOfBreaksReducer';
+import {
+  localMoranWeightsReducer,
+  localMoranSignificanceReducer,
+  selectedLocalMoranVariableReducer
+} from './localMoranReducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
@@ -16,7 +21,10 @@ const rootReducer = combineReducers({
   selectedChoroplethVariable: selectedChoroplethVariableReducer,
   plotType: plotTypeReducer,
   choroplethMethod: choroplethMethodReducer,
-  numberOfBreaks: numberOfBreaksReducer
+  numberOfBreaks: numberOfBreaksReducer,
+  localMoranWeights: localMoranWeightsReducer,
+  localMoranSignificance: localMoranSignificanceReducer,
+  selectedLocalMoranVariable: selectedLocalMoranVariableReducer
 });
 
 export default rootReducer;

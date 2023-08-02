@@ -7,6 +7,7 @@ import ToolBar from './ToolBar';
 import AgGrid from './AgGrid';
 
 const ChoroplethMap = dynamic(() => import('./ChoroplethMap'), {ssr: false});
+const LocalMoran = dynamic(() => import('./LocalMoran'), {ssr: false});
 const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -16,7 +17,8 @@ const layout = [
   {i: 'table', x: 14, y: 12, w: 5, h: 14},
   {i: 'nivoplot', x: 10, y: 14, w: 7, h: 10},
   {i: 'chatgpt', x: 10, y: 14, w: 5, h: 8},
-  {i: 'choropleth', x: 0, y: 21, w: 5, h: 8, static: true}
+  {i: 'choropleth', x: 0, y: 21, w: 5, h: 8, static: true},
+  {i: 'local-moran', x: 10, y: 42, w: 5, h: 8, static: true}
 ];
 
 const GridLayout = () => {
@@ -43,6 +45,9 @@ const GridLayout = () => {
       </div>
       <div key="choropleth">
         <ChoroplethMap />
+      </div>
+      <div key="local-moran">
+        <LocalMoran />
       </div>
     </ReactGridLayout>
   );

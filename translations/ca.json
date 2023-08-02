@@ -23,5 +23,12 @@
   "toolbar.standardDeviationBreaks": "Fractures de Desviació Estàndard",
   "toolbar.numberOfBreaks": "Número de Fractures",
   "toolbar.choroplethVariable": "Variable de Coroplet",
-  "toolbar.selectChoroplethVariable": "Seleccioneu Variable de Coroplet"
+  "toolbar.selectChoroplethVariable": "Seleccioneu Variable de Coroplet",
+  "toolbar.localMoranVariable": "Variable Local Moran",
+  "toolbar.selectLocalMoranVariable": "Seleccionar Variable Local Moran",
+  "toolbar.localMoranWeights": "Pesos Locals Moran",
+  "toolbar.selectLocalMoranWeights": "Seleccionar Pesos Locals Moran",
+  "toolbar.localMoranSignificance": "Significància Local Moran",
+  "toolbar.queenWeights": "Pesos de la reina",
+  "toolbar.rookWeights": "Pesos del rook"
 }

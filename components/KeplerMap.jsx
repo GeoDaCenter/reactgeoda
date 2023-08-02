@@ -3,8 +3,8 @@ import {connect, useSelector} from 'react-redux';
 import KeplerGl from 'kepler.gl';
 import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 import {processGeojson} from 'kepler.gl/processors';
+import {MAPBOX_TOKEN} from '../constants';
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const mapId = 'kepler_map';
 
 const KeplerMap = ({dispatch, geojsonUrl}) => {
