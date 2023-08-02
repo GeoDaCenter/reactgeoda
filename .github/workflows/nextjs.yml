@@ -66,9 +66,9 @@ jobs:
       - name: Static HTML export with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next export
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
-          name: github-pages
+          name: pages
           path: ./out
 
   deploy:
@@ -78,9 +78,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: pages
+          path: ./out
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
+        with:
+          artifact_name: pages
 
   deploy-preview:
     if: github.event_name == 'pull_request'
@@ -92,7 +99,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: github-pages
+          name: pages
           path: ./out
       - name: Deploy PR Preview
         uses: rossjrw/pr-preview-action@v1.4.4
