@@ -8,9 +8,9 @@ import {
 } from 'kepler.gl/actions';
 import KeplerGl from 'kepler.gl';
 import jsgeoda from 'jsgeoda';
-import colorbrewer from 'colorbrewer';
 import {processGeojson} from 'kepler.gl/dist/processors';
 import {maybeToDate} from 'kepler.gl/dist/utils';
+import {rgbToHex} from 'kepler.gl/dist/utils/color-utils';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const mapId = 'local_moran_map';
@@ -20,62 +20,51 @@ const LocalMoranMap = () => {
   const keplerGlDispatch = forwardTo(mapId, dispatch);
   const keplerGlDispatchRef = useRef(keplerGlDispatch);
 
+  const {
+    file: {rawFileData: data},
+    selectedLocalMoranVariable,
+    localMoranWeights,
+    localMoranSignificance
+  } = useSelector(state => state.root);
+
+  const kepler = useSelector(state => state.keplerGl[mapId]?.visState);
+  const layers = kepler?.layers;
+  const layer = layers?.[layers.length - 1];
+  const clusterIdx = kepler?.datasets?.moran_data?.fields?.findIndex(
+    field => field.name === 'clusterCategory'
+  );
+  const rowContainer = kepler?.datasets?.moran_data?.dataContainer;
+
   useEffect(() => {
     keplerGlDispatchRef.current = keplerGlDispatch;
   }, [keplerGlDispatch]);
-
-  const [lm_colors, setCb] = useState(null);
-
-  const data = useSelector(state => state.root.file.rawFileData);
-  const layers = useSelector(state => state.keplerGl[mapId]?.visState?.layers);
-  const selectedLocalMoranVariable = useSelector(state => state.root.selectedLocalMoranVariable);
-  const localMoranWeights = useSelector(state => state.root.localMoranWeights);
-  const localMoranSignificance = useSelector(state => state.root.localMoranSignificance);
-  const clusterIdx = useSelector(state =>
-    state.keplerGl[mapId]?.visState?.datasets?.moran_data?.fields?.findIndex(
-      field => field.name === 'clusterCategory'
-    )
-  );
-
-  const rowContainer = useSelector(
-    state => state.keplerGl[mapId]?.visState?.datasets?.moran_data?.dataContainer
-  );
-
-  const layer = layers?.[layers.length - 1];
 
   const fetchDataAndSetLayer = useCallback(async () => {
     const geoda = await jsgeoda.New();
     const uint8Array = new TextEncoder().encode(JSON.stringify(data));
     const buffer = uint8Array.slice(0);
-
     const processedData = geoda.readGeoJSON(buffer);
 
-    let w;
+    let w =
+      localMoranWeights === 'queen'
+        ? geoda.getQueenWeights(processedData)
+        : geoda.getRookWeights(processedData);
 
-    if (localMoranWeights === 'queen') {
-      w = geoda.getQueenWeights(processedData);
-    } else if (localMoranWeights === 'rook') {
-      w = geoda.getRookWeights(processedData);
-    }
-
-    if (
-      typeof selectedLocalMoranVariable !== 'string' ||
-      !selectedLocalMoranVariable ||
-      !localMoranWeights
-    ) {
+    if (!selectedLocalMoranVariable || !localMoranWeights) {
       console.error('local moran vars not defined');
       return;
     }
-    const col = geoda.getCol(processedData, selectedLocalMoranVariable);
 
+    const col = geoda.getCol(processedData, selectedLocalMoranVariable);
     const lm = geoda.localMoran(w, col, 999, 'lookup', localMoranSignificance, 123456789);
-    const lm_colors = lm.colors.map(c =>
-      c
-        .toLowerCase()
-        .match(/[0-9a-f]{2}/g)
-        .map(x => parseInt(x, 16))
+    const lm_colors_hex = lm.colors.map(c =>
+      rgbToHex(
+        c
+          .toLowerCase()
+          .match(/[0-9a-f]{2}/g)
+          .map(x => parseInt(x, 16))
+      )
     );
-    setCb(lm_colors);
 
     const jsonData = JSON.parse(new TextDecoder().decode(buffer));
     jsonData.features = jsonData.features.map((feature, i) => ({
@@ -87,7 +76,6 @@ const LocalMoranMap = () => {
     }));
 
     const geoDataProcessed = processGeojson(jsonData);
-
     const dataset = {
       data: {
         fields: geoDataProcessed.fields,
@@ -97,23 +85,16 @@ const LocalMoranMap = () => {
     };
 
     keplerGlDispatchRef.current(addDataToMap({datasets: [dataset]}));
-  }, [data, selectedLocalMoranVariable, localMoranWeights, localMoranSignificance]);
 
-  useEffect(() => {
-    fetchDataAndSetLayer();
-  }, [fetchDataAndSetLayer]);
-
-  useEffect(() => {
-    if (layer && lm_colors) {
+    if (layer) {
       const colorRange = {
         category: 'custom',
         type: 'diverging',
         name: 'ColorBrewer RdBu-5',
-        colors: lm_colors
+        colors: lm_colors_hex
       };
 
-      keplerGlDispatchRef.current(layerVisConfigChange(layer, {colorRange}));
-
+      keplerGlDispatchRef.current(layerVisConfigChange(layer, {colorRange, stroked: false}));
       keplerGlDispatchRef.current(
         layerVisualChannelConfigChange(
           layer,
@@ -130,7 +111,11 @@ const LocalMoranMap = () => {
         )
       );
     }
-  }, [layer, layers, clusterIdx, rowContainer]);
+  }, [layer, selectedLocalMoranVariable, localMoranWeights, localMoranSignificance]);
+
+  useEffect(() => {
+    fetchDataAndSetLayer();
+  }, [fetchDataAndSetLayer]);
 
   return <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />;
 };

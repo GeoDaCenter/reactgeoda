@@ -110,7 +110,7 @@ const ChoroplethMap = () => {
           color => `#${color.match(/[0-9a-f]{2}/g).join('')}`
         )
       };
-
+      console.log(colorRange);
       keplerGlDispatchRef.current(layerVisConfigChange(layer, {colorRange}));
 
       keplerGlDispatchRef.current(

@@ -42,7 +42,7 @@ export const setLocalMoranWeights = weights => ({
   payload: weights
 });
 
-export const setLocalMoranSignficance = significance => ({
+export const setLocalMoranSignificance = significance => ({
   type: SET_LOCAL_MORAN_SIGNIFICANCE,
   payload: significance
 });
