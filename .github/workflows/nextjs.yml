@@ -65,8 +65,7 @@ jobs:
         run: |
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> .env
-          export NODE_ENV=production
-          ${{ steps.detect-package-manager.outputs.runner }} build
+          ${{ steps.detect-package-manager.outputs.runner }} build-prod
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:

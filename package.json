@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export",
+    "build": "cross-env NODE_ENV=development next build && next export",
+    "build-prod": "cross-env NODE_ENV=production next build && next export",
     "build-map": "next build -p /map && next export",
     "start": "next start",
     "lint": "prettier . '**/*.{js,jsx,ts}' --check && next lint"
@@ -42,6 +43,7 @@
     "@next/eslint-plugin-next": "^13.4.12",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
+    "cross-env": "^7.0.3",
     "eslint": "7.32.0",
     "eslint-config-next": "13.3.0",
     "eslint-config-prettier": "^8.8.0",
