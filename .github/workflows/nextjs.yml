@@ -80,10 +80,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: out
+        uses: actions/deploy-pages@v1
 
   deploy-preview:
     if: github.event_name == 'pull_request'
