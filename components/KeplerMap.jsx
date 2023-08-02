@@ -4,6 +4,7 @@ import KeplerGl from 'kepler.gl';
 import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 import {processGeojson} from 'kepler.gl/processors';
 import {MAPBOX_TOKEN} from '../constants';
+import {useChoroplethLayer} from '../hooks/useChoroplethLayer';
 
 const mapId = 'kepler_map';
 
@@ -11,6 +12,7 @@ const KeplerMap = ({dispatch, geojsonUrl}) => {
   console.log(geojsonUrl);
   const keplerGlDispatch = forwardTo(mapId, dispatch);
   const data = useSelector(state => state.root.file.fileData);
+
   useEffect(() => {
     if (data && data.fields && data.rows) {
       const fields = data.fields.map(field => ({

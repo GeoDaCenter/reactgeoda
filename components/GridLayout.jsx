@@ -46,9 +46,7 @@ const GridLayout = () => {
       <div key="choropleth">
         <ChoroplethMap />
       </div>
-      <div key="local-moran">
-        <LocalMoran />
-      </div>
+      <div key="local-moran">h</div>
     </ReactGridLayout>
   );
 };
