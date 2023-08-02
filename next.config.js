@@ -8,9 +8,7 @@ const nextConfig = {
   images: {
     unoptimized: true
   },
-  generateBuildId: async () => {
-    return 'reactgeoda-v0.1';
-  },
+  generateBuildId: async () => 'reactgeoda-v0.1',
   webpack: config => {
     config.optimization.splitChunks = false;
     config.optimization.minimize = isProduction;
