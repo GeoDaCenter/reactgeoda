@@ -12,8 +12,8 @@ import jsgeoda from 'jsgeoda';
 import colorbrewer from 'colorbrewer';
 import {processGeojson} from 'kepler.gl/dist/processors';
 import {maybeToDate} from 'kepler.gl/dist/utils';
+import {MAPBOX_TOKEN} from '../constants';
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const mapId = 'choropleth_map';
 
 const ChoroplethMap = () => {

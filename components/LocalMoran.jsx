@@ -11,8 +11,8 @@ import jsgeoda from 'jsgeoda';
 import {processGeojson} from 'kepler.gl/dist/processors';
 import {maybeToDate} from 'kepler.gl/dist/utils';
 import {rgbToHex} from 'kepler.gl/dist/utils/color-utils';
+import {MAPBOX_TOKEN} from '../constants';
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 const mapId = 'local_moran_map';
 
 const LocalMoranMap = () => {
