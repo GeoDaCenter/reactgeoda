@@ -28,12 +28,19 @@ const LocalMoranMap = () => {
   } = useSelector(state => state.root);
 
   const kepler = useSelector(state => state.keplerGl[mapId]?.visState);
-  const layers = kepler?.layers;
-  const layer = layers?.[layers.length - 1];
-  const clusterIdx = kepler?.datasets?.moran_data?.fields?.findIndex(
+
+  const dataRef = useRef();
+  const clusterIdxRef = useRef();
+  const rowContainerRef = useRef();
+
+  dataRef.current = data;
+  clusterIdxRef.current = kepler?.datasets?.moran_data?.fields?.findIndex(
     field => field.name === 'clusterCategory'
   );
-  const rowContainer = kepler?.datasets?.moran_data?.dataContainer;
+  rowContainerRef.current = kepler?.datasets?.moran_data?.dataContainer;
+
+  const layers = kepler?.layers;
+  const layer = layers?.[layers.length - 1];
 
   useEffect(() => {
     keplerGlDispatchRef.current = keplerGlDispatch;
@@ -41,7 +48,7 @@ const LocalMoranMap = () => {
 
   const fetchDataAndSetLayer = useCallback(async () => {
     const geoda = await jsgeoda.New();
-    const uint8Array = new TextEncoder().encode(JSON.stringify(data));
+    const uint8Array = new TextEncoder().encode(JSON.stringify(dataRef.current));
     const buffer = uint8Array.slice(0);
     const processedData = geoda.readGeoJSON(buffer);
 
@@ -103,7 +110,13 @@ const LocalMoranMap = () => {
               name: 'clusterCategory',
               type: 'string',
               valueAccessor: function (values) {
-                return maybeToDate.bind(null, false, clusterIdx, '', rowContainer)(values);
+                return maybeToDate.bind(
+                  null,
+                  false,
+                  clusterIdxRef.current,
+                  '',
+                  rowContainerRef.current
+                )(values);
               }
             }
           },
