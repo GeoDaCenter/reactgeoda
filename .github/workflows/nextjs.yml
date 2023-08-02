@@ -60,11 +60,11 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Run Lint
-        run: ${{ steps.detect-package-manager.outputs.runner }} next lint
+        run: ${{ steps.detect-package-manager.outputs.runner }} lint
       - name: Build with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
-      - name: Static HTML export with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next export
+        env:
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+        run: ${{ steps.detect-package-manager.outputs.runner }} build
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -72,6 +72,7 @@ jobs:
           path: ./out
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: build
     steps:
