@@ -43,9 +43,7 @@ const GridLayout = () => {
       <div key="chatgpt">
         <ChatGpt />
       </div>
-      <div key="choropleth">
-        <ChoroplethMap />
-      </div>
+      <div key="choropleth">g</div>
       <div key="local-moran">h</div>
     </ReactGridLayout>
   );

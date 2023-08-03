@@ -26,7 +26,7 @@ const customizedKeplerGlReducer = keplerGlReducer.initialState({
 });
 
 const reducers = combineReducers({
-  keplerGl: customizedKeplerGlReducer,
+  keplerGl: keplerGlReducer,
   root: rootReducer
 });
 
