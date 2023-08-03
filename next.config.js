@@ -1,5 +1,5 @@
 const isProduction = process.env.NODE_ENV === 'production';
-console.log(process.env.BASE_PATH);
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
