@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'export',
-  basePath: process.env.BASE_PATH ?? '/reactgeoda',
+  basePath: process.env.BASE_PATH,
   images: {unoptimized: true},
   generateBuildId: async () => 'reactgeoda-v0.1',
   webpack: config => {
