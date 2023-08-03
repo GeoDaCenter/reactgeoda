@@ -4,7 +4,7 @@ import KeplerGl from 'kepler.gl';
 import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 import {processGeojson} from 'kepler.gl/processors';
 import {MAPBOX_TOKEN} from '../constants';
-import {useChoroplethLayer} from '../hooks/useChoroplethLayer';
+import ChoroplethTest from './ChoroplethTest';
 
 const mapId = 'kepler_map';
 
@@ -44,7 +44,12 @@ const KeplerMap = ({dispatch, geojsonUrl}) => {
     }
   }, [data, geojsonUrl, keplerGlDispatch]);
 
-  return <KeplerGl id={mapId} width={700} mapboxApiAccessToken={MAPBOX_TOKEN} height={700} />;
+  return (
+    <div>
+      <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />
+      <ChoroplethTest mapId={mapId} />
+    </div>
+  );
 };
 
 const mapStateToProps = state => ({

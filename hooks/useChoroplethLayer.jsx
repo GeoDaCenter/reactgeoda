@@ -13,6 +13,26 @@ import colorbrewer from 'colorbrewer';
 import {processGeojson} from 'kepler.gl/dist/processors';
 import {maybeToDate} from 'kepler.gl/dist/utils';
 import {MAPBOX_TOKEN} from '../constants';
+import {formatCsv} from 'kepler.gl/dist/processors';
+import {createDataContainer} from 'kepler.gl/dist/utils';
+
+function convertDataset({data: dataset}) {
+  const {allData, fields, id} = dataset;
+  const columns = fields.map(field => ({
+    name: field.name,
+    type: field.type
+  }));
+
+  const dataContainer = createDataContainer([...allData]);
+
+  const file = formatCsv(dataContainer, fields);
+
+  return {
+    name: id,
+    columns,
+    file
+  };
+}
 
 const ChoroplethMap = mapId => {
   const dispatch = useDispatch();
@@ -32,14 +52,20 @@ const ChoroplethMap = mapId => {
   const layers = useSelector(state => state.keplerGl[mapId]?.visState?.layers);
 
   const jenksIdx = useSelector(state =>
-    state.keplerGl[mapId]?.visState?.datasets?.choro_data?.fields?.findIndex(
+    state.keplerGl[mapId]?.visState?.datasets?.my_data?.fields?.findIndex(
       field => field.name === 'jenksCategory'
     )
   );
 
   const rowContainer = useSelector(
-    state => state.keplerGl[mapId]?.visState?.datasets?.choro_data?.dataContainer
+    state => state.keplerGl[mapId]?.visState?.datasets?.my_data?.dataContainer
   );
+
+  const rows = useSelector(
+    state => state.keplerGl[mapId]?.visState?.datasets?.my_data?.dataContainer?._rows
+  );
+
+  const fields = useSelector(state => state.keplerGl[mapId]?.visState?.datasets?.my_data?.fields);
 
   const layer = layers?.[layers.length - 1];
 
@@ -88,7 +114,7 @@ const ChoroplethMap = mapId => {
         fields: geoDataProcessed.fields,
         rows: geoDataProcessed.rows
       },
-      info: {id: 'choro_data', label: 'choro data'}
+      info: {id: 'my_data', label: 'my data'}
     };
 
     keplerGlDispatchRef.current(addDataToMap({datasets: [dataset]}));
