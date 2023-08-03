@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "cross-env NODE_ENV=development next build && next export",
+    "dev": "cross-env BASE_PATH='' next dev",
+    "build": "cross-env NODE_ENV=development BASE_PATH='' next build && next export",
     "build-prod": "cross-env NODE_ENV=production next build && next export",
-    "build-map": "next build -p /map && next export",
-    "start": "next start",
+    "start": "cross-env BASE_PATH='' next start",
     "lint": "prettier . '**/*.{js,jsx,ts}' --check && next lint"
   },
   "dependencies": {
