@@ -30,5 +30,13 @@
   "toolbar.selectLocalMoranWeights": "选择本地莫兰权重",
   "toolbar.localMoranSignificance": "本地莫兰显著性",
   "toolbar.queenWeights": "后相邻权重",
-  "toolbar.rookWeights": "车相邻权重"
+  "toolbar.rookWeights": "车相邻权重",
+  "toolbar.univariateAutocorrelationType": "单变量自相关类型",
+  "toolbar.selectUnivariateAutocorrelationType": "选择自相关类型",
+  "toolbar.localMoran": "本地Moran",
+  "toolbar.localGeary": "本地Geary",
+  "toolbar.localG": "本地G",
+  "toolbar.localGStar": "本地G*",
+  "toolbar.localJoinCount": "本地JoinCount",
+  "toolbar.quantileLisa": "分位数LISA"
 }

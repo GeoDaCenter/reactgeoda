@@ -7,7 +7,9 @@ import ToolBar from './ToolBar';
 import AgGrid from './AgGrid';
 
 const ChoroplethMap = dynamic(() => import('./ChoroplethMap'), {ssr: false});
-const LocalMoran = dynamic(() => import('./LocalMoran'), {ssr: false});
+const UnivariateSpatial = dynamic(() => import('./UnivariateLocalSpatialAutocorrelation'), {
+  ssr: false
+});
 const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -47,7 +49,7 @@ const GridLayout = () => {
         <ChoroplethMap />
       </div>
       <div key="local-moran">
-        <LocalMoran />
+        <UnivariateSpatial />
       </div>
     </ReactGridLayout>
   );

@@ -30,5 +30,13 @@
   "toolbar.selectLocalMoranWeights": "ローカルモランの重みを選択",
   "toolbar.localMoranSignificance": "ローカルモランの重要性",
   "toolbar.queenWeights": "クイーンの重み",
-  "toolbar.rookWeights": "ルークの重み"
+  "toolbar.rookWeights": "ルークの重み",
+  "toolbar.univariateAutocorrelationType": "単変量自己相関の種類",
+  "toolbar.selectUnivariateAutocorrelationType": "自己相関の種類を選択",
+  "toolbar.localMoran": "ローカルモラン",
+  "toolbar.localGeary": "ローカルジェリー",
+  "toolbar.localG": "ローカルG",
+  "toolbar.localGStar": "ローカルG*",
+  "toolbar.localJoinCount": "ローカル結合数",
+  "toolbar.quantileLisa": "クァンタイルLISA"
 }

@@ -54,17 +54,17 @@ jobs:
         with:
           path: |
             .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx', 'nextjs.yml') }}
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Run Lint
         run: ${{ steps.detect-package-manager.outputs.runner }} lint
+      # change basePath for PRs and the preview build
       - name: Build with Next.js
         run: |
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> .env
+          [[ "${{ github.event_name }}" = pull_request ]] && export BASE_PATH=/reactgeoda/pr-preview/pr-${{ github.event.number }}
           ${{ steps.detect-package-manager.outputs.runner }} build-prod
       - name: Upload artifact
         uses: actions/upload-artifact@v3
