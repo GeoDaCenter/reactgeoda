@@ -30,5 +30,13 @@
   "toolbar.selectLocalMoranWeights": "Valitse paikalliset Moran-painot",
   "toolbar.localMoranSignificance": "Paikallisen Moranin merkitys",
   "toolbar.queenWeights": "Kuningattaren painot",
-  "toolbar.rookWeights": "Tornin painot"
+  "toolbar.rookWeights": "Tornin painot",
+  "toolbar.univariateAutocorrelationType": "Yksimuuttuja-autokorrelaatio",
+  "toolbar.selectUnivariateAutocorrelationType": "Valitse Autokorrelaatiotyyppi",
+  "toolbar.localMoran": "Paikallinen Moran",
+  "toolbar.localGeary": "Paikallinen Geary",
+  "toolbar.localG": "Paikallinen G",
+  "toolbar.localGStar": "Paikallinen G*",
+  "toolbar.localJoinCount": "Paikallinen Liittymislaskenta",
+  "toolbar.quantileLisa": "Kvanttiili LISA"
 }

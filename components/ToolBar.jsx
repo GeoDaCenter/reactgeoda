@@ -8,7 +8,8 @@ import {
   setNumberOfBreaks,
   setSelectedLocalMoranVariable,
   setLocalMoranWeights,
-  setLocalMoranSignificance
+  setLocalMoranSignificance,
+  setUnivariateAutocorrelationType
 } from '../actions';
 import {useIntl} from 'react-intl';
 
@@ -23,6 +24,9 @@ const Toolbar = () => {
   const selectedLocalMoranVariable = useSelector(state => state.root.selectedLocalMoranVariable);
   const localMoranWeights = useSelector(state => state.root.localMoranWeights);
   const localMoranSignificance = useSelector(state => state.root.localMoranSignificance);
+  const univariateAutocorrelationType = useSelector(
+    state => state.root.univariateAutocorrelationType
+  );
   const dispatch = useDispatch();
 
   const handleChoroplethMethodChange = e => {
@@ -65,6 +69,10 @@ const Toolbar = () => {
     if (!isNaN(parsedValue)) {
       dispatch(setLocalMoranSignificance(parsedValue));
     }
+  };
+
+  const handleUnivariateAutocorrelationTypeChange = e => {
+    dispatch(setUnivariateAutocorrelationType(e.target.value));
   };
 
   const showGraphVariableSelectors = plotType === 'bar' || plotType === 'scatter';
@@ -202,6 +210,28 @@ const Toolbar = () => {
           </div>
         </div>
         <div style={styles.subRow}>
+          <div style={styles.row}>
+            <label>{intl.formatMessage({id: 'toolbar.univariateAutocorrelationType'})}: </label>
+            <select
+              style={styles.select}
+              value={univariateAutocorrelationType}
+              onChange={handleUnivariateAutocorrelationTypeChange}
+            >
+              <option value="">
+                {intl.formatMessage({id: 'toolbar.selectUnivariateAutocorrelationType'})}
+              </option>
+              <option value="localMoran">{intl.formatMessage({id: 'toolbar.localMoran'})}</option>
+              <option value="localGeary">{intl.formatMessage({id: 'toolbar.localGeary'})}</option>
+              <option value="localG">{intl.formatMessage({id: 'toolbar.localG'})}</option>
+              <option value="localGStar">{intl.formatMessage({id: 'toolbar.localGStar'})}</option>
+              <option value="localJoinCount">
+                {intl.formatMessage({id: 'toolbar.localJoinCount'})}
+              </option>
+              <option value="quantileLisa">
+                {intl.formatMessage({id: 'toolbar.quantileLisa'})}
+              </option>
+            </select>
+          </div>
           <div style={styles.row}>
             <label>{intl.formatMessage({id: 'toolbar.localMoranVariable'})}: </label>
             <select

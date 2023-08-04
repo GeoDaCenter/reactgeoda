@@ -30,5 +30,13 @@
   "toolbar.selectLocalMoranWeights": "Select Local Moran Weights",
   "toolbar.localMoranSignificance": "Local Moran Significance",
   "toolbar.queenWeights": "Queen weights",
-  "toolbar.rookWeights": "Rook weights"
+  "toolbar.rookWeights": "Rook weights",
+  "toolbar.univariateAutocorrelationType": "Univariate Autocorrelation Type",
+  "toolbar.selectUnivariateAutocorrelationType": "Select Autocorrelation Type",
+  "toolbar.localMoran": "Local Moran",
+  "toolbar.localGeary": "Local Geary",
+  "toolbar.localG": "Local G",
+  "toolbar.localGStar": "Local G*",
+  "toolbar.localJoinCount": "Local Join Count",
+  "toolbar.quantileLisa": "Quantile LISA"
 }

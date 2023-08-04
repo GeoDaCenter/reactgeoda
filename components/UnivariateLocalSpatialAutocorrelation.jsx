@@ -24,7 +24,8 @@ const LocalMoranMap = () => {
     file: {rawFileData: data},
     selectedLocalMoranVariable,
     localMoranWeights,
-    localMoranSignificance
+    localMoranSignificance,
+    univariateAutocorrelationType
   } = useSelector(state => state.root);
 
   const kepler = useSelector(state => state.keplerGl[mapId]?.visState);
@@ -63,7 +64,32 @@ const LocalMoranMap = () => {
     }
 
     const col = geoda.getCol(processedData, selectedLocalMoranVariable);
-    const lm = geoda.localMoran(w, col, 999, 'lookup', localMoranSignificance, 123456789);
+
+    let lm;
+    switch (univariateAutocorrelationType) {
+      case 'localMoran':
+        lm = geoda.localMoran(w, col, 999, 'lookup', localMoranSignificance, 123456789);
+        break;
+      case 'localGeary':
+        lm = geoda.localGeary(w, col, 999, 'lookup', localMoranSignificance, 123456789);
+        break;
+      case 'localG':
+        lm = geoda.localG(w, col, 999, 'lookup', localMoranSignificance, 123456789);
+        break;
+      case 'localGStar':
+        lm = geoda.localGStar(w, col, 999, 'lookup', localMoranSignificance, 123456789);
+        break;
+      case 'localJoinCount':
+        lm = geoda.localJoinCount(w, col, 999, 'lookup', localMoranSignificance, 123456789);
+        break;
+      case 'quantileLisa':
+        lm = geoda.quantileLisa(w, 5, 1, col, 999, 'lookup', localMoranSignificance, 123456789);
+        break;
+      default:
+        console.error('Invalid autocorrelation type: ' + univariateAutocorrelationType);
+        return;
+    }
+
     const lm_colors_hex = lm.colors.map(c =>
       rgbToHex(
         c
@@ -124,7 +150,13 @@ const LocalMoranMap = () => {
         )
       );
     }
-  }, [layer, selectedLocalMoranVariable, localMoranWeights, localMoranSignificance]);
+  }, [
+    layer,
+    selectedLocalMoranVariable,
+    localMoranWeights,
+    localMoranSignificance,
+    univariateAutocorrelationType
+  ]);
 
   useEffect(() => {
     fetchDataAndSetLayer();
