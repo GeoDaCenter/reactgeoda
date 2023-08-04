@@ -99,10 +99,7 @@ const LocalMoranMap = ({mapId}) => {
     const updatedRows = rows.map((row, i) => [...row, `C${lm.clusters[i]}`]);
 
     const dataset = {
-      data: {
-        fields: updatedFields,
-        rows: updatedRows
-      },
+      data: geoDataProcessed,
       info: {id: 'my_data', label: 'my data'}
     };
 
@@ -113,17 +110,16 @@ const LocalMoranMap = ({mapId}) => {
       colors: lm_colors_hex
     };
 
-    console.log(...existingLayers);
+    console.log(existingLayers);
     const config = {
-      version: 'v1',
       visState: {
         layers: [
-          ...existingLayers.map(layer => layer.config),
+          ...existingLayers,
           {
             id: 'moran',
             type: 'geojson',
             config: {
-              dataId: 'my_data',
+              dataId: 'moran_data',
               label: 'Local Moran Map',
               colorField: {
                 name: 'clusterCategory',
@@ -142,14 +138,8 @@ const LocalMoranMap = ({mapId}) => {
       }
     };
 
-    keplerGlDispatchRef.current(addDataToMap({datasets: [dataset], config: config}));
-  }, [
-    selectedLocalMoranVariable,
-    localMoranWeights,
-    localMoranSignificance,
-    univariateAutocorrelationType,
-    data
-  ]);
+    keplerGlDispatchRef.current(addDataToMap({datasets: [dataset], config}));
+  }, [selectedLocalMoranVariable, localMoranWeights, localMoranSignificance, data]);
 
   useEffect(() => {
     fetchDataAndSetLayer();

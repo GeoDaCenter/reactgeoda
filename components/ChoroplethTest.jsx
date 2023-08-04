@@ -24,6 +24,12 @@ function ChoroplethMap({mapId}) {
   const data = useSelector(state => state.root.file.rawFileData);
   const existingLayers = useSelector(state => state.keplerGl[mapId]?.visState?.layers);
 
+  const rows = useSelector(
+    state => state?.keplerGl[mapId]?.visState?.datasets?.my_data?.dataContainer?._rows
+  );
+
+  const fields = useSelector(state => state?.keplerGl[mapId]?.visState?.datasets?.my_data?.fields);
+
   const fetchDataAndSetLayer = useCallback(async () => {
     const geoda = await jsgeoda.New();
     const uint8Array = new TextEncoder().encode(JSON.stringify(data));
@@ -50,8 +56,17 @@ function ChoroplethMap({mapId}) {
 
     const geoDataProcessed = processGeojson(jsonData);
 
+    const updatedFields = [...fields, {name: 'jenksCategory', format: '', type: 'string'}];
+    const updatedRows = rows.map((row, i) => [
+      ...row,
+      `C${breaks.breaks.findIndex(b => col[i] < b)}`
+    ]);
+
     const dataset = {
-      data: geoDataProcessed,
+      data: {
+        fields: updatedFields,
+        rows: updatedRows
+      },
       info: {id: 'my_data', label: 'my data'}
     };
 
@@ -65,6 +80,7 @@ function ChoroplethMap({mapId}) {
     };
 
     const config = {
+      version: 'v1',
       visState: {
         layers: [
           ...existingLayers,
@@ -76,10 +92,7 @@ function ChoroplethMap({mapId}) {
               label: 'Choropleth Map',
               colorField: {
                 name: 'jenksCategory',
-                type: 'string',
-                valueAccessor: function (values) {
-                  return maybeToDate.bind(null, false, jenksIdx, '', rowContainer)(values);
-                }
+                type: 'string'
               },
               visConfig: {
                 filled: true,
@@ -90,11 +103,12 @@ function ChoroplethMap({mapId}) {
               isVisible: true
             }
           }
-        ]
+        ],
+        layerBlending: 'additive'
       }
     };
 
-    keplerGlDispatchRef.current(addDataToMap({datasets: [dataset], config}));
+    keplerGlDispatchRef.current(addDataToMap({datasets: [dataset], config: config}));
   }, [choroplethMethod, data, numberOfBreaks, selectedChoroplethVariable]);
 
   useEffect(() => {

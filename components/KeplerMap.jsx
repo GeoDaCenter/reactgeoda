@@ -5,6 +5,7 @@ import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 import {processGeojson} from 'kepler.gl/processors';
 import {MAPBOX_TOKEN} from '../constants';
 import ChoroplethTest from './ChoroplethTest';
+import MoranTest from './MoranTest';
 
 const mapId = 'kepler_map';
 
@@ -48,6 +49,7 @@ const KeplerMap = ({dispatch, geojsonUrl}) => {
     <div>
       <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />
       <ChoroplethTest mapId={mapId} />
+      <MoranTest mapId={mapId} />
     </div>
   );
 };
