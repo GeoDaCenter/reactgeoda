@@ -2,7 +2,7 @@ import {SET_FILE_DATA, SET_RAW_FILE_DATA} from '../actions';
 
 const initialState = {
   fileData: [],
-  rawFileData: null
+  rawFileData: []
 };
 
 const fileReducer = (state = initialState, action) => {
