@@ -1,0 +1,60 @@
+.avatar {
+  height: 24px;
+  position: relative;
+  width: 24px;
+}
+
+.avatar .group {
+  height: 24px;
+  width: 26px;
+}
+
+.avatar .overlap-group {
+  background-color: #fffcfc;
+  border-radius: 12px;
+  height: 24px;
+  position: relative;
+  width: 24px;
+}
+
+.avatar .text-wrapper {
+  color: #000000;
+  font-family: 'Inter', Helvetica;
+  font-size: 12px;
+  font-weight: 400;
+  left: 8px;
+  letter-spacing: 0;
+  line-height: normal;
+  position: absolute;
+  top: 5px;
+  white-space: nowrap;
+  width: 7px;
+}
+
+.geo-da-logo {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 72px;
+  justify-content: space-around;
+  padding: 12px;
+  position: relative;
+  width: 74px;
+}
+
+.geo-da-logo .geoda-logo {
+  align-self: stretch;
+  height: 43px;
+  object-fit: cover;
+  position: relative;
+  width: 100%;
+}
+
+.icon-toolbar {
+  height: 24px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 24px;
+}
