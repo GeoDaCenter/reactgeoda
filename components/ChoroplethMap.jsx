@@ -11,7 +11,7 @@ import KeplerGl from '@kepler.gl/components';
 import jsgeoda from 'jsgeoda';
 import colorbrewer from 'colorbrewer';
 import {processGeojson} from '@kepler.gl/processors';
-import {maybeToDate} from '@kepler.gl/processors';
+import {maybeToDate} from '@kepler.gl/table';
 import {MAPBOX_TOKEN} from '../constants';
 
 const mapId = 'choropleth_map';
