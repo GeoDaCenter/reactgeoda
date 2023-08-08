@@ -7,7 +7,7 @@ import {CSVLoader} from '@loaders.gl/csv';
 import {JSONLoader, _GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
 import {FormattedMessage} from 'react-intl';
 import {setFileData, setRawFileData} from '../actions/fileActions';
-import {processRowObject, processGeojson} from 'kepler.gl/dist/processors';
+import {processRowObject, processGeojson} from '@kepler.gl/processors';
 
 const FileHandler = () => {
   const dispatch = useDispatch();

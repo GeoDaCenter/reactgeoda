@@ -1,6 +1,5 @@
-import keplerGlReducer from 'kepler.gl/reducers';
+import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
-import {enhanceReduxMiddleware} from 'kepler.gl/middleware';
 import rootReducer from '../reducers/index';
 import keplerLanguageMiddleware from './keplerLanguageMiddleware';
 import {createLogger} from 'redux-logger';

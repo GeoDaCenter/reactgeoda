@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {connect, useSelector} from 'react-redux';
-import KeplerGl from 'kepler.gl';
-import {addDataToMap, forwardTo} from 'kepler.gl/actions';
-import {processGeojson} from 'kepler.gl/processors';
+import KeplerGl from '@kepler.gl/components';
+import {addDataToMap, forwardTo} from '@kepler.gl/actions';
+import {processGeojson} from '@kepler.gl/processors';
 import {MAPBOX_TOKEN} from '../constants';
 
 const mapId = 'kepler_map';

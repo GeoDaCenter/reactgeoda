@@ -1,5 +1,5 @@
 import {SET_LANGUAGE} from '../actions/languageActions';
-import {ActionTypes} from 'kepler.gl/actions';
+import {ActionTypes} from '@kepler.gl/actions';
 
 const keplerLanguageMiddleware = store => next => action => {
   const result = next(action);
