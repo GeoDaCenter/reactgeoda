@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, FC} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import {
   MainContainer,
@@ -13,16 +13,29 @@ import {useSelector} from 'react-redux';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
-const systemMessage = {
+interface SystemMessage {
+  role: 'system';
+  content: string;
+}
+
+interface MessageModel {
+  message: string;
+  sentTime?: string;
+  sender: string;
+  direction?: 'outgoing' | 'incoming';
+}
+
+const systemMessage: SystemMessage = {
   role: 'system',
   content:
     "Explain things like you're talking to a software professional with 2 years of experience."
 };
 
-const ChatGpt = () => {
-  const data = useSelector(state => state.root.file.fileData);
+const ChatGpt: FC = () => {
+  const data = useSelector((state: any) => state.root.file.fileData);
   const intl = useIntl();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<MessageModel[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     setMessages([
@@ -36,10 +49,9 @@ const ChatGpt = () => {
       }
     ]);
   }, [intl]);
-  const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = async message => {
-    const newMessage = {
+  const handleSend = async (message: string) => {
+    const newMessage: MessageModel = {
       message,
       direction: 'outgoing',
       sender: 'user'
@@ -52,7 +64,7 @@ const ChatGpt = () => {
     await processMessageToChatGPT(newMessages, data);
   };
 
-  async function processMessageToChatGPT(chatMessages, data) {
+  async function processMessageToChatGPT(chatMessages: MessageModel[], data: any) {
     let apiMessages = chatMessages.map(messageObject => {
       let role = messageObject.sender === 'ChatGPT' ? 'assistant' : 'user';
       return {role: role, content: messageObject.message};
@@ -113,7 +125,7 @@ const ChatGpt = () => {
             }
           >
             {messages.map((message, i) => (
-              <Message key={i} model={message} />
+              <Message key={i} model={message as any} />
             ))}
           </MessageList>
           <MessageInput

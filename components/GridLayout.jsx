@@ -1,10 +1,10 @@
 import React from 'react';
 import RGL, {WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
-import ChatGpt from './ChatGpt';
+import ChatGpt from './ChatGpt.tsx';
 import NivoPlot from './NivoPlot';
 import ToolBar from './ToolBar';
-import AgGrid from './AgGrid';
+import AgGrid from './AgGrid.tsx';
 
 const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
