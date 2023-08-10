@@ -149,7 +149,7 @@ const KeplerMap = ({dispatch, geojsonUrl}) => {
   }, [geojsonUrl, keplerGlDispatch]);
 
   return (
-    <AutoSizer>
+    <AutoSizer defaultHeight={400} defaultWidth={500}>
       {({height, width}) => (
         <div style={{padding: '16px'}}>
           <KeplerGl
