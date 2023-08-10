@@ -17,7 +17,7 @@ const layout = [
   {i: 'kepler', x: 0, y: 0, w: 7, h: 8, static: true},
   {i: 'toolbar', x: 10, y: 0, w: 5, h: 5, static: true},
   {i: 'table', x: 14, y: 12, w: 5, h: 14},
-  {i: 'nivoplot', x: 10, y: 14, w: 7, h: 10},
+  {i: 'nivoplot', x: 10, y: 14, w: 7, h: 10, static: true},
   {i: 'chatgpt', x: 10, y: 14, w: 5, h: 8},
   {i: 'choropleth', x: 0, y: 21, w: 5, h: 8, static: true},
   {i: 'local-moran', x: 10, y: 42, w: 5, h: 8, static: true}

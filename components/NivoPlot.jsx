@@ -37,6 +37,7 @@ const NivoPlot = () => {
           yScale={{type: 'linear', min: 'auto', max: 'auto'}}
           axisBottom={{legend: selectedGraphVariables[0]}}
           axisLeft={{legend: selectedGraphVariables[1]}}
+          margin={{top: 50, right: 50, bottom: 50, left: 70}}
           animate
         />
       );
@@ -45,6 +46,15 @@ const NivoPlot = () => {
         [selectedGraphVariables[0]]: item[variableIndices[0]],
         [selectedGraphVariables[1]]: parseFloat(item[variableIndices[1]])
       }));
+      const theme = {
+        axis: {
+          ticks: {
+            text: {
+              fontSize: 8
+            }
+          }
+        }
+      };
 
       if (barFormattedData.length > 0) {
         return (
@@ -52,9 +62,10 @@ const NivoPlot = () => {
             data={barFormattedData}
             keys={[selectedGraphVariables[1]]}
             indexBy={selectedGraphVariables[0]}
-            margin={{top: 50, right: 130, bottom: 50, left: 60}}
+            margin={{top: 50, right: 130, bottom: 70, left: 80}}
             padding={0.3}
             groupMode="stacked"
+            theme={theme}
           />
         );
       }
