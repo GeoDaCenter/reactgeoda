@@ -5,7 +5,9 @@ import {
   setChoroplethMethod,
   setSelectedChoroplethVariable,
   setUnivariateAutocorrelationType,
-  setSelectedLocalMoranVariable
+  setSelectedLocalMoranVariable,
+  setSelectedGraphVariables,
+  setPlotType
 } from '../actions';
 import {processGeojson} from 'kepler.gl/processors';
 
@@ -38,6 +40,8 @@ export const Demo = () => {
       dispatch(setUnivariateAutocorrelationType('localMoran'));
       dispatch(setSelectedChoroplethVariable('HR60'));
       dispatch(setSelectedLocalMoranVariable('HR60'));
+      dispatch(setPlotType('scatter'));
+      dispatch(setSelectedGraphVariables(['HC70', 'PO80']));
     });
   }, [dispatch]);
 
