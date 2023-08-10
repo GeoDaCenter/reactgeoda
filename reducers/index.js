@@ -14,6 +14,12 @@ import {
   selectedLocalMoranVariableReducer,
   univariateAutocorrelationTypeReducer
 } from './localMoranReducer';
+import {
+  localMoranLayerReducer,
+  localMoranDataReducer,
+  choroplethDataReducer,
+  choroplethLayerReducer
+} from './keplerLayerReducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
@@ -26,7 +32,11 @@ const rootReducer = combineReducers({
   localMoranWeights: localMoranWeightsReducer,
   localMoranSignificance: localMoranSignificanceReducer,
   selectedLocalMoranVariable: selectedLocalMoranVariableReducer,
-  univariateAutocorrelationType: univariateAutocorrelationTypeReducer
+  univariateAutocorrelationType: univariateAutocorrelationTypeReducer,
+  localMoranLayer: localMoranLayerReducer,
+  localMoranData: localMoranDataReducer,
+  choroplethData: choroplethDataReducer,
+  choroplethLayer: choroplethLayerReducer
 });
 
 export default rootReducer;

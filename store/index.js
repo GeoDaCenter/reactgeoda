@@ -16,11 +16,13 @@ const loggerMiddleware = createLogger({
 const customizedKeplerGlReducer = keplerGlReducer.initialState({
   uiState: {
     // hide side panel and data input window to disallow user customize the map
-    readOnly: true,
+    readOnly: false,
     currentModal: null,
-    mapLegend: {
-      show: true,
-      active: true
+    mapControls: {
+      mapLegend: {
+        show: true,
+        active: true
+      }
     }
   }
 });
