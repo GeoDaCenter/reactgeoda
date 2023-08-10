@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import {useDispatch} from 'react-redux';
 import {useDropzone} from 'react-dropzone';
 import {_BrowserFileSystem as BrowserFileSystem, loadInBatches, parse} from '@loaders.gl/core';
