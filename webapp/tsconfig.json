@@ -1,0 +1,25 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "ESNext"],
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "allowJs": true,
+    "types": ["node"]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "types.d.ts",
+    "kepler.gl/src/**/*.ts",
+    "kepler.gl/src/**/*.tsx",
+    "kepler.gl/src/**/*.js",
+    "kepler.gl/src/**/*.jsx"
+  ],
+  "exclude": ["node_modules", "kepler.gl"]
+}

@@ -8,10 +8,9 @@ import {
   forwardTo
 } from '@kepler.gl/actions';
 import KeplerGl from '@kepler.gl/components';
+import {processGeojson} from '@kepler.gl/processors';
 import jsgeoda from 'jsgeoda';
 import colorbrewer from 'colorbrewer';
-import {processGeojson} from '@kepler.gl/processors';
-import {maybeToDate} from '@kepler.gl/table';
 import {MAPBOX_TOKEN} from '../constants';
 
 const mapId = 'choropleth_map';
@@ -119,10 +118,7 @@ const ChoroplethMap = () => {
           {
             colorField: {
               name: 'jenksCategory',
-              type: 'string',
-              valueAccessor: function (values) {
-                return maybeToDate.bind(null, false, jenksIdx, '', rowContainer)(values);
-              }
+              type: 'string'
             }
           },
           'color'

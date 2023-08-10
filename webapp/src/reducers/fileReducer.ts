@@ -5,7 +5,7 @@ const initialState = {
   rawFileData: null
 };
 
-const fileReducer = (state = initialState, action) => {
+const fileReducer = (state = initialState, action: any) => {
   switch (action.type) {
     case SET_FILE_DATA:
       return {

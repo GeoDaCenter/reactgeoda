@@ -6,7 +6,7 @@ import {createLogger} from 'redux-logger';
 
 // Customize logger
 const loggerMiddleware = createLogger({
-  predicate: (getState, action) => {
+  predicate: (getState: any, action: {type: string}) => {
     const skipLogging = ['@@kepler.gl/LAYER_HOVER', '@@kepler.gl/MOUSE_MOVE'];
     return !skipLogging.includes(action.type);
   }

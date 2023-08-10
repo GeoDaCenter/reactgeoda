@@ -1,20 +1,20 @@
 import React, {useCallback} from 'react';
 import {useDispatch} from 'react-redux';
 import {useDropzone} from 'react-dropzone';
+import {processRowObject, processGeojson} from '@kepler.gl/processors';
 import {_BrowserFileSystem as BrowserFileSystem, loadInBatches, parse} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {JSONLoader, _GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
 import {FormattedMessage} from 'react-intl';
 import {setFileData, setRawFileData} from '../actions/fileActions';
-import {processRowObject, processGeojson} from '@kepler.gl/processors';
 
 const FileHandler = () => {
   const dispatch = useDispatch();
 
-  const getFileExtension = fileName => fileName.split('.').pop().toLowerCase();
+  const getFileExtension = (fileName: any) => fileName.split('.').pop().toLowerCase();
 
-  const processShapeFiles = async shpFiles => {
+  const processShapeFiles = async (shpFiles: any) => {
     if (!shpFiles.has('shp') || !shpFiles.has('dbf')) {
       // TODO: @justin-kleid replace it with a React message box
       console.error('Missing required Shapefile files (shp, dbf)');
@@ -35,24 +35,24 @@ const FileHandler = () => {
     return processGeojson({type: 'FeatureCollection', features: data});
   };
 
-  const processCSVFile = async file => {
+  const processCSVFile = async (file: any) => {
     const data = await parse(file, CSVLoader);
     return processRowObject(data);
   };
 
-  const processJSONFile = async file => {
+  const processJSONFile = async (file: any) => {
     const data = await parse(file, JSONLoader);
     return data; // Delete?
   };
 
-  const processGeoJSONFile = async file => {
+  const processGeoJSONFile = async (file: any) => {
     const data = await parse(file, GeoJSONLoader);
     return processGeojson(data);
   };
 
   const onDrop = useCallback(
-    async acceptedFiles => {
-      const shpFiles = acceptedFiles.reduce((acc, file) => {
+    async (acceptedFiles: any) => {
+      const shpFiles = acceptedFiles.reduce((acc: any, file: any) => {
         const ext = getFileExtension(file.name);
         if (['shp', 'shx', 'dbf', 'prj'].includes(ext)) acc.set(ext, file);
         return acc;

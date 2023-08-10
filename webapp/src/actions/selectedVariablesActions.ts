@@ -8,47 +8,47 @@ export const SET_LOCAL_MORAN_WEIGHTS = 'SET_LOCAL_MORAN_WEIGHTS';
 export const SET_LOCAL_MORAN_SIGNIFICANCE = 'SET_LOCAL_MORAN_SIGNIFICANCE';
 export const SET_UNIVARIATE_AUTOCORRELATION_TYPE = 'SET_UNIVARIATE_AUTOCORRELATION_TYPE';
 
-export const setSelectedGraphVariables = variables => ({
+export const setSelectedGraphVariables = (variables: any) => ({
   type: SET_SELECTED_GRAPH_VARIABLES,
   payload: variables
 });
 
-export const setSelectedChoroplethVariable = variable => ({
+export const setSelectedChoroplethVariable = (variable: any) => ({
   type: SET_SELECTED_CHOROPLETH_VARIABLE,
   payload: variable
 });
 
-export const setPlotType = plotType => ({
+export const setPlotType = (plotType: any) => ({
   type: SET_PLOT_TYPE,
   payload: plotType
 });
 
-export const setChoroplethMethod = method => ({
+export const setChoroplethMethod = (method: any) => ({
   type: SET_CHOROPLETH_METHOD,
   payload: method
 });
 
-export const setNumberOfBreaks = number => ({
+export const setNumberOfBreaks = (number: any) => ({
   type: SET_NUMBER_OF_BREAKS,
   payload: number
 });
 
-export const setSelectedLocalMoranVariable = variable => ({
+export const setSelectedLocalMoranVariable = (variable: any) => ({
   type: SET_SELECTED_LOCAL_MORAN_VARIABLE,
   payload: variable
 });
 
-export const setLocalMoranWeights = weights => ({
+export const setLocalMoranWeights = (weights: any) => ({
   type: SET_LOCAL_MORAN_WEIGHTS,
   payload: weights
 });
 
-export const setLocalMoranSignificance = significance => ({
+export const setLocalMoranSignificance = (significance: number) => ({
   type: SET_LOCAL_MORAN_SIGNIFICANCE,
   payload: significance
 });
 
-export const setUnivariateAutocorrelationType = type => ({
+export const setUnivariateAutocorrelationType = (type: any) => ({
   type: SET_UNIVARIATE_AUTOCORRELATION_TYPE,
   payload: type
 });

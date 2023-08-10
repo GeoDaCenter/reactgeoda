@@ -7,10 +7,9 @@ import {
   forwardTo
 } from '@kepler.gl/actions';
 import KeplerGl from '@kepler.gl/components';
-import jsgeoda from 'jsgeoda';
 import {processGeojson} from '@kepler.gl/processors';
-import {maybeToDate} from '@kepler.gl/table';
 import {rgbToHex} from '@kepler.gl/utils';
+import jsgeoda from 'jsgeoda';
 import {MAPBOX_TOKEN} from '../constants';
 
 const mapId = 'local_moran_map';
@@ -134,16 +133,7 @@ const LocalMoranMap = () => {
           {
             colorField: {
               name: 'clusterCategory',
-              type: 'string',
-              valueAccessor: function (values) {
-                return maybeToDate.bind(
-                  null,
-                  false,
-                  clusterIdxRef.current,
-                  '',
-                  rowContainerRef.current
-                )(values);
-              }
+              type: 'string'
             }
           },
           'color'

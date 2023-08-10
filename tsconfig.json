@@ -1,0 +1,41 @@
+{
+  "compileOnSave": false,
+  // Note: tsconfig.json allows comments!
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    // "noImplicitOverride": true,
+    // "noPropertyAccessFromIndexSignature": true,
+    // "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@kepler/types": ["app/kepler.gl/src/types/index"],
+      "@kepler/constants": ["app/kepler.gl/src/constants/src/index"],
+      "@kepler/utils": ["app/kepler.gl/src/utils/src/index"],
+      "@kepler/styles": ["app/kepler.gl/src/styles/src/index"],
+      "@kepler/localization": ["app/kepler.gl/src/localization/src/index"],
+      "@kepler/deckgl-layers": ["app/kepler.gl/src/deckgl-layers/src/index"],
+      "@kepler/schemas": ["app/kepler.gl/src/schemas/src/index"],
+      "@kepler/table": ["app/kepler.gl/src/table/src/index"],
+      "@kepler/cloud-providers": ["app/kepler.gl/src/cloud-providers/src/index"],
+      "@kepler/processors": ["app/kepler.gl/src/processors/src/index"],
+      "@kepler/tasks": ["app/kepler.gl/src/tasks/src/index"],
+      "@kepler/actions/*": ["./webapp/kepler.gl/actions/src/*"],
+      "@kepler/actions": ["./webapp/kepler.gl/actions/src/index"],
+      "@kepler/reducers": ["app/kepler.gl/src/reducers/src/index"],
+      "@kepler/components": ["app/kepler.gl/components/tasks/src/index"]
+    }
+  },
+  "exclude": ["**/node_modules/**", "**/out/**"]
+}

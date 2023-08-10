@@ -1,7 +1,7 @@
 // This is for # of breaks for choropleth mapping
 import {SET_NUMBER_OF_BREAKS} from '../actions';
 
-const numberOfBreaksReducer = (state = 5, action) => {
+const numberOfBreaksReducer = (state = 5, action: any) => {
   switch (action.type) {
     case SET_NUMBER_OF_BREAKS:
       return action.payload;
