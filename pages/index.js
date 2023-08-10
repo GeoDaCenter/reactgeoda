@@ -18,10 +18,10 @@ export default function Home() {
           <Navigator />
           <div className="main-box">
             <div className="main-grid">
-              <Demo />
               <LanguageSelector />
               <FileHandler />
               <GridLayout />
+              <Demo />
             </div>
           </div>
           <div className="prop-box" />

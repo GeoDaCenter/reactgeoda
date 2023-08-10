@@ -10,6 +10,7 @@ import {
 } from '@chatscope/chat-ui-kit-react';
 import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
@@ -96,36 +97,47 @@ const ChatGpt = () => {
   }
 
   return (
-    <div style={{position: 'relative', height: '100%', width: '100%'}}>
-      <MainContainer>
-        <ChatContainer>
-          <MessageList
-            scrollBehavior="smooth"
-            typingIndicator={
-              isTyping ? (
-                <TypingIndicator
-                  content={intl.formatMessage({
-                    id: 'chatGpt.isTyping',
-                    defaultMessage: 'ChatGPT is typing'
-                  })}
-                />
-              ) : null
-            }
-          >
-            {messages.map((message, i) => (
-              <Message key={i} model={message} />
-            ))}
-          </MessageList>
-          <MessageInput
-            placeholder={intl.formatMessage({
-              id: 'chatGpt.inputPlaceholder',
-              defaultMessage: 'Type message here'
-            })}
-            onSend={handleSend}
-          />
-        </ChatContainer>
-      </MainContainer>
-    </div>
+    <AutoSizer>
+      {({height, width}) => (
+        <div
+          style={{
+            position: 'relative',
+            height: `${height - 32}px`,
+            width: `${width - 32}px`,
+            padding: '16px'
+          }}
+        >
+          <MainContainer>
+            <ChatContainer>
+              <MessageList
+                scrollBehavior="smooth"
+                typingIndicator={
+                  isTyping ? (
+                    <TypingIndicator
+                      content={intl.formatMessage({
+                        id: 'chatGpt.isTyping',
+                        defaultMessage: 'ChatGPT is typing'
+                      })}
+                    />
+                  ) : null
+                }
+              >
+                {messages.map((message, i) => (
+                  <Message key={i} model={message} />
+                ))}
+              </MessageList>
+              <MessageInput
+                placeholder={intl.formatMessage({
+                  id: 'chatGpt.inputPlaceholder',
+                  defaultMessage: 'Type message here'
+                })}
+                onSend={handleSend}
+              />
+            </ChatContainer>
+          </MainContainer>
+        </div>
+      )}
+    </AutoSizer>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, {useEffect, useCallback, useRef} from 'react';
 import {connect, useSelector} from 'react-redux';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from 'kepler.gl';
 import {addDataToMap, forwardTo} from 'kepler.gl/actions';
 import {processGeojson} from 'kepler.gl/processors';
@@ -148,9 +149,18 @@ const KeplerMap = ({dispatch, geojsonUrl}) => {
   }, [geojsonUrl, keplerGlDispatch]);
 
   return (
-    <div>
-      <KeplerGl id={mapId} mapboxApiAccessToken={MAPBOX_TOKEN} width={700} height={700} />
-    </div>
+    <AutoSizer defaultHeight={400} defaultWidth={500}>
+      {({height, width}) => (
+        <div style={{padding: '16px'}}>
+          <KeplerGl
+            id={mapId}
+            mapboxApiAccessToken={MAPBOX_TOKEN}
+            height={height - 32}
+            width={width - 32}
+          />
+        </div>
+      )}
+    </AutoSizer>
   );
 };
 

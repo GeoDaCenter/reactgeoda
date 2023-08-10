@@ -10,11 +10,51 @@ const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
-  {i: 'kepler', x: 0, y: 0, w: 7, h: 8, static: true},
-  {i: 'toolbar', x: 10, y: 0, w: 5, h: 5, static: true},
-  {i: 'table', x: 14, y: 12, w: 5, h: 14},
-  {i: 'nivoplot', x: 10, y: 14, w: 7, h: 10},
-  {i: 'chatgpt', x: 10, y: 14, w: 5, h: 8}
+  {
+    w: 7,
+    h: 9,
+    x: 0,
+    y: 0,
+    i: 'kepler',
+    moved: false,
+    static: false
+  },
+  {
+    w: 12,
+    h: 6,
+    x: 0,
+    y: 9,
+    i: 'toolbar',
+    moved: false,
+    static: false
+  },
+  {
+    w: 5,
+    h: 9,
+    x: 7,
+    y: 0,
+    i: 'table',
+    moved: false,
+    static: false
+  },
+  {
+    w: 7,
+    h: 10,
+    x: 0,
+    y: 15,
+    i: 'nivoplot',
+    moved: false,
+    static: false
+  },
+  {
+    w: 4,
+    h: 8,
+    x: 8,
+    y: 15,
+    i: 'chatgpt',
+    moved: false,
+    static: false
+  }
 ];
 
 const GridLayout = () => {
@@ -22,21 +62,43 @@ const GridLayout = () => {
   // TODO: Call data from redux store from within the grid components instead of here
   // TODO: fix up/implement aggrid
 
+  const styles = {
+    gridItem: {
+      borderRadius: '5px',
+      border: '1px dashed #ddd',
+      overflow: 'auto'
+    }
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const onLayoutChange = layout => {
+    // ToDo save layout to state
+    console.log(layout);
+  };
+
   return (
-    <ReactGridLayout className="layout" layout={layout} rowHeight={30} width={1200}>
-      <div key="kepler">
+    <ReactGridLayout
+      className="layout"
+      layout={layout}
+      rowHeight={30}
+      width={1200}
+      margin={[20, 20]}
+      allowOverlap={false}
+      onLayoutChange={onLayoutChange}
+    >
+      <div key="kepler" style={styles.gridItem}>
         <KeplerMap />
       </div>
-      <div key="toolbar">
+      <div key="toolbar" style={styles.gridItem}>
         <ToolBar />
       </div>
-      <div key="table">
+      <div key="table" style={styles.gridItem}>
         <AgGrid />
       </div>
-      <div key="nivoplot">
+      <div key="nivoplot" style={styles.gridItem}>
         <NivoPlot />
       </div>
-      <div key="chatgpt">
+      <div key="chatgpt" style={styles.gridItem}>
         <ChatGpt />
       </div>
     </ReactGridLayout>
