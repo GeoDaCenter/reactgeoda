@@ -1,4 +1,4 @@
-import {SET_FILE_DATA, SET_RAW_FILE_DATA} from '../actions';
+import {SET_FILE_DATA, SET_RAW_FILE_DATA, SET_DEFAULT_DATA} from '../actions';
 
 const initialState = {
   fileData: [],
@@ -7,6 +7,12 @@ const initialState = {
 
 const fileReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_DEFAULT_DATA:
+      return {
+        ...state,
+        fileData: action.payload.processedData,
+        rawFileData: action.payload.rawData
+      };
     case SET_FILE_DATA:
       return {
         ...state,
