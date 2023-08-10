@@ -1,5 +1,19 @@
 # Notes
 
+## Install
+
+At root directory, run:
+
+```bash
+yarn
+```
+
+Then, run:
+
+```bash
+yarn workspace webgeoda dev
+```
+
 ## Errors
 
 ### `gyp ERR! ValueError: invalid mode: 'rU' while trying to load binding.gyp`
