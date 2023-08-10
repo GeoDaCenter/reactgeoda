@@ -2,11 +2,14 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import {useSelector} from 'react-redux';
 
-const DynamicResponsiveBar = dynamic(() => import('@nivo/bar').then(mod => mod.ResponsiveBar), {
-  ssr: false
-});
-const DynamicResponsiveScatterPlot = dynamic(
-  () => import('@nivo/scatterplot').then(mod => mod.ResponsiveScatterPlot),
+const DynamicResponsiveBarCanvas = dynamic(
+  () => import('@nivo/bar').then(mod => mod.ResponsiveBarCanvas),
+  {
+    ssr: false
+  }
+);
+const DynamicResponsiveScatterPlotCanvas = dynamic(
+  () => import('@nivo/scatterplot').then(mod => mod.ResponsiveScatterPlotCanvas),
   {ssr: false}
 );
 
@@ -31,13 +34,30 @@ const NivoPlot = () => {
       }));
 
       return (
-        <DynamicResponsiveScatterPlot
+        <DynamicResponsiveScatterPlotCanvas
           data={scatterFormattedData}
-          xScale={{type: 'linear', min: 'auto', max: 'auto'}}
-          yScale={{type: 'linear', min: 'auto', max: 'auto'}}
-          axisBottom={{legend: selectedGraphVariables[0]}}
-          axisLeft={{legend: selectedGraphVariables[1]}}
+          xScale={{type: 'linear', min: 0, max: 'auto'}}
+          yScale={{type: 'linear', min: 0, max: 'auto'}}
+          margin={{top: 50, right: 130, bottom: 55, left: 70}}
           animate
+          axisBottom={{
+            orient: 'bottom',
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: selectedGraphVariables[0],
+            legendPosition: 'middle',
+            legendOffset: 46
+          }}
+          axisLeft={{
+            orient: 'left',
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            legend: selectedGraphVariables[1],
+            legendPosition: 'middle',
+            legendOffset: -60
+          }}
         />
       );
     case 'bar':
@@ -48,13 +68,20 @@ const NivoPlot = () => {
 
       if (barFormattedData.length > 0) {
         return (
-          <DynamicResponsiveBar
+          <DynamicResponsiveBarCanvas
             data={barFormattedData}
             keys={[selectedGraphVariables[1]]}
             indexBy={selectedGraphVariables[0]}
-            margin={{top: 50, right: 130, bottom: 50, left: 60}}
-            padding={0.3}
+            margin={{top: 60, right: 140, bottom: 70, left: 90}}
+            minValue="auto"
+            maxValue="auto"
             groupMode="stacked"
+            layout="horizontal"
+            padding={0.3}
+            valueScale={{type: 'linear'}}
+            indexScale={{type: 'band', round: true}}
+            borderWidth={0}
+            borderRadius={0}
           />
         );
       }
