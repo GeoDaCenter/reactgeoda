@@ -1,7 +1,7 @@
 const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   swcMinify: true,
   output: 'export',
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
