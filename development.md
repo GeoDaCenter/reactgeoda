@@ -34,7 +34,20 @@ brew link python@3.10
 
 ### `error - Error [ERR_REQUIRE_ESM]: require() of ES Module`
 
-xxx
+```
+{
+    "resolutions": {
+        "react": "16.14.0",
+        "react-dom": "16.14.0",
+        "@deck.gl/core": "8.8.9",
+        "@deck.gl/extensions": "8.8.9",
+        "@deck.gl/layers": "8.8.9",
+        "@deck.gl/mesh-layers": "8.8.9",
+        "@deck.gl/react": "8.8.9",
+        "@deck.gl/geo-layers": "8.8.9",
+    }
+}
+```
 
 ### `Error: You gave us a visitor for the node type ClassAccessorProperty but it's not a valid type
 
