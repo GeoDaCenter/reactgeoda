@@ -3,6 +3,7 @@ import {AgGridReact} from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import {useSelector} from 'react-redux';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 const AgGrid = () => {
   const data = useSelector(state => state.root.file.fileData);
@@ -32,15 +33,20 @@ const AgGrid = () => {
       : [];
 
   return (
-    <div
-      className="ag-theme-alpine"
-      style={{
-        height: '500px',
-        width: '600px'
-      }}
-    >
-      <AgGridReact rowData={rowData} columnDefs={columnDefs}></AgGridReact>
-    </div>
+    <AutoSizer>
+      {({height, width}) => (
+        <div
+          className="ag-theme-alpine"
+          style={{
+            height: `${height}px`,
+            width: `${width}px`,
+            padding: '16px'
+          }}
+        >
+          <AgGridReact rowData={rowData} columnDefs={columnDefs}></AgGridReact>
+        </div>
+      )}
+    </AutoSizer>
   );
 };
 
