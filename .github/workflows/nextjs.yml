@@ -63,6 +63,7 @@ jobs:
         run: |
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> .env
+          echo NEXT_PUBLIC_API_KEY=${{ secrets.CHATGPT_TOKEN }} >> .env
           [[ "${{ github.event_name }}" = pull_request ]] && export BASE_PATH=/reactgeoda/pr-preview/pr-${{ github.event.number }}
           ${{ steps.detect-package-manager.outputs.runner }} build-prod
       - name: Upload artifact
