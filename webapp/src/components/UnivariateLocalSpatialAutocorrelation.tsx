@@ -85,7 +85,7 @@ const LocalMoranMap = () => {
         lm = geoda.quantileLisa(w, 5, 1, col, 999, 'lookup', localMoranSignificance, 123456789);
         break;
       default:
-        console.error('Invalid autocorrelation type: ' + univariateAutocorrelationType);
+        console.error(`Invalid autocorrelation type: ${univariateAutocorrelationType}`);
         return;
     }
 

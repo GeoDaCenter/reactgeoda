@@ -9,10 +9,10 @@ const nextConfig = {
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   images: {unoptimized: true},
   generateBuildId: async () => 'reactgeoda-v0.1',
-  // transpilePackages: ['kepler.gl'],
-  // experimental: {
-  //   externalDir: true
-  // },
+  typescript: {
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
   webpack: (config, options) => {
     config.optimization.splitChunks = false;
     config.optimization.minimize = isProduction;
@@ -31,19 +31,6 @@ const nextConfig = {
         NextMiniCssExtractPlugin.options.chunkFilename = NextMiniCssExtractPlugin.options.chunkFilename.replace('[contenthash]', '[name]');
       }
     }
-    // babel-loader
-    // config.module.rules.push({
-    //   test: /(\.js|\.ts|\.tsx)$/,
-    //   loader: 'babel-loader',
-    //   include: [resolve(__dirname, './kepler.gl/src')],
-    //   exclude: [/node_modules/],
-    //   options: {
-    //     presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
-    //     plugins: ['@babel/plugin-proposal-class-properties']
-    //   }
-    // });
-    // config.resolve.extensions = [...config.resolve.extensions, '.tsx', '.ts'];
-    // config.resolve.modules.push(resolve(__dirname, './kepler.gl/src'));
     config.resolve.alias = {
       ...config.resolve.alias,
       '@kepler.gl/reducers': resolve(__dirname, './kepler.gl/src/reducers/src/index'),

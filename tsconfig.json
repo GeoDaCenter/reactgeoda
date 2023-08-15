@@ -1,0 +1,28 @@
+{
+  "compileOnSave": false,
+  // Note: tsconfig.json allows comments!
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "composite": true,
+    "noEmit": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    // "noImplicitOverride": true,
+    // "noPropertyAccessFromIndexSignature": true,
+    // "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@kepler.gl/*": ["webapp/kepler.gl/src/*/src"]
+    }
+  },
+  "exclude": ["**/out/**"]
+}

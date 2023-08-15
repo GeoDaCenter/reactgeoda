@@ -13,9 +13,12 @@ module.exports = {
     'prettier'
   ],
   rules: {
+    'valid-jsdoc': 0,
+    'consistent-return': 0,
     'no-duplicate-imports': 'error',
-    'prettier/prettier': 'error',
-    'react-hooks/exhaustive-deps': 'error'
+    'react-hooks/exhaustive-deps': 'error',
+    '@next/next/no-html-link-for-pages': ['error', 'src/pages/'],
+    'prettier/prettier': 'error'
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -24,5 +27,11 @@ module.exports = {
     },
     ecmaVersion: 12,
     sourceType: 'module'
-  }
+  },
+  settings: {
+    next: {
+      rootDir: './webapp/'
+    }
+  },
+  ignorePatterns: ['kepler.gl', 'node_modules', 'out']
 };

@@ -1,10 +1,15 @@
 {
   "name": "webgeoda-monorepo",
   "private": true,
-  "workspaces": [
-    "webapp",
-    "webapp/kepler.gl"
-  ],
+  "workspaces": {
+    "packages": [
+      "webapp",
+      "webapp/kepler.gl"
+    ],
+    "nohoist": [
+      "**/webpack*"
+    ]
+  },
   "resolutions": {
     "react": "16.14.0",
     "react-dom": "16.14.0",
@@ -16,5 +21,9 @@
     "@deck.gl/geo-layers": "8.8.9",
     "@babel/traverse": "7.22.6"
   },
-  "packageManager": "yarn@3.0.2"
+  "packageManager": "yarn@3.0.2",
+  "volta": {
+    "node": "16.20.1",
+    "yarn": "3.0.2"
+  }
 }

@@ -9,6 +9,7 @@ import {
 } from '@kepler.gl/actions';
 import KeplerGl from '@kepler.gl/components';
 import {processGeojson} from '@kepler.gl/processors';
+// @ts-ignore
 import jsgeoda from 'jsgeoda';
 import colorbrewer from 'colorbrewer';
 import {MAPBOX_TOKEN} from '../constants';
