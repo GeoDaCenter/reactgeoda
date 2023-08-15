@@ -1,25 +1,30 @@
 {
-  "extends": "../tsconfig.json",
+  "compileOnSave": false,
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "ESNext"],
-    "skipLibCheck": true,
-    "module": "ESNext",
+    "rootDir": ".",
+    "target": "es2020",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
+    "noEmit": true,
+    "incremental": true,
     "isolatedModules": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "ESNext"],
+    "module": "ESNext",
+    "resolveJsonModule": true,
     "jsx": "preserve",
+    // "allowJs": true,
     "allowJs": true,
-    "types": ["node"]
+    "baseUrl": ".",
+    "paths": {
+      "@kepler.gl/*": ["./kepler.gl/src/*/src"]
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "types.d.ts",
-    "kepler.gl/src/**/*.ts",
-    "kepler.gl/src/**/*.tsx",
-    "kepler.gl/src/**/*.js",
-    "kepler.gl/src/**/*.jsx"
-  ],
-  "exclude": ["node_modules", "kepler.gl"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types.d.ts"],
+  "exclude": ["**/node_modules/**", "kepler.gl"]
 }
