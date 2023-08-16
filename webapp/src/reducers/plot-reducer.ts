@@ -1,6 +1,11 @@
 import {SET_PLOT_TYPE} from '../actions';
 
-const plotTypeReducer = (state = '', action: any) => {
+export type PlotAction = {
+  type: string;
+  payload: any;
+};
+
+const plotTypeReducer = (state = '', action: PlotAction) => {
   switch (action.type) {
     case SET_PLOT_TYPE:
       return action.payload;

@@ -1,8 +1,9 @@
 module.exports = {
-  plugins: ['eslint-plugin-prettier', 'react', 'react-hooks', 'prettier'],
+  plugins: ['@typescript-eslint', 'eslint-plugin-prettier', 'react', 'react-hooks', 'prettier'],
   env: {
     es6: true,
-    node: true
+    node: true,
+    browser: true
   },
   extends: [
     'eslint:recommended',
@@ -13,6 +14,8 @@ module.exports = {
     'prettier'
   ],
   rules: {
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'error',
     'valid-jsdoc': 0,
     'consistent-return': 0,
     'no-duplicate-imports': 'error',

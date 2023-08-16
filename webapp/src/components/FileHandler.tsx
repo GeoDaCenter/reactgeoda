@@ -1,28 +1,32 @@
 import React, {useCallback} from 'react';
-import {useDispatch} from 'react-redux';
 import {useDropzone} from 'react-dropzone';
-import {processRowObject, processGeojson} from '@kepler.gl/processors';
+import {FormattedMessage} from 'react-intl';
+import {useDispatch} from 'react-redux';
 import {_BrowserFileSystem as BrowserFileSystem, loadInBatches, parse} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {JSONLoader, _GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
-import {FormattedMessage} from 'react-intl';
-import {setFileData, setRawFileData} from '../actions/fileActions';
+import {processRowObject, processGeojson} from '@kepler.gl/processors';
+import {setFileData, setRawFileData} from '../actions/file-actions';
 
 const FileHandler = () => {
   const dispatch = useDispatch();
 
-  const getFileExtension = (fileName: any) => fileName.split('.').pop().toLowerCase();
+  const getFileExtension = (fileName: string) => {
+    return fileName.split('.').pop()?.toLowerCase();
+  };
 
-  const processShapeFiles = async (shpFiles: any) => {
-    if (!shpFiles.has('shp') || !shpFiles.has('dbf')) {
+  const processShapeFiles = async (shpFiles: Map<string, File>) => {
+    const shpFileName = shpFiles.get('shp')?.name;
+    const dbfFileName = shpFiles.get('dbf')?.name;
+    if (shpFileName === undefined || dbfFileName === undefined) {
       // TODO: @justin-kleid replace it with a React message box
       console.error('Missing required Shapefile files (shp, dbf)');
       return;
     }
     const fileSystem = new BrowserFileSystem(Array.from(shpFiles.values()));
     const {fetch} = fileSystem;
-    const batches = await loadInBatches(shpFiles.get('shp').name, ShapefileLoader, {
+    const batches = await loadInBatches(shpFileName, ShapefileLoader, {
       fetch,
       gis: {reproject: false},
       shp: {_maxDimensions: Number.MAX_SAFE_INTEGER},
@@ -35,33 +39,36 @@ const FileHandler = () => {
     return processGeojson({type: 'FeatureCollection', features: data});
   };
 
-  const processCSVFile = async (file: any) => {
+  const processCSVFile = async (file: File) => {
     const data = await parse(file, CSVLoader);
     return processRowObject(data);
   };
 
-  const processJSONFile = async (file: any) => {
+  const processJSONFile = async (file: File) => {
     const data = await parse(file, JSONLoader);
     return data; // Delete?
   };
 
-  const processGeoJSONFile = async (file: any) => {
+  const processGeoJSONFile = async (file: File) => {
     const data = await parse(file, GeoJSONLoader);
     return processGeojson(data);
   };
 
   const onDrop = useCallback(
-    async (acceptedFiles: any) => {
-      const shpFiles = acceptedFiles.reduce((acc: any, file: any) => {
-        const ext = getFileExtension(file.name);
-        if (['shp', 'shx', 'dbf', 'prj'].includes(ext)) acc.set(ext, file);
+    async (acceptedFiles: File[]) => {
+      const shpFiles = acceptedFiles.reduce((acc, file) => {
+        const ext = (getFileExtension(file.name) || '').toLowerCase();
+        if (['shp', 'shx', 'dbf', 'prj'].includes(ext)) {
+          acc.set(ext, file);
+        }
         return acc;
       }, new Map());
 
       let data;
       let rawData;
-      if (shpFiles.size > 0) data = await processShapeFiles(shpFiles);
-      else {
+      if (shpFiles.size > 0) {
+        data = await processShapeFiles(shpFiles);
+      } else {
         const file = acceptedFiles[0];
         const ext = getFileExtension(file.name);
         switch (ext) {
@@ -83,8 +90,10 @@ const FileHandler = () => {
             return;
         }
       }
-      dispatch(setFileData(data));
-      dispatch(setRawFileData(rawData));
+      if (data && rawData) {
+        dispatch(setFileData(data));
+        dispatch(setRawFileData(rawData));
+      }
     },
     [dispatch]
   );
@@ -96,7 +105,7 @@ const FileHandler = () => {
     borderRadius: '5px',
     padding: '10px',
     border: '2px dashed #ccc',
-    textAlign: 'center',
+    textAlign: 'center' as const,
     margin: '20px 0',
     backgroundColor: isDragActive ? '#eee' : '#fafafa'
   };

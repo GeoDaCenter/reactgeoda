@@ -1,7 +1,9 @@
-import {SET_LANGUAGE} from '../actions/languageActions';
+import {Dispatch} from 'react';
+import {AnyAction} from 'redux';
 import {ActionTypes} from '@kepler.gl/actions';
+import {SET_LANGUAGE} from '../actions/language-actions';
 
-const keplerLanguageMiddleware = (store: any) => (next: any) => (action: any) => {
+const keplerLanguageMiddleware = (store: any) => (next: Dispatch<AnyAction>) => (action: any) => {
   const result = next(action);
 
   if (action.type === SET_LANGUAGE) {

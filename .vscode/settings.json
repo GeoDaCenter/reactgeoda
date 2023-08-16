@@ -6,5 +6,8 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.format.enable": true,
   "vs-code-prettier-eslint.prettierLast": true,
-  "eslint.validate": ["javascript", "typescript", "html"]
+  "eslint.validate": ["javascript", "typescript", "html"],
+  "typescript.suggestionActions.enabled": false,
+  "javascript.validate.enable": true,
+  "javascript.suggestionActions.enabled": false
 }

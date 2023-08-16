@@ -1,6 +1,11 @@
 import {SET_CHOROPLETH_METHOD} from '../actions';
 
-const choroplethMethodReducer = (state = '', action: any) => {
+export type ChoroplethAction = {
+  type: string;
+  payload: string;
+};
+
+const choroplethMethodReducer = (state = '', action: ChoroplethAction) => {
   switch (action.type) {
     case SET_CHOROPLETH_METHOD:
       return action.payload;

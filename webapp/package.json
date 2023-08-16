@@ -35,6 +35,7 @@
     "react-redux": "7.2.9",
     "react-resizable": "^3.0.5",
     "react-table": "^7.8.0",
+    "react-virtualized-auto-sizer": "^1.0.20",
     "redux": "^4.2.1",
     "redux-logger": "^3.0.6",
     "styled-components": "^5.3.9"
@@ -45,6 +46,7 @@
     "@types/colorbrewer": "^1.0.29",
     "@types/node": "^20.4.9",
     "@types/react": "18.0.1",
+    "@types/redux-logger": "^3.0.9",
     "@typescript-eslint/eslint-plugin": "5.3.1",
     "@typescript-eslint/parser": "5.3.1",
     "cross-env": "^7.0.3",

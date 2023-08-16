@@ -1,19 +1,25 @@
 import {combineReducers} from 'redux';
-import languageReducer from './languageReducer';
-import fileReducer from './fileReducer';
+import languageReducer from './language-reducer';
+import fileReducer from './file-reducer';
 import {
   selectedGraphVariablesReducer,
   selectedChoroplethVariableReducer
-} from './selectedVariablesReducer';
-import plotTypeReducer from './plotTypeReducer';
-import choroplethMethodReducer from './choroplethMethodReducer';
-import numberOfBreaksReducer from './numberOfBreaksReducer';
+} from './select-variables-reducer';
+import plotTypeReducer from './plot-reducer';
+import choroplethMethodReducer from './choropleth-reducer';
+import numberOfBreaksReducer from './colorbreaks-reducer';
 import {
   localMoranWeightsReducer,
   localMoranSignificanceReducer,
   selectedLocalMoranVariableReducer,
   univariateAutocorrelationTypeReducer
-} from './localMoranReducer';
+} from './localmoran-reducer';
+import {
+  localMoranLayerReducer,
+  localMoranDataReducer,
+  choroplethDataReducer,
+  choroplethLayerReducer
+} from './kepler-layer-reducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
@@ -26,7 +32,11 @@ const rootReducer = combineReducers({
   localMoranWeights: localMoranWeightsReducer,
   localMoranSignificance: localMoranSignificanceReducer,
   selectedLocalMoranVariable: selectedLocalMoranVariableReducer,
-  univariateAutocorrelationType: univariateAutocorrelationTypeReducer
+  univariateAutocorrelationType: univariateAutocorrelationTypeReducer,
+  localMoranLayer: localMoranLayerReducer,
+  localMoranData: localMoranDataReducer,
+  choroplethData: choroplethDataReducer,
+  choroplethLayer: choroplethLayerReducer
 });
 
 export default rootReducer;

@@ -6142,6 +6142,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/redux-logger@npm:^3.0.9":
+  version: 3.0.9
+  resolution: "@types/redux-logger@npm:3.0.9"
+  dependencies:
+    redux: ^4.0.0
+  checksum: c41fdc09198fae2d62ff7d6bd029ccae1fed655e6a7abd40614a8db5d6e01adbe565881b2c8d398789804a48259e3399af3939f994a532c11904ba2021799275
+  languageName: node
+  linkType: hard
+
 "@types/responselike@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/responselike@npm:1.0.0"
@@ -22441,6 +22450,16 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"react-virtualized-auto-sizer@npm:^1.0.20":
+  version: 1.0.20
+  resolution: "react-virtualized-auto-sizer@npm:1.0.20"
+  peerDependencies:
+    react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+    react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0-rc
+  checksum: 2c616ec7587de64a46aa8c6c301e75fee87eb7a39013f25d940b0fe95eee5e8a8a3c109923e241b427752d71fba80f44cd2c8557750967df0777d99ebd16ba24
+  languageName: node
+  linkType: hard
+
 "react-virtualized@npm:^9.21.1":
   version: 9.22.5
   resolution: "react-virtualized@npm:9.22.5"
@@ -27508,6 +27527,7 @@ typescript@^4.5.4:
     "@types/colorbrewer": ^1.0.29
     "@types/node": ^20.4.9
     "@types/react": 18.0.1
+    "@types/redux-logger": ^3.0.9
     "@typescript-eslint/eslint-plugin": 5.3.1
     "@typescript-eslint/parser": 5.3.1
     ag-grid-community: ^30.0.3
@@ -27539,6 +27559,7 @@ typescript@^4.5.4:
     react-redux: 7.2.9
     react-resizable: ^3.0.5
     react-table: ^7.8.0
+    react-virtualized-auto-sizer: ^1.0.20
     redux: ^4.2.1
     redux-logger: ^3.0.6
     styled-components: ^5.3.9
