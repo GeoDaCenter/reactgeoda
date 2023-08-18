@@ -1,18 +1,19 @@
 import jsgeoda from 'jsgeoda';
 import colorbrewer from 'colorbrewer';
 import {useCallback} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Feature } from 'geojson';
 import {setChoroplethData, setChoroplethLayer} from '../actions';
-import {WebGeoDaStore} from '../store';
+import {GeoDaState} from '../store';
 
 function useChoroplethLayer() {
   const dispatch = useDispatch();
-  const choroplethMethod = useSelector((state: WebGeoDaStore) => state.root.choroplethMethod);
-  const numberOfBreaks = useSelector((state: WebGeoDaStore) => state.root.numberOfBreaks);
+  const choroplethMethod = useSelector((state: GeoDaState) => state.root.choroplethMethod);
+  const numberOfBreaks = useSelector((state: GeoDaState) => state.root.numberOfBreaks);
   const selectedChoroplethVariable = useSelector(
-    (state: WebGeoDaStore) => state.root.selectedChoroplethVariable
+    (state: GeoDaState) => state.root.selectedChoroplethVariable
   );
-  const data = useSelector((state: WebGeoDaStore) => state.root.file.rawFileData);
+  const data = useSelector((state: GeoDaState) => state.root.file.rawFileData);
 
   const fetchDataAndSetLayer = useCallback(async () => {
     const geoda = await jsgeoda.New();
@@ -29,7 +30,7 @@ function useChoroplethLayer() {
     }
 
     const jsonData = JSON.parse(new TextDecoder().decode(buffer));
-    jsonData.features = jsonData.features.map((feature, i) => ({
+    jsonData.features = jsonData.features.map((feature: Feature, i: number) => ({
       ...feature,
       properties: {
         ...feature.properties,
@@ -42,7 +43,7 @@ function useChoroplethLayer() {
       type: 'diverging',
       name: 'ColorBrewer RdBu-5',
       colors: colorbrewer.YlOrBr[breaks.breaks.length - 1].map(
-        color => `#${color.match(/[0-9a-f]{2}/g).join('')}`
+        color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`
       )
     };
 
@@ -66,7 +67,7 @@ function useChoroplethLayer() {
       }
     };
     const jenksCategory = jsonData.features.map(
-      (feature, i) => `C${breaks.breaks.findIndex(b => col[i] < b)}`
+      (feature: Feature, i: number) => `C${breaks.breaks.findIndex((b: number) => col[i] < b)}`
     );
     dispatch(setChoroplethLayer(layer));
     dispatch(setChoroplethData(jenksCategory));

@@ -1,5 +1,5 @@
-import {Avatar} from './Avatar';
-import {GeoDaLogo} from './GeoDaLogo';
+import {Avatar} from './avatar';
+import {GeoDaLogo} from './geoda-logo';
 import {
   IconBoxplot,
   IconCartogram,
@@ -13,14 +13,13 @@ import {
   IconScatterplot,
   IconTable,
   IconWeights
-} from './Icons';
+} from './icons';
 
 export function Navigator() {
   return (
     <div className="toolbar">
       <GeoDaLogo
         className="logo-box"
-        geodaLogo="/assets/img/geoda-logo-1.png"
         geodaLogoClassName="geo-da-logo-instance"
       />
       <div className="tool-box">

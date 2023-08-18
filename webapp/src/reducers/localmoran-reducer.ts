@@ -5,7 +5,12 @@ import {
   SET_UNIVARIATE_AUTOCORRELATION_TYPE
 } from '../actions';
 
-export const selectedLocalMoranVariableReducer = (state = '', action) => {
+export type LocalMoranAction = {
+  type: string;
+  payload: any;
+};
+
+export const selectedLocalMoranVariableReducer = (state = '', action: LocalMoranAction) => {
   switch (action.type) {
     case SET_SELECTED_LOCAL_MORAN_VARIABLE:
       return action.payload;
@@ -14,7 +19,7 @@ export const selectedLocalMoranVariableReducer = (state = '', action) => {
   }
 };
 
-export const localMoranWeightsReducer = (state = 'rook', action) => {
+export const localMoranWeightsReducer = (state = 'rook', action: LocalMoranAction) => {
   switch (action.type) {
     case SET_LOCAL_MORAN_WEIGHTS:
       return action.payload;
@@ -23,7 +28,7 @@ export const localMoranWeightsReducer = (state = 'rook', action) => {
   }
 };
 
-export const localMoranSignificanceReducer = (state = 0.05, action) => {
+export const localMoranSignificanceReducer = (state = 0.05, action: LocalMoranAction) => {
   switch (action.type) {
     case SET_LOCAL_MORAN_SIGNIFICANCE:
       return action.payload;
@@ -32,7 +37,7 @@ export const localMoranSignificanceReducer = (state = 0.05, action) => {
   }
 };
 
-export const univariateAutocorrelationTypeReducer = (state = '', action) => {
+export const univariateAutocorrelationTypeReducer = (state = '', action: LocalMoranAction) => {
   switch (action.type) {
     case SET_UNIVARIATE_AUTOCORRELATION_TYPE:
       return action.payload;

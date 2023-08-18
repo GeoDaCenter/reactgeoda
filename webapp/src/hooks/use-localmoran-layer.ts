@@ -1,8 +1,9 @@
 import {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import jsgeoda from 'jsgeoda';
-import {rgbToHex} from 'kepler.gl/dist/utils/color-utils';
+import {rgbToHex} from '@kepler.gl/utils';
 import {setLocalMoranLayer, setLocalMoranData} from '../actions';
+import {GeoDaState} from '../store';
 
 const LocalMoranLayer = () => {
   const dispatch = useDispatch();
@@ -12,7 +13,7 @@ const LocalMoranLayer = () => {
     localMoranWeights,
     localMoranSignificance,
     univariateAutocorrelationType
-  } = useSelector(state => state.root);
+  } = useSelector((state: GeoDaState) => state.root);
 
   const fetchDataAndSetLayer = useCallback(async () => {
     const geoda = await jsgeoda.New();
@@ -72,7 +73,7 @@ const LocalMoranLayer = () => {
       colors: lm_colors_hex
     };
 
-    const clusterCategory = lm.clusters.map(cluster => `C${cluster}`);
+    const clusterCategory = lm.clusters.map((cluster: number) => `C${cluster}`);
     const layer = {
       id: 'moran',
       type: 'geojson',

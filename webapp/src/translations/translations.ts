@@ -7,7 +7,7 @@ import JapaneseMessages from './ja.json';
 import ChineseMessages from './cn.json';
 import RussianMessages from './ru.json';
 
-const MESSAGES = {
+const MESSAGES: {[key: string]: Record<string, string>} = {
   en: EnglishMessages,
   fi: FinnishMessages,
   pt: PortugueseMessages,

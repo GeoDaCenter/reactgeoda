@@ -1,6 +1,8 @@
-import React from 'react';
+export type IconProps = {
+  className: string;
+};
 
-export const IconBoxplot = ({className}) => {
+export const IconBoxplot = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -53,7 +55,7 @@ export const IconBoxplot = ({className}) => {
   );
 };
 
-export const IconCartogram = ({className}) => {
+export const IconCartogram = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -110,7 +112,7 @@ export const IconCartogram = ({className}) => {
   );
 };
 
-export const IconChatgpt = ({className}) => {
+export const IconChatgpt = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -136,7 +138,7 @@ export const IconChatgpt = ({className}) => {
   );
 };
 
-export const IconChoropleth = ({className}) => {
+export const IconChoropleth = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -167,7 +169,7 @@ export const IconChoropleth = ({className}) => {
   );
 };
 
-export const IconHistogram = ({className}) => {
+export const IconHistogram = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -202,7 +204,7 @@ export const IconHistogram = ({className}) => {
   );
 };
 
-export const IconLisa = ({className}) => {
+export const IconLisa = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -272,7 +274,7 @@ export const IconLisa = ({className}) => {
   );
 };
 
-export const IconMap = ({className}) => {
+export const IconMap = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -293,7 +295,7 @@ export const IconMap = ({className}) => {
   );
 };
 
-export const IconOpen = ({className}) => {
+export const IconOpen = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -358,7 +360,7 @@ export const IconOpen = ({className}) => {
   );
 };
 
-export const IconParallel = ({className}) => {
+export const IconParallel = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -463,7 +465,7 @@ export const IconParallel = ({className}) => {
   );
 };
 
-export const IconScatterplot = ({className}) => {
+export const IconScatterplot = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -542,7 +544,7 @@ export const IconScatterplot = ({className}) => {
   );
 };
 
-export const IconTable = ({className}) => {
+export const IconTable = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg
@@ -649,7 +651,7 @@ export const IconTable = ({className}) => {
   );
 };
 
-export const IconWeights = ({className}) => {
+export const IconWeights = ({className}: IconProps) => {
   return (
     <div className={`icon-toolbar ${className}`}>
       <svg

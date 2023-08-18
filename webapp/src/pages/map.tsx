@@ -4,9 +4,9 @@ import dynamic from 'next/dynamic';
 import {render} from 'react-dom';
 
 import store from '../store';
-import IntlProviderWrapper from '../components/IntlProviderWrapper';
+import IntlProviderWrapper from '../components/intl-provider-wrapper';
 
-const KeplerMap = dynamic(() => import('../components/KeplerMap'), {ssr: false});
+const KeplerMap = dynamic(() => import('../components/kepler-map'), {ssr: false});
 
 export default function Home() {
   useEffect(() => {

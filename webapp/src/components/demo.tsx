@@ -9,7 +9,7 @@ import {
   setSelectedGraphVariables,
   setPlotType
 } from '../actions';
-import {processGeojson} from 'kepler.gl/processors';
+import {processGeojson} from '@kepler.gl/processors';
 
 const loadDefaultData = async () => {
   const url = 'https://webgeoda.github.io/data/natregimes.geojson';

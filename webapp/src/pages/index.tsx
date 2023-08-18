@@ -1,13 +1,12 @@
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import {Provider as ReduxProvider} from 'react-redux';
-import React from 'react';
 import store from '../store';
-import GridLayout from '../components/GridLayout';
-import FileHandler from '../components/FileHandler';
-import LanguageSelector from '../components/LanguageSelector';
-import IntlProviderWrapper from '../components/IntlProviderWrapper';
-import {Demo} from '../components/Demo';
+import GridLayout from '../components/grid-layout';
+import FileHandler from '../components/file-handler';
+import LanguageSelector from '../components/language-selector';
+import IntlProviderWrapper from '../components/intl-provider-wrapper';
+import {Demo} from '../components/demo';
 import {Navigator} from '../components/navigator';
 
 export default function Home() {

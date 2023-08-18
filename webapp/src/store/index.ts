@@ -5,12 +5,18 @@ import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import rootReducer from '../reducers/index';
 import keplerLanguageMiddleware from './language-middleware';
 
-export type WebGeoDaStore = {
+export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
   root: {
     choroplethMethod: string;
     numberOfBreaks: number;
-    selectedChoroplethVariable: string[];
+    selectedChoroplethVariable: string;
+    selectedGraphVariables: string[];
+    selectedLocalMoranVariable: string;
+    localMoranWeights: string;
+    localMoranSignificance: number;
+    univariateAutocorrelationType: string;
+    plotType: string;
     file: {
       rawFileData: any;
       fileData: ProcessorResult;
@@ -19,6 +25,7 @@ export type WebGeoDaStore = {
     choroplethData: any;
     localMoranLayer: any;
     localMoranData: any;
+    language: string;
   };
 };
 

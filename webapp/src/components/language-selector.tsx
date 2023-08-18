@@ -1,12 +1,13 @@
 import {useDispatch, useSelector} from 'react-redux';
 import {setLanguage} from '../actions';
+import {GeoDaState} from '../store';
 
 const LanguageSelector = () => {
   const dispatch = useDispatch();
-  const language = useSelector(state => state.root.language);
+  const language = useSelector((state: GeoDaState) => state.root.language);
   console.log(language);
 
-  const handleChange = e => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setLanguage(e.target.value));
   };
 

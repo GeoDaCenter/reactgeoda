@@ -3,9 +3,11 @@ import {useTable} from 'react-table';
 import {FormattedMessage} from 'react-intl';
 import {useSelector} from 'react-redux';
 
+import {GeoDaState} from '../store';
+
 const ReactTable = () => {
   // Prepare data for the table
-  const data = useSelector(state => state.root.file.fileData);
+  const data = useSelector((state: GeoDaState) => state.root.file.fileData);
 
   const memoData = React.useMemo(() => (data && data.rows ? data.rows : []), [data]);
   const memoColumns = React.useMemo(
@@ -13,7 +15,7 @@ const ReactTable = () => {
       data && data.fields
         ? data.fields.map((field, index) => ({
             Header: field.name,
-            accessor: row =>
+            accessor: (row: any[]) =>
               typeof row[index] === 'object' ? JSON.stringify(row[index]) : row[index] // stringify the object if it's an object
           }))
         : [],
@@ -43,7 +45,7 @@ const ReactTable = () => {
           <tr {...headerGroup.getHeaderGroupProps()} key={i}>
             {headerGroup.headers.map((column, j) => (
               <th {...column.getHeaderProps()} key={j}>
-                {column.render('Header')}
+                {column.render('Header') as React.ReactNode}
               </th>
             ))}
           </tr>
@@ -56,7 +58,7 @@ const ReactTable = () => {
             <tr {...row.getRowProps()} key={k}>
               {row.cells.map((cell, l) => (
                 <td {...cell.getCellProps()} key={l}>
-                  {cell.render('Cell')}
+                  {cell.render('Cell') as React.ReactNode}
                 </td>
               ))}
             </tr>

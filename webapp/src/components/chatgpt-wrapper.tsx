@@ -6,11 +6,13 @@ import {
   MessageList,
   Message,
   MessageInput,
+  MessageModel,
   TypingIndicator
 } from '@chatscope/chat-ui-kit-react';
 import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import {GeoDaState} from '../store';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
@@ -21,9 +23,9 @@ const systemMessage = {
 };
 
 const ChatGpt = () => {
-  const data = useSelector(state => state.root.file.fileData);
+  const data = useSelector((state: GeoDaState) => state.root.file.fileData);
   const intl = useIntl();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Array<MessageModel>>([]);
 
   useEffect(() => {
     setMessages([
@@ -33,27 +35,30 @@ const ChatGpt = () => {
           defaultMessage: "Hello, I'm ChatGPT! Ask me anything!"
         }),
         sentTime: 'just now',
-        sender: 'ChatGPT'
+        sender: 'ChatGPT',
+        direction: 'outgoing',
+        position: 'first'
       }
     ]);
   }, [intl]);
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = async message => {
-    const newMessage = {
+  const handleSend = async (message: string) => {
+    const newMessage: MessageModel = {
       message,
       direction: 'outgoing',
-      sender: 'user'
+      sender: 'user',
+      position: 'normal'
     };
 
-    const newMessages = [...messages, newMessage];
+    const newMessages: Array<MessageModel> = [...messages, newMessage];
     setMessages(newMessages);
     setIsTyping(true);
 
     await processMessageToChatGPT(newMessages, data);
   };
 
-  async function processMessageToChatGPT(chatMessages, data) {
+  async function processMessageToChatGPT(chatMessages: Array<MessageModel>, data: any) {
     let apiMessages = chatMessages.map(messageObject => {
       let role = messageObject.sender === 'ChatGPT' ? 'assistant' : 'user';
       return {role: role, content: messageObject.message};
@@ -86,7 +91,9 @@ const ChatGpt = () => {
             ...chatMessages,
             {
               message: data.choices[0].message.content,
-              sender: 'ChatGPT'
+              sender: 'ChatGPT',
+              direction: 'outgoing',
+              position: 'normal'
             }
           ]);
         } else {

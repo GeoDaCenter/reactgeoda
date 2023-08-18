@@ -1,6 +1,8 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
+
+import { GeoDaState } from '../store';
 
 const DynamicResponsiveBarCanvas = dynamic(
   () => import('@nivo/bar').then(mod => mod.ResponsiveBarCanvas),
@@ -14,9 +16,9 @@ const DynamicResponsiveScatterPlotCanvas = dynamic(
 );
 
 const NivoPlot = () => {
-  const data = useSelector(state => state.root.file.fileData);
-  const selectedGraphVariables = useSelector(state => state.root.selectedGraphVariables);
-  const plotType = useSelector(state => state.root.plotType);
+  const data = useSelector((state: GeoDaState) => state.root.file.fileData);
+  const selectedGraphVariables = useSelector((state: GeoDaState) => state.root.selectedGraphVariables);
+  const plotType = useSelector((state: GeoDaState) => state.root.plotType);
 
   if (!data || !data.rows || !data.fields || selectedGraphVariables.length < 2) return null;
 
@@ -39,9 +41,7 @@ const NivoPlot = () => {
           xScale={{type: 'linear', min: 0, max: 'auto'}}
           yScale={{type: 'linear', min: 0, max: 'auto'}}
           margin={{top: 50, right: 130, bottom: 55, left: 70}}
-          animate
           axisBottom={{
-            orient: 'bottom',
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
@@ -50,7 +50,6 @@ const NivoPlot = () => {
             legendOffset: 46
           }}
           axisLeft={{
-            orient: 'left',
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,

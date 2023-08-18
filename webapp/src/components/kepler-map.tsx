@@ -1,4 +1,4 @@
-import React, {useEffect, useCallback, useRef} from 'react';
+import {useEffect, useCallback, useRef} from 'react';
 import {connect, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
@@ -8,7 +8,7 @@ import {Field, RowData, ProtoDataset} from '@kepler.gl/types';
 import {MAPBOX_TOKEN} from '../constants';
 import useChoroplethLayer from '../hooks/use-choropleth-layer';
 import useLocalMoranLayer from '../hooks/use-localmoran-layer';
-import {WebGeoDaStore} from '../store';
+import {GeoDaState} from '../store';
 
 const mapId = 'kepler_map';
 
@@ -31,7 +31,7 @@ const defaultLayer = {
 
 type KeplerMapProps = {
   dispatch: any;
-  geojsonUrl: string;
+  geojsonUrl?: string;
 };
 
 const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
@@ -45,13 +45,13 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
     choroplethData: jenksCategory,
     localMoranLayer,
     localMoranData: clusterCategory
-  } = useSelector((state: WebGeoDaStore) => state.root);
+  } = useSelector((state: GeoDaState) => state.root);
 
   const layerFields = useSelector(
-    (state: WebGeoDaStore) => state?.keplerGl[mapId]?.visState?.datasets?.my_data?.fields
+    (state: GeoDaState) => state?.keplerGl[mapId]?.visState?.datasets?.my_data?.fields
   );
   const layerRows = useSelector(
-    (state: WebGeoDaStore) =>
+    (state: GeoDaState) =>
       state?.keplerGl[mapId]?.visState?.datasets?.my_data?.dataContainer?._rows
   );
 
@@ -136,9 +136,9 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
               fields: layerFieldsRef.current,
               rows: updatedLayerRows
             },
-            info: { id: 'my_data', label: 'my data' }
+            info: {id: 'my_data', label: 'my data'}
           };
-          keplerGlDispatch(addDataToMap({ datasets: newDataset, config: config }));
+          keplerGlDispatch(addDataToMap({datasets: newDataset, config: config}));
         }
       } else {
         console.error('jenksCategory or clusterCategory not defined');
@@ -150,13 +150,16 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
     if (geojsonUrl) {
       fetch(geojsonUrl)
         .then(response => response.json())
-        .then(data => {
-          keplerGlDispatch(
-            addDataToMap({
-              datasets: {data: processGeojson(data)},
-              options: {centerMap: true, readOnly: true}
-            })
-          );
+        .then(jsonData => {
+          const parsedData = processGeojson(jsonData);
+          if (parsedData) {
+            keplerGlDispatch(
+              addDataToMap({
+                datasets: {data: parsedData, info: {}},
+                options: {centerMap: true, readOnly: true}
+              })
+            );
+          }
         });
     }
   }, [geojsonUrl, keplerGlDispatch]);
@@ -177,7 +180,7 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
   );
 };
 
-const mapStateToProps = (state: WebGeoDaStore) => ({
+const mapStateToProps = (state: GeoDaState) => ({
   data: state.root.file.fileData
 });
 

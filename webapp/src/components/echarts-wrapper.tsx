@@ -1,12 +1,11 @@
-import React from 'react';
 import dynamic from 'next/dynamic';
 
 const DynamicEChartsReact = dynamic(() => import('echarts-for-react').then(mod => mod.default), {
   ssr: false
 });
 
-const EChartsPlot = ({data}) => {
-  const formattedData = data.map(item => [
+const EChartsPlot = ({data}: any) => {
+  const formattedData = data.map((item: any) => [
     item.iata,
     parseFloat(item.latitude),
     parseFloat(item.longitude)
@@ -18,19 +17,19 @@ const EChartsPlot = ({data}) => {
       data: ['latitude', 'longitude']
     },
     xAxis: {
-      data: formattedData.map(item => item[0])
+      data: formattedData.map((item: any) => item[0])
     },
     yAxis: {},
     series: [
       {
         name: 'latitude',
         type: 'bar',
-        data: formattedData.map(item => item[1])
+        data: formattedData.map((item: any) => item[1])
       },
       {
         name: 'longitude',
         type: 'bar',
-        data: formattedData.map(item => item[2])
+        data: formattedData.map((item: any) => item[2])
       }
     ]
   };

@@ -1,8 +1,9 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable @next/next/no-img-element */
-import React from 'react';
+export type GeoDaLogoProps = {
+  className: string;
+  geodaLogoClassName: string;
+};
 
-export const GeoDaLogo = ({className, geodaLogoClassName}) => {
+export const GeoDaLogo = ({className, geodaLogoClassName}: GeoDaLogoProps) => {
   return (
     <div className={`geo-da-logo ${className}`}>
       <img

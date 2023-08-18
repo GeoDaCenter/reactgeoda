@@ -4,9 +4,10 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import {useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import {GeoDaState} from '../store';
 
 const AgGrid = () => {
-  const data = useSelector(state => state.root.file.fileData);
+  const data = useSelector((state: GeoDaState) => state.root.file.fileData);
 
   // Check if data and data.fields exist before mapping
   // TODO: Fix issue where first row shows [object, object] instead of actual variable names

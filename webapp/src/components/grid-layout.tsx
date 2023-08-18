@@ -1,12 +1,12 @@
 import React from 'react';
-import RGL, {WidthProvider} from 'react-grid-layout';
+import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
-import ChatGpt from './ChatGpt';
-import NivoPlot from './NivoPlot';
-import ToolBar from './ToolBar';
-import AgGrid from './AgGrid';
+import ChatGpt from './chatgpt-wrapper';
+import NivoPlot from './nivo-plot';
+import ToolBar from './tool-bar';
+import AgGrid from './ag-grid-wrapper';
 
-const KeplerMap = dynamic(() => import('./KeplerMap'), {ssr: false});
+const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
@@ -71,7 +71,7 @@ const GridLayout = () => {
   };
 
   // eslint-disable-next-line no-unused-vars
-  const onLayoutChange = layout => {
+  const onLayoutChange = (layout: Layout[]) => {
     // ToDo save layout to state
     console.log(layout);
   };

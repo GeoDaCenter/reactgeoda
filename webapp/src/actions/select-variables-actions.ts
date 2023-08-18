@@ -13,7 +13,7 @@ export const setSelectedGraphVariables = (variables: string[]) => ({
   payload: variables
 });
 
-export const setSelectedChoroplethVariable = (variable: string[]) => ({
+export const setSelectedChoroplethVariable = (variable: string) => ({
   type: SET_SELECTED_CHOROPLETH_VARIABLE,
   payload: variable
 });
@@ -33,7 +33,7 @@ export const setNumberOfBreaks = (number: number) => ({
   payload: number
 });
 
-export const setSelectedLocalMoranVariable = (variable: string[]) => ({
+export const setSelectedLocalMoranVariable = (variable: string) => ({
   type: SET_SELECTED_LOCAL_MORAN_VARIABLE,
   payload: variable
 });

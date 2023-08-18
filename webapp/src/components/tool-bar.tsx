@@ -1,5 +1,6 @@
 import React from 'react';
 import {useSelector, useDispatch} from 'react-redux';
+import {useIntl} from 'react-intl';
 import {
   setSelectedGraphVariables,
   setSelectedChoroplethVariable,
@@ -11,67 +12,67 @@ import {
   setLocalMoranSignificance,
   setUnivariateAutocorrelationType
 } from '../actions';
-import {useIntl} from 'react-intl';
+import { GeoDaState } from '../store';
 
 const Toolbar = () => {
   const intl = useIntl();
-  const data = useSelector(state => state.root.file.fileData);
-  const selectedGraphVariables = useSelector(state => state.root.selectedGraphVariables);
-  const selectedChoroplethVariable = useSelector(state => state.root.selectedChoroplethVariable);
-  const plotType = useSelector(state => state.root.plotType);
-  const choroplethMethod = useSelector(state => state.root.choroplethMethod);
-  const numberOfBreaks = useSelector(state => state.root.numberOfBreaks);
-  const selectedLocalMoranVariable = useSelector(state => state.root.selectedLocalMoranVariable);
-  const localMoranWeights = useSelector(state => state.root.localMoranWeights);
-  const localMoranSignificance = useSelector(state => state.root.localMoranSignificance);
+  const data = useSelector((state: GeoDaState) => state.root.file.fileData);
+  const selectedGraphVariables = useSelector((state: GeoDaState) => state.root.selectedGraphVariables);
+  const selectedChoroplethVariable = useSelector((state: GeoDaState) => state.root.selectedChoroplethVariable);
+  const plotType = useSelector((state: GeoDaState) => state.root.plotType);
+  const choroplethMethod = useSelector((state: GeoDaState) => state.root.choroplethMethod);
+  const numberOfBreaks = useSelector((state: GeoDaState) => state.root.numberOfBreaks);
+  const selectedLocalMoranVariable = useSelector((state: GeoDaState) => state.root.selectedLocalMoranVariable);
+  const localMoranWeights = useSelector((state: GeoDaState) => state.root.localMoranWeights);
+  const localMoranSignificance = useSelector((state: GeoDaState) => state.root.localMoranSignificance);
   const univariateAutocorrelationType = useSelector(
-    state => state.root.univariateAutocorrelationType
+    (state: GeoDaState) => state.root.univariateAutocorrelationType
   );
   const dispatch = useDispatch();
 
-  const handleChoroplethMethodChange = e => {
+  const handleChoroplethMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setChoroplethMethod(e.target.value));
   };
 
-  const handleNumberOfBreaksChange = e => {
+  const handleNumberOfBreaksChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const parsedNumber = parseInt(e.target.value, 10);
     if (!isNaN(parsedNumber)) {
       dispatch(setNumberOfBreaks(parsedNumber));
     }
   };
 
-  const columns = data.fields ? data.fields.map(field => field.name) : [];
+  const columns = data?.fields ? data.fields.map(field => field.name) : [];
 
-  const handleGraphVariableChange = (e, index) => {
+  const handleGraphVariableChange = (e: React.ChangeEvent<HTMLSelectElement>, index: number) => {
     const newSelectedVariables = [...selectedGraphVariables];
     newSelectedVariables[index] = e.target.value;
     dispatch(setSelectedGraphVariables(newSelectedVariables));
   };
 
-  const handleChoroplethVariableChange = e => {
+  const handleChoroplethVariableChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setSelectedChoroplethVariable(e.target.value));
   };
 
-  const handlePlotTypeChange = e => {
+  const handlePlotTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setPlotType(e.target.value));
   };
 
-  const handleLocalMoranVariableChange = e => {
+  const handleLocalMoranVariableChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setSelectedLocalMoranVariable(e.target.value));
   };
 
-  const handleLocalMoranWeightsChange = e => {
+  const handleLocalMoranWeightsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setLocalMoranWeights(e.target.value));
   };
 
-  const handleLocalMoranSignificanceChange = e => {
+  const handleLocalMoranSignificanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const parsedValue = parseFloat(e.target.value);
     if (!isNaN(parsedValue)) {
       dispatch(setLocalMoranSignificance(parsedValue));
     }
   };
 
-  const handleUnivariateAutocorrelationTypeChange = e => {
+  const handleUnivariateAutocorrelationTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setUnivariateAutocorrelationType(e.target.value));
   };
 
@@ -93,7 +94,7 @@ const Toolbar = () => {
     },
     subRow: {
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column' as const
     },
     row: {
       display: 'flex',
