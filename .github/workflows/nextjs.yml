@@ -53,12 +53,14 @@ jobs:
         uses: actions/configure-pages@v3
         with:
           static_site_generator: next
-      # - name: Restore cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       webapp/.next/cache
-      #     key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx', 'next.config.js') }}
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            .yarn/cache
+            webapp/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx', 'next.config.js') }}
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       # - name: Run Lint
