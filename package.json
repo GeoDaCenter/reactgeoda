@@ -5,22 +5,7 @@
     "packages": [
       "webapp",
       "webapp/kepler.gl"
-    ],
-    "nohoist": [
-      "**/webpack*"
     ]
-  },
-  "resolutions": {
-    "react": "16.14.0",
-    "react-dom": "16.14.0",
-    "@deck.gl/core": "8.8.9",
-    "@deck.gl/extensions": "8.8.9",
-    "@deck.gl/layers": "8.8.9",
-    "@deck.gl/mesh-layers": "8.8.9",
-    "@deck.gl/react": "8.8.9",
-    "@deck.gl/geo-layers": "8.8.9",
-    "@babel/traverse": "7.22.6",
-    "react-intl": "6.3.0"
   },
   "packageManager": "yarn@3.0.2",
   "volta": {
