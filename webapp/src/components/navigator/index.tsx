@@ -18,10 +18,7 @@ import {
 export function Navigator() {
   return (
     <div className="toolbar">
-      <GeoDaLogo
-        className="logo-box"
-        geodaLogoClassName="geo-da-logo-instance"
-      />
+      <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
       <div className="tool-box">
         <IconOpen className="icon-open-instance" />
         <IconTable className="icon-table-instance" />

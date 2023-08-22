@@ -12,19 +12,27 @@ import {
   setLocalMoranSignificance,
   setUnivariateAutocorrelationType
 } from '../actions';
-import { GeoDaState } from '../store';
+import {GeoDaState} from '../store';
 
 const Toolbar = () => {
   const intl = useIntl();
   const data = useSelector((state: GeoDaState) => state.root.file.fileData);
-  const selectedGraphVariables = useSelector((state: GeoDaState) => state.root.selectedGraphVariables);
-  const selectedChoroplethVariable = useSelector((state: GeoDaState) => state.root.selectedChoroplethVariable);
+  const selectedGraphVariables = useSelector(
+    (state: GeoDaState) => state.root.selectedGraphVariables
+  );
+  const selectedChoroplethVariable = useSelector(
+    (state: GeoDaState) => state.root.selectedChoroplethVariable
+  );
   const plotType = useSelector((state: GeoDaState) => state.root.plotType);
   const choroplethMethod = useSelector((state: GeoDaState) => state.root.choroplethMethod);
   const numberOfBreaks = useSelector((state: GeoDaState) => state.root.numberOfBreaks);
-  const selectedLocalMoranVariable = useSelector((state: GeoDaState) => state.root.selectedLocalMoranVariable);
+  const selectedLocalMoranVariable = useSelector(
+    (state: GeoDaState) => state.root.selectedLocalMoranVariable
+  );
   const localMoranWeights = useSelector((state: GeoDaState) => state.root.localMoranWeights);
-  const localMoranSignificance = useSelector((state: GeoDaState) => state.root.localMoranSignificance);
+  const localMoranSignificance = useSelector(
+    (state: GeoDaState) => state.root.localMoranSignificance
+  );
   const univariateAutocorrelationType = useSelector(
     (state: GeoDaState) => state.root.univariateAutocorrelationType
   );

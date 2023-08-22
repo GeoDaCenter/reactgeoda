@@ -51,8 +51,7 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
     (state: GeoDaState) => state?.keplerGl[mapId]?.visState?.datasets?.my_data?.fields
   );
   const layerRows = useSelector(
-    (state: GeoDaState) =>
-      state?.keplerGl[mapId]?.visState?.datasets?.my_data?.dataContainer?._rows
+    (state: GeoDaState) => state?.keplerGl[mapId]?.visState?.datasets?.my_data?.dataContainer?._rows
   );
 
   const {fetchDataAndSetLayer: fetchChoroplethLayer} = useChoroplethLayer();

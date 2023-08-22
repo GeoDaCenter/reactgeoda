@@ -1,8 +1,8 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 
-import { GeoDaState } from '../store';
+import {GeoDaState} from '../store';
 
 const DynamicResponsiveBarCanvas = dynamic(
   () => import('@nivo/bar').then(mod => mod.ResponsiveBarCanvas),
@@ -17,7 +17,9 @@ const DynamicResponsiveScatterPlotCanvas = dynamic(
 
 const NivoPlot = () => {
   const data = useSelector((state: GeoDaState) => state.root.file.fileData);
-  const selectedGraphVariables = useSelector((state: GeoDaState) => state.root.selectedGraphVariables);
+  const selectedGraphVariables = useSelector(
+    (state: GeoDaState) => state.root.selectedGraphVariables
+  );
   const plotType = useSelector((state: GeoDaState) => state.root.plotType);
 
   if (!data || !data.rows || !data.fields || selectedGraphVariables.length < 2) return null;

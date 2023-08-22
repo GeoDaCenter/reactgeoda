@@ -1,3 +1,4 @@
+import React from 'react';
 import {useSelector} from 'react-redux';
 import {IntlProvider} from 'react-intl';
 // import {messages, flattenMessages} from '@kepler.gl/localization';
