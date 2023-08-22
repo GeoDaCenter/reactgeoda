@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "parserOptions": {"project": ["./tsconfig.json"]},
+  "ignorePatterns": ["node_modules", "out"],
+  "env": {
+    "es6": true,
+    "node": true,
+    "browser": true
+  }
+}

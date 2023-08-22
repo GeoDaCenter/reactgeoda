@@ -1,0 +1,31 @@
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+import {Provider as ReduxProvider} from 'react-redux';
+import store from '../store';
+import GridLayout from '../components/grid-layout';
+import FileHandler from '../components/file-handler';
+import LanguageSelector from '../components/language-selector';
+import IntlProviderWrapper from '../components/intl-provider-wrapper';
+import {Demo} from '../components/demo';
+import {Navigator} from '../components/navigator';
+
+export default function Home() {
+  return (
+    <ReduxProvider store={store}>
+      <IntlProviderWrapper>
+        <div className="react-geoda">
+          <Navigator />
+          <div className="main-box">
+            <div className="main-grid">
+              <LanguageSelector />
+              <FileHandler />
+              <GridLayout />
+              <Demo />
+            </div>
+          </div>
+          <div className="prop-box" />
+        </div>
+      </IntlProviderWrapper>
+    </ReduxProvider>
+  );
+}
