@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const KeplerPackage = require('../webapp/kepler.gl/package.json');
 
 const resolve = require('path').resolve;
 
@@ -14,7 +15,6 @@ module.exports = {
   },
   devtool: 'source-map',
   resolve: {
-    // symlinks: false,
     extensions: ['.js', '.tsx', '.ts'],
     modules: ['node_modules', resolve(__dirname, '../webapp/kepler.gl/src')],
     alias: {
@@ -60,7 +60,7 @@ module.exports = {
         NODE_DEBUG: false
       }
     }),
-    new webpack.EnvironmentPlugin(['MapboxAccessToken', 'EnableLogger'])
+    new webpack.EnvironmentPlugin(['NEXT_PUBLIC_MAPBOX_TOKEN', 'EnableLogger'])
   ],
   devServer: {
     contentBase: path.join(__dirname, 'public'),
@@ -97,7 +97,7 @@ module.exports = {
                 rules: [
                   {
                     search: '__PACKAGE_VERSION__',
-                    replace: '3.0.1'
+                    replace: KeplerPackage.version
                   }
                 ]
               }

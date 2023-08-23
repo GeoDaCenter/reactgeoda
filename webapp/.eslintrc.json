@@ -2,7 +2,9 @@
   "env": {
     "node": true,
     "commonjs": true,
-    "browser": true
+    "browser": true,
+    "es2021": true,
+    "jest": true
   },
   "plugins": ["@typescript-eslint", "eslint-plugin-prettier", "react", "react-hooks", "prettier"],
   "extends": [
@@ -29,7 +31,7 @@
     "ecmaFeatures": {
       "jsx": true
     },
-    "ecmaVersion": 12,
+    "ecmaVersion": 2018,
     "sourceType": "module"
   },
   "settings": {
