@@ -47,8 +47,8 @@ jobs:
           npm install --global yarn
           yarn set version 3.6.2
           yarn
-      # - name: Run Lint
-      #   run: yarn workspace webgeoda lint
+      - name: Run Lint
+        run: yarn workspace webgeoda lint
       - name: Build with Next.js
         run: |
           touch .env
