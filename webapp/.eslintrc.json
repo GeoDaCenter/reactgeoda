@@ -1,10 +1,18 @@
 {
+  "env": {
+    "node": true,
+    "commonjs": true,
+    "browser": true,
+    "es2021": true,
+    "jest": true
+  },
   "plugins": ["@typescript-eslint", "eslint-plugin-prettier", "react", "react-hooks", "prettier"],
   "extends": [
     "eslint:recommended",
     "plugin:@next/next/recommended",
     "plugin:eslint-comments/recommended",
     "plugin:css/recommended",
+    "plugin:json/recommended",
     // Add "prettier" last. This will turn off eslint rules conflicting with prettier. This is not what will format our code.
     "prettier"
   ],
@@ -15,7 +23,7 @@
     "consistent-return": 0,
     "no-duplicate-imports": "error",
     "react-hooks/exhaustive-deps": "error",
-    "@next/next/no-html-link-for-pages": ["error", "src/pages/"],
+    "@next/next/no-html-link-for-pages": ["error", "./webapp/src/pages/"],
     "prettier/prettier": "error"
   },
   "parser": "@typescript-eslint/parser",
@@ -23,7 +31,7 @@
     "ecmaFeatures": {
       "jsx": true
     },
-    "ecmaVersion": 12,
+    "ecmaVersion": 2018,
     "sourceType": "module"
   },
   "settings": {

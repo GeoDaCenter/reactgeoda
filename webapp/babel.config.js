@@ -1,9 +1,7 @@
-const {resolve} = require('path');
 const KeplerPackage = require('./kepler.gl/package.json');
 
 module.exports = function babel(api) {
   api.cache(true);
-  console.log(KeplerPackage.version);
   return {
     presets: [['next/babel', {'preset-env': {}}]],
     plugins: [

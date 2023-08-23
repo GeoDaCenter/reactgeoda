@@ -1,8 +1,8 @@
 import jsgeoda from 'jsgeoda';
 import colorbrewer from 'colorbrewer';
 import {useCallback} from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Feature } from 'geojson';
+import {useDispatch, useSelector} from 'react-redux';
+import {Feature} from 'geojson';
 import {setChoroplethData, setChoroplethLayer} from '../actions';
 import {GeoDaState} from '../store';
 
@@ -71,7 +71,7 @@ function useChoroplethLayer() {
     );
     dispatch(setChoroplethLayer(layer));
     dispatch(setChoroplethData(jenksCategory));
-  }, [choroplethMethod, numberOfBreaks, selectedChoroplethVariable]);
+  }, [choroplethMethod, data, dispatch, numberOfBreaks, selectedChoroplethVariable]);
 
   return {fetchDataAndSetLayer};
 }

@@ -1,5 +1,5 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
-import { createLogger } from 'redux-logger';
+import {createLogger} from 'redux-logger';
 import {ProcessorResult} from '@kepler.gl/types';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import rootReducer from '../reducers/index';

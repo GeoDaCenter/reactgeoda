@@ -97,10 +97,12 @@ const LocalMoranLayer = () => {
     dispatch(setLocalMoranLayer(layer));
     dispatch(setLocalMoranData(clusterCategory));
   }, [
+    data,
     selectedLocalMoranVariable,
     localMoranWeights,
-    localMoranSignificance,
-    univariateAutocorrelationType
+    univariateAutocorrelationType,
+    dispatch,
+    localMoranSignificance
   ]);
 
   return {fetchDataAndSetLayer};

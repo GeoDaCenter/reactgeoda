@@ -164,18 +164,20 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
   }, [geojsonUrl, keplerGlDispatch]);
 
   return (
-    <AutoSizer defaultHeight={400} defaultWidth={500}>
-      {({height, width}) => (
-        <div style={{padding: '16px'}}>
-          <KeplerGl
-            id={mapId}
-            mapboxApiAccessToken={MAPBOX_TOKEN}
-            height={height - 32}
-            width={width - 32}
-          />
-        </div>
-      )}
-    </AutoSizer>
+    <div style={{height: '100vh', padding: '16px'}} className={'geoda-kepler-map'}>
+      <AutoSizer defaultHeight={400} defaultWidth={500}>
+        {({height, width}) => {
+          return (
+            <KeplerGl
+              id={mapId}
+              mapboxApiAccessToken={MAPBOX_TOKEN}
+              height={height}
+              width={width}
+            />
+          );
+        }}
+      </AutoSizer>
+    </div>
   );
 };
 
