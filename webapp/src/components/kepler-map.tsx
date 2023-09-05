@@ -3,8 +3,8 @@ import {connect, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
 import {addDataToMap, forwardTo} from '@kepler.gl/actions';
-import {processGeojson} from '@kepler.gl/processors';
-import {Field, RowData, ProtoDataset} from '@kepler.gl/types';
+import {processGeojson, processCsvData} from '@kepler.gl/processors';
+import {Field, RowData, ProtoDataset, ProcessorResult} from '@kepler.gl/types';
 import {MAPBOX_TOKEN} from '../constants';
 import useChoroplethLayer from '../hooks/use-choropleth-layer';
 import useLocalMoranLayer from '../hooks/use-localmoran-layer';
@@ -32,9 +32,10 @@ const defaultLayer = {
 type KeplerMapProps = {
   dispatch: any;
   geojsonUrl?: string;
+  csvUrl?: string;
 };
 
-const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
+const KeplerMap = ({dispatch, geojsonUrl, csvUrl}: KeplerMapProps) => {
   const keplerGlDispatch = useCallback(
     (action: any) => forwardTo(mapId, dispatch)(action),
     [dispatch]
@@ -145,23 +146,38 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
     }
   }, [choroplethLayer, jenksCategory, localMoranLayer, clusterCategory, keplerGlDispatch]);
 
+  const addDataToKeplerGl = useCallback(
+    (parsedData: ProcessorResult) => {
+      if (parsedData) {
+        keplerGlDispatch(
+          addDataToMap({
+            datasets: {data: parsedData, info: {}},
+            options: {centerMap: true, readOnly: true}
+          })
+        );
+      }
+    },
+    [keplerGlDispatch]
+  );
+
+  // component mount with geojsonUrl or csvUrl
   useEffect(() => {
     if (geojsonUrl) {
       fetch(geojsonUrl)
         .then(response => response.json())
         .then(jsonData => {
           const parsedData = processGeojson(jsonData);
-          if (parsedData) {
-            keplerGlDispatch(
-              addDataToMap({
-                datasets: {data: parsedData, info: {}},
-                options: {centerMap: true, readOnly: true}
-              })
-            );
-          }
+          addDataToKeplerGl(parsedData);
+        });
+    } else if (csvUrl) {
+      fetch(csvUrl)
+        .then(response => response.text())
+        .then(data => {
+          const parsedData = processCsvData(data);
+          addDataToKeplerGl(parsedData);
         });
     }
-  }, [geojsonUrl, keplerGlDispatch]);
+  }, [geojsonUrl, csvUrl, keplerGlDispatch, addDataToKeplerGl]);
 
   return (
     <div style={{height: '100vh', padding: '16px'}} className={'geoda-kepler-map'}>
