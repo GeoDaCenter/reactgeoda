@@ -3407,6 +3407,7 @@ __metadata:
     "@kepler.gl/utils": 3.0.0-alpha.0
     "@loaders.gl/core": ^3.0.9
     "@loaders.gl/gltf": ^3.0.9
+    "@loaders.gl/wkt": ^3.4.14
     "@luma.gl/constants": ^8.5.10
     "@mapbox/geojson-normalize": 0.0.1
     "@nebula.gl/edit-modes": 1.0.2-alpha.1
@@ -3750,6 +3751,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@loaders.gl/loader-utils@npm:3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/loader-utils@npm:3.4.14"
+  dependencies:
+    "@babel/runtime": ^7.3.1
+    "@loaders.gl/worker-utils": 3.4.14
+    "@probe.gl/stats": ^4.0.1
+  checksum: fde4e3a6626678bede49afc3feba92d8766975b7e3c6f9af1b23d5b6e638fbfee19cb231c500c7ed67f07a854ed9a8984dd9cb4f41a5409ace4ee3e990d6b699
+  languageName: node
+  linkType: hard
+
 "@loaders.gl/loader-utils@npm:3.4.9, @loaders.gl/loader-utils@npm:^3.0.9, @loaders.gl/loader-utils@npm:^3.2.5":
   version: 3.4.9
   resolution: "@loaders.gl/loader-utils@npm:3.4.9"
@@ -3808,6 +3820,15 @@ __metadata:
   dependencies:
     "@types/geojson": ^7946.0.7
   checksum: eac4961234f277e6a821e503871f03e290b32f7f14e9b69517b3cd3b443d42ddabf0db9fef76e1fc0d50d8286226eddb8384cec99fa22ba2223376d3c0bb50e7
+  languageName: node
+  linkType: hard
+
+"@loaders.gl/schema@npm:3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/schema@npm:3.4.14"
+  dependencies:
+    "@types/geojson": ^7946.0.7
+  checksum: 63a88cb26aa68b7401ddd5d51f1f9ffa15c1a99857990a4fd46d486974009d050afb5965bd9abfdd7beba3863d1055fee44ca03ee0231370ea3043c8ba2de867
   languageName: node
   linkType: hard
 
@@ -3898,12 +3919,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@loaders.gl/wkt@npm:^3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/wkt@npm:3.4.14"
+  dependencies:
+    "@loaders.gl/loader-utils": 3.4.14
+    "@loaders.gl/schema": 3.4.14
+  checksum: e0bac6b0de1de70b728cfd2aa387f34c6f5a31802295ed2bc08c32f25eebe7518ec77d51235b44eb2e013d873c0513e49cb93b2c95a320e682002dfcdc627566
+  languageName: node
+  linkType: hard
+
 "@loaders.gl/worker-utils@npm:3.4.11":
   version: 3.4.11
   resolution: "@loaders.gl/worker-utils@npm:3.4.11"
   dependencies:
     "@babel/runtime": ^7.3.1
   checksum: 388106c5cd6f7c98327b6934e206c7740663b13863b25ce7c7d26b5c4a94999f4d4a1b93563d2f202664a1b13d1a481c5bffddd5d87fa7e3489390032f5d2efe
+  languageName: node
+  linkType: hard
+
+"@loaders.gl/worker-utils@npm:3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/worker-utils@npm:3.4.14"
+  dependencies:
+    "@babel/runtime": ^7.3.1
+  checksum: 18b874f9c0eaa1f5a37cd5ef6be183cb758c6e953caac9ac6666be3f09eeb5ce0c59ba7f2c5c0f21278883b7be6ee336889fec7cc31e64ea6cf37767a949e394
   languageName: node
   linkType: hard
 
