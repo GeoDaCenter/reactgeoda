@@ -28,7 +28,6 @@ export default function Home() {
       <IntlProviderWrapper>
         <div className="react-geoda">
           <Navigator />
-          <button onClick={() => methodDoesNotExist()}>Test Sentry</button>
           <div className="main-box">
             <div className="main-grid">
               <LanguageSelector />
