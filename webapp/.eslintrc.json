@@ -24,7 +24,8 @@
     "no-duplicate-imports": "error",
     "react-hooks/exhaustive-deps": "error",
     "@next/next/no-html-link-for-pages": ["error", "./webapp/src/pages/"],
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "@typescript-eslint/no-explicit-any": "error"
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

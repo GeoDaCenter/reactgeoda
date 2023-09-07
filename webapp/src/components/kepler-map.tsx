@@ -4,7 +4,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
 import {addDataToMap, forwardTo} from '@kepler.gl/actions';
 import {processGeojson} from '@kepler.gl/processors';
-import {Field, RowData, ProtoDataset} from '@kepler.gl/types';
+import {Field, RowData, ProtoDataset, ParsedConfig} from '@kepler.gl/types';
 import {MAPBOX_TOKEN} from '../constants';
 import useChoroplethLayer from '../hooks/use-choropleth-layer';
 import useLocalMoranLayer from '../hooks/use-localmoran-layer';
@@ -18,23 +18,23 @@ const defaultLayer = {
   config: {
     dataId: 'my_data',
     label: 'Default Map',
-    color: [135, 206, 250], // Sky Blue
+    color: [135, 206, 250] as [number, number, number], // Sky Blue
     visConfig: {
       filled: true,
       stroked: true,
-      strokeColor: [255, 127, 80, 255] // Coral
+      strokeColor: [255, 127, 80, 255] as [number, number, number, number] // Coral
     },
     columns: {geojson: '_geojson'},
     isVisible: false
   }
 };
 
-type KeplerMapProps = {
+export type KeplerMapProps = {
   dispatch: any;
   geojsonUrl?: string;
 };
 
-const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
+const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps): JSX.Element => {
   const keplerGlDispatch = useCallback(
     (action: any) => forwardTo(mapId, dispatch)(action),
     [dispatch]
@@ -106,7 +106,7 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
       localMoranLayer &&
       layerFieldsRef.current
     ) {
-      const config = {
+      const config: ParsedConfig = {
         visState: {
           filters: [],
           layers: [defaultLayer, choroplethLayer, localMoranLayer],
@@ -121,14 +121,15 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
         (field: Field) => field.name === 'jenksCategory'
       );
       if (jenksCategoryIndex >= 0 && clusterCategoryIndex >= 0) {
-        const updatedLayerRows = layerRowsRef.current?.map((row, i) => {
+        const updatedLayerRows = (layerRowsRef.current as any[][])?.map((row: any[], i: number) => {
           // replace the values in the jenks and cluster cols (default 'N/A')
           const newRow = [...row];
           newRow[jenksCategoryIndex] = jenksCategory[i] || 'N/A';
           newRow[clusterCategoryIndex] = clusterCategory[i] || 'N/A';
           return newRow;
         });
-
+        
+        
         if (updatedLayerRows) {
           const newDataset: ProtoDataset = {
             data: {

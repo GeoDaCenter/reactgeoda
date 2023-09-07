@@ -34,7 +34,7 @@ function useChoroplethLayer() {
       ...feature,
       properties: {
         ...feature.properties,
-        jenksCategory: `C${breaks.breaks.findIndex(b => col[i] < b)}`
+        jenksCategory: `C${breaks.breaks.findIndex((b: number) => col[i] < b)}`
       }
     }));
 
@@ -53,19 +53,37 @@ function useChoroplethLayer() {
       config: {
         dataId: 'my_data',
         label: 'Choropleth Map',
+        color: [255, 0, 0], 
+        isConfigActive: true, 
+        highlightColor: [255, 0, 0, 128],
+        hidden: false,
+        colorUI: {
+          color: { customPalette: {}, showSketcher: false, showDropdown: false, colorRangeConfig: { type: '', steps: 0, reversed: false, custom: false } },
+          colorRange: { customPalette: {}, showSketcher: false, showDropdown: false, colorRangeConfig: { type: '', steps: 0, reversed: false, custom: false } }
+        }, 
+        animation: { enabled: false }, 
+        textLabel: [], 
         colorField: {
           name: 'jenksCategory',
           type: 'string'
         },
         visConfig: {
           filled: true,
-          colorRange,
-          stroked: false
+          colorRange: {
+            category: 'custom',
+            type: 'diverging',
+            name: 'ColorBrewer RdBu-5',
+            colors: colorbrewer.YlOrBr[breaks.breaks.length - 1].map(
+              color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`
+            )
+          },
+          stroked: false,
         },
-        columns: {geojson: '_geojson'},
-        isVisible: true
+        columns: { geojson: '_geojson' },
+        isVisible: true,
       }
     };
+
     const jenksCategory = jsonData.features.map(
       (feature: Feature, i: number) => `C${breaks.breaks.findIndex((b: number) => col[i] < b)}`
     );

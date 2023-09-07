@@ -4,6 +4,7 @@ import jsgeoda from 'jsgeoda';
 import {rgbToHex} from '@kepler.gl/utils';
 import {setLocalMoranLayer, setLocalMoranData} from '../actions';
 import {GeoDaState} from '../store';
+import { RGBColor } from '@kepler.gl/types';
 
 const LocalMoranLayer = () => {
   const dispatch = useDispatch();
@@ -57,14 +58,17 @@ const LocalMoranLayer = () => {
         return;
     }
 
-    const lm_colors_hex = lm.colors.map(c =>
+    const lm_colors_hex = lm.colors.map((c: string) =>
       rgbToHex(
         c
           .toLowerCase()
-          .match(/[0-9a-f]{2}/g)
-          .map(x => parseInt(x, 16))
+          .match(/[0-9a-f]{2}/g)!
+          .slice(0, 3) // Ensure rgb array has just 3 elements
+          .map((x: string) => parseInt(x, 16)) as RGBColor
       )
     );
+
+
 
     const colorRange = {
       category: 'custom',
@@ -80,19 +84,52 @@ const LocalMoranLayer = () => {
       config: {
         dataId: 'my_data',
         label: 'Local Moran Map',
+        color: [255, 0, 0],  
         colorField: {
           name: 'clusterCategory',
           type: 'string'
         },
         visConfig: {
           filled: true,
-          colorRange,
+          colorRange,  
           stroked: false
         },
-        columns: {geojson: '_geojson'},
-        isVisible: true
+        columns: { geojson: '_geojson' },
+        isVisible: true,
+        isConfigActive: true, 
+        highlightColor: [255, 0, 0, 128], 
+        hidden: false, 
+        colorUI: {
+          color: {
+            customPalette: {},  
+            showSketcher: false,
+            showDropdown: false,
+            colorRangeConfig: {
+              type: '',
+              steps: 0,
+              reversed: false,
+              custom: false
+            }
+          },
+          colorRange: {
+            customPalette: {}, 
+            showSketcher: false,
+            showDropdown: false,
+            colorRangeConfig: {
+              type: '',
+              steps: 0,
+              reversed: false,
+              custom: false
+            }
+          }
+        },
+        animation: {
+          enabled: false,
+        },
+        textLabel: [], 
       }
     };
+    
 
     dispatch(setLocalMoranLayer(layer));
     dispatch(setLocalMoranData(clusterCategory));

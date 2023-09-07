@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
+import {ProcessorResult} from '@kepler.gl/types';
 import {
   setDefaultData,
   setChoroplethMethod,
@@ -17,19 +18,19 @@ const loadDefaultData = async () => {
   try {
     const response = await fetch(url);
     const rawData = await response.json();
+    const processedData = processGeojson(rawData);
     return {
-      processedData: processGeojson(rawData),
-      rawData
+      processedData: processedData !== null ? processedData : { fields: [], rows: [] } as ProcessorResult,
+      rawData,
     };
   } catch (error) {
     console.error('Error occurred while loading the default data:', error);
     return {
-      processedData: [],
-      rawData: null
+      processedData: { fields: [], rows: [] } as ProcessorResult, 
+      rawData: null,
     };
   }
 };
-
 export const Demo = () => {
   const dispatch = useDispatch();
 

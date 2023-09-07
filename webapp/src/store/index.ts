@@ -1,9 +1,11 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
 import {ProcessorResult} from '@kepler.gl/types';
+import { RawData } from '../actions';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import rootReducer from '../reducers/index';
 import keplerLanguageMiddleware from './language-middleware';
+import { Layer } from '../actions';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
@@ -18,13 +20,13 @@ export type GeoDaState = {
     univariateAutocorrelationType: string;
     plotType: string;
     file: {
-      rawFileData: any;
+      rawFileData: RawData | null;
       fileData: ProcessorResult;
     };
-    choroplethLayer: any;
-    choroplethData: any;
-    localMoranLayer: any;
-    localMoranData: any;
+    choroplethLayer: Layer;
+    choroplethData: string[];
+    localMoranLayer: Layer;
+    localMoranData: string[];
     language: string;
   };
 };
@@ -56,7 +58,7 @@ const reducers = combineReducers({
   root: rootReducer
 });
 
-const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
+const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware]);
 const store = createStore(reducers, {}, applyMiddleware(...middlewares));
 
 export default store;

@@ -1,20 +1,25 @@
 import {ProcessorResult} from '@kepler.gl/types';
-import {FILE_ACTIONS} from '../actions';
+import {FILE_ACTIONS, RawData } from '../actions';
 
 export type FileAction = {
   type: FILE_ACTIONS;
   payload: {
     processedData: ProcessorResult;
-    rawData: any;
+    rawData: RawData;
   };
 };
 
-const initialState = {
-  fileData: [],
-  rawFileData: null
+type InitialStateType = {
+  fileData: ProcessorResult[];
+  rawFileData: RawData | null;
 };
 
+const initialState: InitialStateType = {
+  fileData: [],
+  rawFileData: null,
+};
 const fileReducer = (state = initialState, action: FileAction) => {
+  console.log("Action received by reducer:", action);
   switch (action.type) {
     case FILE_ACTIONS.SET_DEFAULT_DATA:
       return {
