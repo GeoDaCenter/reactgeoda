@@ -66,26 +66,35 @@ const FileHandler = () => {
 
       let data;
       let rawData;
+
+
       if (shpFiles.size > 0) {
         data = await processShapeFiles(shpFiles);
+        console.log("Shapefile processed data:", data);
       } else {
         const file = acceptedFiles[0];
         const ext = getFileExtension(file.name);
+        
         switch (ext) {
           case 'csv':
             data = await processCSVFile(file);
             rawData = await parse(file, CSVLoader);
+            console.log("CSV processed data:", data);
+            console.log("CSV raw data:", rawData);
             break;
           case 'json':
             data = await processJSONFile(file);
             rawData = await parse(file, JSONLoader);
+            console.log("JSON processed data:", data);
+            console.log("JSON raw data:", rawData);
             break;
           case 'geojson':
             data = await processGeoJSONFile(file);
             rawData = await parse(file, GeoJSONLoader);
+            console.log("GeoJSON processed data:", data);
+            console.log("GeoJSON raw data:", rawData);
             break;
           default:
-            // TODO: @justin-kleid replace it with a React message box
             console.log('Unsupported file format');
             return;
         }

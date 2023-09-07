@@ -5,8 +5,14 @@ import ChatGpt from './chatgpt-wrapper';
 import NivoPlot from './nivo-plot';
 import ToolBar from './tool-bar';
 import AgGrid from './ag-grid-wrapper';
+import { KeplerMapProps } from '../components/kepler-map';
 
-const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
+type DynamicKeplerMapProps = Omit<KeplerMapProps, 'dispatch'>;
+
+const KeplerMap = dynamic<DynamicKeplerMapProps>(
+  () => import('../components/kepler-map').then((mod) => mod.default as React.FC<DynamicKeplerMapProps>),
+  { ssr: false }
+);
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
