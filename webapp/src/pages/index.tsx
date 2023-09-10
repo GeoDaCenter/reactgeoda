@@ -23,13 +23,13 @@ Sentry.init({
   enabled: process.env.NODE_ENV === 'production'
 });
 
+
 export default function Home() {
   return (
     <ReduxProvider store={store}>
       <IntlProviderWrapper>
         <div className="react-geoda">
           <Navigator />
-          <button onClick={() => methodDoesNotExist()}>Test Sentry</button>
           <div className="main-box">
             <div className="main-grid">
               <LanguageSelector />
