@@ -9,6 +9,7 @@ import LanguageSelector from '../components/language-selector';
 import IntlProviderWrapper from '../components/intl-provider-wrapper';
 import {Demo} from '../components/demo';
 import {Navigator} from '../components/navigator';
+import React, { useEffect } from 'react';
 
 Sentry.init({
   dsn: 'https://a2f3a0fb7afcb544f2d58e5a79caa61b@o4505318856654848.ingest.sentry.io/4505840295477248',
@@ -28,6 +29,7 @@ export default function Home() {
       <IntlProviderWrapper>
         <div className="react-geoda">
           <Navigator />
+          <button onClick={() => methodDoesNotExist()}>Test Sentry</button>
           <div className="main-box">
             <div className="main-grid">
               <LanguageSelector />

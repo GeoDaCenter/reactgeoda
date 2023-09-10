@@ -7,7 +7,7 @@
       "webapp/kepler.gl"
     ]
   },
-  "packageManager": "yarn@3.0.2",
+  "packageManager": "yarn@3.6.2",
   "volta": {
     "node": "16.20.1",
     "yarn": "3.0.2"

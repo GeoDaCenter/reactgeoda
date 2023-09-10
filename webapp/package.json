@@ -20,6 +20,8 @@
     "@nivo/bar": "^0.83.0",
     "@nivo/scatterplot": "^0.83.0",
     "@sentry/nextjs": "^7.68.0",
+    "@sentry/react": "^7.68.0",
+    "@sentry/tracing": "^7.68.0",
     "ag-grid-community": "^30.0.3",
     "ag-grid-react": "^30.0.4",
     "asciify-image": "^0.1.10",
