@@ -5937,7 +5937,7 @@ fsevents@~2.3.2:
   languageName: node
   linkType: hard
 
-"node-gyp@npm:latest":
+"node-gyp@npm:^9.4.0, node-gyp@npm:latest":
   version: 9.4.0
   resolution: "node-gyp@npm:9.4.0"
   dependencies:
@@ -6705,6 +6705,7 @@ fsevents@~2.3.2:
     file-loader: ^6.2.0
     global: ^4.3.0
     html-webpack-plugin: ^4.0.0
+    node-gyp: ^9.4.0
     redux-logger: ^3.0.6
     webpack: ^4.29.0
     webpack-cli: ^3.2.1

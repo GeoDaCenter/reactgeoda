@@ -16,8 +16,7 @@ RUN node -v
 RUN npm install --global yarn
 
 WORKDIR /usr/local/kepler.gl
-ADD ./webapp/kepler.gl ./
 
 RUN export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 RUN export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
-RUN yarn global add "puppeteer@19.11.1" && yarn
+RUN yarn global add "puppeteer@19.11.1"

@@ -14,10 +14,12 @@
   "author": "",
   "license": "ISC",
   "volta": {
-    "node": "16.20.1"
+    "node": "16.20.1",
+    "yarn": "3.0.2"
   },
   "dependencies": {
-    "global": "^4.3.0"
+    "global": "^4.3.0",
+    "node-gyp": "^9.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.1",
