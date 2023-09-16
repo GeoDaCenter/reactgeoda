@@ -3461,6 +3461,7 @@ __metadata:
     "@loaders.gl/csv": ^3.0.9
     "@loaders.gl/json": ^3.0.9
     "@loaders.gl/loader-utils": ^3.0.9
+    "@loaders.gl/parquet": ^3.0.9
     "@mapbox/geojson-normalize": 0.0.1
     "@nebula.gl/edit-modes": 1.0.2-alpha.1
     "@turf/helpers": ^6.1.4
@@ -3639,6 +3640,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@loaders.gl/bson@npm:3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/bson@npm:3.4.14"
+  dependencies:
+    "@loaders.gl/gis": 3.4.14
+    "@loaders.gl/loader-utils": 3.4.14
+    "@loaders.gl/schema": 3.4.14
+    "@types/bson": 4.2.0
+    bson: 4.2.0
+  checksum: 3006e69ed0c31f4579ca58988b021896bc39e5683293f545aaaaeff1acaef4f8f98f95d32793bc177a1bc8f5ff32c12f948daaac28060fe250b90273e71ea916
+  languageName: node
+  linkType: hard
+
+"@loaders.gl/compression@npm:3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/compression@npm:3.4.14"
+  dependencies:
+    "@babel/runtime": ^7.3.1
+    "@loaders.gl/loader-utils": 3.4.14
+    "@loaders.gl/worker-utils": 3.4.14
+    "@types/brotli": ^1.3.0
+    "@types/pako": ^1.0.1
+    brotli: ^1.3.2
+    lz4js: ^0.2.0
+    lzo-wasm: ^0.0.4
+    pako: 1.0.11
+    snappyjs: ^0.6.1
+    zstd-codec: ^0.1
+  dependenciesMeta:
+    brotli:
+      optional: true
+    lz4js:
+      optional: true
+    zstd-codec:
+      optional: true
+  checksum: 55b24f6dfa62467c105cfd447c1982389b369e58ac73eee9c426145848a928bc34d81b81df41e8946b0de1fe1499bf35c0716dce51573b012622bb7291145395
+  languageName: node
+  linkType: hard
+
 "@loaders.gl/core@npm:^2.1.6":
   version: 2.3.13
   resolution: "@loaders.gl/core@npm:2.3.13"
@@ -3694,6 +3734,19 @@ __metadata:
     "@math.gl/polygon": ^3.5.1
     pbf: ^3.2.1
   checksum: af9a6158b6a326e4bf2e0a28e871a999a628e080f4c2bd6f5503309e7780dbbbeda8b48840d9e8232901cda6f44c0ec977fc113fc964f94f67bc146673edfc32
+  languageName: node
+  linkType: hard
+
+"@loaders.gl/gis@npm:3.4.14":
+  version: 3.4.14
+  resolution: "@loaders.gl/gis@npm:3.4.14"
+  dependencies:
+    "@loaders.gl/loader-utils": 3.4.14
+    "@loaders.gl/schema": 3.4.14
+    "@mapbox/vector-tile": ^1.3.1
+    "@math.gl/polygon": ^3.5.1
+    pbf: ^3.2.1
+  checksum: 626cdee9e5183f5d87112fe90dc088409fe80f9fcb025a2885693e5f0c5c5cf4cf476bd488029dd38c61bc1c5fc402407d4790913d21310c90243c2c802f7f96
   languageName: node
   linkType: hard
 
@@ -3807,6 +3860,31 @@ __metadata:
     "@math.gl/polygon": ^3.5.1
     pbf: ^3.2.1
   checksum: fef1c6a21c1078462ac36ca20c4fa92c201a7bced92031943a9956635fecf447338ec0bdb86ad237731c2aafb3c264537b2fd079444bdeb12250ffd4586fe73e
+  languageName: node
+  linkType: hard
+
+"@loaders.gl/parquet@npm:^3.0.9":
+  version: 3.4.14
+  resolution: "@loaders.gl/parquet@npm:3.4.14"
+  dependencies:
+    "@loaders.gl/bson": 3.4.14
+    "@loaders.gl/compression": 3.4.14
+    "@loaders.gl/loader-utils": 3.4.14
+    "@loaders.gl/schema": 3.4.14
+    async-mutex: ^0.2.2
+    brotli: ^1.3.2
+    int53: ^0.2.4
+    lz4js: ^0.2.0
+    node-int64: ^0.4.0
+    object-stream: 0.0.1
+    parquet-wasm: ^0.3.1
+    snappyjs: ^0.6.0
+    thrift: ^0.14.2
+    varint: ^5.0.0
+    zstd-codec: ^0.1
+  peerDependencies:
+    apache-arrow: ^4.0.0
+  checksum: 033229d977c7f364b2336606dc2b3b97848853a8cc40196a880ca537357371c797fb8470ab3177d28fdb7255ee0de60a798f66e6f411a3c34d35060d67e77747
   languageName: node
   linkType: hard
 
@@ -5522,6 +5600,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/brotli@npm:^1.3.0":
+  version: 1.3.1
+  resolution: "@types/brotli@npm:1.3.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 40ef51b1525f8f65e6ba7044164638d92388424ce387d5e656ef20620274f6e48826a93fd678b7cb52dc145f07d4480d6cfc4fc7a05c76aaeea3ebc8cb964ba1
+  languageName: node
+  linkType: hard
+
+"@types/bson@npm:4.2.0":
+  version: 4.2.0
+  resolution: "@types/bson@npm:4.2.0"
+  dependencies:
+    bson: "*"
+  checksum: 55abf60c57b7f05655c210b386392636a299a7df18b89cec2cde0aa87374d97dd4ac9632226b0f6fe135d16ad4296ae5ddc782f6e9132d38c53dd26a6df8e704
+  languageName: node
+  linkType: hard
+
 "@types/classnames@npm:^2.3.1":
   version: 2.3.1
   resolution: "@types/classnames@npm:2.3.1"
@@ -6002,6 +6098,13 @@ __metadata:
   version: 2019.7.0
   resolution: "@types/offscreencanvas@npm:2019.7.0"
   checksum: 018cfcd19e0c59c44d14ba61caaca7246f77fbb512839c7881654b7f2b6591dbdd5857362eccbf49f29cdc93724e71a4b37c8b6cf203388f9c04e913a53ea390
+  languageName: node
+  linkType: hard
+
+"@types/pako@npm:^1.0.1":
+  version: 1.0.4
+  resolution: "@types/pako@npm:1.0.4"
+  checksum: a7ee316fad8e01b895d97fd6db771624d28d7bab43693db563dba768ca6d563aacf99e6d1045288366fec5cd2cb379bf86ef947848690ea648470b21d9a572c5
   languageName: node
   linkType: hard
 
@@ -7771,6 +7874,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"async-mutex@npm:^0.2.2":
+  version: 0.2.6
+  resolution: "async-mutex@npm:0.2.6"
+  dependencies:
+    tslib: ^2.0.0
+  checksum: f50102e0c57f6a958528cff7dff13da070897f17107b42274417a7248905b927b6e51c3387f8aed1f5cd6005b0e692d64a83a0789be602e4e7e7da4afe08b889
+  languageName: node
+  linkType: hard
+
 "async@npm:^2.6.4":
   version: 2.6.4
   resolution: "async@npm:2.6.4"
@@ -8181,7 +8293,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-js@npm:^1.0.2, base64-js@npm:^1.3.1":
+"base64-js@npm:^1.0.2, base64-js@npm:^1.1.2, base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
@@ -8466,6 +8578,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"brotli@npm:^1.3.2":
+  version: 1.3.3
+  resolution: "brotli@npm:1.3.3"
+  dependencies:
+    base64-js: ^1.1.2
+  checksum: 2c97329f4ccb8e4332cedd2f63b85c2e15ffb305b1cbf046df86201434caf93cb7992ca73c0f7053b6a1417f595069ec7783c26e01510cefc10035a0f466e594
+  languageName: node
+  linkType: hard
+
+"browser-or-node@npm:^1.2.1":
+  version: 1.3.0
+  resolution: "browser-or-node@npm:1.3.0"
+  checksum: 14a7e3f7bd2dfeac0d1e8fed378a22c7e3c943c30e84ce09ba0636c82f79f78d321536fd2846dd505b6d7ee6fb0fdb8d7f084afe40f2378eee5533cb8e7cd456
+  languageName: node
+  linkType: hard
+
 "browser-pack@npm:^6.0.1":
   version: 6.1.0
   resolution: "browser-pack@npm:6.1.0"
@@ -8676,6 +8804,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bson@npm:*":
+  version: 6.1.0
+  resolution: "bson@npm:6.1.0"
+  checksum: 8250c8158c22d2a0ca0e7677c0cbef9fa6341c176382b835dbf4c7f8aebdfd74d530f7225c6f3b98ca78a68aab4f1ad3d2fad54160a98b3e6ed9823b80db2e48
+  languageName: node
+  linkType: hard
+
+"bson@npm:4.2.0":
+  version: 4.2.0
+  resolution: "bson@npm:4.2.0"
+  dependencies:
+    buffer: ^5.6.0
+  checksum: 8bca55549172515681761c7b90f48e3ee13631bcb04efdbaba12a036953cdeb50367f50a405fb2ca971d611b585653fef9727dd58c1082688ae8d187d8f3e912
+  languageName: node
+  linkType: hard
+
 "buffer-crc32@npm:~0.2.3":
   version: 0.2.13
   resolution: "buffer-crc32@npm:0.2.13"
@@ -8746,7 +8890,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.2.0, buffer@npm:^5.2.1, buffer@npm:^5.5.0":
+"buffer@npm:^5.2.0, buffer@npm:^5.2.1, buffer@npm:^5.5.0, buffer@npm:^5.6.0":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -15595,6 +15739,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"int53@npm:^0.2.4":
+  version: 0.2.4
+  resolution: "int53@npm:0.2.4"
+  checksum: cb882583a4e5b1d05a11c7827f3724ecff2210a0227c20e9662c35a2179bd11d9dd95385ad587ec004cae6f9d6a07f9fd215c6f1d2457b1c340c859dde5de8e4
+  languageName: node
+  linkType: hard
+
 "internal-ip@npm:^4.3.0":
   version: 4.3.0
   resolution: "internal-ip@npm:4.3.0"
@@ -16437,6 +16588,15 @@ fsevents@^1.2.7:
     node-fetch: ^2.6.1
     whatwg-fetch: ^3.4.1
   checksum: e5ab79a56ce5af6ddd21265f59312ad9a4bc5a72cebc98b54797b42cb30441d5c5f8d17c5cd84a99e18101c8af6f90c081ecb8d12fd79e332be1778d58486d75
+  languageName: node
+  linkType: hard
+
+"isomorphic-ws@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "isomorphic-ws@npm:4.0.1"
+  peerDependencies:
+    ws: "*"
+  checksum: d7190eadefdc28bdb93d67b5f0c603385aaf87724fa2974abb382ac1ec9756ed2cfb27065cbe76122879c2d452e2982bc4314317f3d6c737ddda6c047328771a
   languageName: node
   linkType: hard
 
@@ -18268,6 +18428,20 @@ fsevents@^1.2.7:
   version: 2.3.9
   resolution: "lunr@npm:2.3.9"
   checksum: 176719e24fcce7d3cf1baccce9dd5633cd8bdc1f41ebe6a180112e5ee99d80373fe2454f5d4624d437e5a8319698ca6837b9950566e15d2cae5f2a543a3db4b8
+  languageName: node
+  linkType: hard
+
+"lz4js@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "lz4js@npm:0.2.0"
+  checksum: 5cd48a9eb8b114560ec049b5abb736d9a48fa797459d3c470e5d4dfd2b6e6ea8325ea4bc4873f5ddf18fafc3b1c9e56381377a931923a0dd2c95073b0a3ff76e
+  languageName: node
+  linkType: hard
+
+"lzo-wasm@npm:^0.0.4":
+  version: 0.0.4
+  resolution: "lzo-wasm@npm:0.0.4"
+  checksum: 0eb32b8309d32433f75a69d7b4d2c271642ef0d2eec514ec0a8188e863e4c13e70e1a7307b64c39a426b5067fc557204d401e18a4201569ff49113c28c454b37
   languageName: node
   linkType: hard
 
@@ -20250,6 +20424,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"object-stream@npm:0.0.1":
+  version: 0.0.1
+  resolution: "object-stream@npm:0.0.1"
+  checksum: 3dc0a5ae21fe4a59989d3da8170583c30982a20b144514fcf231c882c0f76cb4648a2b29a94654f8cf96f6760cc079c2300823984830c2b07bc4bd71c766e175
+  languageName: node
+  linkType: hard
+
 "object-visit@npm:^1.0.0":
   version: 1.0.1
   resolution: "object-visit@npm:1.0.1"
@@ -20728,7 +20909,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"pako@npm:^1.0.11, pako@npm:~1.0.5":
+"pako@npm:1.0.11, pako@npm:^1.0.11, pako@npm:~1.0.5":
   version: 1.0.11
   resolution: "pako@npm:1.0.11"
   checksum: 1be2bfa1f807608c7538afa15d6f25baa523c30ec870a3228a89579e474a4d992f4293859524e46d5d87fd30fa17c5edf34dbef0671251d9749820b488660b16
@@ -20771,6 +20952,13 @@ fsevents@^1.2.7:
   dependencies:
     path-platform: ~0.11.15
   checksum: 094fc817d5e8d94e9f9d38c2618a2822f2960b7a268183a36326c5d1cf6ff32f97b1158b0f9b32ab126573996dfe6db104feda6d26e8531d762d178ef4488fc8
+  languageName: node
+  linkType: hard
+
+"parquet-wasm@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "parquet-wasm@npm:0.3.1"
+  checksum: a0444749c234d399f01ff6b16bd3e77db15e6b98e253c64d4858b1889f2c5d3d2c2022ac8e1897be3660fffb5a19c4001542bc724674e14cd1560bf33943c675
   languageName: node
   linkType: hard
 
@@ -21975,6 +22163,13 @@ fsevents@^1.2.7:
   version: 6.0.2
   resolution: "pure-rand@npm:6.0.2"
   checksum: 79de33876a4f515d759c48e98d00756bbd916b4ea260cc572d7adfa4b62cace9952e89f0241d0410214554503d25061140fe325c66f845213d2b1728ba8d413e
+  languageName: node
+  linkType: hard
+
+"q@npm:^1.5.0":
+  version: 1.5.1
+  resolution: "q@npm:1.5.1"
+  checksum: 147baa93c805bc1200ed698bdf9c72e9e42c05f96d007e33a558b5fdfd63e5ea130e99313f28efc1783e90e6bdb4e48b67a36fcc026b7b09202437ae88a1fb12
   languageName: node
   linkType: hard
 
@@ -24371,6 +24566,13 @@ resolve@^2.0.0-next.4:
   languageName: node
   linkType: hard
 
+"snappyjs@npm:^0.6.0, snappyjs@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "snappyjs@npm:0.6.1"
+  checksum: ff1e129207e8dead5674fdf066c4b91ea8aa8f4a09b25a8de14904dce6c2a361463a0d502f6d2c074529cc3fe0aa176ed1f990528ed8f324f23b542ebc14caff
+  languageName: node
+  linkType: hard
+
 "sockjs-client@npm:^1.5.0":
   version: 1.6.1
   resolution: "sockjs-client@npm:1.6.1"
@@ -25834,6 +26036,19 @@ resolve@^2.0.0-next.4:
   bin:
     texture-compressor: ./bin/texture-compressor.js
   checksum: b715e53a34da37c3bf19c2a8e13069302375a8b4e36448af05033105b6bc83782bc1cb9030e35a137271514d854f18eb65e5ff802cecbeb7f0b95ebbd7ed99a3
+  languageName: node
+  linkType: hard
+
+"thrift@npm:^0.14.2":
+  version: 0.14.2
+  resolution: "thrift@npm:0.14.2"
+  dependencies:
+    browser-or-node: ^1.2.1
+    isomorphic-ws: ^4.0.1
+    node-int64: ^0.4.0
+    q: ^1.5.0
+    ws: ^5.2.2
+  checksum: de212a1947bfb63f5f29f8e4525e446817117f6fe8b5fe8b7aa0c3dcc76a5f8bc610a9c4339fab1316c0c9c0722412b65f20f70020b24216cb39d7df77270f3f
   languageName: node
   linkType: hard
 
@@ -27355,6 +27570,13 @@ typescript@^4.5.4:
   languageName: node
   linkType: hard
 
+"varint@npm:^5.0.0":
+  version: 5.0.2
+  resolution: "varint@npm:5.0.2"
+  checksum: e1a66bf9a6cea96d1f13259170d4d41b845833acf3a9df990ea1e760d279bd70d5b1f4c002a50197efd2168a2fd43eb0b808444600fd4d23651e8d42fe90eb05
+  languageName: node
+  linkType: hard
+
 "vary@npm:~1.1.2":
   version: 1.1.2
   resolution: "vary@npm:1.1.2"
@@ -28379,6 +28601,15 @@ typescript@^4.5.4:
   languageName: node
   linkType: hard
 
+"ws@npm:^5.2.2":
+  version: 5.2.3
+  resolution: "ws@npm:5.2.3"
+  dependencies:
+    async-limiter: ~1.0.0
+  checksum: bdb2223a40c2c68cf91b25a6c9b8c67d5275378ec6187f343314d3df7530e55b77cb9fe79fb1c6a9758389ac5aefc569d24236924b5c65c5dbbaff409ef739fc
+  languageName: node
+  linkType: hard
+
 "ws@npm:^6.0.0, ws@npm:^6.2.1":
   version: 6.2.2
   resolution: "ws@npm:6.2.2"
@@ -28715,6 +28946,13 @@ typescript@^4.5.4:
   dependencies:
     tslib: 2.3.0
   checksum: 4b317346af8eca38e62ba029239c3a13e97eac4fa15b3ddadbae23442d8b373f0e937c255dee8080d6bb2fc79c9da54f1106415586ed8942bd8bc684b3890ea9
+  languageName: node
+  linkType: hard
+
+"zstd-codec@npm:^0.1":
+  version: 0.1.4
+  resolution: "zstd-codec@npm:0.1.4"
+  checksum: 8689bc0defc4f387d1be990b8b8ca8ca56690d17dfc8dd4703db798465b92a21e64e54e886acfaa376147d9d07d879a68627b09fddc34a0c93f0dc5c610a790c
   languageName: node
   linkType: hard
 
