@@ -137,7 +137,9 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
             },
             info: {id: 'my_data', label: 'my data'}
           };
-          keplerGlDispatch(addDataToMap({datasets: newDataset, config: config}));
+          keplerGlDispatch(
+            addDataToMap({datasets: newDataset, config: config, options: {readOnly: true}})
+          );
         }
       } else {
         console.error('jenksCategory or clusterCategory not defined');
@@ -155,7 +157,7 @@ const KeplerMap = ({dispatch, geojsonUrl}: KeplerMapProps) => {
             keplerGlDispatch(
               addDataToMap({
                 datasets: {data: parsedData, info: {}},
-                options: {centerMap: true, readOnly: true}
+                options: {centerMap: true}
               })
             );
           }
