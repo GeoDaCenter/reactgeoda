@@ -5,7 +5,7 @@ const KeplerPackage = require('../webapp/kepler.gl/package.json');
 
 const resolve = require('path').resolve;
 
-module.exports = (env) => {
+module.exports = env => {
   return {
     entry: {
       app: resolve('./src/main.js')
@@ -35,6 +35,8 @@ module.exports = (env) => {
       extensions: ['.js', '.tsx', '.ts'],
       modules: ['node_modules', resolve(__dirname, '../webapp/kepler.gl/src')],
       alias: {
+        'apache-arrow': resolve(__dirname, '../node_modules/apache-arrow'),
+        '@kepler.gl/effects': resolve(__dirname, '../webapp/kepler.gl/src/effects/src'),
         '@kepler.gl/reducers': resolve(__dirname, '../webapp/kepler.gl/src/reducers/src'),
         '@kepler.gl/actions': resolve(__dirname, '../webapp/kepler.gl/src/actions/src/index'),
         '@kepler.gl/constants': resolve(__dirname, '../webapp/kepler.gl/src/constants/src/index'),
@@ -83,11 +85,11 @@ module.exports = (env) => {
             presets: [
               '@babel/preset-env',
               // for Babel and React 17, adding runtime automatic
-              ['@babel/preset-react', { runtime: 'automatic' }],
+              ['@babel/preset-react', {runtime: 'automatic'}],
               '@babel/preset-typescript'
             ],
             plugins: [
-              ['@babel/plugin-transform-typescript', { isTSX: true, allowDeclareFields: true }],
+              ['@babel/plugin-transform-typescript', {isTSX: true, allowDeclareFields: true}],
               '@babel/plugin-proposal-class-properties',
               '@babel/plugin-proposal-optional-chaining',
               '@babel/plugin-proposal-export-namespace-from',
@@ -113,7 +115,13 @@ module.exports = (env) => {
         {
           test: /\.(png|woff|woff2|eot|ttf|svg)$/,
           loader: 'url-loader',
-          options: { limit: false }
+          options: {limit: false}
+        },
+        // for compiling apache-arrow ESM module
+        {
+          test: /\.mjs$/,
+          include: /node_modules\/apache-arrow/,
+          type: 'javascript/auto'
         }
       ]
     }

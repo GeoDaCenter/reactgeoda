@@ -42,6 +42,7 @@ const nextConfig = {
     }
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@kepler.gl/effects': resolve(__dirname, './kepler.gl/src/effects/src/index'),
       '@kepler.gl/reducers': resolve(__dirname, './kepler.gl/src/reducers/src/index'),
       '@kepler.gl/actions': resolve(__dirname, './kepler.gl/src/actions/src/index'),
       '@kepler.gl/constants': resolve(__dirname, './kepler.gl/src/constants/src/index'),

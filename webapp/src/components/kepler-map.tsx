@@ -1,8 +1,9 @@
 import {useEffect, useCallback, useRef} from 'react';
 import {connect, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import type {Table as ApacheArrowTable} from 'apache-arrow';
-import {ArrowLoader} from '@loaders.gl/arrow';
+import {tableFromIPC} from 'apache-arrow';
+// import {ArrowLoader} from '@loaders.gl/arrow';
+import {ParquetLoader} from '@loaders.gl/parquet';
 import {fetchFile, parse} from '@loaders.gl/core';
 import KeplerGl from '@kepler.gl/components';
 import {addDataToMap, forwardTo} from '@kepler.gl/actions';
@@ -37,9 +38,18 @@ type KeplerMapProps = {
   geojsonUrl?: string;
   csvUrl?: string;
   arrowUrl?: string;
+  parquetUrl?: string;
+  keplerUrl?: string;
 };
 
-const KeplerMap = ({dispatch, geojsonUrl, csvUrl, arrowUrl}: KeplerMapProps) => {
+const KeplerMap = ({
+  dispatch,
+  geojsonUrl,
+  csvUrl,
+  arrowUrl,
+  parquetUrl,
+  keplerUrl
+}: KeplerMapProps) => {
   const keplerGlDispatch = useCallback(
     (action: any) => forwardTo(mapId, dispatch)(action),
     [dispatch]
@@ -151,12 +161,12 @@ const KeplerMap = ({dispatch, geojsonUrl, csvUrl, arrowUrl}: KeplerMapProps) => 
   }, [choroplethLayer, jenksCategory, localMoranLayer, clusterCategory, keplerGlDispatch]);
 
   const addDataToKeplerGl = useCallback(
-    (parsedData: ProcessorResult) => {
+    (parsedData: ProcessorResult, format?: string, fileName?: string) => {
       if (parsedData) {
         keplerGlDispatch(
           addDataToMap({
-            datasets: {data: parsedData, info: {}},
-            options: {centerMap: true, readOnly: true}
+            datasets: {data: parsedData, info: {format, label: fileName}},
+            options: {centerMap: true, readOnly: false}
           })
         );
       }
@@ -181,16 +191,31 @@ const KeplerMap = ({dispatch, geojsonUrl, csvUrl, arrowUrl}: KeplerMapProps) => 
           addDataToKeplerGl(parsedData);
         });
     } else if (arrowUrl) {
-      parse(fetchFile(arrowUrl), ArrowLoader, {
-        worker: false,
-        // return ArrowTable, not object-row-table
-        arrow: {shape: 'arrow-table'}
-      }).then((arrowTable: ApacheArrowTable) => {
-        const parsedData = processArrowTable(arrowTable);
-        addDataToKeplerGl(parsedData);
+      fetch(arrowUrl)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+          console.time('read arrow');
+          const arrowTable = tableFromIPC(new Uint8Array(buffer));
+          const parsedData = processArrowTable(arrowTable.batches);
+          console.timeEnd('read arrow');
+          // get file name from url
+          const fileName = arrowUrl.split('/').pop()?.split('.')[0];
+          addDataToKeplerGl(parsedData, 'arrow', fileName);
+        });
+    } else if (parquetUrl) {
+      parse(fetchFile(parquetUrl), ParquetLoader, {
+        worker: false
+      }).then((parquetTable: any) => {
+        console.log(parquetTable);
       });
+    } else if (keplerUrl) {
+      fetch(keplerUrl)
+        .then(response => response.json())
+        .then(parsedData => {
+          addDataToKeplerGl(parsedData);
+        });
     }
-  }, [geojsonUrl, csvUrl, keplerGlDispatch, addDataToKeplerGl, arrowUrl]);
+  }, [geojsonUrl, csvUrl, keplerGlDispatch, addDataToKeplerGl, arrowUrl, parquetUrl, keplerUrl]);
 
   return (
     <div style={{height: '100vh', padding: '16px'}} className={'geoda-kepler-map'}>
