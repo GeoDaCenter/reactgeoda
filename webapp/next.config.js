@@ -42,6 +42,7 @@ const nextConfig = {
     }
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@mapbox/tiny-sdf': resolve(__dirname, '../node_modules/@mapbox/tiny-sdf/index.cjs'),
       '@kepler.gl/effects': resolve(__dirname, './kepler.gl/src/effects/src/index'),
       '@kepler.gl/reducers': resolve(__dirname, './kepler.gl/src/reducers/src/index'),
       '@kepler.gl/actions': resolve(__dirname, './kepler.gl/src/actions/src/index'),
@@ -59,6 +60,12 @@ const nextConfig = {
       '@kepler.gl/cloud-providers': resolve(__dirname, './kepler.gl/src/cloud-providers/src/index'),
       '@kepler.gl/processors': resolve(__dirname, './kepler.gl/src/processors/src/index')
     };
+    config.module.rules.push({
+      test: /\.cjs$/,
+      use: {
+        loader: 'babel-loader'
+      }
+    });
     return config;
   }
 };

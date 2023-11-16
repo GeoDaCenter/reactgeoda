@@ -1,4 +1,8 @@
+const {resolve} = require('path');
+
 const KeplerPackage = require('./kepler.gl/package.json');
+const nodeModules = resolve(__dirname, '../node_modules');
+console.log('nodeModules', nodeModules);
 
 module.exports = function babel(api) {
   api.cache(true);
@@ -21,6 +25,7 @@ module.exports = function babel(api) {
         'babel-plugin-module-resolver',
         {
           alias: {
+            // '@mapbox/tiny-sdf': `${nodeModules}/@mapbox/tiny-sdf/index.cjs`
             // '@kepler.gl/reducers': resolve(__dirname, './kepler.gl/src/reducers/src/index'),
             // '@kepler.gl/actions': resolve(__dirname, './kepler.gl/src/actions/src/index'),
             // '@kepler.gl/constants': resolve(__dirname, './kepler.gl/src/constants/src/index'),
