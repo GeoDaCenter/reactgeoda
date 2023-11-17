@@ -1,9 +1,13 @@
 import {useEffect, useCallback, useRef} from 'react';
 import {connect, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import {tableFromIPC} from 'apache-arrow';
+// import {ArrowLoader} from '@loaders.gl/arrow';
+import {ParquetLoader} from '@loaders.gl/parquet';
+import {fetchFile, parse} from '@loaders.gl/core';
 import KeplerGl from '@kepler.gl/components';
 import {addDataToMap, forwardTo} from '@kepler.gl/actions';
-import {processGeojson, processCsvData} from '@kepler.gl/processors';
+import {processGeojson, processCsvData, processArrowTable} from '@kepler.gl/processors';
 import {Field, RowData, ProtoDataset, ProcessorResult} from '@kepler.gl/types';
 import {MAPBOX_TOKEN} from '../constants';
 import useChoroplethLayer from '../hooks/use-choropleth-layer';
@@ -33,9 +37,19 @@ type KeplerMapProps = {
   dispatch: any;
   geojsonUrl?: string;
   csvUrl?: string;
+  arrowUrl?: string;
+  parquetUrl?: string;
+  keplerUrl?: string;
 };
 
-const KeplerMap = ({dispatch, geojsonUrl, csvUrl}: KeplerMapProps) => {
+const KeplerMap = ({
+  dispatch,
+  geojsonUrl,
+  csvUrl,
+  arrowUrl,
+  parquetUrl,
+  keplerUrl
+}: KeplerMapProps) => {
   const keplerGlDispatch = useCallback(
     (action: any) => forwardTo(mapId, dispatch)(action),
     [dispatch]
@@ -178,8 +192,32 @@ const KeplerMap = ({dispatch, geojsonUrl, csvUrl}: KeplerMapProps) => {
           const parsedData = processCsvData(data);
           addDataToKeplerGl(parsedData);
         });
+    } else if (arrowUrl) {
+      fetch(arrowUrl)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+          console.time('read arrow');
+          const arrowTable = tableFromIPC(new Uint8Array(buffer));
+          const parsedData = processArrowTable(arrowTable.batches);
+          console.timeEnd('read arrow');
+          // get file name from url
+          const fileName = arrowUrl.split('/').pop()?.split('.')[0];
+          addDataToKeplerGl(parsedData);
+        });
+    } else if (parquetUrl) {
+      parse(fetchFile(parquetUrl), ParquetLoader, {
+        worker: false
+      }).then((parquetTable: any) => {
+        console.log(parquetTable);
+      });
+    } else if (keplerUrl) {
+      fetch(keplerUrl)
+        .then(response => response.json())
+        .then(parsedData => {
+          addDataToKeplerGl(parsedData);
+        });
     }
-  }, [geojsonUrl, csvUrl, keplerGlDispatch, addDataToKeplerGl]);
+  }, [geojsonUrl, csvUrl, keplerGlDispatch, addDataToKeplerGl, arrowUrl, parquetUrl, keplerUrl]);
 
   return (
     <div style={{height: '100vh', padding: '16px'}} className={'geoda-kepler-map'}>
