@@ -65,6 +65,17 @@ module.exports = (env) => {
         'react-redux': resolve(__dirname, '../node_modules/react-redux/lib'),
         'styled-components': resolve(__dirname, '../node_modules/styled-components'),
         'react-intl': resolve(__dirname, '../node_modules/react-intl'),
+        '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
+        '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
+        '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
+        '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
+        '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
+        '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
+        '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
+        '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
+        '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
+        '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
+        '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src'),
         '@webgeoda': resolve(__dirname, '../webapp/src')
       }
     },
@@ -77,7 +88,16 @@ module.exports = (env) => {
           include: [
             resolve(__dirname, './src'),
             resolve(__dirname, '../webapp/src'),
-            resolve(__dirname, '../webapp/kepler.gl/src')
+            resolve(__dirname, '../webapp/kepler.gl/src'),
+            resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
+            resolve(__dirname, '../../loaders.gl/modules/core/src'),
+            resolve(__dirname, '../../loaders.gl/modules/gis/src'),
+            resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
+            resolve(__dirname, '../../loaders.gl/modules/json/src'),
+            resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
+            resolve(__dirname, '../../loaders.gl/modules/schema/src'),
+            resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
+            resolve(__dirname, '../../loaders.gl/modules/parquet/src')
           ],
           options: {
             presets: [

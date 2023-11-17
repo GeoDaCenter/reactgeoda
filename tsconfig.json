@@ -22,7 +22,8 @@
     // "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@kepler.gl/*": ["webapp/kepler.gl/src/*/src"]
+      "@kepler.gl/*": ["webapp/kepler.gl/src/*/src"],
+      "@loaders.gl/*": ["../loaders.gl/modules/*/src"]
     }
   },
   "exclude": ["**/out/**"]
