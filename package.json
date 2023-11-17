@@ -7,6 +7,9 @@
       "webapp/kepler.gl"
     ]
   },
+  "engines": {
+    "node": ">=18"
+  },
   "packageManager": "yarn@3.0.2",
   "volta": {
     "node": "18.18.2",
