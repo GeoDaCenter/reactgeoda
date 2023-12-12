@@ -6,7 +6,7 @@
     "es2021": true,
     "jest": true
   },
-  "plugins": ["@typescript-eslint", "eslint-plugin-prettier", "react", "react-hooks", "prettier"],
+  "plugins": ["@typescript-eslint", "eslint-plugin-prettier", "react", "react-hooks", "prettier", "jest"],
   "extends": [
     "eslint:recommended",
     "plugin:@next/next/recommended",

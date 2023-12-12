@@ -1,11 +1,11 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
 import {ProcessorResult} from '@kepler.gl/types';
-import {set} from '@kepler.gl/utils';
 import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import rootReducer from '../reducers/index';
 import keplerLanguageMiddleware from './language-middleware';
+import uiState from 'webapp/kepler.gl/src/reducers/src/ui-state';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
@@ -28,6 +28,9 @@ export type GeoDaState = {
     localMoranLayer: any;
     localMoranData: any;
     language: string;
+    uiState: {
+      showOpenFileModal: boolean;
+    };
   };
 };
 
@@ -47,8 +50,8 @@ const customizedKeplerGlReducer = keplerGlReducer
   .initialState({
     uiState: {
       // hide side panel and data input window to disallow user customize the map
-      // readOnly: false,
-      // currentModal: null,
+      readOnly: false,
+      currentModal: null
       // mapControls: {
       //   mapLegend: {
       //     show: true,
@@ -87,6 +90,8 @@ const reducers = combineReducers({
 });
 
 const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
+
+// create store with initial state and reducers and middlewares
 const store = createStore(reducers, {}, applyMiddleware(...middlewares));
 
 export default store;

@@ -1,13 +1,8 @@
 import {useEffect, useCallback, useRef} from 'react';
 import {connect, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import {tableFromIPC} from 'apache-arrow';
-// import {ArrowLoader} from '@loaders.gl/arrow';
-import {ParquetLoader} from '@loaders.gl/parquet';
-import {fetchFile, parse} from '@loaders.gl/core';
 import KeplerGl from '@kepler.gl/components';
-import {addDataToMap, forwardTo} from '@kepler.gl/actions';
-import {processGeojson, processCsvData, processArrowTable} from '@kepler.gl/processors';
+import {addDataToMap, forwardTo, loadFiles} from '@kepler.gl/actions';
 import {Field, RowData, ProtoDataset, ProcessorResult} from '@kepler.gl/types';
 import {MAPBOX_TOKEN} from '../constants';
 import useChoroplethLayer from '../hooks/use-choropleth-layer';
@@ -35,21 +30,10 @@ const defaultLayer = {
 
 type KeplerMapProps = {
   dispatch: any;
-  geojsonUrl?: string;
-  csvUrl?: string;
-  arrowUrl?: string;
-  parquetUrl?: string;
-  keplerUrl?: string;
+  dataUrl?: string;
 };
 
-const KeplerMap = ({
-  dispatch,
-  geojsonUrl,
-  csvUrl,
-  arrowUrl,
-  parquetUrl,
-  keplerUrl
-}: KeplerMapProps) => {
+const KeplerMap = ({dispatch, dataUrl}: KeplerMapProps) => {
   const keplerGlDispatch = useCallback(
     (action: any) => forwardTo(mapId, dispatch)(action),
     [dispatch]
@@ -163,12 +147,12 @@ const KeplerMap = ({
   }, [choroplethLayer, jenksCategory, localMoranLayer, clusterCategory, keplerGlDispatch]);
 
   const addDataToKeplerGl = useCallback(
-    (parsedData: ProcessorResult) => {
+    (parsedData: ProcessorResult, info?: Record<string, any>) => {
       if (parsedData) {
         keplerGlDispatch(
           addDataToMap({
-            datasets: {data: parsedData, info: {}},
-            options: {centerMap: true, readOnly: true}
+            datasets: {data: parsedData, info: info || {}},
+            options: {centerMap: true, readOnly: false}
           })
         );
       }
@@ -178,46 +162,20 @@ const KeplerMap = ({
 
   // component mount with geojsonUrl or csvUrl
   useEffect(() => {
-    if (geojsonUrl) {
-      fetch(geojsonUrl)
-        .then(response => response.json())
-        .then(jsonData => {
-          const parsedData = processGeojson(jsonData);
-          addDataToKeplerGl(parsedData);
-        });
-    } else if (csvUrl) {
-      fetch(csvUrl)
-        .then(response => response.text())
-        .then(data => {
-          const parsedData = processCsvData(data);
-          addDataToKeplerGl(parsedData);
-        });
-    } else if (arrowUrl) {
-      fetch(arrowUrl)
-        .then(response => response.arrayBuffer())
-        .then(buffer => {
-          console.time('read arrow');
-          const arrowTable = tableFromIPC(new Uint8Array(buffer));
-          const parsedData = processArrowTable(arrowTable.batches);
-          console.timeEnd('read arrow');
-          // get file name from url
-          const fileName = arrowUrl.split('/').pop()?.split('.')[0];
-          addDataToKeplerGl(parsedData);
-        });
-    } else if (parquetUrl) {
-      parse(fetchFile(parquetUrl), ParquetLoader, {
-        worker: false
-      }).then((parquetTable: any) => {
-        console.log(parquetTable);
+    // get File object by fetching url
+    const fetchFileByUrl = async (url: string) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const file = new File([blob], url.split('/').pop() || '');
+      return file;
+    };
+
+    if (dataUrl) {
+      fetchFileByUrl(dataUrl).then(file => {
+        keplerGlDispatch(loadFiles([file]));
       });
-    } else if (keplerUrl) {
-      fetch(keplerUrl)
-        .then(response => response.json())
-        .then(parsedData => {
-          addDataToKeplerGl(parsedData);
-        });
     }
-  }, [geojsonUrl, csvUrl, keplerGlDispatch, addDataToKeplerGl, arrowUrl, parquetUrl, keplerUrl]);
+  }, [dataUrl, keplerGlDispatch, addDataToKeplerGl]);
 
   return (
     <div style={{height: '100vh', padding: '16px'}} className={'geoda-kepler-map'}>
@@ -237,8 +195,11 @@ const KeplerMap = ({
   );
 };
 
-const mapStateToProps = (state: GeoDaState) => ({
-  data: state.root.file.fileData
-});
+const mapStateToProps = (state: GeoDaState) => state;
 
-export default connect(mapStateToProps)(KeplerMap);
+const dispatchToProps = (dispatch: any) => ({dispatch});
+
+// connect a React component to Redux store
+// data it needs from the store
+// function it can use to dispatch actions to the store
+export default connect(mapStateToProps, dispatchToProps)(KeplerMap);

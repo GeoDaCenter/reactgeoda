@@ -7,7 +7,7 @@ import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {ArrowLoader} from '@loaders.gl/arrow';
 import {JSONLoader, _GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
-import {processRowObject, processGeojson, processArrowTable} from '@kepler.gl/processors';
+import {processRowObject, processGeojson} from '@kepler.gl/processors';
 import {setFileData, setRawFileData} from '../actions/file-actions';
 
 const FileHandler = () => {
@@ -35,6 +35,7 @@ const FileHandler = () => {
     });
     const data = [];
     for await (const batch of batches) {
+      // @ts-ignore FIXME
       data.push(...batch.data);
     }
     return processGeojson({type: 'FeatureCollection', features: data});
@@ -42,6 +43,7 @@ const FileHandler = () => {
 
   const processCSVFile = async (file: File) => {
     const data = await parse(file, CSVLoader);
+    // @ts-expect-error FIXME
     return processRowObject(data);
   };
 
@@ -95,6 +97,7 @@ const FileHandler = () => {
         }
       }
       if (data && rawData) {
+        // @ts-expect-error FIXME
         dispatch(setFileData(data));
         dispatch(setRawFileData(rawData));
       }

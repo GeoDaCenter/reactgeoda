@@ -59,18 +59,18 @@ const nextConfig = {
       '@kepler.gl/schemas': resolve(__dirname, './kepler.gl/src/schemas/src/index'),
       '@kepler.gl/deckgl-layers': resolve(__dirname, './kepler.gl/src/deckgl-layers/src/index'),
       '@kepler.gl/cloud-providers': resolve(__dirname, './kepler.gl/src/cloud-providers/src/index'),
-      '@kepler.gl/processors': resolve(__dirname, './kepler.gl/src/processors/src/index'),
-      '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
-      '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
-      '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
-      '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
-      '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
-      '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
-      '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
-      '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
-      '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
-      '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
-      '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
+      '@kepler.gl/processors': resolve(__dirname, './kepler.gl/src/processors/src/index')
+      // '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
+      // '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
+      // '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
+      // '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
+      // '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
+      // '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
+      // '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
+      // '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
+      // '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
+      // '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
+      // '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
     };
     config.module.rules.push({
       test: /\.(cjs|ts)$/,

@@ -1,6 +1,7 @@
 import {combineReducers} from 'redux';
 import languageReducer from './language-reducer';
 import fileReducer from './file-reducer';
+import uiReducer from './ui-reducer';
 import {
   selectedGraphVariablesReducer,
   selectedChoroplethVariableReducer
@@ -36,7 +37,8 @@ const rootReducer = combineReducers({
   localMoranLayer: localMoranLayerReducer,
   localMoranData: localMoranDataReducer,
   choroplethData: choroplethDataReducer,
-  choroplethLayer: choroplethLayerReducer
+  choroplethLayer: choroplethLayerReducer,
+  uiState: uiReducer
 });
 
 export default rootReducer;

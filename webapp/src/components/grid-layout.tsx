@@ -86,7 +86,7 @@ const GridLayout = () => {
       allowOverlap={false}
       onLayoutChange={onLayoutChange}
     >
-      <div key="kepler" style={styles.gridItem}>
+      {/* <div key="kepler" style={styles.gridItem}>
         <KeplerMap />
       </div>
       <div key="toolbar" style={styles.gridItem}>
@@ -100,7 +100,7 @@ const GridLayout = () => {
       </div>
       <div key="chatgpt" style={styles.gridItem}>
         <ChatGpt />
-      </div>
+      </div> */}
     </ReactGridLayout>
   );
 };
