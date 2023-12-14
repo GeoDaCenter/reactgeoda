@@ -6,7 +6,8 @@ export type UiAction = {
 };
 
 const initialState = {
-  showOpenFileModal: false
+  showOpenFileModal: false,
+  showKeplerTableModal: false
 };
 
 const uiReducer = (state = initialState, action: UiAction) => {
@@ -15,6 +16,11 @@ const uiReducer = (state = initialState, action: UiAction) => {
       return {
         ...state,
         showOpenFileModal: action.payload
+      };
+    case UI_ACTIONS.SET_KEPLER_TABLE_MODAL:
+      return {
+        ...state,
+        showKeplerTableModal: action.payload
       };
     default:
       return state;

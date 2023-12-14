@@ -16,12 +16,16 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setOpenFileModal} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal} from '../../actions';
 import {GeoDaState} from 'webapp/src/store';
 
 export function Navigator() {
   const dispatch = useDispatch();
+
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
+  const showKeplerTableModal = useSelector(
+    (state: GeoDaState) => state.root.uiState.showKeplerTableModal
+  );
 
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
@@ -31,14 +35,22 @@ export function Navigator() {
       event.stopPropagation();
     },
     [dispatch, showOpenModal]
-  ); // [onOpenCallback]
+  );
+
+  const onTableCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setKeplerTableModal(!showKeplerTableModal));
+      event.stopPropagation();
+    },
+    [dispatch, showKeplerTableModal]
+  );
 
   return (
     <div className="toolbar">
       <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
       <div className="tool-box">
         <IconOpen className="icon-open-instance" onClick={onOpenCallback} />
-        <IconTable className="icon-table-instance" />
+        <IconTable className="icon-table-instance" onClick={onTableCallback} />
         <IconMap className="icon-map-instance" />
         <IconWeights className="icon-weights-instance" />
         <IconChoropleth className="design-component-instance-node" />

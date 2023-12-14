@@ -1,35 +1,14 @@
-import {useEffect, useCallback, useRef} from 'react';
-import {connect, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
-import {addDataToMap, forwardTo, loadFiles} from '@kepler.gl/actions';
-import {Field, RowData, ProtoDataset, ProcessorResult} from '@kepler.gl/types';
 import {MAPBOX_TOKEN} from '../constants';
-import useChoroplethLayer from '../hooks/use-choropleth-layer';
-import useLocalMoranLayer from '../hooks/use-localmoran-layer';
-import {GeoDaState} from '../store';
+import {THEME} from '@kepler.gl/constants';
+import {ThemeProvider} from 'styled-components';
+import {themeLT} from '@kepler.gl/styles';
 
 const mapId = 'kepler_map';
 
-const defaultLayer = {
-  id: 'defaultLayer',
-  type: 'geojson',
-  config: {
-    dataId: 'my_data',
-    label: 'Default Map',
-    color: [135, 206, 250], // Sky Blue
-    visConfig: {
-      filled: true,
-      stroked: true,
-      strokeColor: [255, 127, 80, 255] // Coral
-    },
-    columns: {geojson: '_geojson'},
-    isVisible: false
-  }
-};
-
 type KeplerMapProps = {
-  dispatch: any;
+  dispatch?: any;
   dataUrl?: string;
 };
 
@@ -178,16 +157,19 @@ const KeplerMap = ({dispatch, dataUrl}: KeplerMapProps) => {
   // }, [dataUrl, keplerGlDispatch, addDataToKeplerGl]);
 
   return (
-    <div style={{height: '100vh', padding: '16px'}} className={'geoda-kepler-map'}>
+    <div style={{height: '100vh', padding: '0px'}} className={'geoda-kepler-map'}>
       <AutoSizer defaultHeight={400} defaultWidth={500}>
         {({height, width}) => {
           return (
-            <KeplerGl
-              id={mapId}
-              mapboxApiAccessToken={MAPBOX_TOKEN}
-              height={height}
-              width={width}
-            />
+            <ThemeProvider theme={themeLT}>
+              <KeplerGl
+                id={mapId}
+                mapboxApiAccessToken={MAPBOX_TOKEN}
+                height={height}
+                width={width}
+                theme={THEME.light}
+              />
+            </ThemeProvider>
           );
         }}
       </AutoSizer>

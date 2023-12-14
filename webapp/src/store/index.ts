@@ -29,6 +29,7 @@ export type GeoDaState = {
     language: string;
     uiState: {
       showOpenFileModal: boolean;
+      showKeplerTableModal: boolean;
     };
   };
 };
@@ -49,11 +50,11 @@ const customizedKeplerGlReducer = keplerGlReducer
   .initialState({
     uiState: {
       // hide side panel and data input window to disallow user customize the map
-      readOnly: false,
+      readOnly: true,
       currentModal: null
       // mapControls: {
       //   mapLegend: {
-      //     show: true,
+      //     show: false,
       //     active: true
       //   }
       // }

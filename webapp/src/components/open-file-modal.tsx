@@ -115,9 +115,8 @@ const OpenFileComponent = () => {
         wrapTo(
           'kepler_map',
           addDataToMap({
-            // @ts-expect-error FIXME
             datasets: parsedDataset,
-            options: {centerMap: true, readOnly: false}
+            options: {centerMap: true}
           })
         )
       );
@@ -131,7 +130,7 @@ const OpenFileComponent = () => {
     [dispatch]
   );
 
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
+  const {getRootProps, getInputProps} = useDropzone({onDrop});
 
   return (
     <div className="open-file-modal">
