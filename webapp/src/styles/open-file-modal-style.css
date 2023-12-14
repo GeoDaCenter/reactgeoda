@@ -1,0 +1,163 @@
+.open-file-modal {
+  width: 100%;
+}
+
+.open-file-modal .overlap-group {
+  background-color: #ffffff;
+  height: 365px;
+  position: relative;
+  width: 540px;
+}
+
+.open-file-modal .heading-upload {
+  align-items: flex-start;
+  display: inline-flex;
+  gap: 10px;
+  left: 222px;
+  padding: 0px 10px;
+  position: absolute;
+  top: 30px;
+}
+
+.open-file-modal .text-wrapper {
+  color: #0e0e0e;
+  font-family: 'Mulish-Bold', Helvetica;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: normal;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  width: fit-content;
+}
+
+.open-file-modal .file-upload-area {
+  border: 1px dashed;
+  border-color: #aeaeae;
+  border-radius: 4px;
+  height: 202px;
+  left: 47px;
+  position: absolute;
+  top: 88px;
+  width: 445px;
+}
+
+.open-file-modal .drag-drop-files {
+  align-items: flex-start;
+  display: inline-flex;
+  gap: 10px;
+  left: 111px;
+  padding: 5px;
+  position: absolute;
+  top: 109px;
+}
+
+.open-file-modal .drag-drop-files-or {
+  color: transparent;
+  font-family: 'Mulish-Bold', Helvetica;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 24px;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.open-file-modal .span {
+  color: #0e0e0e;
+}
+
+.open-file-modal .text-wrapper-2 {
+  color: #333333;
+}
+
+.open-file-modal .text-wrapper-3 {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.open-file-modal .supported-formats {
+  align-items: flex-start;
+  display: inline-flex;
+  gap: 10px;
+  left: 74px;
+  padding: 5px;
+  position: absolute;
+  top: 143px;
+}
+
+.open-file-modal .div {
+  color: #676767;
+  font-family: 'Mulish-Regular', Helvetica;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 18px;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.open-file-modal .upload-icon {
+  height: 37px;
+  left: 204px;
+  position: absolute;
+  top: 38px;
+  width: 37px;
+}
+
+.open-file-modal .uploading-file {
+  background-color: #ffffff;
+  border: 0.5px solid;
+  border-color: #e3e3e3;
+  border-radius: 4px;
+  height: 36px;
+  left: 48px;
+  position: absolute;
+  top: 304px;
+  width: 445px;
+}
+
+.open-file-modal .document-name {
+  align-items: flex-start;
+  display: inline-flex;
+  gap: 10px;
+  left: 10px;
+  position: absolute;
+  top: 6px;
+}
+
+.open-file-modal .text-wrapper-4 {
+  color: #0e0e0e;
+  font-family: 'Mulish-Regular', Helvetica;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 18px;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.open-file-modal .loading-bar {
+  background-color: var(--variable-collection-marron-light);
+  border-radius: 10px;
+  height: 3px;
+  left: 0;
+  position: absolute;
+  top: 32px;
+  width: 275px;
+}
+
+.open-file-modal .icon-upload {
+  text-align: center;
+  margin-top: 40px;
+}

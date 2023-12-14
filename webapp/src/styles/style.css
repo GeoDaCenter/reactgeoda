@@ -162,3 +162,8 @@
 .react-geoda .main-grid {
   padding: 12px;
 }
+
+/* readjust the size of the close button in modal dialog */
+.react-responsive-modal-closeButton {
+  width: 18px;
+}

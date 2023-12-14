@@ -86,10 +86,10 @@ const GridLayout = () => {
       allowOverlap={false}
       onLayoutChange={onLayoutChange}
     >
-      {/* <div key="kepler" style={styles.gridItem}>
+      <div key="kepler" style={styles.gridItem}>
         <KeplerMap />
       </div>
-      <div key="toolbar" style={styles.gridItem}>
+      {/*<div key="toolbar" style={styles.gridItem}>
         <ToolBar />
       </div>
       <div key="table" style={styles.gridItem}>

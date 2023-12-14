@@ -5,7 +5,6 @@ import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import rootReducer from '../reducers/index';
 import keplerLanguageMiddleware from './language-middleware';
-import uiState from 'webapp/kepler.gl/src/reducers/src/ui-state';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
