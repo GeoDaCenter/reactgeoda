@@ -5,6 +5,7 @@ module.exports = function babel(api) {
   return {
     presets: [['next/babel', {'preset-env': {}}]],
     plugins: [
+      'styled-components',
       ['@babel/plugin-transform-typescript', {allowDeclareFields: true, isTSX: true}],
       [
         'search-and-replace',

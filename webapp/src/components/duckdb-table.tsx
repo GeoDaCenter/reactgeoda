@@ -1,57 +1,53 @@
-import React, {useMemo, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import Modal from 'react-responsive-modal';
 
-import {appInjector, DataTableModalFactory, makeGetActionCreators} from '@kepler.gl/components';
-import {VisStateActions, UIStateActions} from '@kepler.gl/actions';
+import {
+  appInjector,
+  Button,
+  DataTableModalFactory,
+  makeGetActionCreators
+} from '@kepler.gl/components';
 
 import {GeoDaState} from '../store';
 import {setKeplerTableModal} from '../actions';
-import {THEME} from '@kepler.gl/constants';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import {useDuckDB} from '../hooks/use-duckdb';
+import {theme} from '@kepler.gl/styles';
 
-const DataTable = appInjector.get(DataTableModalFactory);
+// create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
 
 export function DuckDBTableComponent() {
   const dispatch = useDispatch();
 
-  // get Kepler from redux store
+  // get DataTableModal component from appInjector
+  const DataTable = appInjector.get(DataTableModalFactory);
+
+  // get GeoDa state from redux store
+  const geoda = useSelector((state: GeoDaState) => state.root);
+
+  // get Kepler state from redux store
   const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);
+
+  // get action creators from kepler.gl
   const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
 
-  // const dataId = Object.keys(kepler.visState.datasets)[0];
+  // get duckdb hook
+  const {query, importArrowFile} = useDuckDB();
 
-  // const datasets = kepler.visState.datasets;
+  // write callback function onQueryClick
+  const onQueryClick = async () => {
+    const result = await query('select * from "data"');
+    console.log(result);
+  };
 
-  // const selectedDataset = datasets[dataId];
-
-  // const allColumns = useMemo(
-  //   () => selectedDataset?.fields.map((f: {name: string}) => f.name),
-  //   [selectedDataset?.fields]
-  // );
-
-  // const colMeta = useMemo(
-  //   () =>
-  //     selectedDataset?.fields.reduce(
-  //       (acc, {name, displayName, type, isLoadingStats, filterProps, format, displayFormat}) => ({
-  //         ...acc,
-  //         [name]: {
-  //           name: displayName || name,
-  //           type,
-  //           ...(isLoadingStats !== undefined ? {isLoadingStats} : {}),
-  //           ...(format ? {format} : {}),
-  //           ...(displayFormat ? {displayFormat} : {}),
-  //           ...(filterProps?.columnStats ? {columnStats: filterProps.columnStats} : {})
-  //         }
-  //       }),
-  //       {}
-  //     ),
-  //   [selectedDataset?.fields]
-  // );
+  useEffect(() => {
+    importArrowFile(geoda.file.rawFileData);
+  }, [geoda.file.rawFileData, importArrowFile]);
 
   return (
-    <div style={{height: '100%', width: '100vh', padding: '20px'}} className={'geoda-kepler-map'}>
+    <div style={{height: '100%', width: '80vw', padding: '20px'}} className={'geoda-kepler-map'}>
+      <Button onClick={onQueryClick}>Query</Button>
       <DataTable
         datasets={kepler.visState.datasets}
         dataId={Object.keys(kepler.visState.datasets)[0]}
@@ -62,8 +58,8 @@ export function DuckDBTableComponent() {
         setColumnDisplayFormat={visStateActions.setColumnDisplayFormat}
         uiStateActions={uiStateActions}
         uiState={kepler.uiState}
-        theme={THEME.light}
         showTab={false}
+        theme={theme}
       />
     </div>
   );
@@ -91,3 +87,5 @@ export function DuckDBTableModal() {
     </Modal>
   ) : null;
 }
+
+export default DuckDBTableModal;

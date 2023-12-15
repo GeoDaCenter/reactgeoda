@@ -2286,6 +2286,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@duckdb/duckdb-wasm@npm:^1.28.0":
+  version: 1.28.0
+  resolution: "@duckdb/duckdb-wasm@npm:1.28.0"
+  dependencies:
+    apache-arrow: ^13.0.0
+  checksum: 8f93b70749a3990226413bd517673ed8cd3c118542ff753498350447a7ae4ad5e2c44df48069f37cf130d332472f2a8aa89b63ab372aa60b1aecb26fe04339b3
+  languageName: node
+  linkType: hard
+
 "@emotion/is-prop-valid@npm:^0.8.1":
   version: 0.8.8
   resolution: "@emotion/is-prop-valid@npm:0.8.8"
@@ -9096,7 +9105,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-styled-components@npm:>= 1, babel-plugin-styled-components@npm:>= 1.12.0":
+"babel-plugin-styled-components@npm:>= 1, babel-plugin-styled-components@npm:>= 1.12.0, babel-plugin-styled-components@npm:^2.1.4":
   version: 2.1.4
   resolution: "babel-plugin-styled-components@npm:2.1.4"
   dependencies:
@@ -29954,6 +29963,7 @@ typescript@^4.5.4:
   dependencies:
     "@chatscope/chat-ui-kit-react": ^1.10.1
     "@chatscope/chat-ui-kit-styles": ^1.4.0
+    "@duckdb/duckdb-wasm": ^1.28.0
     "@eslint/js": ^8.45.0
     "@loaders.gl/arrow": ^4.1.0-alpha.2
     "@loaders.gl/core": ^4.1.0-alpha.2
@@ -29978,6 +29988,7 @@ typescript@^4.5.4:
     ag-grid-react: ^30.0.4
     asciify-image: ^0.1.10
     axios: ^1.4.0
+    babel-plugin-styled-components: ^2.1.4
     colorbrewer: ^1.5.3
     cross-env: ^7.0.3
     echarts: ^5.4.2

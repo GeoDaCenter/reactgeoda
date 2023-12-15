@@ -1,9 +1,7 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
-import KeplerGl from '@kepler.gl/components';
+import KeplerGl, {RootContext} from '@kepler.gl/components';
 import {MAPBOX_TOKEN} from '../constants';
-import {THEME} from '@kepler.gl/constants';
-import {ThemeProvider} from 'styled-components';
-import {themeLT} from '@kepler.gl/styles';
+import {useRef} from 'react';
 
 const mapId = 'kepler_map';
 
@@ -161,15 +159,12 @@ const KeplerMap = ({dispatch, dataUrl}: KeplerMapProps) => {
       <AutoSizer defaultHeight={400} defaultWidth={500}>
         {({height, width}) => {
           return (
-            <ThemeProvider theme={themeLT}>
-              <KeplerGl
-                id={mapId}
-                mapboxApiAccessToken={MAPBOX_TOKEN}
-                height={height}
-                width={width}
-                theme={THEME.light}
-              />
-            </ThemeProvider>
+            <KeplerGl
+              id={mapId}
+              mapboxApiAccessToken={MAPBOX_TOKEN}
+              height={height}
+              width={width}
+            />
           );
         }}
       </AutoSizer>
@@ -181,9 +176,9 @@ const KeplerMap = ({dispatch, dataUrl}: KeplerMapProps) => {
 
 // const dispatchToProps = (dispatch: any) => ({dispatch});
 
-// // connect a React component to Redux store
-// // data it needs from the store
-// // function it can use to dispatch actions to the store
+// connect a React component to Redux store
+// data it needs from the store
+// function it can use to dispatch actions to the store
 // export default connect(mapStateToProps, dispatchToProps)(KeplerMap);
 
 export default KeplerMap;

@@ -14,6 +14,14 @@ const nextConfig = {
     ignoreBuildErrors: true
   },
   webpack: (config, options) => {
+    config.experiments = {...config.experiments, asyncWebAssembly: true, topLevelAwait: true};
+    config.output.assetModuleFilename = 'static/[hash][ext]';
+    config.output.publicPath = '/_next/';
+    config.module.rules.push({
+      test: /\.wasm/,
+      type: 'asset/resource'
+      // type: 'webassembly/async'
+    });
     // config.optimization.splitChunks = false;
     // config.optimization.minimize = isProduction;
     // if (!options.dev) {
