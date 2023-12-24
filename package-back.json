@@ -18,5 +18,8 @@
     "fix-mapbox": "./node_modules/.bin/babel node_modules/@mapbox/tiny-sdf/index.js | tail -n +2 > node_modules/@mapbox/tiny-sdf/index.cjs",
     "start-webgeoda": "yarn workspace webgeoda dev",
     "start-geoda": "cd library && yarn dev"
+  },
+  "dependencies": {
+    "node-gyp": "^10.0.1"
   }
 }

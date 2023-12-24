@@ -3,5 +3,6 @@ module.exports = {
   singleQuote: true,
   trailingComma: 'none',
   bracketSpacing: false,
-  arrowParens: 'avoid'
+  arrowParens: 'avoid',
+  tailwindConfig: './webapp/src/tailwind.config.js'
 };

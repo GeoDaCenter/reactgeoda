@@ -21,9 +21,9 @@
 
 .react-geoda .logo-box {
   align-items: center !important;
-  height: 28px !important;
-  padding: 10px !important;
-  width: 28px !important;
+  height: 40px !important;
+  /* padding: 10px !important; */
+  width: 40px !important;
   z-index: 2 !important;
 }
 
@@ -156,7 +156,7 @@
   background-color: var(--variable-collection-panelbgcolor);
   position: relative;
   width: 380px;
-  display: none;
+  display: block;
 }
 
 .react-geoda .main-grid {
@@ -173,4 +173,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.data-ex-icons-gear {
+  visibility: hidden;
 }

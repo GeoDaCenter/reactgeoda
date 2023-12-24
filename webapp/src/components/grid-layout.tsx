@@ -5,8 +5,11 @@ import ChatGpt from './chatgpt-wrapper';
 import NivoPlot from './nivo-plot';
 import ToolBar from './tool-bar';
 import AgGrid from './ag-grid-wrapper';
+import {useSelector} from 'react-redux';
+import {GeoDaState} from '../store';
 
 const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
+const DuckDBTable = dynamic(() => import('./duckdb-table'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
@@ -16,18 +19,18 @@ const layout = [
     x: 0,
     y: 0,
     i: 'kepler',
-    moved: false,
-    static: false
+    moved: true,
+    static: true 
   },
-  {
-    w: 12,
-    h: 6,
-    x: 0,
-    y: 9,
-    i: 'toolbar',
-    moved: false,
-    static: false
-  },
+  // {
+  //   w: 12,
+  //   h: 6,
+  //   x: 0,
+  //   y: 9,
+  //   i: 'toolbar',
+  //   moved: false,
+  //   static: false
+  // },
   {
     w: 5,
     h: 9,
@@ -37,44 +40,62 @@ const layout = [
     moved: false,
     static: false
   },
-  {
-    w: 7,
-    h: 10,
-    x: 0,
-    y: 15,
-    i: 'nivoplot',
-    moved: false,
-    static: false
-  },
-  {
-    w: 4,
-    h: 8,
-    x: 8,
-    y: 15,
-    i: 'chatgpt',
-    moved: false,
-    static: false
-  }
+  // {
+  //   w: 7,
+  //   h: 10,
+  //   x: 0,
+  //   y: 15,
+  //   i: 'nivoplot',
+  //   moved: false,
+  //   static: false
+  // },
+  // {
+  //   w: 4,
+  //   h: 8,
+  //   x: 8,
+  //   y: 15,
+  //   i: 'chatgpt',
+  //   moved: false,
+  //   static: false
+  // }
 ];
 
-const GridLayout = () => {
-  // File data from Redux store
-  // TODO: Call data from redux store from within the grid components instead of here
-  // TODO: fix up/implement aggrid
+const styles = {
+  gridItem: {
+    borderRadius: '5px',
+    border: '1px dashed #ddd',
+    overflow: 'auto'
+  }
+};
 
-  const styles = {
-    gridItem: {
-      borderRadius: '5px',
-      border: '1px dashed #ddd',
-      overflow: 'auto'
-    }
-  };
+const GridLayout = () => {
+  // get showGridView from redux state
+  const showGridView = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
   // eslint-disable-next-line no-unused-vars
   const onLayoutChange = (layout: Layout[]) => {
     // ToDo save layout to state
     console.log(layout);
   };
+
+  if (!showGridView) {
+    // only show map
+    return (
+      <ReactGridLayout
+        className="layout"
+        layout={[{w: 12, h: 9, x: 0, y: 0, i: 'kepler', moved: false, static: true}]}
+        rowHeight={30}
+        width={1200}
+        margin={[0, 0]}
+        allowOverlap={false}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key="kepler">
+          <KeplerMap />
+        </div>
+      </ReactGridLayout>
+    );
+  }
 
   return (
     <ReactGridLayout
@@ -88,6 +109,9 @@ const GridLayout = () => {
     >
       <div key="kepler" style={styles.gridItem}>
         <KeplerMap />
+      </div>
+      <div key="table" style={styles.gridItem}>
+        <DuckDBTable />
       </div>
       {/*<div key="toolbar" style={styles.gridItem}>
         <ToolBar />

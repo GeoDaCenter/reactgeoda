@@ -30,6 +30,7 @@ export type GeoDaState = {
     uiState: {
       showOpenFileModal: boolean;
       showKeplerTableModal: boolean;
+      showGridView: boolean;
     };
   };
 };

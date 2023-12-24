@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 
-import {tableFromIPC, Int as ArrowInt} from 'apache-arrow';
+import * as arrow from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
@@ -34,7 +34,6 @@ export async function initDuckDB() {
   if (db === null) {
     // call initDuckDB() in background after 2000 ms
     await new Promise(resolve => setTimeout(resolve, 2000));
-    console.time('duckdb init');
     // Select a bundle based on browser checks
     const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
     // Instantiate the asynchronus version of DuckDB-Wasm
@@ -42,12 +41,12 @@ export async function initDuckDB() {
     const logger = new duckdb.ConsoleLogger();
     db = new duckdb.AsyncDuckDB(logger, worker);
     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-    console.timeEnd('duckdb init');
     return db;
   }
   return null;
 }
 
+// initial the global duckdb instance
 db = await initDuckDB();
 
 /**
@@ -56,39 +55,59 @@ db = await initDuckDB();
  * @returns {query, importTable} functions to query and import data
  */
 export function useDuckDB() {
-  const query = useCallback(async (queryString: string) => {
-    if (db) {
-      // Create a new connection
-      const conn = await db.connect();
-
-      // Query
-      const arrowResult = await conn.query<{v: ArrowInt}>(`SELECT count(*) FROM "arrow_table"`);
-
-      // Convert arrow table to json
-      const result = arrowResult.toArray().map(row => row.toJSON());
-
-      console.log(result);
-      // Close the connection to release memory
-      await conn.close();
-      return result;
+  const query = useCallback(async (queryString: string): Promise<number[]> => {
+    // trim queryString
+    queryString = queryString.trim();
+    // compare the first 6 letters in queryString with "SELECT"
+    const select = queryString.substring(0, 6).toUpperCase();
+    if (select !== 'SELECT') {
+      throw new Error('Only SELECT queries are supported');
     }
+    if (!db) {
+      throw new Error('DuckDB is not initialized');
+    }
+    // replace first 6 letters "select" with "select row_index AS selected_index"
+    queryString = `SELECT row_index AS selected_index, ${queryString.substring(6)}`;
+
+    // connect to the database
+    const conn = await db.connect();
+    // Query
+    const arrowResult = await conn.query<{v: any}>(queryString);
+    // Convert arrow table to json
+    // const result = arrowResult.toArray().map(row => row.toJSON());
+    // get the row_index[] from the query result
+    const selectedIndexes = arrowResult.getChildAt(0)?.toArray();
+    // close the connection
+    await conn.close();
+    return selectedIndexes || [];
   }, []);
 
   const importArrowFile = useCallback(async (file: File) => {
     if (db) {
-      const c = await db.connect();
+      const conn = await db.connect();
       const tableName = file.name;
 
-      const tables = await c.getTableNames(`SELECT * FROM "${tableName}"`);
+      const arrowResult = await conn.query('select * from information_schema.tables');
+      const allTables = arrowResult.toArray().map(row => row.toJSON());
 
       // check if tableName is already in the database
-      if (!tables.includes(tableName)) {
+      if (!allTables.some((table: any) => table.table_name === tableName)) {
         // file to ArrayBuffer
         const buffer = await file.arrayBuffer();
         // create a arrow table from File object
-        const arrowTable = tableFromIPC(buffer);
-        await c.insertArrowTable(arrowTable, {name: tableName});
+        const arrowTable = arrow.tableFromIPC(buffer);
+        // create a table in the database from arrowTable
+        await conn.insertArrowTable(arrowTable, {name: tableName});
+
+        // add a new column to the table for the row index
+        await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
+        // generate an ascending sequence starting from 1
+        await conn.query('CREATE SEQUENCE serial');
+        // Use nextval to update the row_index column
+        await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
       }
+      // close the connection
+      await conn.close();
     }
   }, []);
 

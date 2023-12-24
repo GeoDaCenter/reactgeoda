@@ -2,6 +2,7 @@
   // "compileOnSave": false,
   // Note: tsconfig.json allows comments!
   "compilerOptions": {
+    "jsx": "react",
     "target": "es2020",
     "rootDir": ".",
     "module": "esnext",
@@ -22,7 +23,7 @@
     // "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "react": ["node_modules/@types/react"],
+      // "react": ["node_modules/@types/react"],
       "@kepler.gl/*": ["webapp/kepler.gl/src/*/src"],
       // "@loaders.gl/*": ["../loaders.gl/modules/*/src"]
     }

@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Avatar} from './avatar';
 import {GeoDaLogo} from './geoda-logo';
@@ -16,7 +16,7 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setKeplerTableModal, setOpenFileModal} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal, setGridView} from '../../actions';
 import {GeoDaState} from 'webapp/src/store';
 
 export function Navigator() {
@@ -26,6 +26,7 @@ export function Navigator() {
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
   );
+  const [showGridView, setShowGridView] = useState(false);
 
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
@@ -43,6 +44,14 @@ export function Navigator() {
       event.stopPropagation();
     },
     [dispatch, showKeplerTableModal]
+  );
+
+  const onToggleGridCallback = useCallback(
+    (event: React.MouseEvent) => {
+      setShowGridView(!showGridView);
+      dispatch(setGridView(!showGridView));
+    },
+    [dispatch, showGridView]
   );
 
   return (
@@ -63,6 +72,12 @@ export function Navigator() {
         <IconChatgpt className="design-component-instance-node" />
       </div>
       <div className="user-box">
+        <div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" value="" className="sr-only peer" checked={showGridView} />
+            <div onClick={onToggleGridCallback} className="w-6 h-4 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
         <Avatar />
       </div>
     </div>

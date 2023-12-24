@@ -1,4 +1,4 @@
-const KeplerPackage = require('./kepler.gl/package.json');
+const KeplerPackageVersion = '3.0.0'
 
 module.exports = function babel(api) {
   api.cache(true);
@@ -7,17 +7,17 @@ module.exports = function babel(api) {
     plugins: [
       'styled-components',
       ['@babel/plugin-transform-typescript', {allowDeclareFields: true, isTSX: true}],
-      [
-        'search-and-replace',
-        {
-          rules: [
-            {
-              search: '__PACKAGE_VERSION__',
-              replace: KeplerPackage.version
-            }
-          ]
-        }
-      ]
+      // [
+      //   'search-and-replace',
+      //   {
+      //     rules: [
+      //       {
+      //         search: '__PACKAGE_VERSION__',
+      //         replace: KeplerPackageVersion
+      //       }
+      //     ]
+      //   }
+      // ]
     ]
   };
 };

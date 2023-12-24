@@ -3,9 +3,9 @@ const {resolve} = require('path');
 const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   swcMinify: true,
-  output: 'export',
+  // output: 'standalone',
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   images: {unoptimized: true},
   generateBuildId: async () => 'reactgeoda-v0.1',
@@ -50,24 +50,26 @@ const nextConfig = {
     // }
     config.resolve.alias = {
       ...config.resolve.alias,
-      'apache-arrow': resolve(__dirname, '../node_modules/apache-arrow'),
-      '@mapbox/tiny-sdf': resolve(__dirname, '../node_modules/@mapbox/tiny-sdf/index.cjs'),
-      '@kepler.gl/effects': resolve(__dirname, './kepler.gl/src/effects/src/index'),
-      '@kepler.gl/reducers': resolve(__dirname, './kepler.gl/src/reducers/src/index'),
-      '@kepler.gl/actions': resolve(__dirname, './kepler.gl/src/actions/src/index'),
-      '@kepler.gl/constants': resolve(__dirname, './kepler.gl/src/constants/src/index'),
-      '@kepler.gl/components': resolve(__dirname, './kepler.gl/src/components/src/index'),
-      '@kepler.gl/utils': resolve(__dirname, './kepler.gl/src/utils/src/index'),
-      '@kepler.gl/styles': resolve(__dirname, './kepler.gl/src/styles/src/index'),
-      '@kepler.gl/types': resolve(__dirname, './kepler.gl/src/types/index'),
-      '@kepler.gl/localization': resolve(__dirname, './kepler.gl/src/localization/src/index'),
-      '@kepler.gl/layers': resolve(__dirname, './kepler.gl/src/layers/src/index'),
-      '@kepler.gl/table': resolve(__dirname, './kepler.gl/src/table/src/index'),
-      '@kepler.gl/tasks': resolve(__dirname, './kepler.gl/src/tasks/src/index'),
-      '@kepler.gl/schemas': resolve(__dirname, './kepler.gl/src/schemas/src/index'),
-      '@kepler.gl/deckgl-layers': resolve(__dirname, './kepler.gl/src/deckgl-layers/src/index'),
-      '@kepler.gl/cloud-providers': resolve(__dirname, './kepler.gl/src/cloud-providers/src/index'),
-      '@kepler.gl/processors': resolve(__dirname, './kepler.gl/src/processors/src/index')
+      // 'apache-arrow': resolve(__dirname, '../node_modules/apache-arrow'),
+      // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
+      '@mapbox/tiny-sdf': resolve(__dirname, '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'),
+      '@kepler.gl/effects': resolve(__dirname, '../../csds_kepler/src/effects/src/index'),
+      '@kepler.gl/reducers': resolve(__dirname, '../../csds_kepler/src/reducers/src/index'),
+      '@kepler.gl/actions': resolve(__dirname, '../../csds_kepler/src/actions/src/index'),
+      '@kepler.gl/constants': resolve(__dirname, '../../csds_kepler/src/constants/src/index'),
+      '@kepler.gl/components': resolve(__dirname, '../../csds_kepler/src/components/src/index'),
+      '@kepler.gl/utils': resolve(__dirname, '../../csds_kepler/src/utils/src/index'),
+      '@kepler.gl/styles': resolve(__dirname, '../../csds_kepler/src/styles/src/index'),
+      '@kepler.gl/types': resolve(__dirname, '../../csds_kepler/src/types/index'),
+      '@kepler.gl/localization': resolve(__dirname, '../../csds_kepler/src/localization/src/index'),
+      '@kepler.gl/layers': resolve(__dirname, '../../csds_kepler/src/layers/src/index'),
+      '@kepler.gl/table': resolve(__dirname, '../../csds_kepler/src/table/src/index'),
+      '@kepler.gl/tasks': resolve(__dirname, '../../csds_kepler/src/tasks/src/index'),
+      '@kepler.gl/schemas': resolve(__dirname, '../../csds_kepler/src/schemas/src/index'),
+      '@kepler.gl/deckgl-layers': resolve(__dirname, '../../csds_kepler/src/deckgl-layers/src/index'),
+      '@kepler.gl/cloud-providers': resolve(__dirname, '../../csds_kepler/src/cloud-providers/src/index'),
+      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index'),
+      // '@deck.gl/layers': resolve(__dirname, '../../csds_kepler/node_modules/@deck.gl/layers'),
       // '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
       // '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
       // '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
@@ -81,7 +83,7 @@ const nextConfig = {
       // '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
     };
     config.module.rules.push({
-      test: /\.(cjs|ts)$/,
+      test: /\.(cjs|ts|tsx)$/,
       use: {
         loader: 'babel-loader'
       }

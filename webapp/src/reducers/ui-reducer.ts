@@ -7,7 +7,8 @@ export type UiAction = {
 
 const initialState = {
   showOpenFileModal: false,
-  showKeplerTableModal: false
+  showKeplerTableModal: false,
+  showGridView: false
 };
 
 const uiReducer = (state = initialState, action: UiAction) => {
@@ -21,6 +22,11 @@ const uiReducer = (state = initialState, action: UiAction) => {
       return {
         ...state,
         showKeplerTableModal: action.payload
+      };
+    case UI_ACTIONS.SET_GRID_VIEW:
+      return {
+        ...state,
+        showGridView: action.payload
       };
     default:
       return state;
