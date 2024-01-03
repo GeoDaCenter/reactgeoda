@@ -1,16 +1,15 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
-import KeplerGl, {RootContext} from '@kepler.gl/components';
+import KeplerGl from '@kepler.gl/components';
 import {MAPBOX_TOKEN} from '../constants';
-import {useRef} from 'react';
 
 const mapId = 'kepler_map';
 
-type KeplerMapProps = {
-  dispatch?: any;
-  dataUrl?: string;
-};
+// type KeplerMapProps = {
+//   dispatch?: any;
+//   dataUrl?: string;
+// };
 
-const KeplerMap = ({dispatch, dataUrl}: KeplerMapProps) => {
+const KeplerMap = () => {
   // const keplerGlDispatch = useCallback(
   //   (action: any) => forwardTo(mapId, dispatch)(action),
   //   [dispatch]

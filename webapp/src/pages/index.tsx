@@ -10,7 +10,7 @@ import IntlProviderWrapper from '../components/intl-provider-wrapper';
 import {Navigator} from '../components/navigator';
 import {OpenFileModal} from '../components/open-file-modal';
 // import KeplerMap from '../components/kepler-map';
-const KeplerMap = dynamic(() => import('../components/kepler-map'), { ssr: false });
+// const KeplerMap = dynamic(() => import('../components/kepler-map'), { ssr: false });
 const DuckDBTableModal = dynamic(() => import('../components/duckdb-table-modal'), {ssr: false});
 
 export default function Home() {

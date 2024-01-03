@@ -52,7 +52,10 @@ const nextConfig = {
       ...config.resolve.alias,
       // 'apache-arrow': resolve(__dirname, '../node_modules/apache-arrow'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
-      '@mapbox/tiny-sdf': resolve(__dirname, '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'),
+      '@mapbox/tiny-sdf': resolve(
+        __dirname,
+        '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'
+      ),
       '@kepler.gl/effects': resolve(__dirname, '../../csds_kepler/src/effects/src/index'),
       '@kepler.gl/reducers': resolve(__dirname, '../../csds_kepler/src/reducers/src/index'),
       '@kepler.gl/actions': resolve(__dirname, '../../csds_kepler/src/actions/src/index'),
@@ -66,9 +69,15 @@ const nextConfig = {
       '@kepler.gl/table': resolve(__dirname, '../../csds_kepler/src/table/src/index'),
       '@kepler.gl/tasks': resolve(__dirname, '../../csds_kepler/src/tasks/src/index'),
       '@kepler.gl/schemas': resolve(__dirname, '../../csds_kepler/src/schemas/src/index'),
-      '@kepler.gl/deckgl-layers': resolve(__dirname, '../../csds_kepler/src/deckgl-layers/src/index'),
-      '@kepler.gl/cloud-providers': resolve(__dirname, '../../csds_kepler/src/cloud-providers/src/index'),
-      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index'),
+      '@kepler.gl/deckgl-layers': resolve(
+        __dirname,
+        '../../csds_kepler/src/deckgl-layers/src/index'
+      ),
+      '@kepler.gl/cloud-providers': resolve(
+        __dirname,
+        '../../csds_kepler/src/cloud-providers/src/index'
+      ),
+      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index')
       // '@deck.gl/layers': resolve(__dirname, '../../csds_kepler/node_modules/@deck.gl/layers'),
       // '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
       // '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),

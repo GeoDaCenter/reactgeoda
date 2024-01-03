@@ -1,9 +1,9 @@
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from 'react-redux';
 import Modal from 'react-responsive-modal';
-import { GeoDaState } from "../store";
-import { useRef } from "react";
-import { setKeplerTableModal } from "../actions";
-import { DuckDBTableComponent } from "./duckdb-table";
+import {GeoDaState} from '../store';
+import {useRef} from 'react';
+import {setKeplerTableModal} from '../actions';
+import {DuckDBTableComponent} from './duckdb-table';
 
 export function DuckDBTableModal() {
   // get dispatch from redux store

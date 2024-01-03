@@ -6,7 +6,6 @@ import {
   appInjector,
   DataTableModalFactory,
   DataTableFactory,
-  makeGetActionCreators,
   renderedSize
 } from '@kepler.gl/components';
 import {Field} from '@kepler.gl/types';
@@ -17,14 +16,14 @@ import {theme} from '@kepler.gl/styles';
 
 const DataTable = appInjector.get(DataTableFactory);
 const DataTableModal = appInjector.get(DataTableModalFactory);
-const keplerActionSelector = makeGetActionCreators();
+// const keplerActionSelector = makeGetActionCreators();
 
 export function DuckDBTableComponent() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   // get Kepler from redux store
   const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);
-  const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
+  // const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
 
   const dataId = Object.keys(kepler.visState.datasets)[0];
 

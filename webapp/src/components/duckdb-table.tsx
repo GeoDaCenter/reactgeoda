@@ -1,24 +1,17 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import Modal from 'react-responsive-modal';
 import * as arrow from 'apache-arrow';
 import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
 import MonacoEditor from '@monaco-editor/react';
 
 import {appInjector, DataTableModalFactory, makeGetActionCreators} from '@kepler.gl/components';
-import {ProcessorResult, Field, ProtoDataset} from '@kepler.gl/types';
+import {ProcessorResult, Field} from '@kepler.gl/types';
 import {theme} from '@kepler.gl/styles';
-import {
-  arrowDataTypeToFieldType,
-  arrowDataTypeToAnalyzerDataType,
-  generateHashIdFromString
-} from '@kepler.gl/utils';
+import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
 import {GeoDaState} from '../store';
-import {setKeplerTableModal} from '../actions';
 import {useDuckDB} from '../hooks/use-duckdb';
-import {updateVisData} from '@kepler.gl/actions';
 
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
@@ -82,7 +75,10 @@ export function DuckDBTableComponent() {
 
     if (selectedIndexes) {
       // dispatch action SET_FILTER_INDEXES to update filtered indexes in kepler
-      dispatch({ type: 'SET_FILTER_INDEXES', payload: {dataLabel: tableName, filteredIndex: selectedIndexes} });
+      dispatch({
+        type: 'SET_FILTER_INDEXES',
+        payload: {dataLabel: tableName, filteredIndex: selectedIndexes}
+      });
       // const newData = processArrowTable(result);
       // const updatedDataset: ProtoDataset = {
       //   // @ts-expect-error FIXME
@@ -118,28 +114,28 @@ export function DuckDBTableComponent() {
 
   return (
     <div
-      className="flex flex-col item-center p-5 w-full"
+      className="item-center flex w-full flex-col p-5"
       style={{height: '80vh', minWidth: '50vw', padding: '20px'}}
     >
-      <div className="basis-1/4 flex flex-col items-center justify-center w-full">
-        <div className="w-full h-20 p-1 rounded border-solid border-2 border-rose-800">
+      <div className="flex w-full basis-1/4 flex-col items-center justify-center">
+        <div className="h-20 w-full rounded border-2 border-solid border-rose-800 p-1">
           <MonacoEditor
             language="sql"
             value={code}
             onChange={onMonacoEditorChange}
             options={{
-              minimap: { enabled: false },
+              minimap: {enabled: false}
             }}
           />
         </div>
-        <div className="w-full flex flex-row items-start m-2 space-x-4">
+        <div className="m-2 flex w-full flex-row items-start space-x-4">
           <button
             onClick={onQueryClick}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded inline-flex items-center"
+            className="inline-flex items-center rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400"
           >
             Query
           </button>
-          <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded inline-flex items-center">
+          <button className="inline-flex items-center rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400">
             Reset
           </button>
         </div>

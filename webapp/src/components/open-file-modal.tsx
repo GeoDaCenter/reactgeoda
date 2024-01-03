@@ -4,7 +4,7 @@ import {Modal} from 'react-responsive-modal';
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
-import {_BrowserFileSystem as BrowserFileSystem, loadInBatches} from '@loaders.gl/core';
+// import {_BrowserFileSystem as BrowserFileSystem, loadInBatches} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {ArrowLoader} from '@loaders.gl/arrow';
@@ -78,33 +78,33 @@ async function processDropFiles(files: File[]) {
 const OpenFileComponent = () => {
   const dispatch = useDispatch();
 
-  const getFileExtension = (fileName: string) => {
-    return fileName.split('.').pop()?.toLowerCase();
-  };
+  // const getFileExtension = (fileName: string) => {
+  //   return fileName.split('.').pop()?.toLowerCase();
+  // };
 
-  const processShapeFiles = async (shpFiles: Map<string, File>) => {
-    const shpFileName = shpFiles.get('shp')?.name;
-    const dbfFileName = shpFiles.get('dbf')?.name;
-    if (shpFileName === undefined || dbfFileName === undefined) {
-      // TODO: @justin-kleid replace it with a React message box
-      console.error('Missing required Shapefile files (shp, dbf)');
-      return;
-    }
-    const fileSystem = new BrowserFileSystem(Array.from(shpFiles.values()));
-    const {fetch} = fileSystem;
-    const batches = await loadInBatches(shpFileName, ShapefileLoader, {
-      fetch,
-      gis: {reproject: false},
-      shp: {_maxDimensions: Number.MAX_SAFE_INTEGER},
-      metadata: false
-    });
-    const data = [];
-    for await (const batch of batches) {
-      // @ts-ignore FIXME
-      data.push(...batch.data);
-    }
-    return {type: 'FeatureCollection', features: data};
-  };
+  // const processShapeFiles = async (shpFiles: Map<string, File>) => {
+  //   const shpFileName = shpFiles.get('shp')?.name;
+  //   const dbfFileName = shpFiles.get('dbf')?.name;
+  //   if (shpFileName === undefined || dbfFileName === undefined) {
+  //     // TODO: @justin-kleid replace it with a React message box
+  //     console.error('Missing required Shapefile files (shp, dbf)');
+  //     return;
+  //   }
+  //   const fileSystem = new BrowserFileSystem(Array.from(shpFiles.values()));
+  //   const {fetch} = fileSystem;
+  //   const batches = await loadInBatches(shpFileName, ShapefileLoader, {
+  //     fetch,
+  //     gis: {reproject: false},
+  //     shp: {_maxDimensions: Number.MAX_SAFE_INTEGER},
+  //     metadata: false
+  //   });
+  //   const data = [];
+  //   for await (const batch of batches) {
+  //     // @ts-ignore FIXME
+  //     data.push(...batch.data);
+  //   }
+  //   return {type: 'FeatureCollection', features: data};
+  // };
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {

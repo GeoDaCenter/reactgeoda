@@ -1,10 +1,10 @@
 import React from 'react';
 import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
-import ChatGpt from './chatgpt-wrapper';
-import NivoPlot from './nivo-plot';
-import ToolBar from './tool-bar';
-import AgGrid from './ag-grid-wrapper';
+// import ChatGpt from './chatgpt-wrapper';
+// import NivoPlot from './nivo-plot';
+// import ToolBar from './tool-bar';
+// import AgGrid from './ag-grid-wrapper';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../store';
 
@@ -20,7 +20,7 @@ const layout = [
     y: 0,
     i: 'kepler',
     moved: true,
-    static: true 
+    static: true
   },
   // {
   //   w: 12,
@@ -39,7 +39,7 @@ const layout = [
     i: 'table',
     moved: false,
     static: false
-  },
+  }
   // {
   //   w: 7,
   //   h: 10,

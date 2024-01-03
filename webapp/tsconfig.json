@@ -1,15 +1,34 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
+    "module": "esnext",
     "lib": ["es6", "dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
-    "module": "esnext",
-    // "moduleResolution": "node",
     // "types": ["node"],
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "allowJs": true,
+    "target": "es2020",
+    "moduleResolution": "node",
+    "composite": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    // "noImplicitOverride": true,
+    // "noPropertyAccessFromIndexSignature": true,
+    // "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "react": ["node_modules/@types/react"],
+      "@kepler.gl/*": ["../../csds_kepler.gl/src/*/src"]
+      // "@loaders.gl/*": ["../loaders.gl/modules/*/src"]
+    }
   },
   "include": [
     "src/translations/*.json",
@@ -18,5 +37,6 @@
     "**/*.tsx",
     "**/*.jsx",
     "types.d.ts"
-  ]
+  ],
+  "exclude": ["**/out/**", "**/dist/**", "node_modules"]
 }
