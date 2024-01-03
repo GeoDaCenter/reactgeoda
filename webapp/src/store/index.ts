@@ -49,6 +49,13 @@ const loggerMiddleware = createLogger({
 
 const customizedKeplerGlReducer = keplerGlReducer
   .initialState({
+    mapState: {
+      latitude: 41.96988329124103,
+      longitude: -87.85179027000271
+    },
+    mapStyle: {
+      styleType: 'positron'
+    },
     uiState: {
       // hide side panel and data input window to disallow user customize the map
       readOnly: true,

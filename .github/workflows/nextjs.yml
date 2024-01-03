@@ -49,6 +49,7 @@ jobs:
           cd ..
           git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=master csds_kepler
           cd csds_kepler
+          yarn add @loaders.gl/schema@4.1.0-alpha.4
           yarn
           cd ..
           cd reactgeoda
