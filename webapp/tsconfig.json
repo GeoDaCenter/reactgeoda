@@ -23,10 +23,12 @@
     // "noPropertyAccessFromIndexSignature": true,
     // "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
-    "rootDir": ".",
+    "rootDir": "../",
     "paths": {
       "react": ["node_modules/@types/react"],
-      "@kepler.gl/*": ["../../csds_kepler.gl/src/*/src"]
+      "@kepler.gl/*": ["../../csds_kepler/src/*/src"],
+      "@kepler.gl/types": ["../../csds_kepler/src/types"],
+      "@kepler.gl/components": ["../../csds_kepler/src/components/src"]
       // "@loaders.gl/*": ["../loaders.gl/modules/*/src"]
     }
   },

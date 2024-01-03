@@ -1,9 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import * as arrow from 'apache-arrow';
+// @ts-ignore
 import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
 import MonacoEditor from '@monaco-editor/react';
 
+// @ts-ignore FIXME
 import {appInjector, DataTableModalFactory, makeGetActionCreators} from '@kepler.gl/components';
 import {ProcessorResult, Field} from '@kepler.gl/types';
 import {theme} from '@kepler.gl/styles';
@@ -32,7 +34,7 @@ export function processArrowTable(arrowTable: arrow.Table): ProcessorResult | nu
       analyzerType: isGeometryColumn
         ? AnalyzerDATA_TYPES.GEOMETRY
         : arrowDataTypeToAnalyzerDataType(field.type),
-      valueAccessor: (dc: any) => d => {
+      valueAccessor: (dc: any) => (d: {index: any}) => {
         return dc.valueAt(d.index, index);
       },
       metadata: field.metadata

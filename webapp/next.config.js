@@ -1,20 +1,23 @@
 const {resolve} = require('path');
 
-const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
   // output: 'standalone',
-  basePath: process.env.BASE_PATH ?? '/reactgeoda',
+  basePath: process.env.BASE_PATH ? process.env.BASE_PATH : '/reactgeoda',
   images: {unoptimized: true},
   generateBuildId: async () => 'reactgeoda-v0.1',
   typescript: {
     // !! WARN !!
     ignoreBuildErrors: true
   },
-  webpack: (config, options) => {
-    config.experiments = {...config.experiments, asyncWebAssembly: true, topLevelAwait: true};
+  webpack: config => {
+    config.experiments = Object.assign({}, config.experiments, {
+      asyncWebAssembly: true,
+      topLevelAwait: true
+    });
     config.output.assetModuleFilename = 'static/[hash][ext]';
     config.output.publicPath = '/_next/';
     config.module.rules.push({
@@ -52,10 +55,10 @@ const nextConfig = {
       ...config.resolve.alias,
       // 'apache-arrow': resolve(__dirname, '../node_modules/apache-arrow'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
-      '@mapbox/tiny-sdf': resolve(
-        __dirname,
-        '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'
-      ),
+      // '@mapbox/tiny-sdf': resolve(
+      //   __dirname,
+      //   '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'
+      // ),
       '@kepler.gl/effects': resolve(__dirname, '../../csds_kepler/src/effects/src/index'),
       '@kepler.gl/reducers': resolve(__dirname, '../../csds_kepler/src/reducers/src/index'),
       '@kepler.gl/actions': resolve(__dirname, '../../csds_kepler/src/actions/src/index'),
@@ -63,7 +66,7 @@ const nextConfig = {
       '@kepler.gl/components': resolve(__dirname, '../../csds_kepler/src/components/src/index'),
       '@kepler.gl/utils': resolve(__dirname, '../../csds_kepler/src/utils/src/index'),
       '@kepler.gl/styles': resolve(__dirname, '../../csds_kepler/src/styles/src/index'),
-      '@kepler.gl/types': resolve(__dirname, '../../csds_kepler/src/types/index'),
+      '@kepler.gl/types': resolve(__dirname, '../../csds_kepler/src/types'),
       '@kepler.gl/localization': resolve(__dirname, '../../csds_kepler/src/localization/src/index'),
       '@kepler.gl/layers': resolve(__dirname, '../../csds_kepler/src/layers/src/index'),
       '@kepler.gl/table': resolve(__dirname, '../../csds_kepler/src/table/src/index'),
