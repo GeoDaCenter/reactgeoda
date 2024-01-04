@@ -37,10 +37,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            geoda-ai/node_modules
-            geoda-ai/.yarn/cache
-            geoda-ai/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx', 'next.config.js') }}
+            ../csds_kepler
+          key: ${{ runner.os }}-csds_kepler-${{ hashFiles('**/deps.txt') }}
       - name: Install dependencies
         run: |
           npm install -g npm
