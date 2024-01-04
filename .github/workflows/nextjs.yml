@@ -69,6 +69,7 @@ jobs:
       - name: Build Library
         run: | 
           cd library
+          export NODE_OPTIONS=--openssl-legacy-provider
           yarn
           yarn build
       - name: Upload artifact
