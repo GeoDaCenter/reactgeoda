@@ -2,7 +2,7 @@ const { resolve } = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export',
+  output: 'export',
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   typescript: {
     // !! WARN !! This is to ignore build errors from Kepler.gl
