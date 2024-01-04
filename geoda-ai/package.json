@@ -6,6 +6,7 @@
     "dev": "cross-env BASE_PATH='' next dev",
     "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build",
     "build": "next build",
+    "build-netlify": "cd ../.. && git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler && cd csds_kepler && yarn && cd ../reactgeoda/geoda-ai && yarn build-local",
     "start": "next start",
     "lint": "next lint"
   },
