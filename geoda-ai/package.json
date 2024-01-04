@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "cross-env BASE_PATH='' next dev",
-    "build": "cross-env NODE_ENV=production BASE_PATH='' next build",
-    "build-prod": "cross-env NODE_ENV=production next build",
+    "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
