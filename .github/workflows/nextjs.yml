@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-            submodules: 'recursive'
+          submodules: 'recursive'
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -34,12 +34,14 @@ jobs:
         with:
           static_site_generator: next
       - name: Restore cache
+        id: cache-dependencies
         uses: actions/cache@v3
         with:
           path: |
-            ../csds_kepler
+            ~/csds_kepler
           key: ${{ runner.os }}-csds_kepler-${{ hashFiles('**/deps.txt') }}
       - name: Install dependencies
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           npm install -g npm
           npm install -g yarn
@@ -70,7 +72,7 @@ jobs:
           fi
           yarn build
       # - name: Build Library
-      #   run: | 
+      #   run: |
       #     cd library
       #     export NODE_OPTIONS=--openssl-legacy-provider
       #     yarn
