@@ -1,5 +1,8 @@
+import React from 'react';
+
 export type IconProps = {
   className: string;
+  onClick?: (event: React.MouseEvent) => void;
 };
 
 export const IconBoxplot = ({className}: IconProps) => {
@@ -295,9 +298,9 @@ export const IconMap = ({className}: IconProps) => {
   );
 };
 
-export const IconOpen = ({className}: IconProps) => {
+export const IconOpen = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className}`} onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -544,9 +547,9 @@ export const IconScatterplot = ({className}: IconProps) => {
   );
 };
 
-export const IconTable = ({className}: IconProps) => {
+export const IconTable = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className}`} onClick={onClick}>
       <svg
         width="24"
         height="24"

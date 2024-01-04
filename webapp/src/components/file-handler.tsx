@@ -5,6 +5,7 @@ import {useDispatch} from 'react-redux';
 import {_BrowserFileSystem as BrowserFileSystem, loadInBatches, parse} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
+import {ArrowLoader} from '@loaders.gl/arrow';
 import {JSONLoader, _GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
 import {processRowObject, processGeojson} from '@kepler.gl/processors';
 import {setFileData, setRawFileData} from '../actions/file-actions';
@@ -34,6 +35,7 @@ const FileHandler = () => {
     });
     const data = [];
     for await (const batch of batches) {
+      // @ts-ignore FIXME
       data.push(...batch.data);
     }
     return processGeojson({type: 'FeatureCollection', features: data});
@@ -41,6 +43,7 @@ const FileHandler = () => {
 
   const processCSVFile = async (file: File) => {
     const data = await parse(file, CSVLoader);
+    // @ts-expect-error FIXME
     return processRowObject(data);
   };
 
@@ -84,6 +87,9 @@ const FileHandler = () => {
             data = await processGeoJSONFile(file);
             rawData = await parse(file, GeoJSONLoader);
             break;
+          case 'arrow':
+            rawData = await parse(file, ArrowLoader);
+            break;
           default:
             // TODO: @justin-kleid replace it with a React message box
             console.log('Unsupported file format');
@@ -91,6 +97,7 @@ const FileHandler = () => {
         }
       }
       if (data && rawData) {
+        // @ts-expect-error FIXME
         dispatch(setFileData(data));
         dispatch(setRawFileData(rawData));
       }

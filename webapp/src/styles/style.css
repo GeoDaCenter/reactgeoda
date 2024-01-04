@@ -21,9 +21,9 @@
 
 .react-geoda .logo-box {
   align-items: center !important;
-  height: 28px !important;
-  padding: 10px !important;
-  width: 28px !important;
+  height: 40px !important;
+  /* padding: 10px !important; */
+  width: 40px !important;
   z-index: 2 !important;
 }
 
@@ -160,5 +160,21 @@
 }
 
 .react-geoda .main-grid {
-  padding: 12px;
+  padding: 0px;
+}
+
+/* readjust the size of the close button in modal dialog */
+.react-responsive-modal-closeButton {
+  width: 18px;
+}
+
+.dataset-modal {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-ex-icons-gear {
+  visibility: hidden;
 }

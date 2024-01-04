@@ -1,12 +1,19 @@
 {
+  "root": true,
   "env": {
-    "node": true,
-    "commonjs": true,
+    "es6": true,
     "browser": true,
-    "es2021": true,
+    "node": true,
     "jest": true
   },
-  "plugins": ["@typescript-eslint", "eslint-plugin-prettier", "react", "react-hooks", "prettier"],
+  "plugins": [
+    "@typescript-eslint",
+    "eslint-plugin-prettier",
+    "react",
+    "react-hooks",
+    "prettier",
+    "jest"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@next/next/recommended",
@@ -23,7 +30,7 @@
     "consistent-return": 0,
     "no-duplicate-imports": "error",
     "react-hooks/exhaustive-deps": "error",
-    "@next/next/no-html-link-for-pages": ["error", "./webapp/src/pages/"],
+    "@next/next/no-html-link-for-pages": ["error", "./src/pages/"],
     "prettier/prettier": "error"
   },
   "parser": "@typescript-eslint/parser",
@@ -36,8 +43,15 @@
   },
   "settings": {
     "next": {
-      "rootDir": "./webapp/"
+      "rootDir": "./"
     }
   },
-  "ignorePatterns": ["kepler.gl", "node_modules", "out"]
+  "ignorePatterns": [
+    "kepler.gl",
+    "node_modules",
+    "out",
+    "src/**/*.test.ts",
+    "src/frontend/generated/*",
+    "babel.config.js"
+  ]
 }

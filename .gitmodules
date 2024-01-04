@@ -1,3 +1,0 @@
-[submodule "webapp/kepler.gl"]
-	path = webapp/kepler.gl
-	url = https://github.com/GeoDaCenter/kepler.gl.git
