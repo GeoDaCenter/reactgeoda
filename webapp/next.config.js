@@ -7,6 +7,7 @@ const nextConfig = {
   swcMinify: true,
   // output: 'standalone',
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
+  assetPrefix: process.env.BASE_PATH ?? '/reactgeoda',
   images: {unoptimized: true},
   generateBuildId: async () => 'reactgeoda-v0.1',
   typescript: {

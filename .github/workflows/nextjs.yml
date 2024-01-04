@@ -38,8 +38,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~/csds_kepler
-          key: ${{ runner.os }}-csds_kepler-${{ hashFiles('**/deps.txt') }}
+            /home/runner/work/reactgeoda/csds_kepler
+          key: ${{ runner.os }}-csds_kepler-${{ hashFiles('deps.txt') }}
       - name: Install dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
@@ -72,7 +72,6 @@ jobs:
           if [[ ${{github.event.pull_request.merged}} == true ]]; then
             export BASE_PATH=/reactgeoda
           fi
-          echo $BASE_PATH
           NODE_ENV=production BASE_PATH=$BASE_PATH yarn build
       # - name: Build Library
       #   run: |
