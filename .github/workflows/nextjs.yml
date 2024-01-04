@@ -47,6 +47,7 @@ jobs:
           npm install -g yarn
           npm install -g node-gyp
           cd ..
+          pwd
           git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler
           cd csds_kepler
           yarn
@@ -67,10 +68,12 @@ jobs:
           cd geoda-ai
           export NODE_ENV=production
           export BASE_PATH=/reactgeoda/pr-preview/pr-${{ github.event.number }}
+          echo ${{github.event.pull_request.merged}}
           if [[ ${{github.event.pull_request.merged}} == true ]]; then
             export BASE_PATH=/reactgeoda
           fi
-          yarn build
+          echo $BASE_PATH
+          NODE_ENV=production BASE_PATH=$BASE_PATH yarn build
       # - name: Build Library
       #   run: |
       #     cd library
