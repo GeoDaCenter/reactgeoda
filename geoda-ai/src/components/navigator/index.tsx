@@ -55,8 +55,8 @@ export function Navigator() {
     <div className="toolbar">
       <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
       <div className="tool-box">
-        <IconOpen className="icon-open-instance" onClick={onOpenCallback} />
-        <IconTable className="icon-table-instance" onClick={onTableCallback} />
+        <IconOpen className="icon-open-instance cursor-pointer" onClick={onOpenCallback} />
+        <IconTable className="icon-table-instance cursor-pointer" onClick={onTableCallback} />
         <IconMap className="icon-map-instance" />
         <IconWeights className="icon-weights-instance" />
         <IconChoropleth className="design-component-instance-node" />

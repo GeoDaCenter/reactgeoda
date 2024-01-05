@@ -26,7 +26,7 @@ const nextConfig = {
     // Configure to use local version of Kepler.gl
     config.resolve.alias = {
       ...config.resolve.alias,
-      // 'apache-arrow': resolve(__dirname, '../node_modules/apache-arrow'),
+      'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,
@@ -73,6 +73,13 @@ const nextConfig = {
       ...config.module,
       exprContextCritical: false
     };
+
+    // This is to fix Apache-arrow v13 warning
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: 'javascript/auto'
+    });
 
     return config;
   }

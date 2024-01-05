@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const metadata = {
   title: 'GeoDa.AI',
   description: 'Powered by GeoDa'

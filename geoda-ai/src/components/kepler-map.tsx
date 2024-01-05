@@ -11,9 +11,10 @@ const mapId = 'kepler_map';
 
 const KeplerMap = () => {
   return (
-    <div style={{height: '100vh', padding: '0px'}} className={'geoda-kepler-map'}>
+    <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>
       <AutoSizer defaultHeight={400} defaultWidth={500}>
         {({height, width}) => {
+          console.log('height', height, 'width', width);
           return (
             <KeplerGl
               id={mapId}

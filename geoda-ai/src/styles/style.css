@@ -149,6 +149,25 @@
   position: relative;
   overflow: auto;
   height: 100vh;
+  /* main-grid and main-table */
+  display: flex;
+  flex-direction: column;
+}
+
+.react-geoda .main-grid {
+  padding: 0px;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.default-kepler-map {
+  height: 100% !important;
+}
+
+.react-geoda .main-table {
+  padding: 0px;
+  flex-grow: 0;
+  height: 40%;
 }
 
 .react-geoda .prop-box {
@@ -156,11 +175,7 @@
   background-color: var(--variable-collection-panelbgcolor);
   position: relative;
   width: 380px;
-  display: none;
-}
-
-.react-geoda .main-grid {
-  padding: 0px;
+  display: block;
 }
 
 /* readjust the size of the close button in modal dialog */

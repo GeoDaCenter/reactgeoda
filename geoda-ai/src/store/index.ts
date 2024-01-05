@@ -1,12 +1,14 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
-// import keplerLanguageMiddleware from './language-middleware';
 
 import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 
+import keplerLanguageMiddleware from './language-middleware';
+import rootReducer from '../reducers/index';
+
 export type GeoDaState = {
-  // keplerGl: typeof customizedKeplerGlReducer;
+  keplerGl: typeof customizedKeplerGlReducer;
   root: {
     choroplethMethod: string;
     numberOfBreaks: number;
@@ -27,6 +29,7 @@ export type GeoDaState = {
     localMoranData: any;
     language: string;
     uiState: {
+      showPropertyPanel: boolean;
       showOpenFileModal: boolean;
       showKeplerTableModal: boolean;
       showGridView: boolean;
@@ -81,14 +84,7 @@ const customizedKeplerGlReducer = keplerGlReducer
 
 const reducers = combineReducers({
   keplerGl: customizedKeplerGlReducer,
-  root: combineReducers({
-    language: (state = 'en') => state,
-    uiState: combineReducers({
-      showOpenFileModal: (state = false) => state,
-      showKeplerTableModal: (state = false) => state,
-      showGridView: (state = false) => state
-    })
-  })
+  root: rootReducer
 });
 
 // Customize logger
@@ -103,7 +99,7 @@ const loggerMiddleware = createLogger({
   }
 });
 
-const middlewares = enhanceReduxMiddleware([loggerMiddleware]);
+const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
 
 // create store with initial state and reducers and middlewares
 // @ts-ignore FIXME
