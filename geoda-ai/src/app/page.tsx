@@ -10,13 +10,13 @@ import '../styles/navigator-style.css';
 import '../styles/open-file-modal-style.css';
 
 // import dynamic from 'next/dynamic';
-import { Provider as ReduxProvider } from 'react-redux';
+import {Provider as ReduxProvider} from 'react-redux';
 import store from '../store';
 import GridLayout from '../components/grid-layout';
 // import FileHandler from '../components/file-handler';
 // import LanguageSelector from '../components/language-selector';
 import IntlProviderWrapper from '../components/intl-provider-wrapper';
-import { Navigator } from '../components/navigator';
+import {Navigator} from '../components/navigator';
 // import {OpenFileModal} from '../components/open-file-modal';
 // import KeplerMap from '../components/kepler-map';
 // const KeplerMap = dynamic(() => import('../components/kepler-map'), { ssr: false });
