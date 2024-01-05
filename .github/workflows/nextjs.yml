@@ -61,15 +61,8 @@ jobs:
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           echo NEXT_PUBLIC_API_KEY=${{ secrets.CHATGPT_TOKEN }} >> geoda-ai/.env
-          [[ "${{ github.event_name }}" = pull_request ]] && export BASE_PATH=/reactgeoda/pr-preview/pr-${{ github.event.number }}
           cd geoda-ai
-          export NODE_ENV=production
-          export BASE_PATH=/reactgeoda/pr-preview/pr-${{ github.event.number }}
-          echo ${{github.event.pull_request.merged}}
-          if [[ ${{github.event.pull_request.merged}} == true ]]; then
-            export BASE_PATH=/reactgeoda
-          fi
-          NODE_ENV=production BASE_PATH=$BASE_PATH yarn build
+          yarn build-local
       # - name: Build Library
       #   run: |
       #     cd library
