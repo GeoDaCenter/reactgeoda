@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Table as ArrowTable, Field as ArrowField} from 'apache-arrow';
 // @ts-ignore
@@ -9,25 +9,23 @@ import MonacoEditor from '@monaco-editor/react';
 import {
   appInjector,
   DataTableFactory,
-  DataTableProps,
   makeGetActionCreators,
   renderedSize
 } from '@kepler.gl/components';
 import {ProcessorResult, Field} from '@kepler.gl/types';
-import {theme, themeLT} from '@kepler.gl/styles';
 import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
 import {GeoDaState} from '../../store';
 import {useDuckDB} from '../../hooks/use-duckdb';
-import {ThemeProvider, useTheme, withTheme} from 'styled-components';
+import {useTheme} from 'styled-components';
 
 const MIN_STATS_CELL_SIZE = 122;
 
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
 
-  // get DataTableModal component from appInjector
+// get DataTableModal component from appInjector
 const DataTable = appInjector.get(DataTableFactory);
 
 export function processArrowTable(arrowTable: ArrowTable): ProcessorResult | null {
@@ -79,7 +77,15 @@ export function DuckDBTableComponent() {
   const dataId = Object.keys(kepler.visState.datasets)[0];
 
   // @ts-expect-error
-  const {fields, dataContainer, pinnedColumns} = dataset;
+  const {fields, dataContainer, pinnedColumns, filteredIndex} = dataset;
+
+  const filteredIndexDict = useMemo(() => {
+    const dict: {[key: number]: boolean} = {};
+    filteredIndex.forEach((i: number) => {
+      dict[i] = true;
+    });
+    return dict;
+  }, [filteredIndex]);
 
   const columns = fields.map((f: Field) => f.name);
 
@@ -198,6 +204,7 @@ export function DuckDBTableComponent() {
         colMeta={colMeta}
         cellSizeCache={cellSizeCache}
         dataContainer={dataContainer}
+        filteredIndex={filteredIndexDict}
         pinnedColumns={pinnedColumns}
         sortColumn={{}}
         sortTableColumn={visStateActions.sortTableColumn}
