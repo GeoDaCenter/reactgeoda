@@ -46,8 +46,10 @@ export async function initDuckDB() {
   return null;
 }
 
-// initial the global duckdb instance
-db = await initDuckDB();
+// initial the global duckdb instance, delay 500ms to avoid blocking loading default page
+setTimeout(async () => {
+  db = await initDuckDB();
+}, 500);
 
 /**
  * custom hook to use DuckDB
