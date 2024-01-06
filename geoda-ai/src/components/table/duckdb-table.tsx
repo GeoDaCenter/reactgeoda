@@ -6,17 +6,29 @@ import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
 import MonacoEditor from '@monaco-editor/react';
 
 // @ts-ignore FIXME
-import {appInjector, DataTableModalFactory, makeGetActionCreators} from '@kepler.gl/components';
+import {
+  appInjector,
+  DataTableFactory,
+  DataTableProps,
+  makeGetActionCreators,
+  renderedSize
+} from '@kepler.gl/components';
 import {ProcessorResult, Field} from '@kepler.gl/types';
-import {theme} from '@kepler.gl/styles';
+import {theme, themeLT} from '@kepler.gl/styles';
 import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
 import {GeoDaState} from '../../store';
 import {useDuckDB} from '../../hooks/use-duckdb';
+import {ThemeProvider, useTheme, withTheme} from 'styled-components';
+
+const MIN_STATS_CELL_SIZE = 122;
 
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
+
+  // get DataTableModal component from appInjector
+const DataTable = appInjector.get(DataTableFactory);
 
 export function processArrowTable(arrowTable: ArrowTable): ProcessorResult | null {
   const fields: Field[] = [];
@@ -48,12 +60,10 @@ export function processArrowTable(arrowTable: ArrowTable): ProcessorResult | nul
 
 export function DuckDBTableComponent() {
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   // set state for monaco editor
   const [code, setCode] = useState('');
-
-  // get DataTableModal component from appInjector
-  const DataTable = appInjector.get(DataTableModalFactory);
 
   // get GeoDa state from redux store
   const geoda = useSelector((state: GeoDaState) => state.root);
@@ -63,6 +73,47 @@ export function DuckDBTableComponent() {
 
   // get Kepler state from redux store
   const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);
+
+  // get dataset, TODO only one dataset is supported now
+  const dataset = Object.values(kepler.visState.datasets)[0];
+  const dataId = Object.keys(kepler.visState.datasets)[0];
+
+  // @ts-expect-error
+  const {fields, dataContainer, pinnedColumns} = dataset;
+
+  const columns = fields.map((f: Field) => f.name);
+
+  const colMeta = fields.reduce(
+    (acc: Object, {name, displayName, type, filterProps, format, displayFormat}: Field) => ({
+      ...acc,
+      [name]: {
+        name: displayName || name,
+        type,
+        ...(format ? {format} : {}),
+        ...(displayFormat ? {displayFormat} : {}),
+        ...(filterProps?.columnStats ? {columnStats: filterProps.columnStats} : {})
+      }
+    }),
+    {}
+  );
+
+  const cellSizeCache = fields.reduce(
+    (acc: Object, field: Field, colIdx: number) => ({
+      ...acc,
+      [field.name]: renderedSize({
+        text: {
+          dataContainer,
+          column: field.displayName
+        },
+        colIdx,
+        type: field.type,
+        fontSize: theme.cellFontSize,
+        font: theme.fontFamily,
+        minCellSize: MIN_STATS_CELL_SIZE
+      })
+    }),
+    {}
+  );
 
   // get action creators from kepler.gl
   const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
@@ -141,16 +192,18 @@ export function DuckDBTableComponent() {
         </div>
       </div>
       <DataTable
-        datasets={kepler.visState.datasets}
-        dataId={Object.keys(kepler.visState.datasets)[0]}
-        showDatasetTable={visStateActions.showDatasetTable}
+        key={dataId}
+        dataId={dataId}
+        columns={columns}
+        colMeta={colMeta}
+        cellSizeCache={cellSizeCache}
+        dataContainer={dataContainer}
+        pinnedColumns={pinnedColumns}
+        sortColumn={{}}
         sortTableColumn={visStateActions.sortTableColumn}
         pinTableColumn={visStateActions.pinTableColumn}
         copyTableColumn={visStateActions.copyTableColumn}
         setColumnDisplayFormat={visStateActions.setColumnDisplayFormat}
-        uiStateActions={uiStateActions}
-        uiState={kepler.uiState}
-        showTab={false}
         theme={theme}
       />
     </div>

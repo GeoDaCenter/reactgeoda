@@ -1,50 +1,53 @@
 import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import * as arrow from 'apache-arrow';
+import { useDispatch, useSelector } from 'react-redux';
+// import {createSelector} from 'reselect';
+// import * as arrow from 'apache-arrow';
 // @ts-ignore
-import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
+// import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
 import MonacoEditor from '@monaco-editor/react';
 
 // @ts-ignore FIXME
-import {appInjector, DataTableModalFactory, makeGetActionCreators} from '@kepler.gl/components';
-import {ProcessorResult, Field} from '@kepler.gl/types';
+import {appInjector, DataTableFactory, makeGetActionCreators, renderedSize} from '@kepler.gl/components';
+import {Field} from '@kepler.gl/types';
 import {theme} from '@kepler.gl/styles';
-import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
-import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
+// import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
+// import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
 import {GeoDaState} from '../store';
 import {useDuckDB} from '../hooks/use-duckdb';
 
+const MIN_STATS_CELL_SIZE = 122;
+
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
 
-export function processArrowTable(arrowTable: arrow.Table): ProcessorResult | null {
-  const fields: Field[] = [];
+// export function processArrowTable(arrowTable: arrow.Table): ProcessorResult | null {
+//   const fields: Field[] = [];
 
-  // parse fields
-  arrowTable.schema.fields.forEach((field: arrow.Field, index: number) => {
-    const isGeometryColumn = field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow');
-    fields.push({
-      name: field.name,
-      id: field.name,
-      displayName: field.name,
-      format: '',
-      fieldIdx: index,
-      type: isGeometryColumn ? ALL_FIELD_TYPES.geoarrow : arrowDataTypeToFieldType(field.type),
-      analyzerType: isGeometryColumn
-        ? AnalyzerDATA_TYPES.GEOMETRY
-        : arrowDataTypeToAnalyzerDataType(field.type),
-      valueAccessor: (dc: any) => (d: {index: any}) => {
-        return dc.valueAt(d.index, index);
-      },
-      metadata: field.metadata
-    });
-  });
+//   // parse fields
+//   arrowTable.schema.fields.forEach((field: arrow.Field, index: number) => {
+//     const isGeometryColumn = field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow');
+//     fields.push({
+//       name: field.name,
+//       id: field.name,
+//       displayName: field.name,
+//       format: '',
+//       fieldIdx: index,
+//       type: isGeometryColumn ? ALL_FIELD_TYPES.geoarrow : arrowDataTypeToFieldType(field.type),
+//       analyzerType: isGeometryColumn
+//         ? AnalyzerDATA_TYPES.GEOMETRY
+//         : arrowDataTypeToAnalyzerDataType(field.type),
+//       valueAccessor: (dc: any) => (d: {index: any}) => {
+//         return dc.valueAt(d.index, index);
+//       },
+//       metadata: field.metadata
+//     });
+//   });
 
-  const cols = [...Array(arrowTable.numCols).keys()].map(i => arrowTable.getChildAt(i));
-  // return empty rows and use raw arrow table to construct column-wise data container
-  return {fields, rows: [], cols, metadata: arrowTable.schema.metadata};
-}
+//   const cols = [...Array(arrowTable.numCols).keys()].map(i => arrowTable.getChildAt(i));
+//   // return empty rows and use raw arrow table to construct column-wise data container
+//   return {fields, rows: [], cols, metadata: arrowTable.schema.metadata};
+// }
 
 export function DuckDBTableComponent() {
   const dispatch = useDispatch();
@@ -53,7 +56,7 @@ export function DuckDBTableComponent() {
   const [code, setCode] = useState('');
 
   // get DataTableModal component from appInjector
-  const DataTable = appInjector.get(DataTableModalFactory);
+  const DataTable = appInjector.get(DataTableFactory);
 
   // get GeoDa state from redux store
   const geoda = useSelector((state: GeoDaState) => state.root);
@@ -64,6 +67,48 @@ export function DuckDBTableComponent() {
   // get Kepler state from redux store
   const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);
 
+  // get dataset, TODO only one dataset is supported now
+  const dataset = Object.values(kepler.visState.datasets)[0];
+  const dataId = Object.keys(kepler.visState.datasets)[0];
+
+  // @ts-expect-error
+  const {fields, dataContainer, pinnedColumns} = dataset;
+
+  const columns = fields.map((f: Field) => f.name);
+
+  const colMeta =
+    fields.reduce(
+      (acc: Object, { name, displayName, type, filterProps, format, displayFormat }: Field) => ({
+        ...acc,
+        [name]: {
+          name: displayName || name,
+          type,
+          ...(format ? { format } : {}),
+          ...(displayFormat ? { displayFormat } : {}),
+          ...(filterProps?.columnStats ? { columnStats: filterProps.columnStats } : {})
+        }
+      }),
+      {}
+    );
+
+    const cellSizeCache = fields.reduce(
+        (acc: Object, field: Field, colIdx: number) => ({
+          ...acc,
+          [field.name]: renderedSize({
+            text: {
+              dataContainer,
+              column: field.displayName
+            },
+            colIdx,
+            type: field.type,
+            fontSize: theme.cellFontSize,
+            font: theme.fontFamily,
+            minCellSize: MIN_STATS_CELL_SIZE
+          })
+        }),
+        {}
+      );
+  
   // get action creators from kepler.gl
   const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
 
@@ -143,17 +188,18 @@ export function DuckDBTableComponent() {
         </div>
       </div>
       <DataTable
-        datasets={kepler.visState.datasets}
-        dataId={Object.keys(kepler.visState.datasets)[0]}
+        key={dataId}
+        dataId={dataId}
+        columns={columns}
+        colMeta={colMeta}
+        cellSizeCache={cellSizeCache}
+        dataContainer={dataContainer}
+        pinnedColumns={pinnedColumns}
         showDatasetTable={visStateActions.showDatasetTable}
         sortTableColumn={visStateActions.sortTableColumn}
         pinTableColumn={visStateActions.pinTableColumn}
         copyTableColumn={visStateActions.copyTableColumn}
         setColumnDisplayFormat={visStateActions.setColumnDisplayFormat}
-        uiStateActions={uiStateActions}
-        uiState={kepler.uiState}
-        showTab={false}
-        theme={theme}
       />
     </div>
   );

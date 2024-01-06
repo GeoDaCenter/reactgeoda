@@ -9,8 +9,13 @@ import '../styles/style.css';
 import '../styles/navigator-style.css';
 import '../styles/open-file-modal-style.css';
 
+import {useRef} from 'react';
+import {ThemeProvider} from 'styled-components';
 import dynamic from 'next/dynamic';
 import {Provider as ReduxProvider} from 'react-redux';
+import {themeLT} from '@kepler.gl/styles';
+import {RootContext} from '@kepler.gl/components';
+
 import store from '../store';
 import GridLayout from '../components/grid-layout';
 // import FileHandler from '../components/file-handler';
@@ -28,22 +33,26 @@ const DuckDBTableModal = dynamic(() => import('../components/table/duckdb-table-
 });
 
 export default function Home() {
+  const rootNode = useRef<HTMLDivElement>(null);
+
   return (
-    <ReduxProvider store={store}>
-      <IntlProviderWrapper>
-        <div className="react-geoda">
-          <Navigator />
-          <div className="main-box">
-            <div className="main-grid">
-              <GridLayout />
+    <RootContext.Provider value={rootNode}>
+      <ReduxProvider store={store}>
+        <IntlProviderWrapper>
+          <div className="react-geoda">
+            <Navigator />
+            <div className="main-box">
+              <div className="main-grid">
+                <GridLayout />
+              </div>
+              <TableContainer />
             </div>
-            <TableContainer />
+            <PanelContainer />
+            <OpenFileModal />
+            {/* <DuckDBTableModal /> */}
           </div>
-          <PanelContainer />
-          <OpenFileModal />
-          {/* <DuckDBTableModal /> */}
-        </div>
-      </IntlProviderWrapper>
-    </ReduxProvider>
+        </IntlProviderWrapper>
+      </ReduxProvider>
+    </RootContext.Provider>
   );
 }

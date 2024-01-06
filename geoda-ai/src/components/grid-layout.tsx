@@ -8,9 +8,9 @@ import dynamic from 'next/dynamic';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../store';
 
-import KeplerMap from './kepler-map';
-// const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
-const DuckDBTable = dynamic(() => import('./table/duckdb-table'), {ssr: false});
+// import KeplerMap from './kepler-map';
+const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
+// const DuckDBTable = dynamic(() => import('./table/duckdb-table'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [

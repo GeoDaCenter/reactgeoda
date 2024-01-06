@@ -1,6 +1,8 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
 import {MAPBOX_TOKEN} from '../constants';
+import {useTheme} from 'styled-components';
+import {useDuckDB} from '@/hooks/use-duckdb';
 
 const mapId = 'kepler_map';
 
@@ -10,6 +12,9 @@ const mapId = 'kepler_map';
 // };
 
 const KeplerMap = () => {
+  const theme = useTheme();
+  useDuckDB();
+
   return (
     <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>
       <AutoSizer defaultHeight={400} defaultWidth={500}>
@@ -21,6 +26,7 @@ const KeplerMap = () => {
               mapboxApiAccessToken={MAPBOX_TOKEN}
               height={height}
               width={width}
+              theme={theme}
             />
           );
         }}
