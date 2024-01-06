@@ -122,7 +122,7 @@ export function DuckDBTableComponent() {
   );
 
   // get action creators from kepler.gl
-  const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
+  const {visStateActions} = keplerActionSelector(dispatch, {});
 
   // get duckdb hook
   const {query, importArrowFile} = useDuckDB();

@@ -193,3 +193,8 @@
 .data-ex-icons-gear {
   visibility: hidden;
 }
+
+/* fix mapboxgl-children */
+div[mapboxgl-children] {
+  display: none;
+}

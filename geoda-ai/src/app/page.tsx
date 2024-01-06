@@ -10,10 +10,8 @@ import '../styles/navigator-style.css';
 import '../styles/open-file-modal-style.css';
 
 import {useRef} from 'react';
-import {ThemeProvider} from 'styled-components';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 import {Provider as ReduxProvider} from 'react-redux';
-import {themeLT} from '@kepler.gl/styles';
 import {RootContext} from '@kepler.gl/components';
 
 import store from '../store';
@@ -25,12 +23,6 @@ import {Navigator} from '../components/navigator';
 import {OpenFileModal} from '../components/open-file-modal';
 import {PanelContainer} from '../components/panel/panel-container';
 import {TableContainer} from '../components/table/table-container';
-
-// use dynamic import so that WebWorker can be used with DuckDB WASM
-// import {DuckDBTableModal} from '../components/duckdb-table-modal';
-const DuckDBTableModal = dynamic(() => import('../components/table/duckdb-table-modal'), {
-  ssr: false
-});
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);

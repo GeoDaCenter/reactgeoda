@@ -12,7 +12,7 @@ import {_GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
 import {addDataToMap, wrapTo} from '@kepler.gl/actions';
 
 import {GeoDaState} from '../store';
-import {setOpenFileModal, setShowPropertyPanel} from '../actions';
+import {setOpenFileModal} from '../actions';
 import {IconUpload} from './icons/upload';
 import {setRawFileData} from '../actions/file-actions';
 import {
