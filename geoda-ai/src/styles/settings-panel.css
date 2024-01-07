@@ -1,0 +1,273 @@
+.settings-panel {
+  align-items: center;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.settings-panel .modal-header {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .content {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 16px 0px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .text-and-supporting {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .text {
+  align-self: stretch;
+  color: var(--gray-900);
+  font-family: var(--text-lg-semibold-font-family);
+  font-size: var(--text-lg-semibold-font-size);
+  font-style: var(--text-lg-semibold-font-style);
+  font-weight: var(--text-lg-semibold-font-weight);
+  letter-spacing: var(--text-lg-semibold-letter-spacing);
+  line-height: var(--text-lg-semibold-line-height);
+  margin-top: -1px;
+  position: relative;
+}
+
+.settings-panel .supporting-text {
+  align-self: stretch;
+  color: var(--gray-600);
+  font-family: var(--text-sm-regular-font-family);
+  font-size: var(--text-sm-regular-font-size);
+  font-style: var(--text-sm-regular-font-style);
+  font-weight: var(--text-sm-regular-font-weight);
+  letter-spacing: var(--text-sm-regular-letter-spacing);
+  line-height: var(--text-sm-regular-line-height);
+  position: relative;
+}
+
+.settings-panel .padding-bottom {
+  align-self: stretch;
+  height: 20px;
+  position: relative;
+  width: 100%;
+  border-bottom: 1px solid var(--gray-300);
+}
+
+.settings-panel .button-close-x {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  justify-content: center;
+  right: 0;
+  overflow: hidden;
+  padding: 10px;
+  position: absolute;
+  top: 12px;
+}
+
+.settings-panel .x-close {
+  height: 24px !important;
+  position: relative !important;
+  width: 24px !important;
+  color: #dedfe0;
+}
+
+.settings-panel .form-wrapper {
+  align-items: center;
+  align-self: stretch;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 20px;
+  padding: 20px 16px 0px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .form {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .div {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .label {
+  color: var(--gray-700);
+  font-family: var(--text-sm-medium-font-family);
+  font-size: var(--text-sm-medium-font-size);
+  font-style: var(--text-sm-medium-font-style);
+  font-weight: var(--text-sm-medium-font-weight);
+  letter-spacing: var(--text-sm-medium-letter-spacing);
+  line-height: var(--text-sm-medium-line-height);
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.settings-panel .input {
+  align-items: center;
+  align-self: stretch;
+  background-color: var(--base-white);
+  border: 1px solid;
+  border-color: #000000;
+  border-radius: 8px;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  overflow: hidden;
+  padding: 4px; 
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .inputToken {
+  flex: 1;
+  flex-grow: 1;
+  position: relative;
+  border: 0;
+  outline: 0;
+  color:  var(--gray-300);
+}
+
+.settings-panel .hint-text {
+  align-self: stretch;
+  color: var(--gray-600);
+  font-family: "Inter-Regular", Helvetica;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 20px;
+  position: relative;
+}
+
+.settings-panel .modal-actions {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 0px 0px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .divider-wrap {
+  align-self: stretch;
+  flex: 0 0 auto;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .content-3 {
+  align-items: flex-start;
+  align-self: stretch;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+  padding: 0px 16px 16px;
+  position: relative;
+  width: 100%;
+}
+
+.settings-panel .button {
+  all: unset;
+  align-items: center;
+  background-color: var(--variable-collection-marron-light);
+  border: 1px solid;
+  border-color: var(--variable-collection-marron-light);
+  border-radius: 8px;
+  box-shadow: var(--shadow-xs);
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-grow: 1;
+  gap: 8px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.settings-panel .text-confirm{
+  color: var(--base-white);
+  font-family: var(--text-md-semibold-font-family);
+  font-size: var(--text-md-semibold-font-size);
+  font-style: var(--text-md-semibold-font-style);
+  font-weight: var(--text-md-semibold-font-weight);
+  letter-spacing: var(--text-md-semibold-letter-spacing);
+  line-height: var(--text-md-semibold-line-height);
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.settings-panel .cancel-button {
+  all: unset;
+  align-items: center;
+  background-color: var(--base-white);
+  border: 1px solid;
+  border-color: var(--gray-300);
+  border-radius: 8px;
+  box-shadow: var(--shadow-xs);
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-grow: 1;
+  gap: 8px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.settings-panel .text-cancel {
+  color: var(--gray-700);
+  font-family: var(--text-md-semibold-font-family);
+  font-size: var(--text-md-semibold-font-size);
+  font-style: var(--text-md-semibold-font-style);
+  font-weight: var(--text-md-semibold-font-weight);
+  letter-spacing: var(--text-md-semibold-letter-spacing);
+  line-height: var(--text-md-semibold-line-height);
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
