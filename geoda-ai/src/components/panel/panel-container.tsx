@@ -1,6 +1,7 @@
 import React from 'react';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
+import {ChatGptComponent} from '../chatgpt/chatgpt-wrapper';
 
 export const PanelContainer = () => {
   // get showGridView from redux state
@@ -8,5 +9,9 @@ export const PanelContainer = () => {
     (state: GeoDaState) => state.root.uiState.showPropertyPanel
   );
 
-  return showPropertyPanel ? <div className="prop-box" /> : null;
+  const showChatGPTPanel = true;
+
+  return showPropertyPanel ? (
+    <div className="prop-box">{showChatGPTPanel && <ChatGptComponent />}</div>
+  ) : null;
 };

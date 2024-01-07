@@ -198,3 +198,18 @@
 div[mapboxgl-children] {
   display: none;
 }
+
+/* custom chatGPT css */
+.cs-main-container {
+  border: none!important;
+}
+
+.cs-message-input {
+  border: none!important;
+  padding-bottom: 2px;
+}
+
+.cs-message--outgoing .cs-message__content {
+  color: #ffffff !important;
+  background-color: #800000 !important;
+}
