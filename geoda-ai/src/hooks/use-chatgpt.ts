@@ -1,6 +1,19 @@
+import OpenAI from 'openai';
+
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+const ASSISTANT_ID = process.env.NEXT_PUBLIC_ASSISTANT_ID;
+
+// declare global openai variable
+let openai: OpenAI | null = null;
+
+const functions = {
+  localMoran: function (varName: string) {
+    // dispatch local moran action
+    return 'local moran';
+  }
+};
 
 const systemMessage = {
   role: 'system',
@@ -12,6 +25,78 @@ const systemMessage = {
  * custom hook to use ChatGPT
  */
 export function useChatGPT() {
+  function initOpenAI(apiKey: string) {
+    if (!openai) {
+      openai = new OpenAI({apiKey});
+    }
+  }
+  async function processMessage() {
+    if (!openai) return null;
+    // retrive assistant
+    const myAssistant = await openai.beta.assistants.retrieve(ASSISTANT_ID || '');
+    // create a thread
+    const thread = await openai.beta.threads.create();
+    // add user's message to the thread
+    const message = await openai.beta.threads.messages.create(thread.id, {
+      role: 'user',
+      content: 'Hello, world!'
+    });
+    // running the thread
+    // create a new run instance
+    const run = await openai.beta.threads.runs.create(thread.id, {
+      assistant_id: myAssistant.id
+    });
+    // Imediately fetch run-status, which will be "in_progress"
+    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+    // Polling mechanism to see if runStatus is completed
+    while (runStatus.status !== 'completed') {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      if (runStatus.status === 'requires_action') {
+        const toolCalls = runStatus.required_action?.submit_tool_outputs.tool_calls;
+        const toolOutputs = [];
+        for (const toolCall of toolCalls) {
+          const functionName = toolCall.function.name;
+          console.log(`This question requires us to call a function: ${functionName}`);
+
+          const args = JSON.parse(toolCall.function.arguments);
+
+          const argsArray = Object.keys(args).map(key => args[key]);
+          // Dynamically call the function with arguments
+          const func = functions[functionName];
+          const output = func(args);
+
+          toolOutputs.push({
+            tool_call_id: toolCall.id,
+            output: output
+          });
+        }
+        // Submit tool outputs
+        await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {
+          tool_outputs: toolOutputs
+        });
+        continue; // Continue polling for the final response
+      }
+      // Check for failed, cancelled, or expired status
+      if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
+        console.log(`Run status is '${runStatus.status}'. Unable to complete the request.`);
+        break; // Exit the loop if the status indicates a failure or cancellation
+      }
+    }
+    // Get the last assistant message from the messages array
+    const messages = await openai.beta.threads.messages.list(thread.id);
+    // Find the last message for the current run
+    const lastMessageForRun = messages.data
+      .filter(message => message.run_id === run.id && message.role === 'assistant')
+      .pop();
+
+    // If an assistant message is found, console.log() it
+    if (lastMessageForRun) {
+      console.log(`${lastMessageForRun.content[0].text.value} \n`);
+    } else if (!['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
+      console.log('No response received from the assistant.');
+    }
+  }
   async function processMessageToChatGPT(
     chatMessages: Array<MessageModel>,
     data: any
@@ -56,5 +141,5 @@ export function useChatGPT() {
     return null;
   }
 
-  return {processMessageToChatGPT};
+  return {initOpenAI, processMessageToChatGPT};
 }

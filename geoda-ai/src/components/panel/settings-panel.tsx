@@ -1,11 +1,25 @@
-import React from 'react';
-import {useSelector} from 'react-redux';
+import React, {useCallback} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
 
-import {IconXClose} from '../icons/xclose';
-import "../../styles/settings-panel.css";
+import {setOpenAIKey} from '../../actions';
+import '../../styles/settings-panel.css';
 
-export const SettingsPanel = (): JSX.Element => {
+export function SettingsPanel() {
+  const dispatch = useDispatch();
+
+  // declare state openAIKey
+  const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
+
+  const onOpenAIKeyChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const key = event.target.value;
+      // dispatch action to update redux state state.root.uiState.openAIKey
+      dispatch(setOpenAIKey(key));
+    },
+    [dispatch, openAIKey]
+  );
+
   return (
     <div className="settings-panel">
       <div className="modal-header">
@@ -23,7 +37,12 @@ export const SettingsPanel = (): JSX.Element => {
             <div className="div">
               <div className="label">ChatGPT API Key</div>
               <div className="input">
-                <input type="text" name="name" className="inputToken" />
+                <input
+                  type="text"
+                  onChange={onOpenAIKeyChange}
+                  className="inputToken"
+                  value={openAIKey || ''}
+                />
               </div>
             </div>
             <p className="hint-text">You can get your API key from openai.com.</p>
@@ -43,4 +62,4 @@ export const SettingsPanel = (): JSX.Element => {
       </div>
     </div>
   );
-};
+}

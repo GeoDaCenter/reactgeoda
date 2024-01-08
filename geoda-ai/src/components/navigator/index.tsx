@@ -16,14 +16,9 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {
-  setKeplerTableModal,
-  setOpenFileModal,
-  setGridView,
-  setPropertyPanel
-} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal, setGridView, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
-import { PanelName } from '../panel/panel-container';
+import {PanelName} from '../panel/panel-container';
 
 export function Navigator() {
   const dispatch = useDispatch();

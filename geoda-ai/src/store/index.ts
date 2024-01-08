@@ -34,6 +34,7 @@ export type GeoDaState = {
       showOpenFileModal: boolean;
       showKeplerTableModal: boolean;
       showGridView: boolean;
+      openAIKey: string;
     };
   };
 };

@@ -10,7 +10,8 @@ const initialState = {
   showKeplerTableModal: false,
   showGridView: false,
   showPropertyPanel: false,
-  propertyPanelName: ''
+  propertyPanelName: '',
+  openAIKey: ''
 };
 
 const uiReducer = (state = initialState, action: UiAction) => {
