@@ -20,9 +20,10 @@ import {
   setKeplerTableModal,
   setOpenFileModal,
   setGridView,
-  setShowPropertyPanel
+  setPropertyPanel
 } from '../../actions';
 import {GeoDaState} from '../../store';
+import { PanelName } from '../panel/panel-container';
 
 export function Navigator() {
   const dispatch = useDispatch();
@@ -56,7 +57,15 @@ export function Navigator() {
 
   const onChatGPTCallback = useCallback(
     (event: React.MouseEvent) => {
-      dispatch(setShowPropertyPanel(!showPropertyPanel));
+      dispatch(setPropertyPanel(PanelName.CHAT_GPT));
+      event.stopPropagation();
+    },
+    [dispatch, showPropertyPanel]
+  );
+
+  const onSettingsCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setPropertyPanel(PanelName.SETTINGS));
       event.stopPropagation();
     },
     [dispatch, showPropertyPanel]
@@ -100,7 +109,7 @@ export function Navigator() {
             <div className="peer h-4 w-6 rounded-full bg-gray-200 after:absolute after:start-[0px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <Avatar />
+        <Avatar onClick={onSettingsCallback} />
       </div>
     </div>
   );

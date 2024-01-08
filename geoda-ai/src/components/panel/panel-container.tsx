@@ -1,28 +1,48 @@
-import React from 'react';
-import {useSelector} from 'react-redux';
+import React, {useCallback} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
-import {ChatGptComponent} from '../chatgpt/chatgpt-wrapper';
+import {ChatGPTPanel} from '../chatgpt/chatgpt-wrapper';
 import {SettingsPanel} from './settings-panel';
 import {IconXClose} from '../icons/xclose';
 import '../../styles/settings-panel.css';
+import {setShowPropertyPanel} from '@/actions';
+
+// define enum for panel names
+export enum PanelName {
+  CHAT_GPT = 'ChatGpt',
+  SETTINGS = 'Settings'
+}
 
 export const PanelContainer = () => {
+  const dispatch = useDispatch();
+
   // get showGridView from redux state
   const showPropertyPanel = useSelector(
     (state: GeoDaState) => state.root.uiState.showPropertyPanel
   );
 
-  const showChatGPTPanel = true;
-  const showSettingsPanel = false;
+  // get panel name
+  const propertyPanelName = useSelector(
+    (state: GeoDaState) => state.root.uiState.propertyPanelName
+  );
+
+  const onCloseClick = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setShowPropertyPanel(false));
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    [dispatch]
+  );
 
   return showPropertyPanel ? (
     <div className="prop-box">
-      <div className="button-close-x">
+      <div className="prop-box-close" onClick={onCloseClick}>
         <IconXClose className="x-close" />
       </div>
       <div className="prop-box-content">
-        {showChatGPTPanel && <ChatGptComponent />}
-        {showSettingsPanel && <SettingsPanel />}
+        {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
+        {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
       </div>
     </div>
   ) : null;

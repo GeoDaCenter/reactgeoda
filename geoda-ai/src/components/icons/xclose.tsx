@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { IconProps } from '../navigator/icons';
+import {IconProps} from '../navigator/icons';
 
 export const IconXClose = ({className}: IconProps) => {
   return (
-    <div className={'icon-upload'}>
+    <div className={'icon-xclose'}>
       <svg
-        className={`x-close ${className}`}
+        className={`${className}`}
         fill="none"
         height="24"
         viewBox="0 0 24 24"

@@ -2,6 +2,7 @@ export enum UI_ACTIONS {
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
   SET_KEPLER_TABLE_MODAL = 'SET_KEPLER_TABLE_MODAL',
   SET_GRID_VIEW = 'SET_GRID_VIEW',
+  SET_SHOW_PROPERTY_PANEL = 'SET_SHOW_PROPERTY_PANEL',
   SET_PROPERTY_PANEL = 'SET_PROPERTY_PANEL'
 }
 
@@ -21,6 +22,11 @@ export const setGridView = (payload: boolean) => ({
 });
 
 export const setShowPropertyPanel = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_SHOW_PROPERTY_PANEL,
+  payload
+});
+
+export const setPropertyPanel = (payload: string) => ({
   type: UI_ACTIONS.SET_PROPERTY_PANEL,
   payload
 });

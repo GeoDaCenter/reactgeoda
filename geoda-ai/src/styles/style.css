@@ -175,7 +175,28 @@
   background-color: var(--variable-collection-panelbgcolor);
   position: relative;
   width: 380px;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.react-geoda .prop-box .prop-box-close {
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index: 99;
+  cursor: pointer;
+}
+
+.x-close {
+  padding: 4px;
+}
+
+.react-geoda .prop-box .prop-box-content {
+  flex: 1;
+  flex-grow: 1;
+  overflow: auto;
+  padding: 0px;
 }
 
 /* readjust the size of the close button in modal dialog */
@@ -202,13 +223,24 @@ div[mapboxgl-children] {
 /* custom chatGPT css */
 .cs-main-container {
   border: none!important;
+  width: 100%;
+  background-color: transparent!important;
+  margin-bottom: 12px;
 }
-
+.cs-chat-container {
+  background-color: transparent!important;
+}
+.cs-message-list {
+  background-color: transparent!important;
+}
+.scrollbar-container {
+  padding: 0;
+}
 .cs-message-input {
   border: none!important;
+  background-color: transparent!important;
   padding-bottom: 2px;
 }
-
 .cs-message--outgoing .cs-message__content {
   color: #ffffff !important;
   background-color: #800000 !important;

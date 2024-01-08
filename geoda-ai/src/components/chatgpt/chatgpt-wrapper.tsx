@@ -15,7 +15,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
 
-export const ChatGptComponent = () => {
+export const ChatGPTPanel = () => {
   const data = useSelector((state: GeoDaState) => state.root.file.fileData);
   const intl = useIntl();
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
@@ -25,7 +25,8 @@ export const ChatGptComponent = () => {
       {
         message: intl.formatMessage({
           id: 'chatGpt.initialMessage',
-          defaultMessage: "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data."
+          defaultMessage:
+            "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data."
         }),
         sentTime: 'just now',
         sender: 'ChatGPT',
@@ -63,45 +64,46 @@ export const ChatGptComponent = () => {
   };
 
   return (
-    <AutoSizer>
-      {({height, width}) => (
-        <div
-          className="relative p-4"
-          style={{
-            height: height,
-            width: width
-          }}
-        >
-          <MainContainer>
-            <ChatContainer>
-              <MessageList
-                scrollBehavior="smooth"
-                typingIndicator={
-                  isTyping ? (
-                    <TypingIndicator
-                      content={intl.formatMessage({
-                        id: 'chatGpt.isTyping',
-                        defaultMessage: 'ChatGPT is typing'
-                      })}
-                    />
-                  ) : null
-                }
-              >
-                {messages.map((message, i) => (
-                  <Message key={i} model={message} />
-                ))}
-              </MessageList>
-              <MessageInput
-                placeholder={intl.formatMessage({
-                  id: 'chatGpt.inputPlaceholder',
-                  defaultMessage: 'Type message here'
-                })}
-                onSend={handleSend}
-              />
-            </ChatContainer>
-          </MainContainer>
+    <div className="settings-panel">
+      <div className="modal-header">
+        <div className="content">
+          <div className="text-and-supporting">
+            <div className="text">GeoDa.AI</div>
+            <div className="supporting-text">Powered by ChatGPT</div>
+          </div>
         </div>
-      )}
-    </AutoSizer>
+        <div className="padding-bottom" />
+      </div>
+      <div className="form-wrapper">
+        <MainContainer>
+          <ChatContainer>
+            <MessageList
+              scrollBehavior="smooth"
+              typingIndicator={
+                isTyping ? (
+                  <TypingIndicator
+                    content={intl.formatMessage({
+                      id: 'chatGpt.isTyping',
+                      defaultMessage: 'ChatGPT is typing'
+                    })}
+                  />
+                ) : null
+              }
+            >
+              {messages.map((message, i) => (
+                <Message key={i} model={message} />
+              ))}
+            </MessageList>
+            <MessageInput
+              placeholder={intl.formatMessage({
+                id: 'chatGpt.inputPlaceholder',
+                defaultMessage: 'Type message here'
+              })}
+              onSend={handleSend}
+            />
+          </ChatContainer>
+        </MainContainer>
+      </div>
+    </div>
   );
 };

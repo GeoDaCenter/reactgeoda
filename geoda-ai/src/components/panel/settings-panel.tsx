@@ -16,9 +16,6 @@ export const SettingsPanel = (): JSX.Element => {
           </div>
         </div>
         <div className="padding-bottom" />
-        <div className="button-close-x">
-          <IconXClose className="x-close" />
-        </div>
       </div>
       <div className="form-wrapper">
         <div className="form">
