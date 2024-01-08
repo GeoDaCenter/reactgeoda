@@ -1,6 +1,7 @@
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import { getTableSummary } from './use-duckdb';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const ASSISTANT_ID = process.env.NEXT_PUBLIC_ASSISTANT_ID;
@@ -11,6 +12,7 @@ let openai: OpenAI | null = null;
 const functions = {
   localMoran: function (varName: string) {
     // dispatch local moran action
+    console.log('calling localMoran() with arguments:', varName);
     return 'local moran';
   }
 };
@@ -25,17 +27,49 @@ const systemMessage = {
  * custom hook to use ChatGPT
  */
 export function useChatGPT() {
-  function initOpenAI(apiKey: string) {
+  let assistant: OpenAI.Beta.Assistants.Assistant | null = null;
+  let thread: OpenAI.Beta.Threads.Thread | null = null;
+  /**
+   * Initialize ChatGPT assistant by passing the summary of the table from duckdb
+   * @param apiKey
+   */
+  async function initOpenAI(apiKey: string) {
     if (!openai) {
       openai = new OpenAI({apiKey});
+      // retrive assistant
+      assistant = await openai.beta.assistants.retrieve(ASSISTANT_ID || '');
+      // create a thread
+      thread = await openai.beta.threads.create();
+      // create a file object to pass the summary of the table
+      const tableSummary = await getTableSummary();
+      // create a file object from the string
+      const fileObject = new File([tableSummary], 'tableSummary.txt', {
+        type: 'text/plain'
+      });
+      const file = await openai.files.create({
+        purpose: 'assistants',
+        file: fileObject
+      });
+      // Retrieve existing file IDs
+      const assistantDetails = await openai.beta.assistants.retrieve(assistant.id);
+      let existingFileIds = assistantDetails.file_ids || [];
+
+      // Update the assistant with the new file ID
+      await openai.beta.assistants.update(assistant.id, {
+        file_ids: [...existingFileIds, file.id]
+      });
+      // Update local assistantDetails and save to assistant.json
+      assistantDetails.file_ids = [...existingFileIds, file.id];
+      // remember file.id to be removed later
+      
     }
   }
+  /**
+   * Process message by sending message to ChatGPT assistant and retrieving response
+   * @returns
+   */
   async function processMessage() {
-    if (!openai) return null;
-    // retrive assistant
-    const myAssistant = await openai.beta.assistants.retrieve(ASSISTANT_ID || '');
-    // create a thread
-    const thread = await openai.beta.threads.create();
+    if (!openai || !thread || !assistant) return null;
     // add user's message to the thread
     const message = await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
@@ -44,7 +78,7 @@ export function useChatGPT() {
     // running the thread
     // create a new run instance
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: myAssistant.id
+      assistant_id: assistant.id
     });
     // Imediately fetch run-status, which will be "in_progress"
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);

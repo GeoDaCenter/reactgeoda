@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 
-import {tableFromIPC} from 'apache-arrow';
+import {tableFromIPC, row as ArrowRow} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
@@ -27,6 +27,9 @@ const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
 // keep a global duckdb instance, so it willbe only instantiated once using init()
 let db: duckdb.AsyncDuckDB | null = null;
 
+// store table name in global scope, so it can be reused 
+let tableName: string | null = null;
+
 /**
  * Initialize DuckDB
  */
@@ -50,6 +53,26 @@ export async function initDuckDB() {
 setTimeout(async () => {
   db = await initDuckDB();
 }, 500);
+
+/**
+ * Get the summary of a table by passing the table name
+ * @param tableName
+ *  @returns {Promise<string>} summary of the table
+ */
+export async function getTableSummary(): Promise<string> {
+  if (db) {
+    // connect to the database
+    const conn = await db.connect();
+    // Query
+    const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
+    // Convert arrow table to json
+    const result = arrowResult.toArray().map((row: ArrowRow) => row.toJSON());
+    // close the connection
+    await conn.close();
+    return JSON.stringify(result);
+  }
+  return '';
+}
 
 /**
  * custom hook to use DuckDB
@@ -87,7 +110,7 @@ export function useDuckDB() {
   const importArrowFile = useCallback(async (file: File) => {
     if (db) {
       const conn = await db.connect();
-      const tableName = file.name;
+      tableName = file.name;
 
       const arrowResult = await conn.query('select * from information_schema.tables');
       const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
