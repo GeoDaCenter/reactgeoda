@@ -16,7 +16,12 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setKeplerTableModal, setOpenFileModal, setGridView} from '../../actions';
+import {
+  setKeplerTableModal,
+  setOpenFileModal,
+  setGridView,
+  setShowPropertyPanel
+} from '../../actions';
 import {GeoDaState} from '../../store';
 
 export function Navigator() {
@@ -25,6 +30,9 @@ export function Navigator() {
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
+  );
+  const showPropertyPanel = useSelector(
+    (state: GeoDaState) => state.root.uiState.showPropertyPanel
   );
   const [showGridView, setShowGridView] = useState(false);
 
@@ -46,6 +54,14 @@ export function Navigator() {
     [dispatch, showKeplerTableModal]
   );
 
+  const onChatGPTCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setShowPropertyPanel(!showPropertyPanel));
+      event.stopPropagation();
+    },
+    [dispatch, showPropertyPanel]
+  );
+
   const onToggleGridCallback = useCallback(() => {
     setShowGridView(!showGridView);
     dispatch(setGridView(!showGridView));
@@ -55,8 +71,8 @@ export function Navigator() {
     <div className="toolbar">
       <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
       <div className="tool-box">
-        <IconOpen className="icon-open-instance" onClick={onOpenCallback} />
-        <IconTable className="icon-table-instance" onClick={onTableCallback} />
+        <IconOpen className="icon-open-instance cursor-pointer" onClick={onOpenCallback} />
+        <IconTable className="icon-table-instance cursor-pointer" onClick={onTableCallback} />
         <IconMap className="icon-map-instance" />
         <IconWeights className="icon-weights-instance" />
         <IconChoropleth className="design-component-instance-node" />
@@ -66,7 +82,10 @@ export function Navigator() {
         <IconCartogram className="icon-cartogram-instance" />
         <IconParallel className="icon-parallel-instance" />
         <IconLisa className="icon-lisa-instance" />
-        <IconChatgpt className="design-component-instance-node" />
+        <IconChatgpt
+          className="design-component-instance-node cursor-pointer"
+          onClick={onChatGPTCallback}
+        />
       </div>
       <div className="user-box">
         <div>

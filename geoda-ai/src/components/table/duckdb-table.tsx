@@ -1,62 +1,67 @@
-import React, {useEffect, useState} from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-// import {createSelector} from 'reselect';
-// import * as arrow from 'apache-arrow';
+import React, {useEffect, useMemo, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {Table as ArrowTable, Field as ArrowField} from 'apache-arrow';
 // @ts-ignore
-// import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
+import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
 import MonacoEditor from '@monaco-editor/react';
 
 // @ts-ignore FIXME
-import {appInjector, DataTableFactory, makeGetActionCreators, renderedSize} from '@kepler.gl/components';
-import {Field} from '@kepler.gl/types';
-import {theme} from '@kepler.gl/styles';
-// import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
-// import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
+import {
+  appInjector,
+  DataTableFactory,
+  makeGetActionCreators,
+  renderedSize
+} from '@kepler.gl/components';
+import {ProcessorResult, Field} from '@kepler.gl/types';
+import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler.gl/utils';
+import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
-import {GeoDaState} from '../store';
-import {useDuckDB} from '../hooks/use-duckdb';
+import {GeoDaState} from '../../store';
+import {useDuckDB} from '../../hooks/use-duckdb';
+import {useTheme} from 'styled-components';
 
 const MIN_STATS_CELL_SIZE = 122;
 
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
 
-// export function processArrowTable(arrowTable: arrow.Table): ProcessorResult | null {
-//   const fields: Field[] = [];
+// get DataTableModal component from appInjector
+const DataTable = appInjector.get(DataTableFactory);
 
-//   // parse fields
-//   arrowTable.schema.fields.forEach((field: arrow.Field, index: number) => {
-//     const isGeometryColumn = field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow');
-//     fields.push({
-//       name: field.name,
-//       id: field.name,
-//       displayName: field.name,
-//       format: '',
-//       fieldIdx: index,
-//       type: isGeometryColumn ? ALL_FIELD_TYPES.geoarrow : arrowDataTypeToFieldType(field.type),
-//       analyzerType: isGeometryColumn
-//         ? AnalyzerDATA_TYPES.GEOMETRY
-//         : arrowDataTypeToAnalyzerDataType(field.type),
-//       valueAccessor: (dc: any) => (d: {index: any}) => {
-//         return dc.valueAt(d.index, index);
-//       },
-//       metadata: field.metadata
-//     });
-//   });
+export function processArrowTable(arrowTable: ArrowTable): ProcessorResult | null {
+  const fields: Field[] = [];
 
-//   const cols = [...Array(arrowTable.numCols).keys()].map(i => arrowTable.getChildAt(i));
-//   // return empty rows and use raw arrow table to construct column-wise data container
-//   return {fields, rows: [], cols, metadata: arrowTable.schema.metadata};
-// }
+  // parse fields
+  arrowTable.schema.fields.forEach((field: ArrowField, index: number) => {
+    const isGeometryColumn = field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow');
+    fields.push({
+      name: field.name,
+      id: field.name,
+      displayName: field.name,
+      format: '',
+      fieldIdx: index,
+      type: isGeometryColumn ? ALL_FIELD_TYPES.geoarrow : arrowDataTypeToFieldType(field.type),
+      analyzerType: isGeometryColumn
+        ? AnalyzerDATA_TYPES.GEOMETRY
+        : arrowDataTypeToAnalyzerDataType(field.type),
+      valueAccessor: (dc: any) => (d: {index: any}) => {
+        return dc.valueAt(d.index, index);
+      },
+      metadata: field.metadata
+    });
+  });
+
+  const cols = [...Array(arrowTable.numCols).keys()].map(i => arrowTable.getChildAt(i));
+  // return empty rows and use raw arrow table to construct column-wise data container
+  return {fields, rows: [], cols, metadata: arrowTable.schema.metadata};
+}
 
 export function DuckDBTableComponent() {
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   // set state for monaco editor
   const [code, setCode] = useState('');
-
-  // get DataTableModal component from appInjector
-  const DataTable = appInjector.get(DataTableFactory);
 
   // get GeoDa state from redux store
   const geoda = useSelector((state: GeoDaState) => state.root);
@@ -72,45 +77,52 @@ export function DuckDBTableComponent() {
   const dataId = Object.keys(kepler.visState.datasets)[0];
 
   // @ts-expect-error
-  const {fields, dataContainer, pinnedColumns} = dataset;
+  const {fields, dataContainer, pinnedColumns, filteredIndex} = dataset;
+
+  const filteredIndexDict = useMemo(() => {
+    const dict: {[key: number]: boolean} = {};
+    filteredIndex.forEach((i: number) => {
+      dict[i] = true;
+    });
+    return dict;
+  }, [filteredIndex]);
 
   const columns = fields.map((f: Field) => f.name);
 
-  const colMeta =
-    fields.reduce(
-      (acc: Object, { name, displayName, type, filterProps, format, displayFormat }: Field) => ({
-        ...acc,
-        [name]: {
-          name: displayName || name,
-          type,
-          ...(format ? { format } : {}),
-          ...(displayFormat ? { displayFormat } : {}),
-          ...(filterProps?.columnStats ? { columnStats: filterProps.columnStats } : {})
-        }
-      }),
-      {}
-    );
+  const colMeta = fields.reduce(
+    (acc: Object, {name, displayName, type, filterProps, format, displayFormat}: Field) => ({
+      ...acc,
+      [name]: {
+        name: displayName || name,
+        type,
+        ...(format ? {format} : {}),
+        ...(displayFormat ? {displayFormat} : {}),
+        ...(filterProps?.columnStats ? {columnStats: filterProps.columnStats} : {})
+      }
+    }),
+    {}
+  );
 
-    const cellSizeCache = fields.reduce(
-        (acc: Object, field: Field, colIdx: number) => ({
-          ...acc,
-          [field.name]: renderedSize({
-            text: {
-              dataContainer,
-              column: field.displayName
-            },
-            colIdx,
-            type: field.type,
-            fontSize: theme.cellFontSize,
-            font: theme.fontFamily,
-            minCellSize: MIN_STATS_CELL_SIZE
-          })
-        }),
-        {}
-      );
-  
+  const cellSizeCache = fields.reduce(
+    (acc: Object, field: Field, colIdx: number) => ({
+      ...acc,
+      [field.name]: renderedSize({
+        text: {
+          dataContainer,
+          column: field.displayName
+        },
+        colIdx,
+        type: field.type,
+        fontSize: theme.cellFontSize,
+        font: theme.fontFamily,
+        minCellSize: MIN_STATS_CELL_SIZE
+      })
+    }),
+    {}
+  );
+
   // get action creators from kepler.gl
-  const {visStateActions, uiStateActions} = keplerActionSelector(dispatch, {});
+  const {visStateActions} = keplerActionSelector(dispatch, {});
 
   // get duckdb hook
   const {query, importArrowFile} = useDuckDB();
@@ -155,14 +167,12 @@ export function DuckDBTableComponent() {
     console.log('useEffect importArrowFile');
     importArrowFile(geoda.file.rawFileData);
     setCode(`select * from "${tableName}" LIMIT 5`);
-    // run only once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [geoda.file.rawFileData, importArrowFile, tableName]);
 
   return (
     <div
       className="item-center flex w-full flex-col p-5"
-      style={{height: '80vh', minWidth: '50vw', padding: '20px'}}
+      style={{height: '100%', minWidth: '50vw', padding: '20px'}}
     >
       <div className="flex w-full basis-1/4 flex-col items-center justify-center">
         <div className="h-20 w-full rounded border-2 border-solid border-rose-800 p-1">
@@ -194,12 +204,14 @@ export function DuckDBTableComponent() {
         colMeta={colMeta}
         cellSizeCache={cellSizeCache}
         dataContainer={dataContainer}
+        filteredIndex={filteredIndexDict}
         pinnedColumns={pinnedColumns}
-        showDatasetTable={visStateActions.showDatasetTable}
+        sortColumn={{}}
         sortTableColumn={visStateActions.sortTableColumn}
         pinTableColumn={visStateActions.pinTableColumn}
         copyTableColumn={visStateActions.copyTableColumn}
         setColumnDisplayFormat={visStateActions.setColumnDisplayFormat}
+        theme={theme}
       />
     </div>
   );

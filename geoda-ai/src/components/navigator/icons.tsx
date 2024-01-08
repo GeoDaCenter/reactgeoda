@@ -115,9 +115,9 @@ export const IconCartogram = ({className}: IconProps) => {
   );
 };
 
-export const IconChatgpt = ({className}: IconProps) => {
+export const IconChatgpt = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className}`} onClick={onClick}>
       <svg
         width="24"
         height="24"
