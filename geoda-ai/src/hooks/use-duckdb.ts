@@ -27,7 +27,7 @@ const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
 // keep a global duckdb instance, so it willbe only instantiated once using init()
 let db: duckdb.AsyncDuckDB | null = null;
 
-// store table name in global scope, so it can be reused 
+// store table name in global scope, so it can be reused
 let tableName: string | null = null;
 
 // store the table summary in global scope, so it can be reused
@@ -55,7 +55,7 @@ export async function initDuckDB() {
 // initial the global duckdb instance, delay 500ms to avoid blocking loading default page
 setTimeout(async () => {
   db = await initDuckDB();
-}, 500);
+}, 200);
 
 /**
  * Get the summary of a table by passing the table name
@@ -78,11 +78,11 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
       await conn.close();
       // convert array of objects to a string with format of csv table
       const csv = result.map((row: any) => Object.values(row).join(',')).join('\n');
-      // prepend the header 
+      // prepend the header
       const header = Object.keys(result[0]).join(',');
       tableSummary = `${header}\n${csv}`;
     }
-    return tableSummary
+    return tableSummary;
   }
   return '';
 }

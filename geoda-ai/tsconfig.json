@@ -21,6 +21,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "react": ["./node_modules/@types/react"],
+      "geoda-wasm": ["../../geoda-wasm/js/src"],
       "@kepler.gl/*": ["../../csds_kepler/src/*/src"],
       "@kepler.gl/types": ["../../csds_kepler/src/types"]
     }

@@ -17,6 +17,8 @@ import {WarningBox} from '../common/warning-box';
 
 const ChatGPTPanel = () => {
   const intl = useIntl();
+  const {initOpenAI, processMessage} = useChatGPT();
+
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
@@ -41,11 +43,9 @@ const ChatGPTPanel = () => {
     if (openAIKey) {
       initOpenAI(openAIKey, tableName);
     }
-  }, [intl]);
+  }, [initOpenAI, intl, openAIKey, tableName]);
 
   const [isTyping, setIsTyping] = useState(false);
-
-  const {initOpenAI, processMessage} = useChatGPT();
 
   const handleSend = async (message: string) => {
     // display input message in dialog

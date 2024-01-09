@@ -3,6 +3,7 @@ import KeplerGl from '@kepler.gl/components';
 import {MAPBOX_TOKEN} from '../constants';
 import {useTheme} from 'styled-components';
 import {useDuckDB} from '@/hooks/use-duckdb';
+import {useGeoDa} from '@/hooks/use-geoda';
 
 const mapId = 'kepler_map';
 
@@ -14,6 +15,7 @@ const mapId = 'kepler_map';
 const KeplerMap = () => {
   const theme = useTheme();
   useDuckDB();
+  useGeoDa();
 
   return (
     <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>

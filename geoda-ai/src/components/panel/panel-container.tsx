@@ -5,7 +5,7 @@ import {GeoDaState} from '../../store';
 import {SettingsPanel} from './settings-panel';
 import {IconXClose} from '../icons/xclose';
 import '../../styles/settings-panel.css';
-import { setShowPropertyPanel } from '@/actions';
+import {setShowPropertyPanel} from '@/actions';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-wrapper'), {ssr: false});
 

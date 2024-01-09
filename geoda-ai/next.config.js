@@ -1,4 +1,5 @@
 const {resolve} = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -27,6 +28,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
+      'geoda-wasm': resolve(__dirname, '../../geoda-wasm/js'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,
@@ -80,6 +82,21 @@ const nextConfig = {
       include: /node_modules/,
       type: 'javascript/auto'
     });
+
+    // This is to avoid error when using GeoDaWASM
+    config.resolve.fallback = {fs: false};
+
+    // Use copyPlugin to copy static file to public folder
+    config.plugins.push(
+      new CopyPlugin({
+        patterns: [
+          {
+            from: resolve(__dirname, '../../geoda-wasm/js/dist/geoda.wasm'),
+            to: 'public/_next/static/chunks'
+          }
+        ]
+      })
+    );
 
     return config;
   }

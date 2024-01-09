@@ -48,6 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "@typescript-eslint/parser": "^6.17.0",
     "autoprefixer": "^10.0.1",
+    "copy-webpack-plugin": "^11.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
@@ -71,6 +72,7 @@
     "react-palm": "3.3.8"
   },
   "volta": {
-    "node": "18.19.0"
+    "node": "18.19.0",
+    "yarn": "3.6.4"
   }
 }

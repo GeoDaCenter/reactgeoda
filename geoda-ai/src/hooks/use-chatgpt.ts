@@ -57,8 +57,8 @@ export function useChatGPT() {
   }
 
   /**
-   * Upload sumary of the table to ChatGPT assistant 
-   * @param tableName 
+   * Upload sumary of the table to ChatGPT assistant
+   * @param tableName table name
    */
   async function uploadSummary(tableName: string) {
     if (openai && assistant && tableName) {
@@ -157,14 +157,16 @@ export function useChatGPT() {
 
     // If an assistant message is found, console.log() it
     if (lastMessageForRun) {
-      const messageContent = lastMessageForRun.content[0].text.value;
-      console.log(`The assistant responded with: ${messageContent}`);
-      return {
-        message: messageContent,
-        sender: 'ChatGPT',
-        direction: 'incoming',
-        position: 'normal'
-      };
+      if ('text' in lastMessageForRun.content[0]) {
+        const messageContent = lastMessageForRun.content[0].text.value;
+        console.log(`The assistant responded with: ${messageContent}`);
+        return {
+          message: messageContent,
+          sender: 'ChatGPT',
+          direction: 'incoming',
+          position: 'normal'
+        };
+      }
     } else if (!['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
       console.log('No response received from the assistant.');
     }
@@ -215,5 +217,5 @@ export function useChatGPT() {
     return null;
   }
 
-  return {initOpenAI, processMessageWithFetch, processMessage};
+  return {initOpenAI, processMessageWithFetch, processMessage, uploadSummary};
 }

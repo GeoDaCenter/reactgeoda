@@ -78,7 +78,7 @@ export function DuckDBTableComponent() {
   );
   const dataId = useMemo(
     () => Object.keys(kepler.visState.datasets)[0],
-    [kepler.visState.datasets, dataset]
+    [kepler.visState.datasets]
   );
 
   // @ts-expect-error

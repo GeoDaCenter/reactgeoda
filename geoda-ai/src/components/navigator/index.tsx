@@ -27,9 +27,6 @@ export function Navigator() {
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
   );
-  const showPropertyPanel = useSelector(
-    (state: GeoDaState) => state.root.uiState.showPropertyPanel
-  );
   const [showGridView, setShowGridView] = useState(false);
 
   const onOpenCallback = useCallback(
@@ -55,7 +52,7 @@ export function Navigator() {
       dispatch(setPropertyPanel(PanelName.CHAT_GPT));
       event.stopPropagation();
     },
-    [dispatch, showPropertyPanel]
+    [dispatch]
   );
 
   const onSettingsCallback = useCallback(
@@ -63,7 +60,7 @@ export function Navigator() {
       dispatch(setPropertyPanel(PanelName.SETTINGS));
       event.stopPropagation();
     },
-    [dispatch, showPropertyPanel]
+    [dispatch]
   );
 
   const onToggleGridCallback = useCallback(() => {

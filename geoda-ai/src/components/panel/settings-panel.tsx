@@ -21,7 +21,7 @@ export function SettingsPanel() {
       // dispatch action to update redux state state.root.uiState.openAIKey
       dispatch(setOpenAIKey(keyValue));
     },
-    [dispatch, openAIKey]
+    [dispatch]
   );
 
   return (
