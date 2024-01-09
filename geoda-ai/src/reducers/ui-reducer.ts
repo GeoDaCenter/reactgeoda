@@ -1,5 +1,7 @@
 import {UI_ACTIONS} from '../actions';
 
+const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
+
 export type UiAction = {
   type: UI_ACTIONS;
   payload: any;
@@ -11,7 +13,7 @@ const initialState = {
   showGridView: false,
   showPropertyPanel: false,
   propertyPanelName: '',
-  openAIKey: ''
+  openAIKey: LOCAL_API_KEY
 };
 
 const uiReducer = (state = initialState, action: UiAction) => {
@@ -42,6 +44,11 @@ const uiReducer = (state = initialState, action: UiAction) => {
         // always show property panel when changing property panel
         showPropertyPanel: true,
         propertyPanelName: action.payload
+      };
+    case UI_ACTIONS.SET_OPENAI_KEY:
+      return {
+        ...state,
+        openAIKey: action.payload
       };
     default:
       return state;

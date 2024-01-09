@@ -30,6 +30,9 @@ let db: duckdb.AsyncDuckDB | null = null;
 // store table name in global scope, so it can be reused 
 let tableName: string | null = null;
 
+// store the table summary in global scope, so it can be reused
+let tableSummary: string | null = null;
+
 /**
  * Initialize DuckDB
  */
@@ -59,19 +62,33 @@ setTimeout(async () => {
  * @param tableName
  *  @returns {Promise<string>} summary of the table
  */
-export async function getTableSummary(): Promise<string> {
+export async function getTableSummary(inputTableName?: string): Promise<string> {
   if (db) {
-    // connect to the database
-    const conn = await db.connect();
-    // Query
-    const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
-    // Convert arrow table to json
-    const result = arrowResult.toArray().map((row: ArrowRow) => row.toJSON());
-    // close the connection
-    await conn.close();
-    return JSON.stringify(result);
+    if (!tableSummary) {
+      if (!tableName && inputTableName) {
+        tableName = inputTableName;
+      }
+      // connect to the database
+      const conn = await db.connect();
+      // Query
+      const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
+      // Convert arrow table to json
+      const result = arrowResult.toArray().map((row: ArrowRow) => row.toJSON());
+      // close the connection
+      await conn.close();
+      // convert array of objects to a string with format of csv table
+      const csv = result.map((row: any) => Object.values(row).join(',')).join('\n');
+      // prepend the header 
+      const header = Object.keys(result[0]).join(',');
+      tableSummary = `${header}\n${csv}`;
+    }
+    return tableSummary
   }
   return '';
+}
+
+export function getTableNameSync(): string | null {
+  return tableSummary;
 }
 
 /**
@@ -131,6 +148,10 @@ export function useDuckDB() {
           await conn.query('CREATE SEQUENCE serial');
           // Use nextval to update the row_index column
           await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
+
+          // test summary table
+          const summary = await getTableSummary();
+          console.log('summary', summary);
         } catch (error) {
           console.error(error);
         }

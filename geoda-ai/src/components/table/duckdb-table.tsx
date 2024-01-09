@@ -63,18 +63,23 @@ export function DuckDBTableComponent() {
   // set state for monaco editor
   const [code, setCode] = useState('');
 
-  // get GeoDa state from redux store
-  const geoda = useSelector((state: GeoDaState) => state.root);
+  const rawFileData = useSelector((state: GeoDaState) => state.root.file.rawFileData);
 
   // use current file name as the name of the table
-  const tableName = geoda.file.rawFileData.name;
+  const tableName = rawFileData.name;
 
   // get Kepler state from redux store
   const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);
 
   // get dataset, TODO only one dataset is supported now
-  const dataset = Object.values(kepler.visState.datasets)[0];
-  const dataId = Object.keys(kepler.visState.datasets)[0];
+  const dataset = useMemo(
+    () => Object.values(kepler.visState.datasets)[0],
+    [kepler.visState.datasets]
+  );
+  const dataId = useMemo(
+    () => Object.keys(kepler.visState.datasets)[0],
+    [kepler.visState.datasets, dataset]
+  );
 
   // @ts-expect-error
   const {fields, dataContainer, pinnedColumns, filteredIndex} = dataset;
@@ -87,38 +92,46 @@ export function DuckDBTableComponent() {
     return dict;
   }, [filteredIndex]);
 
-  const columns = fields.map((f: Field) => f.name);
+  const columns = useMemo(() => fields.map((f: Field) => f.name), [fields]);
 
-  const colMeta = fields.reduce(
-    (acc: Object, {name, displayName, type, filterProps, format, displayFormat}: Field) => ({
-      ...acc,
-      [name]: {
-        name: displayName || name,
-        type,
-        ...(format ? {format} : {}),
-        ...(displayFormat ? {displayFormat} : {}),
-        ...(filterProps?.columnStats ? {columnStats: filterProps.columnStats} : {})
-      }
-    }),
-    {}
+  const colMeta = useMemo(
+    () =>
+      fields.reduce(
+        (acc: Object, {name, displayName, type, filterProps, format, displayFormat}: Field) => ({
+          ...acc,
+          [name]: {
+            name: displayName || name,
+            type,
+            ...(format ? {format} : {}),
+            ...(displayFormat ? {displayFormat} : {}),
+            ...(filterProps?.columnStats ? {columnStats: filterProps.columnStats} : {})
+          }
+        }),
+        {}
+      ),
+    [fields]
   );
 
-  const cellSizeCache = fields.reduce(
-    (acc: Object, field: Field, colIdx: number) => ({
-      ...acc,
-      [field.name]: renderedSize({
-        text: {
-          dataContainer,
-          column: field.displayName
-        },
-        colIdx,
-        type: field.type,
-        fontSize: theme.cellFontSize,
-        font: theme.fontFamily,
-        minCellSize: MIN_STATS_CELL_SIZE
-      })
-    }),
-    {}
+  const cellSizeCache = useMemo(
+    () =>
+      fields.reduce(
+        (acc: Object, field: Field, colIdx: number) => ({
+          ...acc,
+          [field.name]: renderedSize({
+            text: {
+              dataContainer,
+              column: field.displayName
+            },
+            colIdx,
+            type: field.type,
+            fontSize: theme.cellFontSize,
+            font: theme.fontFamily,
+            minCellSize: MIN_STATS_CELL_SIZE
+          })
+        }),
+        {}
+      ),
+    [fields, dataContainer, theme.cellFontSize, theme.fontFamily]
   );
 
   // get action creators from kepler.gl
@@ -165,9 +178,9 @@ export function DuckDBTableComponent() {
 
   useEffect(() => {
     console.log('useEffect importArrowFile');
-    importArrowFile(geoda.file.rawFileData);
+    importArrowFile(rawFileData);
     setCode(`select * from "${tableName}" LIMIT 5`);
-  }, [geoda.file.rawFileData, importArrowFile, tableName]);
+  }, [rawFileData, importArrowFile, tableName]);
 
   return (
     <div

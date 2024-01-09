@@ -1,11 +1,13 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import dynamic from 'next/dynamic';
 import {GeoDaState} from '../../store';
-import {ChatGPTPanel} from '../chatgpt/chatgpt-wrapper';
 import {SettingsPanel} from './settings-panel';
 import {IconXClose} from '../icons/xclose';
 import '../../styles/settings-panel.css';
-import {setShowPropertyPanel} from '@/actions';
+import { setShowPropertyPanel } from '@/actions';
+
+const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-wrapper'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {

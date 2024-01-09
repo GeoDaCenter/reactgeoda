@@ -8,20 +8,24 @@ import '../../styles/settings-panel.css';
 export function SettingsPanel() {
   const dispatch = useDispatch();
 
-  // declare state openAIKey
+  // define state openAIKey
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
+
+  // define useState for key
+  const [key, setKey] = React.useState(openAIKey || '');
 
   const onOpenAIKeyChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const key = event.target.value;
+      const keyValue = event.target.value;
+      setKey(keyValue);
       // dispatch action to update redux state state.root.uiState.openAIKey
-      dispatch(setOpenAIKey(key));
+      dispatch(setOpenAIKey(keyValue));
     },
     [dispatch, openAIKey]
   );
 
   return (
-    <div className="settings-panel">
+    <div className="settings-panel text-sm">
       <div className="modal-header">
         <div className="content">
           <div className="text-and-supporting">
@@ -41,7 +45,7 @@ export function SettingsPanel() {
                   type="text"
                   onChange={onOpenAIKeyChange}
                   className="inputToken"
-                  value={openAIKey || ''}
+                  value={key || ''}
                 />
               </div>
             </div>

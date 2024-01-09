@@ -13,11 +13,16 @@ import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
+import {WarningBox} from '../common/warning-box';
 
-export const ChatGPTPanel = () => {
-  const data = useSelector((state: GeoDaState) => state.root.file.fileData);
+const ChatGPTPanel = () => {
   const intl = useIntl();
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
+
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+
+  // get api key from state.root
+  const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
 
   useEffect(() => {
     setMessages([
@@ -33,11 +38,14 @@ export const ChatGPTPanel = () => {
         position: 'first'
       }
     ]);
+    if (openAIKey) {
+      initOpenAI(openAIKey, tableName);
+    }
   }, [intl]);
 
   const [isTyping, setIsTyping] = useState(false);
 
-  const {processMessageToChatGPT} = useChatGPT();
+  const {initOpenAI, processMessage} = useChatGPT();
 
   const handleSend = async (message: string) => {
     // display input message in dialog
@@ -53,7 +61,7 @@ export const ChatGPTPanel = () => {
     setIsTyping(true);
 
     // process input message to chatgpt
-    const returnMessage = await processMessageToChatGPT(newMessages, data);
+    const returnMessage = await processMessage(message);
 
     // display return message in dialog
     if (returnMessage) {
@@ -72,8 +80,13 @@ export const ChatGPTPanel = () => {
           </div>
         </div>
         <div className="padding-bottom" />
+        {!openAIKey ? (
+          <WarningBox message={'Please config your OpenAI API key in Settings.'} />
+        ) : !tableName ? (
+          <WarningBox message={'Please load a map first before chatting.'} />
+        ) : null}
       </div>
-      <div className="form-wrapper">
+      <div className="form-wrapper text-sm!important">
         <MainContainer>
           <ChatContainer>
             <MessageList
@@ -106,3 +119,5 @@ export const ChatGPTPanel = () => {
     </div>
   );
 };
+
+export default ChatGPTPanel;

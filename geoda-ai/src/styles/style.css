@@ -245,3 +245,6 @@ div[mapboxgl-children] {
   color: #ffffff !important;
   background-color: #800000 !important;
 }
+.cs-message__html-content {
+  font-size: var(--text-sm-regular-font-size);
+}
