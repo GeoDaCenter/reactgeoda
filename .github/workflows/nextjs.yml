@@ -58,7 +58,7 @@ jobs:
           cd csds_kepler
           yarn
           cd ..
-          git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib
+          git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
           cd geoda-lib
           cd js
           yarn
@@ -72,7 +72,6 @@ jobs:
         run: |
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
-          echo NEXT_PUBLIC_API_KEY=${{ secrets.CHATGPT_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
       # - name: Build Library
