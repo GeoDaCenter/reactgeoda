@@ -1,4 +1,5 @@
 import {initGeoDa, localMoran, LocalMoranResultType} from 'geoda-wasm';
+
 import {useCallback} from 'react';
 
 /**

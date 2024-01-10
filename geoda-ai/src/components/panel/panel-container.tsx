@@ -7,7 +7,7 @@ import {IconXClose} from '../icons/xclose';
 import '../../styles/settings-panel.css';
 import {setShowPropertyPanel} from '@/actions';
 
-const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-wrapper'), {ssr: false});
+const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {

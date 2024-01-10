@@ -46,8 +46,8 @@ export function useChatGPT() {
    * Initialize ChatGPT assistant by passing the summary of the table from duckdb
    * @param apiKey
    */
-  async function initOpenAI(apiKey: string, tableName: string | undefined) {
-    if (!openai && tableName) {
+  async function initOpenAI(apiKey: string) {
+    if (!openai) {
       openai = new OpenAI({apiKey, dangerouslyAllowBrowser: true});
       // retrive assistant
       assistant = await openai.beta.assistants.retrieve(ASSISTANT_ID || '');
