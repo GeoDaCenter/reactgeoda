@@ -43,7 +43,8 @@ const ChatGPTPanel = () => {
     if (openAIKey) {
       initOpenAI(openAIKey, tableName);
     }
-  }, [initOpenAI, intl, openAIKey, tableName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isTyping, setIsTyping] = useState(false);
 
