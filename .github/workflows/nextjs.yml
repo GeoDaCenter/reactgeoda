@@ -67,6 +67,10 @@ jobs:
       #     export NODE_OPTIONS=--openssl-legacy-provider
       #     yarn
       #     yarn build
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
       - name: Push Next.js output to current PR branch
         run: |
           git config --local user.email "lixun910@gmail.com"
@@ -74,4 +78,4 @@ jobs:
           git pull
           git add -f geoda-ai/out
           git commit -m "[Github Action] update Next.js output"
-          git push
+          git push origin HEAD:${{ steps.extract_branch.outputs.branch }}
