@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "cross-env BASE_PATH='' next dev",
-    "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build",
+    "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build && next export",
     "get-kepler": "cd ../.. && git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler",
     "get-geoda-lib": "cd ../.. && git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib",
     "build-kepler": "yarn set version 1.22.19 && yarn --cwd ../../csds_kepler install",
