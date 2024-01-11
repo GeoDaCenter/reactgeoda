@@ -1,4 +1,0 @@
-[build]
-  base = "geoda-ai"
-  publish = "geoda-ai/out"
-  command = "yarn build-netlify"
