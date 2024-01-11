@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2022",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -20,10 +20,19 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
+      "react": ["./node_modules/@types/react"],
+      "geoda-wasm": ["../../geoda-lib/js/src"],
       "@kepler.gl/*": ["../../csds_kepler/src/*/src"],
       "@kepler.gl/types": ["../../csds_kepler/src/types"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "jest.config.ts",
+    "jest.setup.ts"
+  ],
   "exclude": ["node_modules"]
 }

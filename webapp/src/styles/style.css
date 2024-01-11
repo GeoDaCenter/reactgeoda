@@ -157,6 +157,7 @@
   position: relative;
   width: 380px;
   display: none;
+  flex-direction: row;
 }
 
 .react-geoda .main-grid {

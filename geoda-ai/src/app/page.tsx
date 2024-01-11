@@ -9,35 +9,42 @@ import '../styles/style.css';
 import '../styles/navigator-style.css';
 import '../styles/open-file-modal-style.css';
 
+import {useRef} from 'react';
 // import dynamic from 'next/dynamic';
-import { Provider as ReduxProvider } from 'react-redux';
+import {Provider as ReduxProvider} from 'react-redux';
+import {RootContext} from '@kepler.gl/components';
+
 import store from '../store';
 import GridLayout from '../components/grid-layout';
 // import FileHandler from '../components/file-handler';
 // import LanguageSelector from '../components/language-selector';
 import IntlProviderWrapper from '../components/intl-provider-wrapper';
-import { Navigator } from '../components/navigator';
-// import {OpenFileModal} from '../components/open-file-modal';
-// import KeplerMap from '../components/kepler-map';
-// const KeplerMap = dynamic(() => import('../components/kepler-map'), { ssr: false });
-// const DuckDBTableModal = dynamic(() => import('../components/duckdb-table-modal'), {ssr: false});
+import {Navigator} from '../components/navigator';
+import {OpenFileModal} from '../components/open-file-modal';
+import {PanelContainer} from '../components/panel/panel-container';
+import {TableContainer} from '../components/table/table-container';
 
 export default function Home() {
+  const rootNode = useRef<HTMLDivElement>(null);
+
   return (
-    <ReduxProvider store={store}>
-      <IntlProviderWrapper>
-        <div className="react-geoda">
-          <Navigator />
-          <div className="main-box">
-            <div className="main-grid">
-              <GridLayout />
+    <RootContext.Provider value={rootNode}>
+      <ReduxProvider store={store}>
+        <IntlProviderWrapper>
+          <div className="react-geoda">
+            <Navigator />
+            <div className="main-box">
+              <div className="main-grid">
+                <GridLayout />
+              </div>
+              <TableContainer />
             </div>
+            <PanelContainer />
+            <OpenFileModal />
+            {/* <DuckDBTableModal /> */}
           </div>
-          <div className="prop-box" />
-          {/* <OpenFileModal />
-          <DuckDBTableModal /> */}
-        </div>
-      </IntlProviderWrapper>
-    </ReduxProvider>
+        </IntlProviderWrapper>
+      </ReduxProvider>
+    </RootContext.Provider>
   );
 }

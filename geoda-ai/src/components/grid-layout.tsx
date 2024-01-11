@@ -8,9 +8,9 @@ import dynamic from 'next/dynamic';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../store';
 
-import KeplerMap from './kepler-map';
-// const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
-// const DuckDBTable = dynamic(() => import('./duckdb-table'), {ssr: false});
+// import KeplerMap from './kepler-map';
+const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
+// const DuckDBTable = dynamic(() => import('./table/duckdb-table'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const layout = [
@@ -83,7 +83,7 @@ const GridLayout = () => {
     // only show map
     return (
       <ReactGridLayout
-        className="layout"
+        className="default-kepler-map"
         layout={[{w: 12, h: 9, x: 0, y: 0, i: 'kepler', moved: false, static: true}]}
         rowHeight={30}
         width={1200}
@@ -91,7 +91,7 @@ const GridLayout = () => {
         allowOverlap={false}
         onLayoutChange={onLayoutChange}
       >
-        <div key="kepler">
+        <div key="kepler" className="default-kepler-map">
           <KeplerMap />
         </div>
       </ReactGridLayout>

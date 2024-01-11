@@ -149,6 +149,25 @@
   position: relative;
   overflow: auto;
   height: 100vh;
+  /* main-grid and main-table */
+  display: flex;
+  flex-direction: column;
+}
+
+.react-geoda .main-grid {
+  padding: 0px;
+  flex: 1;
+  flex-grow: 1;
+}
+
+.default-kepler-map {
+  height: 100% !important;
+}
+
+.react-geoda .main-table {
+  padding: 0px;
+  flex-grow: 0;
+  height: 40%;
 }
 
 .react-geoda .prop-box {
@@ -156,10 +175,27 @@
   background-color: var(--variable-collection-panelbgcolor);
   position: relative;
   width: 380px;
-  display: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
-.react-geoda .main-grid {
+.react-geoda .prop-box .prop-box-close {
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index: 99;
+  cursor: pointer;
+}
+
+.x-close {
+  padding: 4px;
+}
+
+.react-geoda .prop-box .prop-box-content {
+  flex: 1;
+  flex-grow: 1;
+  overflow: auto;
   padding: 0px;
 }
 
@@ -177,4 +213,45 @@
 
 .data-ex-icons-gear {
   visibility: hidden;
+}
+
+/* fix mapboxgl-children */
+div[mapboxgl-children] {
+  display: none;
+}
+
+/* custom chatGPT css */
+.cs-main-container {
+  border: none!important;
+  width: 100%;
+  background-color: transparent!important;
+  margin-bottom: 12px;
+}
+.cs-chat-container {
+  background-color: transparent!important;
+}
+.cs-message-list {
+  background-color: transparent!important;
+  margin-bottom: 20px!important;
+}
+.scrollbar-container {
+  padding: 0!important;
+}
+.cs-message-input {
+  border: none!important;
+  background-color: transparent!important;
+  padding-bottom: 12px!important;
+}
+.cs-message--outgoing {
+  padding-right: 12px!important;
+}
+.cs-message--outgoing .cs-message__content {
+  color: #ffffff !important;
+  background-color: #800000 !important;
+}
+.cs-message__html-content {
+  font-size: var(--text-sm-regular-font-size);
+}
+.cs-message-list__scroll-wrapper {
+  padding: 0!important;
 }

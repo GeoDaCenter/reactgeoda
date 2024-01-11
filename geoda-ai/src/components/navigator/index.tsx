@@ -16,8 +16,9 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setKeplerTableModal, setOpenFileModal, setGridView} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal, setGridView, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
+import {PanelName} from '../panel/panel-container';
 
 export function Navigator() {
   const dispatch = useDispatch();
@@ -46,6 +47,22 @@ export function Navigator() {
     [dispatch, showKeplerTableModal]
   );
 
+  const onChatGPTCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setPropertyPanel(PanelName.CHAT_GPT));
+      event.stopPropagation();
+    },
+    [dispatch]
+  );
+
+  const onSettingsCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setPropertyPanel(PanelName.SETTINGS));
+      event.stopPropagation();
+    },
+    [dispatch]
+  );
+
   const onToggleGridCallback = useCallback(() => {
     setShowGridView(!showGridView);
     dispatch(setGridView(!showGridView));
@@ -55,8 +72,8 @@ export function Navigator() {
     <div className="toolbar">
       <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
       <div className="tool-box">
-        <IconOpen className="icon-open-instance" onClick={onOpenCallback} />
-        <IconTable className="icon-table-instance" onClick={onTableCallback} />
+        <IconOpen className="icon-open-instance cursor-pointer" onClick={onOpenCallback} />
+        <IconTable className="icon-table-instance cursor-pointer" onClick={onTableCallback} />
         <IconMap className="icon-map-instance" />
         <IconWeights className="icon-weights-instance" />
         <IconChoropleth className="design-component-instance-node" />
@@ -66,7 +83,10 @@ export function Navigator() {
         <IconCartogram className="icon-cartogram-instance" />
         <IconParallel className="icon-parallel-instance" />
         <IconLisa className="icon-lisa-instance" />
-        <IconChatgpt className="design-component-instance-node" />
+        <IconChatgpt
+          className="design-component-instance-node cursor-pointer"
+          onClick={onChatGPTCallback}
+        />
       </div>
       <div className="user-box">
         <div>
@@ -81,7 +101,7 @@ export function Navigator() {
             <div className="peer h-4 w-6 rounded-full bg-gray-200 after:absolute after:start-[0px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-focus:ring-blue-800"></div>
           </label>
         </div>
-        <Avatar />
+        <Avatar onClick={onSettingsCallback} />
       </div>
     </div>
   );
