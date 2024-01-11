@@ -67,3 +67,11 @@ jobs:
       #     export NODE_OPTIONS=--openssl-legacy-provider
       #     yarn
       #     yarn build
+      - name: Push Next.js output to current PR branch
+        run: |
+          git config --local user.email "lixun910@gmail.com"
+          git config --local user.name "Xun Li"
+          git pull
+          git add -f geoda-ai/out
+          git commit -m "[Github Action] update Next.js output"
+          git push
