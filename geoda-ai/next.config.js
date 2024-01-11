@@ -3,8 +3,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  target: 'serverless',
+  output: 'standalone',
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   typescript: {
     // !! WARN !! This is to ignore build errors from Kepler.gl
