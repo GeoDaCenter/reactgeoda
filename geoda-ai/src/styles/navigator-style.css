@@ -32,23 +32,7 @@
 }
 
 .geo-da-logo {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  height: 72px;
-  justify-content: space-around;
-  padding: 12px;
-  position: relative;
-  width: 74px;
-}
-
-.geo-da-logo .geoda-logo {
-  align-self: stretch;
-  height: 43px;
-  object-fit: cover;
-  position: relative;
-  width: 100%;
+  padding: 12px 0;
 }
 
 .icon-toolbar {

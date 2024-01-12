@@ -15,7 +15,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
 import {WarningBox} from '../common/warning-box';
-import {SettingPanelContainer} from '../common/setting-panel-template';
+import {RightPanelContainer} from '../common/right-panel-template';
 
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data.";
@@ -128,7 +128,7 @@ const ChatGPTPanel = () => {
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
 
   return (
-    <SettingPanelContainer
+    <RightPanelContainer
       title={intl.formatMessage({
         id: 'chatGpt.title',
         defaultMessage: 'GeoDa.AI ChatBot'
@@ -145,7 +145,7 @@ const ChatGPTPanel = () => {
       ) : (
         <ChatGPTComponent openAIKey={openAIKey} />
       )}
-    </SettingPanelContainer>
+    </RightPanelContainer>
   );
 };
 

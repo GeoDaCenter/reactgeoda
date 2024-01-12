@@ -4,8 +4,11 @@ import {GeoDaState} from '../../store';
 
 import {setOpenAIKey} from '../../actions';
 import '../../styles/settings-panel.css';
+import {RightPanelContainer} from '../common/right-panel-template';
+import {useIntl} from 'react-intl';
 
 export function SettingsPanel() {
+  const intl = useIntl();
   const dispatch = useDispatch();
 
   // define state openAIKey
@@ -25,38 +28,36 @@ export function SettingsPanel() {
   );
 
   return (
-    <div className="settings-panel text-sm">
-      <div className="modal-header">
-        <div className="content">
-          <div className="text-and-supporting">
-            <div className="text">Settings</div>
-            <div className="supporting-text">Change your personal settings</div>
-          </div>
-        </div>
-        <div className="padding-bottom" />
-      </div>
-      <div className="form-wrapper">
-        <div className="form">
+    <RightPanelContainer
+      title={intl.formatMessage({
+        id: 'settings.title',
+        defaultMessage: 'Settings'
+      })}
+      description={intl.formatMessage({
+        id: 'settings.description',
+        defaultMessage: 'Change your personal settings'
+      })}
+    >
+      <div className="form">
+        <div className="div">
           <div className="div">
-            <div className="div">
-              <div className="label">ChatGPT API Key</div>
-              <div className="input">
-                <input
-                  type="text"
-                  onChange={onOpenAIKeyChange}
-                  className="inputToken"
-                  value={key || ''}
-                />
-              </div>
+            <div className="label">ChatGPT API Key</div>
+            <div className="input">
+              <input
+                type="text"
+                onChange={onOpenAIKeyChange}
+                className="inputToken"
+                value={key || ''}
+              />
             </div>
-            <p className="hint-text">You can get your API key from openai.com.</p>
           </div>
+          <p className="hint-text">You can get your API key from openai.com.</p>
         </div>
       </div>
       <div className="padding-bottom" />
-      <div className="modal-actions">
-        <div className="content-3">
-          <button className="button">
+      <div className="bottom-buttons">
+        <div className="two-buttons-container">
+          <button className="confirm-button">
             <div className="text-confirm">Confirm</div>
           </button>
           <button className="cancel-button">
@@ -64,6 +65,6 @@ export function SettingsPanel() {
           </button>
         </div>
       </div>
-    </div>
+    </RightPanelContainer>
   );
 }
