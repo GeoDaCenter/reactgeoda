@@ -1,50 +1,190 @@
-'use client';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-import 'react-responsive-modal/styles.css';
+/* eslint-disable @next/next/no-img-element */
+import '@/styles/globals.css';
+import '@/styles/styleguide.css';
+import '@/styles/landing.css';
 
-import '../styles/globals.css';
-import '../styles/styleguide.css';
-import '../styles/style.css';
-import '../styles/navigator-style.css';
-import '../styles/open-file-modal-style.css';
-
-import {useRef} from 'react';
-// import dynamic from 'next/dynamic';
-import {Provider as ReduxProvider} from 'react-redux';
-import {RootContext} from '@kepler.gl/components';
-
-import store from '../store';
-import GridLayout from '../components/grid-layout';
-// import FileHandler from '../components/file-handler';
-// import LanguageSelector from '../components/language-selector';
-import IntlProviderWrapper from '../components/intl-provider-wrapper';
-import {Navigator} from '../components/navigator';
-import {OpenFileModal} from '../components/open-file-modal';
-import {PanelContainer} from '../components/panel/panel-container';
-import {TableContainer} from '../components/table/table-container';
-
-export default function Home() {
-  const rootNode = useRef<HTMLDivElement>(null);
-
+export default function Page() {
   return (
-    <RootContext.Provider value={rootNode}>
-      <ReduxProvider store={store}>
-        <IntlProviderWrapper>
-          <div className="react-geoda">
-            <Navigator />
-            <div className="main-box">
-              <div className="main-grid">
-                <GridLayout />
+    <div className="landing-page-wrapper">
+      <div className="body-frame-wrapper">
+        <div className="body-frame">
+          <div className="header-wrapper">
+            <div className="headline-frame">
+              <div className="headline-content">
+                <div className="geoda-ai-logo-frame">
+                  <div className="geoda-ai">GeoDa.AI</div>
+                  <img className="geoda-ai-logo" alt="Geoda ai logo" src="img/geoda-ai-logo.png" />
+                </div>
+                <div className="geoda-ai-x">
+                  <p className="geoda-ai-text">
+                    <span className="text-wrapper">Free, Open-Sourced and </span>
+                    <span className="span">AI </span>
+                    <span className="text-wrapper">Powered Spatial Data Analysis</span>
+                  </p>
+                </div>
+                <div className="user-buttons">
+                  <div className={'large-primary-wrapper geoda-ai-signup'}>
+                    <div className={`button large-primary-instance`}>Sign Up for Beta Preview</div>
+                  </div>
+                </div>
               </div>
-              <TableContainer />
+              <div className={`headline-image headline-image-laptop`}>
+                <div className="overlap-group">
+                  <div className="tela">
+                    <div className="conte-do-da-tela" />
+                  </div>
+                  <img className="base" alt="Base" src="img/base-1.png" />
+                  <img
+                    className="geoda-ai-main"
+                    alt="Geoda ai main"
+                    src="img/geoda-ai-main-screenshot-1.png"
+                  />
+                </div>
+              </div>
             </div>
-            <PanelContainer />
-            <OpenFileModal />
-            {/* <DuckDBTableModal /> */}
           </div>
-        </IntlProviderWrapper>
-      </ReduxProvider>
-    </RootContext.Provider>
+          <div className="content-wrapper">
+            <div className="intro">
+              <div className="intro-img">
+                <img className="img-intro" alt="Img intro" src="img/img-intro-1.png" />
+              </div>
+              <div className="intro-content">
+                <p className="intro-title">Ask Anything About Spatial Data Analysis</p>
+                <div className="flexcontainer">
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      GeoDa AI is a customized language model with deep learning capabilities that
+                      can assist users with spatial analysis tasks by responding to their text
+                      prompts. The model is trained on a corpus of spatial data and spatial analysis
+                      tasks, and it can understand and respond to a variety of natural language
+                      queries.
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      You can ask anything about your data and apply spatial data analysis using
+                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
+                      spatial data.
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="intro">
+              <div className="image-wrapper">
+                <img className="image" alt="Image" src="img/image-1.png" />
+              </div>
+              <div className="intro-content">
+                <p className="intro-title">Get Insights With Powerful Tools</p>
+                <div className="flexcontainer">
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      GeoDa AI is a customized language model with deep learning capabilities that
+                      can assist users with spatial analysis tasks by responding to their text
+                      prompts. The model is trained on a corpus of spatial data and spatial analysis
+                      tasks, and it can understand and respond to a variety of natural language
+                      queries.
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      You can ask anything about your data and apply spatial data analysis using
+                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
+                      spatial data.
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="intro">
+              <div className="interactive-map-wrapper">
+                <img
+                  className="interactive-map"
+                  alt="Interactive map"
+                  src="img/interactive-map-1.gif"
+                />
+              </div>
+              <div className="intro-content">
+                <div className="intro-title">Interactive Spatial Data Analysis</div>
+                <div className="flexcontainer">
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      GeoDa AI is a customized language model with deep learning capabilities that
+                      can assist users with spatial analysis tasks by responding to their text
+                      prompts. The model is trained on a corpus of spatial data and spatial analysis
+                      tasks, and it can understand and respond to a variety of natural language
+                      queries.
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      You can ask anything about your data and apply spatial data analysis using
+                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
+                      spatial data.
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="intro">
+              <div className="screenshot-wrapper">
+                <img className="screenshot" alt="Screenshot" src="img/image-4.png" />
+              </div>
+              <div className="intro-content">
+                <p className="intro-title">Share Your Analysis Dashboard With Style</p>
+                <div className="flexcontainer">
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      GeoDa AI is a customized language model with deep learning capabilities that
+                      can assist users with spatial analysis tasks by responding to their text
+                      prompts. The model is trained on a corpus of spatial data and spatial analysis
+                      tasks, and it can understand and respond to a variety of natural language
+                      queries.
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      <br />
+                    </span>
+                  </p>
+                  <p className="text">
+                    <span className="text-wrapper-2">
+                      You can ask anything about your data and apply spatial data analysis using
+                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
+                      spatial data.
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="footer-wrapper">
+            <img className="img-csds" alt="Img csds" src="img/img-csds.png" />
+            <img className="img-uchicago" alt="Img uchicago" src="img/img-uchicago.png" />
+            <img className="img-openjs" alt="Img openjs" src="img/img-openjs.png" />
+            <img className="img-visgl" alt="Img visgl" src="img/img-visgl.png" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
