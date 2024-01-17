@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+
+import {SignUpButton} from '@/components/user/signup';
 import '@/styles/globals.css';
 import '@/styles/styleguide.css';
 import '@/styles/landing.css';
@@ -22,11 +24,7 @@ export default function Page() {
                     </span>
                   </p>
                 </div>
-                <div className="user-buttons">
-                  <div className={'large-primary-wrapper geoda-ai-signup'}>
-                    <div className={`button large-primary-instance`}>Sign Up for Beta Preview</div>
-                  </div>
-                </div>
+                <SignUpButton />
               </div>
               <div className={`headline-image headline-image-laptop`}>
                 <div className="overlap-group">
