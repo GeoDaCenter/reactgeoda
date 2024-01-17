@@ -18,7 +18,13 @@ export function SignUpModal() {
     const url = `${path}&EMAIL=${encodeURIComponent(email)}&b_06b2700cae8218b88f097724d_6a6f176215`;
 
     setStatus('sending');
-    fetch(url, {mode: 'cors', headers: {'Access-Control-Allow-Origin': '*'}}).then(response => {
+    fetch(url, {
+      mode: 'cors',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Request-Headers': 'Content-Type, Authorization'
+      }
+    }).then(response => {
       console.log('response', response);
       if (response.status === 200) {
         const result = response.text();
