@@ -289,12 +289,12 @@
 }
 
 .text-wrapper-2 {
-  color: #000000;
-  font-family: 'Roboto', Helvetica;
-  font-size: 20px;
+  color: rgb(83, 83, 83);
+  font-family: ff-clan-web-pro, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 22px;
+  line-height: 18px;
 }
 
 .image-wrapper {

@@ -46,7 +46,7 @@ export default function Page() {
           <div className="content-wrapper">
             <div className="intro">
               <div className="intro-img">
-                <img className="img-intro" alt="Img intro" src="img/img-intro-1.png" />
+                <img className="img-intro" alt="Img intro" src="img/geoda_chat_1.gif" />
               </div>
               <div className="intro-content">
                 <p className="intro-title">Ask Anything About Spatial Data Analysis</p>
@@ -85,11 +85,11 @@ export default function Page() {
                 <div className="flexcontainer">
                   <p className="text">
                     <span className="text-wrapper-2">
-                      GeoDa AI is a customized language model with deep learning capabilities that
-                      can assist users with spatial analysis tasks by responding to their text
-                      prompts. The model is trained on a corpus of spatial data and spatial analysis
-                      tasks, and it can understand and respond to a variety of natural language
-                      queries.
+                      GeoDa provides powerful tools for spatial data analysis, including mapping,
+                      space-time exploration, spatial weights, spatial autocorrelation, spatial
+                      cluster analysis, and spatial regression. GeoDa.AI will leverage these tools
+                      in conjunction with the AI model to enable users to gain insights from their
+                      spatial data and solve spatial problems more quickly and easily.
                       <br />
                     </span>
                   </p>
@@ -100,9 +100,11 @@ export default function Page() {
                   </p>
                   <p className="text">
                     <span className="text-wrapper-2">
-                      You can ask anything about your data and apply spatial data analysis using
-                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
-                      spatial data.
+                      In comparison to traditional spatial analysis tools, the GeoDa.AI model is
+                      capable of learning and improving itself from the spatial analyses that all
+                      users perform. As the model is used by more and more users, it will continue
+                      to learn and improve, making it an increasingly powerful and valuable tool for
+                      spatial analysis.
                     </span>
                   </p>
                 </div>
@@ -121,11 +123,11 @@ export default function Page() {
                 <div className="flexcontainer">
                   <p className="text">
                     <span className="text-wrapper-2">
-                      GeoDa AI is a customized language model with deep learning capabilities that
-                      can assist users with spatial analysis tasks by responding to their text
-                      prompts. The model is trained on a corpus of spatial data and spatial analysis
-                      tasks, and it can understand and respond to a variety of natural language
-                      queries.
+                      GeoDa.AI extends the classic brushing-and-linking functionality of desktop
+                      GeoDa to the browser. It enables users to perform interactive spatial data
+                      analysis across maps, tables, plots, and chats. GeoDa.AI also supports SQL
+                      queries on browser-based data. This provides a novel and convenient way to
+                      explore spatial data.
                       <br />
                     </span>
                   </p>
@@ -136,9 +138,9 @@ export default function Page() {
                   </p>
                   <p className="text">
                     <span className="text-wrapper-2">
-                      You can ask anything about your data and apply spatial data analysis using
-                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
-                      spatial data.
+                      GeoDa.AI is designed and developed based on libgeoda, Arrow, DuckDB, and
+                      WebAssembly. This enables us to run the entire GeoDa library in the browser
+                      quickly and efficiently.
                     </span>
                   </p>
                 </div>
@@ -153,24 +155,18 @@ export default function Page() {
                 <div className="flexcontainer">
                   <p className="text">
                     <span className="text-wrapper-2">
-                      GeoDa AI is a customized language model with deep learning capabilities that
-                      can assist users with spatial analysis tasks by responding to their text
-                      prompts. The model is trained on a corpus of spatial data and spatial analysis
-                      tasks, and it can understand and respond to a variety of natural language
-                      queries.
+                      A good dashboard helps you to visualize data, communicate results, and
+                      collaborate with others. GeoDa.AI makes creating and sharing a dashboard so
+                      easy: you can drag-n-drop any text, plot and map from your chat with GeoDa.AI
+                      into the dashboard. They can also use the text editor to add titles, labels,
+                      and annotations. When users are finished creating their dashboard, they can
+                      share it with others by simply sharing the dashboard file.
                       <br />
                     </span>
                   </p>
                   <p className="text">
                     <span className="text-wrapper-2">
                       <br />
-                    </span>
-                  </p>
-                  <p className="text">
-                    <span className="text-wrapper-2">
-                      You can ask anything about your data and apply spatial data analysis using
-                      GeoDa.AI. GeoDa AI can run statistics, generate maps and charts to visualize
-                      spatial data.
                     </span>
                   </p>
                 </div>
