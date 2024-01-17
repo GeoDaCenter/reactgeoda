@@ -290,7 +290,7 @@
 
 .text-wrapper-2 {
   color: rgb(83, 83, 83);
-  font-family: ff-clan-web-pro, "Helvetica Neue", Helvetica, sans-serif;
+  font-family: ff-clan-web-pro, 'Helvetica Neue', Helvetica, sans-serif;
   font-size: 18px;
   font-weight: 400;
   letter-spacing: 0;
@@ -395,4 +395,67 @@
   object-fit: cover;
   position: relative;
   width: 154px;
+}
+
+/** css for mobile devieces */
+@media only screen and (max-width: 450px) {
+  .header-wrapper {
+    padding: 20px;
+  }
+  .headline-content {
+    gap: 20px;
+  }
+  .headline-frame {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .geoda-ai {
+    font-size: 48px;
+  }
+  .text-wrapper {
+    font-size: 38px;
+  }
+  .geoda-ai-text {
+    width: 350px;
+    font-size: 38px;
+  }
+  .headline-image {
+    transform: scale(0.5) translate(-50%, -30%);
+  }
+  .intro {
+    flex-direction: column-reverse;
+    gap: 20px;
+  }
+  .intro-content {
+    width: 100%;
+    gap: 26px;
+  }
+  .intro-title {
+    width: 100%;
+  }
+  .flexcontainer {
+    width: 100%;
+  }
+  .image-wrapper {
+    width: 100%;
+  }
+  .flexcontainer {
+    height: auto;
+  }
+  .image {
+    width: auto;
+    height: auto;
+  }
+  .intro-title{
+    height: auto;
+  }
+  .screenshot-wrapper{
+    width: auto;
+  }
+  .footer-wrapper {
+    flex-direction: column;
+    gap: 32px;
+    height: 600px;
+    padding: 20px;
+  }
 }

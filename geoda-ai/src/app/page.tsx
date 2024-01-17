@@ -17,9 +17,9 @@ export default function Page() {
                 </div>
                 <div className="geoda-ai-x">
                   <p className="geoda-ai-text">
-                    <span className="text-wrapper">Free, Open-Sourced and </span>
-                    <span className="span">AI </span>
-                    <span className="text-wrapper">Powered Spatial Data Analysis</span>
+                    <span className="text-wrapper">
+                      Free, Open-Sourced and AI Powered Spatial Data Analysis
+                    </span>
                   </p>
                 </div>
                 <div className="user-buttons">
