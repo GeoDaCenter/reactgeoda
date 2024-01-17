@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {Suspense} from 'react';
 import ThemeClient from './theme-client';
+import Loading from './loading';
 
 export const metadata = {
   title: 'GeoDa.AI',
@@ -10,7 +11,9 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en">
       <body>
-        <ThemeClient>{children}</ThemeClient>
+        <ThemeClient>
+          <Suspense fallback={<Loading />}>{children}</Suspense>
+        </ThemeClient>
       </body>
     </html>
   );

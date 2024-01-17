@@ -1,4 +1,17 @@
-.settings-panel {
+.icon-gear {
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border: 1px solid #e4e7ec;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 8px;
+  /* align children center */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.right-panel-container {
   align-items: center;
   border-radius: 12px;
   display: flex;
@@ -8,7 +21,7 @@
   height: 100%;
 }
 
-.settings-panel .modal-header {
+.right-panel-container .right-panel-header {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -18,7 +31,7 @@
   width: 100%;
 }
 
-.settings-panel .content {
+.right-panel-container .right-panel-header-content {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -30,7 +43,7 @@
   width: 100%;
 }
 
-.settings-panel .text-and-supporting {
+.right-panel-container .text-and-supporting {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -41,7 +54,7 @@
   width: 100%;
 }
 
-.settings-panel .text {
+.right-panel-container .text {
   align-self: stretch;
   color: var(--gray-900);
   font-family: var(--text-lg-semibold-font-family);
@@ -54,7 +67,7 @@
   position: relative;
 }
 
-.settings-panel .supporting-text {
+.right-panel-container .supporting-text {
   align-self: stretch;
   color: var(--gray-600);
   font-family: var(--text-sm-regular-font-family);
@@ -66,7 +79,7 @@
   position: relative;
 }
 
-.settings-panel .padding-bottom {
+.right-panel-container .padding-bottom {
   align-self: stretch;
   height: 20px;
   position: relative;
@@ -74,7 +87,7 @@
   border-bottom: 1px solid var(--gray-300);
 }
 
-.settings-panel .form-wrapper {
+.right-panel-container .form-wrapper {
   align-self: stretch;
   display: flex;
   flex: 1;
@@ -85,7 +98,7 @@
   width: 100%;
 }
 
-.settings-panel .form {
+.right-panel-container .form {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -96,7 +109,7 @@
   width: 100%;
 }
 
-.settings-panel .div {
+.right-panel-container .div {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -107,7 +120,7 @@
   width: 100%;
 }
 
-.settings-panel .label {
+.right-panel-container .label {
   color: var(--gray-700);
   font-family: var(--text-sm-medium-font-family);
   font-size: var(--text-sm-medium-font-size);
@@ -121,7 +134,7 @@
   width: fit-content;
 }
 
-.settings-panel .input {
+.right-panel-container .input {
   align-items: center;
   align-self: stretch;
   background-color: var(--base-white);
@@ -132,24 +145,24 @@
   flex: 0 0 auto;
   gap: 8px;
   overflow: hidden;
-  padding: 4px; 
+  padding: 4px;
   position: relative;
   width: 100%;
 }
 
-.settings-panel .inputToken {
+.right-panel-container .inputToken {
   flex: 1;
   flex-grow: 1;
   position: relative;
   border: 0;
   outline: 0;
-  color:  var(--gray-300);
+  color: var(--gray-300);
 }
 
-.settings-panel .hint-text {
+.right-panel-container .hint-text {
   align-self: stretch;
   color: var(--gray-600);
-  font-family: "Inter-Regular", Helvetica;
+  font-family: 'Inter-Regular', Helvetica;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0;
@@ -157,7 +170,7 @@
   position: relative;
 }
 
-.settings-panel .modal-actions {
+.right-panel-container .bottom-buttons {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -169,14 +182,14 @@
   width: 100%;
 }
 
-.settings-panel .divider-wrap {
+.right-panel-container .divider-wrap {
   align-self: stretch;
   flex: 0 0 auto;
   position: relative;
   width: 100%;
 }
 
-.settings-panel .content-3 {
+.right-panel-container .two-buttons-container {
   align-items: flex-start;
   align-self: stretch;
   display: flex;
@@ -187,7 +200,7 @@
   width: 100%;
 }
 
-.settings-panel .button {
+.right-panel-container .confirm-button {
   all: unset;
   align-items: center;
   background-color: var(--variable-collection-marron-light);
@@ -205,7 +218,7 @@
   position: relative;
 }
 
-.settings-panel .text-confirm{
+.right-panel-container .text-confirm {
   color: var(--base-white);
   font-family: var(--text-md-semibold-font-family);
   font-size: var(--text-md-semibold-font-size);
@@ -219,7 +232,7 @@
   width: fit-content;
 }
 
-.settings-panel .cancel-button {
+.right-panel-container .cancel-button {
   all: unset;
   align-items: center;
   background-color: var(--base-white);
@@ -237,7 +250,7 @@
   position: relative;
 }
 
-.settings-panel .text-cancel {
+.right-panel-container .text-cancel {
   color: var(--gray-700);
   font-family: var(--text-md-semibold-font-family);
   font-size: var(--text-md-semibold-font-size);

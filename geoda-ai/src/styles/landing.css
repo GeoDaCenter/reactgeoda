@@ -1,0 +1,398 @@
+.landing-page-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.body-frame-wrapper {
+  overflow: hidden;
+  width: 100%;
+}
+
+.body-frame {
+  align-items: flex-start;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  width: 100%;
+  align-self: center;
+}
+
+.header-wrapper {
+  align-items: flex-start;
+  background-color: var(--variable-collection-pure-black);
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  padding: 90px;
+  position: relative;
+  width: 100%;
+  height: 800px;
+}
+
+.headline-frame {
+  align-items: flex-start;
+  display: inline-flex;
+  position: relative;
+  margin: auto;
+}
+
+.headline-content {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 43px;
+  position: relative;
+}
+
+.geoda-ai-logo-frame {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 19px;
+  position: relative;
+}
+
+.geoda-ai {
+  color: var(--variable-collection-marron-light);
+  font-family: var(--heading-BH-1-font-family);
+  font-size: var(--heading-BH-1-font-size);
+  font-style: var(--heading-BH-1-font-style);
+  font-weight: var(--heading-BH-1-font-weight);
+  letter-spacing: var(--heading-BH-1-letter-spacing);
+  line-height: var(--heading-BH-1-line-height);
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.geoda-ai-logo {
+  height: 46.5px;
+  object-fit: cover;
+  position: relative;
+  width: 48.5px;
+}
+
+.geoda-ai-x {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 10px;
+  justify-content: center;
+  position: relative;
+}
+
+.geoda-ai-text {
+  color: #ffffff;
+  font-family: 'Roboto', Helvetica;
+  font-size: 48px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 66px;
+  margin-top: -1px;
+  position: relative;
+  width: 539px;
+}
+
+.text-wrapper {
+  font-weight: 500;
+}
+
+.span {
+  font-weight: 700;
+}
+
+.user-buttons {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.geoda-ai-signup {
+  background-color: var(--variable-collection-marron-light) !important;
+  flex: 0 0 auto !important;
+}
+
+.large-primary-instance {
+  color: var(--variable-collection-pure-white) !important;
+  font-weight: 700 !important;
+}
+
+.headline-image-laptop {
+  height: 441.45px !important;
+  width: 828.23px !important;
+}
+
+.large-primary-wrapper {
+  all: unset;
+  align-items: flex-start;
+  background-color: var(--brandbrand-3);
+  border-radius: 6px;
+  box-sizing: border-box;
+  display: inline-flex;
+  padding: 18px 44px;
+  position: relative;
+}
+
+.button {
+  color: var(--lightlight-1);
+  font-family: 'Inter', Helvetica;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 22px;
+  margin-top: -1px;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.headline-image {
+  height: 441px;
+  position: relative;
+  width: 828px;
+}
+
+.overlap-group {
+  height: 436px;
+  position: relative;
+  top: 5px;
+  width: 810px;
+}
+
+.tela {
+  background-color: #717171;
+  border-radius: 8.1px;
+  height: 421px;
+  left: 51px;
+  position: absolute;
+  top: 0;
+  width: 726px;
+}
+
+.conte-do-da-tela {
+  background-color: #717171;
+  box-shadow: inset 0px 0px 12.66px #00000026;
+  height: 398px;
+  left: 11px;
+  position: relative;
+  top: 12px;
+  width: 704px;
+}
+
+.base {
+  height: 22px;
+  left: 0;
+  position: absolute;
+  top: 415px;
+  width: 810px;
+}
+
+.geoda-ai-main {
+  height: 384px;
+  left: 56px;
+  object-fit: cover;
+  position: absolute;
+  top: 12px;
+  width: 717px;
+}
+
+.content-wrapper {
+  align-items: flex-start;
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  width: 100%;
+}
+
+.intro {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 24px;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  width: 100%;
+}
+
+.intro-img {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  height: 515px;
+  justify-content: center;
+  margin-left: -4px;
+  position: relative;
+  width: 431px;
+}
+
+.img-intro {
+  height: 515px;
+  object-fit: cover;
+  position: relative;
+  width: 403px;
+}
+
+.intro-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 444px;
+  justify-content: center;
+  margin-right: -4px;
+  position: relative;
+  width: 945px;
+}
+
+.intro-title {
+  color: var(--variable-collection-marron-light);
+  font-family: var(--medium-36-font-family);
+  font-size: var(--medium-36-font-size);
+  font-style: var(--medium-36-font-style);
+  font-weight: var(--medium-36-font-weight);
+  height: 96px;
+  letter-spacing: var(--medium-36-letter-spacing);
+  line-height: var(--medium-36-line-height);
+  position: relative;
+  width: 724px;
+}
+
+.flexcontainer {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 213px;
+  width: 722px;
+}
+
+.text {
+  align-self: stretch;
+  color: var(--variable-collection-pure-black);
+  font-family: 'Roboto', Helvetica;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 22px;
+  position: relative;
+}
+
+.text-wrapper-2 {
+  color: rgb(83, 83, 83);
+  font-family: ff-clan-web-pro, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 18px;
+}
+
+.image-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 400px;
+  justify-content: center;
+  margin-left: -4px;
+  position: relative;
+  width: 431px;
+}
+
+.image {
+  height: 330px;
+  margin-left: -0.25px;
+  margin-right: -0.25px;
+  object-fit: cover;
+  position: relative;
+  width: 431.5px;
+}
+
+.interactive-map-wrapper {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  height: 400px;
+  justify-content: center;
+  margin-left: -4px;
+  position: relative;
+  width: 431px;
+}
+
+.interactive-map {
+  height: 334px;
+  object-fit: cover;
+  position: relative;
+  width: 267px;
+}
+
+.screenshot-wrapper {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  height: 300px;
+  justify-content: center;
+  margin-left: -4px;
+  position: relative;
+  width: 431px;
+}
+
+.screenshot {
+  height: 358px;
+  margin-bottom: -29px;
+  margin-left: -20px;
+  margin-right: -27.5px;
+  margin-top: -29px;
+  object-fit: cover;
+  position: relative;
+  width: 478.5px;
+}
+
+.footer-wrapper {
+  align-items: center;
+  background-color: #e7ecff;
+  display: flex;
+  gap: 10px;
+  height: 483px;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.img-csds {
+  height: 107px;
+  object-fit: cover;
+  position: relative;
+  width: 365px;
+}
+
+.img-uchicago {
+  height: 75.6px;
+  object-fit: cover;
+  position: relative;
+  width: 316.8px;
+}
+
+.img-openjs {
+  height: 94.5px;
+  object-fit: cover;
+  position: relative;
+  width: 300px;
+}
+
+.img-visgl {
+  height: 163px;
+  object-fit: cover;
+  position: relative;
+  width: 154px;
+}
