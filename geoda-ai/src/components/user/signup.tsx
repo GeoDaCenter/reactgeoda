@@ -1,6 +1,7 @@
 'use client';
 
 import {useRef, useState, FormEvent} from 'react';
+import jsonp from 'jsonp';
 import Modal from 'react-responsive-modal';
 import 'react-responsive-modal/styles.css';
 import {WarningBox, WarningType} from '../common/warning-box';
@@ -14,24 +15,20 @@ export function SignUpModal() {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const path =
-      'https://gmail.us21.list-manage.com/subscribe/post?u=06b2700cae8218b88f097724d&id=6a6f176215&f_id=00dde5e6f0';
+      'https://gmail.us21.list-manage.com/subscribe/post-json?u=06b2700cae8218b88f097724d&id=6a6f176215&f_id=00dde5e6f0';
     const url = `${path}&EMAIL=${encodeURIComponent(email)}&b_06b2700cae8218b88f097724d_6a6f176215`;
 
     setStatus('sending');
-    fetch(url, {
-      mode: 'cors',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Request-Headers': 'Content-Type, Authorization'
-      }
-    }).then(response => {
-      console.log('response', response);
-      if (response.status === 200) {
-        const result = response.text();
-        setStatus('success');
-        console.log(result);
-      } else {
+    jsonp(url, {param: 'c'}, (err, data) => {
+      console.log(data);
+      if (data.msg.includes('already subscribed') || data.msg.includes('too many recent signup')) {
+        setStatus('duplicate');
+      } else if (err) {
         setStatus('error');
+      } else if (data.result !== 'success') {
+        setStatus('error');
+      } else {
+        setStatus('success');
       }
     });
   };
@@ -54,7 +51,7 @@ export function SignUpModal() {
             onSubmit={onSubmit}
           >
             <div id="mc_embed_signup_scroll">
-              <h2>Subscribe</h2>
+              <h2>Sign Up for GeoDa.AI Preview</h2>
               <div className="indicates-required">
                 <span className="asterisk">*</span>
                 indicates required
@@ -93,7 +90,7 @@ export function SignUpModal() {
                     name="subscribe"
                     id="mc-embedded-subscribe"
                     className="button"
-                    value="Subscribe"
+                    value="Sign Me Up!"
                     readOnly
                   />
                 </div>
@@ -105,7 +102,12 @@ export function SignUpModal() {
       <div className="msg-alert">
         {status === 'sending' && <WarningBox message={'Sending...'} type={WarningType.WAIT} />}
         {status === 'success' && (
-          <WarningBox message={'Thank you for subscribing!'} type={WarningType.SUCCESS} />
+          <WarningBox
+            message={
+              'Thank you for signing up! We will send out email once GeoDa.AI is ready for preview.'
+            }
+            type={WarningType.SUCCESS}
+          />
         )}
         {status === 'duplicate' && (
           <WarningBox
