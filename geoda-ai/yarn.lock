@@ -1408,6 +1408,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@next/third-parties@npm:14.0.5-canary.64":
+  version: 14.0.5-canary.64
+  resolution: "@next/third-parties@npm:14.0.5-canary.64"
+  dependencies:
+    third-party-capital: 1.0.20
+  peerDependencies:
+    next: ^13.0.0 || ^14.0.0
+    react: ^18.2.0
+  checksum: 248d72971946bb77465ba5de85c46099b3ddffe091976824b24f9389e6c856456a0a220dad5ec00a678b7d0cc6c1d19d55a5dcb4382a1d94f4d390b287830386
+  languageName: node
+  linkType: hard
+
 "@nodelib/fs.scandir@npm:2.1.5":
   version: 2.1.5
   resolution: "@nodelib/fs.scandir@npm:2.1.5"
@@ -1805,6 +1817,13 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: e60b153664572116dfea673c5bda7778dbff150498f44f998e34b5886d8afc47f16799280e4b6e241c0472aef1bc36add771c569c68fc5125fc2ae519a3eb9ac
+  languageName: node
+  linkType: hard
+
+"@types/jsonp@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@types/jsonp@npm:0.2.3"
+  checksum: 4378a267cc581bbaf08849099fe8887073fe46430f722d534352ddd274e79d7d587c82242a7b71c5a63b7bc2ad3c0e9c402bc039d59c61292a45e94eaa555198
   languageName: node
   linkType: hard
 
@@ -3438,6 +3457,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debug@npm:^2.1.3":
+  version: 2.6.9
+  resolution: "debug@npm:2.6.9"
+  dependencies:
+    ms: 2.0.0
+  checksum: d2f51589ca66df60bf36e1fa6e4386b318c3f1e06772280eea5b1ae9fd3d05e9c2b7fd8a7d862457d00853c75b00451aa2d7459b924629ee385287a650f58fe6
+  languageName: node
+  linkType: hard
+
 "debug@npm:^3.2.7":
   version: 3.2.7
   resolution: "debug@npm:3.2.7"
@@ -4587,10 +4615,12 @@ __metadata:
     "@loaders.gl/parquet": ^4.1.0-alpha.4
     "@loaders.gl/shapefile": ^4.1.0-alpha.4
     "@monaco-editor/react": ^4.6.0
+    "@next/third-parties": 14.0.5-canary.64
     "@testing-library/jest-dom": ^6.2.0
     "@testing-library/react": ^14.1.2
     "@types/d3-dsv": ^3
     "@types/jest": ^29.5.11
+    "@types/jsonp": ^0.2.3
     "@types/node": ^20
     "@types/postcss-reporter": ^7
     "@types/react": ^18.2.46
@@ -4611,6 +4641,7 @@ __metadata:
     eslint-plugin-prettier: ^5.1.2
     jest: ^29.7.0
     jest-environment-jsdom: ^29.7.0
+    jsonp: ^0.2.1
     monaco-editor: ^0.45.0
     next: 14.0.4
     openai: ^4.24.1
@@ -6120,6 +6151,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jsonp@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "jsonp@npm:0.2.1"
+  dependencies:
+    debug: ^2.1.3
+  checksum: 90aabd9deb3a9ba83aedf8d40e1aaff1fc29f3f3fe42985a661782498dde526a7cd9b7bec4b8721f7d0beafab9e5ccfdafd46640f7dd6c58d529a6bb5238e2b8
+  languageName: node
+  linkType: hard
+
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0, jsx-ast-utils@npm:^3.3.5":
   version: 3.3.5
   resolution: "jsx-ast-utils@npm:3.3.5"
@@ -6569,6 +6609,13 @@ __metadata:
   version: 0.45.0
   resolution: "monaco-editor@npm:0.45.0"
   checksum: 7c70aeea8b81bc8dbda4b962fa8236d41fd2a3d07bcc2843ea7f1756ad95d701da5ef71e67d787595567aeec247ceb6bf4e3451abdf4895fe7819a8b9ef76231
+  languageName: node
+  linkType: hard
+
+"ms@npm:2.0.0":
+  version: 2.0.0
+  resolution: "ms@npm:2.0.0"
+  checksum: 0e6a22b8b746d2e0b65a430519934fefd41b6db0682e3477c10f60c76e947c4c0ad06f63ffdf1d78d335f83edee8c0aa928aa66a36c7cd95b69b26f468d527f4
   languageName: node
   linkType: hard
 
@@ -8601,6 +8648,13 @@ __metadata:
   dependencies:
     any-promise: ^1.0.0
   checksum: 84e1b804bfec49f3531215f17b4a6e50fd4397b5f7c1bccc427b9c656e1ecfb13ea79d899930184f78bc2f57285c54d9a50a590c8868f4f0cef5c1d9f898b05e
+  languageName: node
+  linkType: hard
+
+"third-party-capital@npm:1.0.20":
+  version: 1.0.20
+  resolution: "third-party-capital@npm:1.0.20"
+  checksum: ef5eae00bdb82b538b9f628a011fc294cd6f4bafdbb46d88f3d1a72e8c3b9e2cc2a547fdb62bc16bdd847e9da3dac2df676b154c64914f6c90ea15aac6ce0a6a
   languageName: node
   linkType: hard
 

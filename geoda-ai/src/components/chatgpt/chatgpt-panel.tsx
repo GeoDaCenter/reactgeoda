@@ -139,9 +139,9 @@ const ChatGPTPanel = () => {
       })}
     >
       {!openAIKey ? (
-        <WarningBox message={NO_OPENAI_KEY_MESSAGE} />
+        <WarningBox message={NO_OPENAI_KEY_MESSAGE} type="warning" />
       ) : !tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
         <ChatGPTComponent openAIKey={openAIKey} />
       )}
