@@ -41,6 +41,7 @@
     "type-analyzer": "^0.4.0"
   },
   "devDependencies": {
+    "@next/third-parties": "14.0.5-canary.64",
     "@testing-library/jest-dom": "^6.2.0",
     "@testing-library/react": "^14.1.2",
     "@types/d3-dsv": "^3",

@@ -1,4 +1,5 @@
 import React, {Suspense} from 'react';
+import {GoogleAnalytics} from '@next/third-parties/google';
 import ThemeClient from './theme-client';
 import Loading from './loading';
 
@@ -15,6 +16,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
           <Suspense fallback={<Loading />}>{children}</Suspense>
         </ThemeClient>
       </body>
+      <GoogleAnalytics gaId="G-JB0GMHF7MC" />
     </html>
   );
 }

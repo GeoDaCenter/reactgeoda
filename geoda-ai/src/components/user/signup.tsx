@@ -20,7 +20,6 @@ export function SignUpModal() {
 
     setStatus('sending');
     jsonp(url, {param: 'c'}, (err, data) => {
-      console.log(data);
       if (data.msg.includes('already subscribed') || data.msg.includes('too many recent signup')) {
         setStatus('duplicate');
       } else if (err) {
