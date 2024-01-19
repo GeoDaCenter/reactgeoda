@@ -40,6 +40,14 @@ git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib
 git clone https://github.com/GeoDaCenter/reactgeoda.git reactgeoda
 ```
 
+Build dependencies
+  
+```bash
+cd csds_kepler
+yarn
+```
+
+
 ## 2. Work in react-geoda directory
 
 ```bash
