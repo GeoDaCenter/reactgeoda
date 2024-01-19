@@ -62,22 +62,34 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
+      # deploy to netlify when [Preview] is included in commit message
+      - name: Check commit message
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            if [[ $(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }}) =~ "[Preview]" ]]; then
+              echo "::set-output name=deploy::true"
+            else
+              echo "::set-output name=deploy::false"
+            fi
+          else
+            echo "::set-output name=deploy::true"
+          fi
       - name: Deploy to Netlify
         id: deploy
+        if: steps.check.outputs.deploy == 'true'
         uses: mathiasvr/command-output@v2.0.0
         with:
           run: |
             cd geoda-ai
-            netlify env:set NETLIFY_AUTH_TOKEN ${{ secrets.NETLIFY_AUTH_TOKEN }}
-            netlify env:set NETLIFY_SITE_ID ${{ secrets.NETLIFY_SITE_ID }}
-            # if merge to main, deploy production to netlify
             if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-              netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
+              netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
             else
-              netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
+              netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
             fi
-      # comment output of netlify deploy to PR
+      # comment output of netlify deploy to PR if not merge to main
       - name: Comment PR
+        if: github.event_name == 'pull_request' && steps.check.outputs.deploy == 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
