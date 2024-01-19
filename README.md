@@ -55,19 +55,33 @@ You can run the following command to start the development server:
 yarn dev
 ```
 
-Create a branch and make changes. Push the branch to github and create a pull request.
+The landing page is at http://localhost:3000/
+The geoda.ai app is at http://localhost:3000/mapland
 
 ## 3. Pull request
 
+Create a branch and make changes. Push the branch to github and create a pull request.
+
 When creating a PR, try to make the title easily understandable: [Feat] add new feature, [Fix] fix a bug, [Refactor] refactor code, [Doc] update documentation, etc.
 
-You can check the preview of the PR in netlify. Just include `[Preview]` in the commit message. e.g. `[Preview] add new feature`.
+You can check the preview of the PR in netlify. First, you will need to build the project:
+```
+yarn build-local
+```
+All changes will be built into the `out` folder. Then, commit the changes and push to your branch. Netlify will automatically build the preview if you include `[Preview]` in the commit message. e.g. `[Preview] add new feature`.
 
-If you have nothing to commit and just want to see the preview, you can run the following command:
+In case you forget including `[Preview]` in your previous commit, you can commit an empty commit with `[Preview]` in the message:
 
 ```bash
 git commit --allow-empty -m "[Preview]"
 ```
+
+## 4. Merge PR
+
+After the PR is approved, you can squash merge it into the `main` branch.
+Make sure the title of the merge is the same as the PR title.
+
+The production build will be automatically deployed to netlify. You can check https://geoda.ai/ to see the latest version.
 
 
 
