@@ -62,22 +62,10 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
-      # deploy to netlify when [Preview] is included in commit message
-      - name: Check commit message
-        id: check
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            if [[ $(git log --format=%B -n 1 ${{ github.event.pull_request.head.sha }}) =~ "[Preview]" ]]; then
-              echo "::set-output name=deploy::true"
-            else
-              echo "::set-output name=deploy::false"
-            fi
-          else
-            echo "::set-output name=deploy::true"
-          fi
       - name: Deploy to Netlify
         id: deploy
-        if: steps.check.outputs.deploy == 'true'
+        # deploy when push to main or when commit message contains [Preview]
+        if: github.ref == 'refs/heads/main' || contains(github.event.head_commit.message, '[Preview]')
         uses: mathiasvr/command-output@v2.0.0
         with:
           run: |
@@ -89,7 +77,7 @@ jobs:
             fi
       # comment output of netlify deploy to PR if not merge to main
       - name: Comment PR
-        if: github.event_name == 'pull_request' && steps.check.outputs.deploy == 'true'
+        if: contains(github.event.head_commit.message, '[Preview]')
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
