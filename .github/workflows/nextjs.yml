@@ -62,7 +62,7 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
-      - name: Deploy to Netlify
+      - name: Deploy Preview to Netlify
         id: deploy
         # deploy when push to main or when commit message contains [Preview]
         if: ${{ (github.ref == 'refs/heads/main') || contains(github.event.head_commit.message, 'Preview') }}
@@ -70,18 +70,18 @@ jobs:
         with:
           run: |
             cd geoda-ai
-            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-              netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
-            else
-              netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
-            fi
-      # comment output of netlify deploy to PR if not merge to main
+            netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
       - name: Comment PR
         if: contains(github.event.head_commit.message, 'Preview')
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             :rocket: Deploy preview available at: ${{ steps.deploy.outputs.stdout }}
+      - name: Deploy Production to Netlify
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd geoda-ai
+          netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
       # - name: Build Library
       #   run: |
       #     cd library

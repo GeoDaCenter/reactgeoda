@@ -35,12 +35,10 @@ Clone `csds_kepler`, `geoda-lib`, and `reactgeoda` into the same directory.
 ```bash
 git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler 
 
-git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
+git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib
 
 git clone https://github.com/GeoDaCenter/reactgeoda.git reactgeoda
 ```
-
-Note: ask Xun Li for GEODA_LIB_TOKEN
 
 ## 2. Work in react-geoda directory
 
