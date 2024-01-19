@@ -277,9 +277,9 @@ export const IconLisa = ({className}: IconProps) => {
   );
 };
 
-export const IconMap = ({className}: IconProps) => {
+export const IconMap = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className}`} onClick={onClick}>
       <svg
         width="24"
         height="24"

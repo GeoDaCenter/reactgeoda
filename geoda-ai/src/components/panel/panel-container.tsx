@@ -1,18 +1,22 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import dynamic from 'next/dynamic';
+
 import {GeoDaState} from '../../store';
 import {SettingsPanel} from './settings-panel';
 import {IconXClose} from '../icons/xclose';
-import '../../styles/settings-panel.css';
 import {setShowPropertyPanel} from '@/actions';
+import {MappingPanel} from '../mapping/mapping-panel';
+
+import '../../styles/settings-panel.css';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {
   CHAT_GPT = 'ChatGpt',
-  SETTINGS = 'Settings'
+  SETTINGS = 'Settings',
+  MAPPING = 'Mapping'
 }
 
 export const PanelContainer = () => {
@@ -45,6 +49,7 @@ export const PanelContainer = () => {
       <div className="prop-box-content">
         {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
         {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
+        {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
       </div>
     </div>
   ) : null;

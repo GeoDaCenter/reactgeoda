@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
 
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {getTableNameSync, getTableSummary} from './use-duckdb';
+import {getColumnData, getTableNameSync, getTableSummary} from './use-duckdb';
+import {quantileBreaks} from 'geoda-wasm';
 
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
@@ -20,10 +21,13 @@ type CustomFunctions = {
 };
 
 const CUSTOM_FUNCTIONS: CustomFunctions = {
-  localMoran: function (varName: string) {
-    // dispatch local moran action
-    console.log('calling localMoran() with arguments:', varName);
-    return 'local moran';
+  quantileBreaks: async function ({k, variableName}: {k: number; variableName: string}) {
+    const columnData = await getColumnData(variableName);
+    if (!columnData || columnData.length === 0) {
+      return {error: 'column data is empty'};
+    }
+    const result = await quantileBreaks(k, columnData);
+    return JSON.stringify({quantile_breaks: result});
   },
   summarizeData: function (tableName?: string) {
     // dispatch summarize data action
@@ -116,6 +120,7 @@ export function useChatGPT() {
       if (runStatus.status === 'requires_action') {
         const toolCalls = runStatus.required_action?.submit_tool_outputs.tool_calls;
         const toolOutputs = [];
+
         for (let i = 0; toolCalls?.length && i < toolCalls.length; i++) {
           const toolCall = toolCalls[i];
           const functionName = toolCall.function.name;
@@ -129,10 +134,18 @@ export function useChatGPT() {
           const func = CUSTOM_FUNCTIONS[functionName];
           if (func) {
             // run the function locally and get the output
-            const output = func(args);
+            const output = await func(args);
             toolOutputs.push({
               tool_call_id: toolCall.id,
               output: output
+            });
+          } else {
+            const errorMessage = `The function ${functionName} is not defined. You can contact GeoDa.AI team for assistance.`;
+            console.error(errorMessage);
+            // push an empty output
+            toolOutputs.push({
+              tool_call_id: toolCall.id,
+              output: errorMessage
             });
           }
         }

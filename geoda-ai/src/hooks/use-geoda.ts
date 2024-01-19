@@ -1,11 +1,8 @@
-import {initGeoDa, localMoran, LocalMoranResultType} from 'geoda-wasm';
+import {initGeoDa, localMoran, LocalMoranResultType, quantileBreaks} from 'geoda-wasm';
 
 import {useCallback} from 'react';
 
-/**
- * Initialize GeoDa
- */
-// initial the global duckdb instance, delay 500ms to avoid blocking loading default page
+// initial the global geoda instance, delay 500ms to avoid blocking loading default page
 setTimeout(async () => {
   await initGeoDa();
 }, 600);
@@ -21,5 +18,11 @@ export function useGeoDa() {
     return result;
   }, []);
 
-  return {runLocalMoran};
+  const runQuantileBreaks = useCallback(async (k: number, data: number[]) => {
+    const result = await quantileBreaks(k, data);
+    console.log('quantile breaks:', result);
+    return result;
+  }, []);
+
+  return {runLocalMoran, runQuantileBreaks};
 }

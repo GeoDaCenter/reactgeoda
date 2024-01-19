@@ -1,11 +1,9 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
-import {MAPBOX_TOKEN} from '../constants';
 import {useTheme} from 'styled-components';
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {useGeoDa} from '@/hooks/use-geoda';
-
-const mapId = 'kepler_map';
+import {MAPBOX_TOKEN, MAP_ID} from '../constants';
 
 // type KeplerMapProps = {
 //   dispatch?: any;
@@ -24,7 +22,7 @@ const KeplerMap = () => {
           console.log('height', height, 'width', width);
           return (
             <KeplerGl
-              id={mapId}
+              id={MAP_ID}
               mapboxApiAccessToken={MAPBOX_TOKEN}
               height={height}
               width={width}

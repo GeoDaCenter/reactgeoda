@@ -92,6 +92,24 @@ export function getTableNameSync(): string | null {
 }
 
 /**
+ * Get the data from column by passing the column name
+ */
+export async function getColumnData(columnName: string): Promise<number[]> {
+  if (db) {
+    // connect to the database
+    const conn = await db.connect();
+    // Query
+    const arrowResult = await conn.query(`SELECT "${columnName}" FROM "${tableName}"`);
+    // Convert arrow table to json
+    const result = arrowResult.toArray().map((row: ArrowRow) => row.toArray()[0]);
+    // close the connection
+    await conn.close();
+    return result;
+  }
+  return [];
+}
+
+/**
  * custom hook to use DuckDB
  *
  * @returns {query, importTable} functions to query and import data
