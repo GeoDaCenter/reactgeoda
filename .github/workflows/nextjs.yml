@@ -67,6 +67,7 @@ jobs:
         uses: mathiasvr/command-output@v2.0.0
         with:
           run: |
+            cd geoda-ai
             netlify env:set NETLIFY_AUTH_TOKEN ${{ secrets.NETLIFY_AUTH_TOKEN }}
             netlify env:set NETLIFY_SITE_ID ${{ secrets.NETLIFY_SITE_ID }}
             # if merge to main, deploy production to netlify
