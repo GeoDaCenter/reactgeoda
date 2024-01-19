@@ -56,11 +56,32 @@ jobs:
           yarn
           yarn lint
       - name: Build geoda-ai
+        id: build
         run: |
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
+      - name: Deploy to Netlify
+        id: deploy
+        uses: mathiasvr/command-output@v2.0.0
+        with:
+          run: |
+            cd geoda-ai
+            netlify env:set NETLIFY_AUTH_TOKEN ${{ secrets.NETLIFY_AUTH_TOKEN }}
+            netlify env:set NETLIFY_SITE_ID ${{ secrets.NETLIFY_SITE_ID }}
+            # if merge to main, deploy production to netlify
+            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+              netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
+            else
+              netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
+            fi
+      # comment output of netlify deploy to PR
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            :rocket: Deploy preview available at: ${{ steps.deploy.outputs.stdout }}
       # - name: Build Library
       #   run: |
       #     cd library
