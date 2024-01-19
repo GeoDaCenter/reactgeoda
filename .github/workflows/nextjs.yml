@@ -71,9 +71,9 @@ jobs:
             netlify env:set NETLIFY_SITE_ID ${{ secrets.NETLIFY_SITE_ID }}
             # if merge to main, deploy production to netlify
             if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-              netlify deploy --prod --dir=out
+              netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
             else
-              netlify deploy --dir=out
+              netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
             fi
       # comment output of netlify deploy to PR
       - name: Comment PR
