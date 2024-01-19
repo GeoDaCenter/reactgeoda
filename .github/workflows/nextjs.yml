@@ -62,6 +62,8 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
+          echo ${{ github.event.head_commit.message }}
+          echo ${{ contains(github.event.head_commit.message, '[Preview]') }}
       - name: Deploy Preview to Netlify
         id: deploy
         # deploy when push to main or when commit message contains [Preview]
