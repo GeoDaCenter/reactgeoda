@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'recursive'
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -35,9 +36,8 @@ jobs:
         with:
           path: |
             /home/runner/work/reactgeoda/csds_kepler
-            /home/runner/work/reactgeoda/geoda-lib
           key: ${{ runner.os }}-csds_kepler-${{ hashFiles('deps.txt') }}
-      - name: Install dependencies
+      - name: Install Kepler.gl 
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           npm install -g npm
@@ -48,6 +48,9 @@ jobs:
           git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler
           cd csds_kepler
           yarn
+          cd ..
+      - name: Install GeoDa-Lib
+        run: |
           cd ..
           git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
       - name: Run Lint
@@ -62,26 +65,32 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
-      - name: Deploy to Netlify
+          echo ${{ github.event.head_commit.message }}
+          echo ${{ contains(github.event.head_commit.message, '[Preview]') }}
+     
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> $GITHUB_ENV
+      - name: Deploy Preview to Netlify
         id: deploy
+        # deploy when push to main or when commit message contains [Preview]
+        if: contains(env.HEAD_COMMIT_MESSAGE, '[Preview]')
         uses: mathiasvr/command-output@v2.0.0
         with:
           run: |
             cd geoda-ai
-            netlify env:set NETLIFY_AUTH_TOKEN ${{ secrets.NETLIFY_AUTH_TOKEN }}
-            netlify env:set NETLIFY_SITE_ID ${{ secrets.NETLIFY_SITE_ID }}
-            # if merge to main, deploy production to netlify
-            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-              netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
-            else
-              netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
-            fi
-      # comment output of netlify deploy to PR
+            netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }} | grep -o 'https://[^ ]*'
       - name: Comment PR
+        if: contains(env.HEAD_COMMIT_MESSAGE, '[Preview]')
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             :rocket: Deploy preview available at: ${{ steps.deploy.outputs.stdout }}
+      - name: Deploy Production to Netlify
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cd geoda-ai
+          netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
       # - name: Build Library
       #   run: |
       #     cd library

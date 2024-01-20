@@ -28,5 +28,16 @@
     "react-hooks/exhaustive-deps": "error",
     "@next/next/no-html-link-for-pages": ["error", "./src/pages/"],
     "prettier/prettier": "error"
-  }
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "coverage/",
+    ".next/",
+    "public/",
+    "out/",
+    "build/",
+    "storybook-static/",
+    "storybook-static-build/"
+  ]
 }

@@ -204,12 +204,21 @@ export function MappingPanel() {
 
     const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
     const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
+    const colorLegend = colors.map((color, index) => ({
+      color,
+      legend: `${breaks[index]}`
+    }));
+    const colorMap = colors.map((color, index) => {
+      return [breaks[index], color];
+    });
 
     const colorRange = {
       category: 'custom',
       type: 'diverging',
       name: 'ColorBrewer RdBu-5',
-      colors
+      colors,
+      colorMap,
+      colorLegend
     };
     // get dataId
     const dataId = layer.config.dataId;
