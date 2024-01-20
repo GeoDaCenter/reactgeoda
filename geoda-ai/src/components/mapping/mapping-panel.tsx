@@ -12,6 +12,7 @@ import {WarningBox} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {RightPanelContainer} from '../common/right-panel-template';
+import { color } from 'framer-motion';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating a thematic map.';
 
@@ -204,12 +205,21 @@ export function MappingPanel() {
 
     const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
     const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
+    const colorLegend = colors.map((color, index) => ({
+      color,
+      legend: `${breaks[index]}`
+    }));
+    const colorMap = colors.map((color, index) => {
+      return [breaks[index], color];
+    });
 
     const colorRange = {
       category: 'custom',
       type: 'diverging',
       name: 'ColorBrewer RdBu-5',
-      colors
+      colors,
+      colorMap,
+      colorLegend
     };
     // get dataId
     const dataId = layer.config.dataId;
