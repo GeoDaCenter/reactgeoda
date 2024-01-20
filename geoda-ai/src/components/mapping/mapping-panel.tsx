@@ -12,7 +12,6 @@ import {WarningBox} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {RightPanelContainer} from '../common/right-panel-template';
-import { color } from 'framer-motion';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating a thematic map.';
 
