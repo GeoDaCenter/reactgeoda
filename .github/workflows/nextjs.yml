@@ -36,9 +36,8 @@ jobs:
         with:
           path: |
             /home/runner/work/reactgeoda/csds_kepler
-            /home/runner/work/reactgeoda/geoda-lib
           key: ${{ runner.os }}-csds_kepler-${{ hashFiles('deps.txt') }}
-      - name: Install dependencies
+      - name: Install Kepler.gl 
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           npm install -g npm
@@ -49,6 +48,9 @@ jobs:
           git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler
           cd csds_kepler
           yarn
+          cd ..
+      - name: Install GeoDa-Lib
+        run: |
           cd ..
           git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
       - name: Run Lint
