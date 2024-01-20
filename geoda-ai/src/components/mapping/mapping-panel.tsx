@@ -225,20 +225,23 @@ export function MappingPanel() {
     // generate random id
     const id = Math.random().toString(36).substring(7);
     const newLayer = {
-      ...layer,
       id,
+      type: 'geojson',
       config: {
-        ...layer.config,
+        dataId,
+        columns: {geojson: layer.config.columns.geojson.value},
         label: `${mappingType} Map`,
+        colorScale: 'custom',
         colorField: {
           name: `${variable}`,
-          type: 'number'
+          type: 'real'
         },
         visConfig: {
           ...layer.config.visConfig,
           colorRange,
           colorDomain: breaks
-        }
+        },
+        isVisible: true
       }
     };
     // dispatch action to add new layer in kepler
