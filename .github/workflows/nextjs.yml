@@ -67,18 +67,21 @@ jobs:
           yarn build-local
           echo ${{ github.event.head_commit.message }}
           echo ${{ contains(github.event.head_commit.message, '[Preview]') }}
-      
+     
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> $GITHUB_ENV
       - name: Deploy Preview to Netlify
         id: deploy
         # deploy when push to main or when commit message contains [Preview]
-        if: contains(github.event.head_commit.message, '[Preview]')
+        if: contains(env.HEAD_COMMIT_MESSAGE, '[Preview]')
         uses: mathiasvr/command-output@v2.0.0
         with:
           run: |
             cd geoda-ai
-            netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
+            netlify deploy --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }} | grep -o 'https://[^ ]*'
       - name: Comment PR
-        if: contains(github.event.head_commit.message, '[Preview]')
+        if: contains(env.HEAD_COMMIT_MESSAGE, '[Preview]')
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
