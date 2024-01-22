@@ -2,16 +2,15 @@ import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
 
 import {useState} from 'react';
-import colorbrewer from 'colorbrewer';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {DataContainerInterface} from '@kepler.gl/utils';
-import {addLayer, reorderLayer} from '@kepler.gl/actions';
 
 import {GeoDaState} from '@/store';
 import {WarningBox} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {RightPanelContainer} from '../common/right-panel-template';
+import {useMapping} from '@/hooks/use-mapping';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating a thematic map.';
 
@@ -128,7 +127,9 @@ export function MappingPanel() {
   // use geoda hooks
   const {runQuantileBreaks} = useGeoDa();
 
-  const dispatch = useDispatch();
+  // use mapping hooks
+  const {createCustomScaleMap} = useMapping();
+
   const geodaState = useSelector((state: GeoDaState) => state);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
@@ -202,55 +203,8 @@ export function MappingPanel() {
     // run quantile breaks
     const breaks = await runQuantileBreaks(k, columnData);
 
-    const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
-    const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
-    const colorLegend = colors.map((color, index) => ({
-      color,
-      legend: `${breaks[index]}`
-    }));
-    const colorMap = colors.map((color, index) => {
-      return [breaks[index], color];
-    });
-
-    const colorRange = {
-      category: 'custom',
-      type: 'diverging',
-      name: 'ColorBrewer RdBu-5',
-      colors,
-      colorMap,
-      colorLegend
-    };
-    // get dataId
-    const dataId = layer.config.dataId;
-    // generate random id
-    const id = Math.random().toString(36).substring(7);
-    const newLayer = {
-      id,
-      type: 'geojson',
-      config: {
-        dataId,
-        columns: {geojson: layer.config.columns.geojson.value},
-        label: `${mappingType} Map`,
-        colorScale: 'custom',
-        colorField: {
-          name: `${variable}`,
-          type: 'real'
-        },
-        visConfig: {
-          ...layer.config.visConfig,
-          colorRange,
-          colorDomain: breaks
-        },
-        isVisible: true
-      }
-    };
-    // dispatch action to add new layer in kepler
-    dispatch(addLayer(newLayer, dataId));
-    // dispatch action to reorder layer
-    const existingLayerIds = geodaState.keplerGl[MAP_ID].visState.layers.map(
-      (layer: any) => layer.id
-    );
-    dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
+    // create custom scale map
+    createCustomScaleMap(breaks, mappingType, variable);
   };
 
   return (

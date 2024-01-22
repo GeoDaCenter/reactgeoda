@@ -50,7 +50,8 @@ const customizedKeplerGlReducer = keplerGlReducer
     },
     uiState: {
       // hide side panel and data input window to disallow user customize the map
-      readOnly: true,
+      readOnly: false,
+      activeSidePanel: null,
       currentModal: null
       // mapControls: {
       //   mapLegend: {

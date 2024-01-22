@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {Avatar} from './avatar';
@@ -17,7 +17,7 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
+import {setGridView, setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 
@@ -28,7 +28,7 @@ export function Navigator() {
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
   );
-  // const [showGridView, setShowGridView] = useState(false);
+  const [showGridView, setShowGridView] = useState(false);
 
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
@@ -72,10 +72,10 @@ export function Navigator() {
     [dispatch]
   );
 
-  // const onToggleGridCallback = useCallback(() => {
-  //   setShowGridView(!showGridView);
-  //   dispatch(setGridView(!showGridView));
-  // }, [dispatch, showGridView]);
+  const onToggleGridCallback = useCallback(() => {
+    setShowGridView(!setShowGridView);
+    dispatch(setGridView(!setShowGridView));
+  }, [dispatch]);
 
   return (
     <div className="toolbar">
@@ -98,7 +98,7 @@ export function Navigator() {
         />
       </div>
       <div className="user-box">
-        {/* <div>
+        <div>
           <label className="relative inline-flex cursor-pointer items-center">
             <input
               type="checkbox"
@@ -109,7 +109,7 @@ export function Navigator() {
             />
             <div className="dark:border-gray-600·dark:bg-gray-700·dark:peer-focus:ring-blue-800·rtl:peer-checked:after:-translate-x-full peer h-4 w-6 rounded-full bg-gray-200 after:absolute after:start-[0px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
           </label>
-        </div> */}
+        </div>
         <Avatar onClick={onSettingsCallback} />
       </div>
     </div>
