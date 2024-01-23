@@ -2,7 +2,7 @@ import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
 
 import {useState} from 'react';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {DataContainerInterface} from '@kepler.gl/utils';
 
 import {GeoDaState} from '@/store';
@@ -10,7 +10,7 @@ import {WarningBox} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {useMapping} from '@/hooks/use-mapping';
+import {useMapping} from '@/utils/mapping-functions';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating a thematic map.';
 
@@ -115,6 +115,8 @@ const defaultBins = [
 export function MappingPanel() {
   const intl = useIntl();
 
+  const dispatch = useDispatch();
+
   // useState for number of bins
   const [k, setK] = useState(5);
 
@@ -204,7 +206,7 @@ export function MappingPanel() {
     const breaks = await runQuantileBreaks(k, columnData);
 
     // create custom scale map
-    createCustomScaleMap(breaks, mappingType, variable);
+    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, geodaState});
   };
 
   return (

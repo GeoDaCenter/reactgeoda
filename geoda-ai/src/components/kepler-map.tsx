@@ -4,6 +4,7 @@ import {useTheme} from 'styled-components';
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
+import {useEffect} from 'react';
 
 // type KeplerMapProps = {
 //   dispatch?: any;
@@ -12,8 +13,16 @@ import {MAPBOX_TOKEN, MAP_ID} from '../constants';
 
 const KeplerMap = () => {
   const theme = useTheme();
+
+  // trigger use hooks to load wasm files
   useDuckDB();
-  useGeoDa();
+  const {runNaturalBreaks} = useGeoDa();
+
+  useEffect(() => {
+    // run runNaturalBreaks in useEffect
+    const breaks = runNaturalBreaks(2, [1, 2, 3, 4, 5, 6]);
+    console.log('natural breaks:', breaks);
+  }, [runNaturalBreaks]);
 
   return (
     <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>

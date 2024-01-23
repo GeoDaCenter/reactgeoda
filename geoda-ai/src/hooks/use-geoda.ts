@@ -1,4 +1,10 @@
-import {initGeoDa, localMoran, LocalMoranResultType, quantileBreaks} from 'geoda-wasm';
+import {
+  initGeoDa,
+  localMoran,
+  LocalMoranResultType,
+  quantileBreaks,
+  naturalBreaks
+} from 'geoda-wasm';
 
 import {useCallback} from 'react';
 
@@ -24,5 +30,11 @@ export function useGeoDa() {
     return result;
   }, []);
 
-  return {runLocalMoran, runQuantileBreaks};
+  const runNaturalBreaks = useCallback(async (k: number, data: number[]) => {
+    const result = await naturalBreaks(k, data);
+    console.log('natural breaks:', result);
+    return result;
+  }, []);
+
+  return {runLocalMoran, runQuantileBreaks, runNaturalBreaks};
 }
