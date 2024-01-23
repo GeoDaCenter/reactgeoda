@@ -4,7 +4,6 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {getColumnData, getTableNameSync, getTableSummary} from './use-duckdb';
 import {quantileBreaks} from 'geoda-wasm';
 
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
 
 // declare global openai variable
@@ -27,20 +26,55 @@ const CUSTOM_FUNCTIONS: CustomFunctions = {
       return {error: 'column data is empty'};
     }
     const result = await quantileBreaks(k, columnData);
-    return JSON.stringify({quantile_breaks: result});
+    return {quantile_breaks: result};
   },
-  summarizeData: function (tableName?: string) {
+  summarizeData: function ({tableName}: {tableName?: string}) {
     // dispatch summarize data action
     console.log('calling summarizeData() with arguments:', tableName);
     return getTableNameSync();
   }
 };
 
-const systemMessage = {
-  role: 'system',
-  content:
-    "Explain things like you're talking to a software professional with 2 years of experience."
-};
+// define enum for custom function names
+export enum CustomFunctionNames {
+  QUANTILE_BREAKS = 'quantileBreaks',
+  SUMMARIZE_DATA = 'summarizeData'
+}
+
+/**
+ * Create a message from custom function call
+ * Return a message object that prompts user a confirm button, a plot or a map.
+ */
+function createMessageFromCustomFunctionCall({
+  functionName,
+  functionArgs,
+  output
+}: {
+  functionName: any;
+  functionArgs: any;
+  output: any;
+}): MessageModel {
+  const type = 'custom';
+  const message = '';
+  const sender = 'GeoDa.AI';
+  const direction = 'incoming';
+  const position = 'normal';
+  const payload = {
+    type: 'custom',
+    functionName,
+    functionArgs,
+    output
+  };
+
+  return {
+    type,
+    message,
+    sender,
+    direction,
+    position,
+    payload
+  };
+}
 
 /**
  * custom hook to use ChatGPT
@@ -62,6 +96,7 @@ export function useChatGPT() {
 
   /**
    * Upload sumary of the table to ChatGPT assistant
+   * Note: this is not used specifically for uploading summary, but it could be a skeleton for uploading other file.
    * @param tableName table name
    */
   async function uploadSummary(tableName: string) {
@@ -98,7 +133,7 @@ export function useChatGPT() {
    * Process message by sending message to ChatGPT assistant and retrieving response
    * @returns
    */
-  async function processMessage(question: string): Promise<MessageModel | null> {
+  async function processMessage(question: string): Promise<MessageModel[] | null> {
     if (!openai || !thread || !assistant) return null;
     // pass in the user question into the existing thread
     await openai.beta.threads.messages.create(thread.id, {
@@ -111,6 +146,10 @@ export function useChatGPT() {
     });
     // imediately fetch run-status, which will be "in_progress"
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+
+    // record last custom function call
+    let lastCustomFunctionCall = null;
+
     // polling mechanism to see if runStatus is completed
     while (runStatus.status !== 'completed') {
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -137,8 +176,9 @@ export function useChatGPT() {
             const output = await func(args);
             toolOutputs.push({
               tool_call_id: toolCall.id,
-              output: output
+              output: JSON.stringify(output)
             });
+            lastCustomFunctionCall = {functionName, functionArgs: args, output};
           } else {
             const errorMessage = `The function ${functionName} is not defined. You can contact GeoDa.AI team for assistance.`;
             console.error(errorMessage);
@@ -168,17 +208,22 @@ export function useChatGPT() {
       .filter(message => message.run_id === run.id && message.role === 'assistant')
       .pop();
 
-    // If an assistant message is found, console.log() it
+    // If an assistant message is found
     if (lastMessageForRun) {
       if ('text' in lastMessageForRun.content[0]) {
         const messageContent = lastMessageForRun.content[0].text.value;
         console.log(`The assistant responded with: ${messageContent}`);
-        return {
-          message: messageContent,
-          sender: 'ChatGPT',
-          direction: 'incoming',
-          position: 'normal'
-        };
+        return [
+          {
+            message: messageContent,
+            sender: 'ChatGPT',
+            direction: 'incoming',
+            position: 'normal'
+          },
+          ...(lastCustomFunctionCall
+            ? [createMessageFromCustomFunctionCall(lastCustomFunctionCall)]
+            : [])
+        ];
       }
     } else if (!['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
       console.log('No response received from the assistant.');
@@ -186,49 +231,5 @@ export function useChatGPT() {
     return null;
   }
 
-  async function processMessageWithFetch(
-    chatMessages: Array<MessageModel>,
-    data: any
-  ): Promise<MessageModel | null> {
-    let apiMessages = chatMessages.map(messageObject => {
-      let role = messageObject.sender === 'ChatGPT' ? 'assistant' : 'user';
-      return {role: role, content: messageObject.message};
-    });
-
-    let dataContent = typeof data === 'string' ? data : JSON.stringify(data);
-
-    const apiRequestBody = {
-      model: 'gpt-3.5-turbo',
-      messages: [
-        systemMessage,
-        {role: 'system', content: dataContent}, // passing data
-        ...apiMessages
-      ]
-    };
-
-    const returnMessage = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer ' + API_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(apiRequestBody)
-    });
-
-    const returnMessageJson = await returnMessage.json();
-    console.log(returnMessageJson);
-
-    if (returnMessageJson && returnMessageJson.choices && returnMessageJson.choices.length > 0) {
-      return {
-        message: returnMessageJson.choices[0].message.content,
-        sender: 'ChatGPT',
-        direction: 'incoming',
-        position: 'normal'
-      };
-    }
-    console.error('The data.choices is undefined or empty.');
-    return null;
-  }
-
-  return {initOpenAI, processMessageWithFetch, processMessage, uploadSummary};
+  return {initOpenAI, processMessage, uploadSummary};
 }

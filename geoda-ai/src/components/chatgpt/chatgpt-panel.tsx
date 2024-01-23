@@ -7,15 +7,17 @@ import {
   Message,
   MessageInput,
   MessageModel,
-  TypingIndicator
+  TypingIndicator,
+  MessagePayload
 } from '@chatscope/chat-ui-kit-react';
 import {useIntl} from 'react-intl';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {GeoDaState} from '../../store';
-import {useChatGPT} from '@/hooks/use-chatgpt';
+import {useChatGPT, CustomFunctionNames} from '@/hooks/use-chatgpt';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
+import {CustomMessagePayload, CreateQuantileMapMessage} from './custom-messages';
 
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data.";
@@ -26,6 +28,8 @@ const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   const intl = useIntl();
+  const dispatch = useDispatch();
+  const geodaState = useSelector((state: GeoDaState) => state);
   const {initOpenAI, processMessage} = useChatGPT();
 
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
@@ -42,6 +46,24 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
         direction: 'incoming',
         position: 'first'
       }
+      // {
+      //   type: 'custom',
+      //   message: '',
+      //   sender: 'ChatGPT',
+      //   direction: 'incoming',
+      //   position: 'normal',
+      //   payload: {
+      //     type: 'custom',
+      //     functionName: CustomFunctionNames.QUANTILE_BREAKS,
+      //     functionArgs: {
+      //       variable: 'HR60',
+      //       k: 5
+      //     },
+      //     output: {
+      //       quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
+      //     }
+      //   }
+      // }
     ]);
     if (openAIKey) {
       initOpenAI(openAIKey);
@@ -69,10 +91,17 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
 
     // display return message in dialog
     if (returnMessage) {
-      setMessages([...newMessages, returnMessage]);
+      setMessages([...newMessages, ...returnMessage]);
     }
     setIsTyping(false);
   };
+
+  function renderCustomMessage(payload: MessagePayload, i: number) {
+    const {functionName, functionArgs, output} = payload as CustomMessagePayload;
+    if (functionName === CustomFunctionNames.QUANTILE_BREAKS) {
+      return CreateQuantileMapMessage({key: i, functionArgs, output, dispatch, geodaState});
+    }
+  }
 
   return (
     <AutoSizer>
@@ -100,9 +129,13 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
                   ) : null
                 }
               >
-                {messages.map((message, i) => (
-                  <Message key={i} model={message} />
-                ))}
+                {messages.map((message, i) => {
+                  return message.type === 'custom' ? (
+                    renderCustomMessage(message.payload, i)
+                  ) : (
+                    <Message key={i} model={message} />
+                  );
+                })}
               </MessageList>
               <MessageInput
                 placeholder={intl.formatMessage({
