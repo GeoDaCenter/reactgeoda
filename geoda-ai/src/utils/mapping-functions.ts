@@ -1,9 +1,11 @@
 import {Dispatch} from 'react';
 import colorbrewer from 'colorbrewer';
-import {addLayer, reorderLayer} from '@kepler.gl/actions';
-import {MAP_ID} from '@/constants';
-import {GeoDaState} from '@/store';
 import {UnknownAction} from 'redux';
+import {naturalBreaks, quantileBreaks} from 'geoda-wasm';
+import {addLayer, reorderLayer} from '@kepler.gl/actions';
+
+import {MAP_ID, MappingTypes} from '@/constants';
+import {GeoDaState} from '@/store';
 
 type CreateCustomScaleMapProps = {
   dispatch: Dispatch<UnknownAction>;
@@ -81,4 +83,17 @@ export function useMapping() {
   };
 
   return {createCustomScaleMap};
+}
+
+export async function createMapBreaks(
+  mappingType: string,
+  k: number,
+  values: number[]
+): Promise<number[]> {
+  if (mappingType === MappingTypes.QUANTILE) {
+    return await quantileBreaks(k, values);
+  } else if (mappingType === MappingTypes.NATURAL_BREAK) {
+    return await naturalBreaks(k, values);
+  }
+  return [];
 }

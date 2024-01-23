@@ -1,75 +1,73 @@
 import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
-
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {DataContainerInterface} from '@kepler.gl/utils';
 
 import {GeoDaState} from '@/store';
+import {MAP_ID, MappingTypes} from '@/constants';
+import {createMapBreaks, useMapping} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
-import {MAP_ID} from '@/constants';
-import {useGeoDa} from '@/hooks/use-geoda';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {useMapping} from '@/utils/mapping-functions';
 
-const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating a thematic map.';
+const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
-const mappingTypes = [
+export const mappingTypes = [
   {
     label: 'Quantile Map',
-    value: 'quantile'
+    value: MappingTypes.QUANTILE
   },
   {
     label: 'Natural Breaks Map',
-    value: 'natural-break'
+    value: MappingTypes.NATURAL_BREAK
   },
   {
     label: 'Equal Interval Map',
-    value: 'equal-interval'
+    value: MappingTypes.EQUAL_INTERVAL
   },
   {
     label: 'Percentile Map',
-    value: 'percentile'
+    value: MappingTypes.PERCENTILE
   },
   {
     label: 'Box Map (Hinge=1.5)',
-    value: 'box-map-15'
+    value: MappingTypes.BOX_MAP_15
   },
   {
     label: 'Box Map (Hinge=3.0)',
-    value: 'box-map-30'
+    value: MappingTypes.BOX_MAP_30
   },
   {
     label: 'Standard Deviation Map',
-    value: 'std-map'
+    value: MappingTypes.STD_MAP
   },
   {
     label: 'Unique Values Map',
-    value: 'unique-values'
+    value: MappingTypes.UNIQUE_VALUES
   },
   {
     label: 'Co-location Map',
-    value: 'colocation'
+    value: MappingTypes.COLOCATION
   },
   {
     label: 'Raw Rate Map',
-    value: 'raw-rate'
+    value: MappingTypes.RAW_RATE
   },
   {
     label: 'Excess Rate Map',
-    value: 'excess-rate'
+    value: MappingTypes.EXCESS_RATE
   },
   {
     label: 'Empirical Bayes Map',
-    value: 'eb-map'
+    value: MappingTypes.EB_MAP
   },
   {
     label: 'Spatial Rate Map',
-    value: 'spatial-rate'
+    value: MappingTypes.SPATIAL_RATE
   },
   {
     label: 'Spatial Empirical Bayes Map',
-    value: 'spatial-eb-map'
+    value: MappingTypes.SPATIAL_EB_MAP
   }
 ];
 
@@ -124,10 +122,7 @@ export function MappingPanel() {
   const [variable, setVariable] = useState('');
 
   // useState for mapping type
-  const [mappingType, setMappingType] = useState('Quantile');
-
-  // use geoda hooks
-  const {runQuantileBreaks} = useGeoDa();
+  const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
 
   // use mapping hooks
   const {createCustomScaleMap} = useMapping();
@@ -203,7 +198,7 @@ export function MappingPanel() {
     }
 
     // run quantile breaks
-    const breaks = await runQuantileBreaks(k, columnData);
+    const breaks = await createMapBreaks(mappingType, k, columnData);
 
     // create custom scale map
     createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, geodaState});
@@ -213,12 +208,13 @@ export function MappingPanel() {
     <RightPanelContainer
       title={intl.formatMessage({
         id: 'mapping.title',
-        defaultMessage: 'Mapping'
+        defaultMessage: 'Map'
       })}
       description={intl.formatMessage({
         id: 'mapping.description',
-        defaultMessage: 'Create a thematic map'
+        defaultMessage: 'Create and manage your maps'
       })}
+      icon={null}
     >
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
@@ -229,13 +225,9 @@ export function MappingPanel() {
               <p className="text-small text-default-600">Map Type</p>
             </div>
             <div className="flex w-full flex-wrap gap-4 md:flex-nowrap">
-              <Select label="Select map type" className="max-w">
+              <Select label="Select map type" className="max-w" onSelectionChange={onMapTypeChange}>
                 {mappingTypes.map(mappingType => (
-                  <SelectItem
-                    key={mappingType.value}
-                    value={mappingType.value}
-                    onSelectionChange={onMapTypeChange}
-                  >
+                  <SelectItem key={mappingType.value} value={mappingType.value}>
                     {mappingType.label}
                   </SelectItem>
                 ))}
