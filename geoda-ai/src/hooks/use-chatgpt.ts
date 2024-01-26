@@ -1,8 +1,8 @@
 import OpenAI from 'openai';
 
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {getColumnData, getTableNameSync, getTableSummary} from './use-duckdb';
-import {quantileBreaks} from 'geoda-wasm';
+import {getTableSummary} from './use-duckdb';
+import {CUSTOM_FUNCTIONS} from '@/utils/custom-functions';
 
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
 
@@ -12,34 +12,6 @@ let openai: OpenAI | null = null;
 let assistant: OpenAI.Beta.Assistants.Assistant | null = null;
 // global openai thread
 let thread: OpenAI.Beta.Threads.Thread | null = null;
-
-// define a type of custom function that is an object contains key-value pairs
-// key is the name of the function, value is the function itself
-type CustomFunctions = {
-  [key: string]: (...args: any[]) => any;
-};
-
-const CUSTOM_FUNCTIONS: CustomFunctions = {
-  quantileBreaks: async function ({k, variableName}: {k: number; variableName: string}) {
-    const columnData = await getColumnData(variableName);
-    if (!columnData || columnData.length === 0) {
-      return {error: 'column data is empty'};
-    }
-    const result = await quantileBreaks(k, columnData);
-    return {quantile_breaks: result};
-  },
-  summarizeData: function ({tableName}: {tableName?: string}) {
-    // dispatch summarize data action
-    console.log('calling summarizeData() with arguments:', tableName);
-    return getTableNameSync();
-  }
-};
-
-// define enum for custom function names
-export enum CustomFunctionNames {
-  QUANTILE_BREAKS = 'quantileBreaks',
-  SUMMARIZE_DATA = 'summarizeData'
-}
 
 /**
  * Create a message from custom function call
@@ -176,7 +148,7 @@ export function useChatGPT() {
             const output = await func(args);
             toolOutputs.push({
               tool_call_id: toolCall.id,
-              output: JSON.stringify(output)
+              output: JSON.stringify(output.result)
             });
             lastCustomFunctionCall = {functionName, functionArgs: args, output};
           } else {

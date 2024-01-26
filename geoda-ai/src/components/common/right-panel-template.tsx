@@ -43,7 +43,7 @@ export const RightPanelContainer = ({
     <div className="right-panel-container">
       <div className="right-panel-header">
         <div className="right-panel-header-content">
-          {icon ?? <GearIcon />}
+          {icon && <GearIcon />}
           <div className="text-and-supporting">
             <div className="text">{title}</div>
             <div className="supporting-text">{description}</div>

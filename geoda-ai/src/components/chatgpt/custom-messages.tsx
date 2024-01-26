@@ -1,24 +1,30 @@
 import React, {Dispatch} from 'react';
 import {Button} from '@nextui-org/react';
-import {CustomFunctionNames} from '@/hooks/use-chatgpt';
 import Typewriter from 'typewriter-effect';
-
-import {useMapping} from '@/hooks/use-mapping';
 import {UnknownAction} from 'redux';
+
+import {CustomFunctionNames} from '@/utils/custom-functions';
+import {useMapping} from '@/utils/mapping-functions';
 import {GeoDaState} from '@/store';
+
+type CustomFunctionOutputProps = {
+  type: string;
+  name: string;
+  result: Array<unknown>;
+};
 
 export type CustomMessagePayload = {
   type: string;
   // one of the CustomFunctionNames
   functionName: CustomFunctionNames;
   functionArgs: Record<string, any>;
-  output: any;
+  output: CustomFunctionOutputProps;
 };
 
 type CustomMessageProps = {
   key: number;
   functionArgs: Record<string, any>;
-  output: any;
+  output: CustomFunctionOutputProps;
   dispatch: Dispatch<UnknownAction>;
   geodaState: GeoDaState;
 };
@@ -26,7 +32,7 @@ type CustomMessageProps = {
 /**
  * Create a custom message component contains a confirm button with text "Click to Create a Quantile Map"
  */
-export const CreateQuantileMapMessage = (props: CustomMessageProps) => {
+export const CreateCustomMessage = (props: CustomMessageProps) => {
   // const intl = useIntl();
   const {key, functionArgs, output, dispatch, geodaState} = props;
 
@@ -34,15 +40,12 @@ export const CreateQuantileMapMessage = (props: CustomMessageProps) => {
 
   // handle click event
   const onClick = () => {
-    console.log('create quantile map');
-    if ('quantile_breaks' in output) {
-      // todo: add typing for 'quantile_breaks'
-      const breaks = output['quantile_breaks'];
+    if ('mapping' === output.type) {
+      const breaks = output.result as Array<number>;
       const {variableName} = functionArgs;
-      // todo: add typing for 'Quantile'
       createCustomScaleMap({
         breaks,
-        mappingType: 'Quantile',
+        mappingType: output.name,
         colorFieldName: variableName,
         dispatch,
         geodaState
@@ -51,20 +54,22 @@ export const CreateQuantileMapMessage = (props: CustomMessageProps) => {
   };
 
   return (
-    <Button
-      radius="full"
-      className="m-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-      key={key}
-      onClick={onClick}
-    >
-      <Typewriter
-        options={{
-          strings: 'Click to Create a Quantile Map',
-          autoStart: true,
-          loop: false,
-          delay: 10
-        }}
-      />
-    </Button>
+    output.type === 'mapping' && (
+      <Button
+        radius="full"
+        className="m-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+        key={key}
+        onClick={onClick}
+      >
+        <Typewriter
+          options={{
+            strings: `Click to Create a ${output.name} Map`,
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
+    )
   );
 };

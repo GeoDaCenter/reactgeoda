@@ -14,10 +14,11 @@ import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {GeoDaState} from '../../store';
-import {useChatGPT, CustomFunctionNames} from '@/hooks/use-chatgpt';
+import {useChatGPT} from '@/hooks/use-chatgpt';
+import {CustomFunctionNames} from '@/utils/custom-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {CustomMessagePayload, CreateQuantileMapMessage} from './custom-messages';
+import {CustomMessagePayload, CreateCustomMessage} from './custom-messages';
 
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data.";
@@ -98,8 +99,11 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
 
   function renderCustomMessage(payload: MessagePayload, i: number) {
     const {functionName, functionArgs, output} = payload as CustomMessagePayload;
-    if (functionName === CustomFunctionNames.QUANTILE_BREAKS) {
-      return CreateQuantileMapMessage({key: i, functionArgs, output, dispatch, geodaState});
+    if (
+      functionName === CustomFunctionNames.QUANTILE_BREAKS ||
+      functionName === CustomFunctionNames.NATURAL_BREAKS
+    ) {
+      return CreateCustomMessage({key: i, functionArgs, output, dispatch, geodaState});
     }
   }
 
