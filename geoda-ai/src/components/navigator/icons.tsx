@@ -117,7 +117,7 @@ export const IconCartogram = ({className}: IconProps) => {
 
 export const IconChatgpt = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`} onClick={onClick}>
+    <div id="icon-chatgpt" className={`icon-toolbar ${className}`} onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -279,7 +279,7 @@ export const IconLisa = ({className}: IconProps) => {
 
 export const IconMap = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`} onClick={onClick}>
+    <div className={`icon-toolbar ${className}`} onClick={onClick} id="icon-mapping">
       <svg
         width="24"
         height="24"
@@ -654,9 +654,9 @@ export const IconTable = ({className, onClick}: IconProps) => {
   );
 };
 
-export const IconWeights = ({className}: IconProps) => {
+export const IconWeights = ({className, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className}`} onClick={onClick} id="icon-weights">
       <svg
         width="24"
         height="24"

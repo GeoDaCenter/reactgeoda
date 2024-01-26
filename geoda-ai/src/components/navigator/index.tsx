@@ -48,25 +48,23 @@ export function Navigator() {
     [dispatch, showKeplerTableModal]
   );
 
-  const onMappingCallback = useCallback(
+  const onClickIconCallback = useCallback(
     (event: React.MouseEvent) => {
-      dispatch(setPropertyPanel(PanelName.MAPPING));
-      event.stopPropagation();
-    },
-    [dispatch]
-  );
-
-  const onChatGPTCallback = useCallback(
-    (event: React.MouseEvent) => {
-      dispatch(setPropertyPanel(PanelName.CHAT_GPT));
-      event.stopPropagation();
-    },
-    [dispatch]
-  );
-
-  const onSettingsCallback = useCallback(
-    (event: React.MouseEvent) => {
-      dispatch(setPropertyPanel(PanelName.SETTINGS));
+      const targetId = event.currentTarget.id;
+      switch (targetId) {
+        case 'icon-weights':
+          dispatch(setPropertyPanel(PanelName.WEIGHTS));
+          break;
+        case 'icon-mapping':
+          dispatch(setPropertyPanel(PanelName.MAPPING));
+          break;
+        case 'icon-chatgpt':
+          dispatch(setPropertyPanel(PanelName.CHAT_GPT));
+          break;
+        case 'icon-settings':
+          dispatch(setPropertyPanel(PanelName.SETTINGS));
+          break;
+      }
       event.stopPropagation();
     },
     [dispatch]
@@ -83,8 +81,11 @@ export function Navigator() {
       <div className="tool-box">
         <IconOpen className="icon-open-instance cursor-pointer" onClick={onOpenCallback} />
         <IconTable className="icon-table-instance cursor-pointer" onClick={onTableCallback} />
-        <IconMap className="icon-map-instance cursor-pointer" onClick={onMappingCallback} />
-        <IconWeights className="icon-weights-instance" />
+        <IconMap className="icon-map-instance cursor-pointer" onClick={onClickIconCallback} />
+        <IconWeights
+          className="icon-weights-instance cursor-pointer"
+          onClick={onClickIconCallback}
+        />
         <IconChoropleth className="design-component-instance-node" />
         <IconHistogram className="design-component-instance-node" />
         <IconBoxplot className="icon-boxplot-instance" />
@@ -94,7 +95,7 @@ export function Navigator() {
         <IconLisa className="icon-lisa-instance" />
         <IconChatgpt
           className="design-component-instance-node cursor-pointer"
-          onClick={onChatGPTCallback}
+          onClick={onClickIconCallback}
         />
       </div>
       <div className="user-box">
@@ -110,7 +111,7 @@ export function Navigator() {
             <div className="dark:border-gray-600·dark:bg-gray-700·dark:peer-focus:ring-blue-800·rtl:peer-checked:after:-translate-x-full peer h-4 w-6 rounded-full bg-gray-200 after:absolute after:start-[0px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
           </label>
         </div>
-        <Avatar onClick={onSettingsCallback} />
+        <Avatar onClick={onClickIconCallback} />
       </div>
     </div>
   );

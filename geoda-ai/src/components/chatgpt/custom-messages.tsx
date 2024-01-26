@@ -1,4 +1,4 @@
-import React, {Dispatch} from 'react';
+import React, {Dispatch, useState} from 'react';
 import {Button} from '@nextui-org/react';
 import Typewriter from 'typewriter-effect';
 import {UnknownAction} from 'redux';
@@ -33,7 +33,7 @@ type CustomMessageProps = {
  * Create a custom message component contains a confirm button with text "Click to Create a Quantile Map"
  */
 export const CreateCustomMessage = (props: CustomMessageProps) => {
-  // const intl = useIntl();
+  const [hide, setHide] = useState(false);
   const {key, functionArgs, output, dispatch, geodaState} = props;
 
   const {createCustomScaleMap} = useMapping();
@@ -51,13 +51,16 @@ export const CreateCustomMessage = (props: CustomMessageProps) => {
         geodaState
       });
     }
+    // hide the button once clicked
+    setHide(true);
   };
 
   return (
-    output.type === 'mapping' && (
+    output.type === 'mapping' &&
+    !hide && (
       <Button
         radius="full"
-        className="m-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+        className="m-2 bg-white  text-black  shadow-sm"
         key={key}
         onClick={onClick}
       >

@@ -9,6 +9,7 @@ import {setShowPropertyPanel} from '@/actions';
 import {MappingPanel} from '../mapping/mapping-panel';
 
 import '../../styles/settings-panel.css';
+import {WeightsPanel} from '../weights/weights-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
@@ -16,7 +17,8 @@ const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: fal
 export enum PanelName {
   CHAT_GPT = 'ChatGpt',
   SETTINGS = 'Settings',
-  MAPPING = 'Mapping'
+  MAPPING = 'Mapping',
+  WEIGHTS = 'Weights'
 }
 
 export const PanelContainer = () => {
@@ -50,6 +52,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
         {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
         {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
+        {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
       </div>
     </div>
   ) : null;
