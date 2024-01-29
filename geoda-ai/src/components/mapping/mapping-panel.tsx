@@ -1,14 +1,14 @@
 import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {DataContainerInterface} from '@kepler.gl/utils';
 
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
 import {createMapBreaks, useMapping} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
+import {getColumnDataFromKeplerLayer, getNumericFieldNames} from '@/utils/data-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -132,24 +132,10 @@ export function MappingPanel() {
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
 
   // get numeric columns from redux store
-  const numericColumns = useSelector((state: GeoDaState) => {
-    if (!tableName) return [];
-
-    // get kepler.gl layer using tableName
-    const layer = state.keplerGl[MAP_ID].visState.layers.find((layer: any) =>
-      tableName.startsWith(layer.config.label)
-    );
-    // get numeric columns from layer
-    const columnNames: string[] = [];
-    const dataContainer: DataContainerInterface = layer.dataContainer;
-    for (let i = 0; i < dataContainer.numColumns(); i++) {
-      const field = dataContainer.getField?.(i);
-      if (field && (field.type === 'real' || field.type === 'integer')) {
-        columnNames.push(field.name);
-      }
-    }
-    return columnNames;
-  });
+  const numericColumns = useMemo(() => {
+    const fieldNames = getNumericFieldNames(tableName, geodaState.keplerGl[MAP_ID].visState);
+    return fieldNames;
+  }, [geodaState.keplerGl, tableName]);
 
   // handle map type change
   const onMapTypeChange = (value: any) => {
@@ -174,28 +160,12 @@ export function MappingPanel() {
   const onCreateMap = async () => {
     if (!tableName) return;
 
-    // get dataContainer
-    const layer = geodaState.keplerGl[MAP_ID].visState.layers.find((layer: any) =>
-      tableName.startsWith(layer.config.label)
-    );
-    const dataContainer: DataContainerInterface = layer.dataContainer;
-
-    // get column index from dataContainer
-    let columnIndex = -1;
-    for (let i = 0; i < dataContainer.numColumns(); i++) {
-      const field = dataContainer.getField?.(i);
-      if (field && field.name === variable) {
-        columnIndex = i;
-        break;
-      }
-    }
-
     // get column data from dataContainer
-    const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
-    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
-      // handle error
-      return;
-    }
+    const columnData = getColumnDataFromKeplerLayer(
+      tableName,
+      variable,
+      geodaState.keplerGl[MAP_ID].visState
+    );
 
     // run quantile breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);

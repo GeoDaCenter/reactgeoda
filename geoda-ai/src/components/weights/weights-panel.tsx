@@ -1,8 +1,6 @@
-import React, {useMemo}from 'react';
+import React, {useMemo} from 'react';
 import {useIntl} from 'react-intl';
 import {
-  Autocomplete,
-  AutocompleteItem,
   Tabs,
   Tab,
   Card,
@@ -27,31 +25,38 @@ const NO_MAP_LOADED_MESSAGE =
   'Please load a map first before creating and managing spatial weights.';
 
 type WeightsCreationProps = {
-  validFieldNames: Array<{label: string; value: string}>;
-  keplerLayer: GeojsonLayer;
+  validFieldNames?: Array<{label: string; value: string}>;
+  keplerLayer: GeojsonLayer | null;
 };
 
-function WeightsCreationComponent({validFieldNames, keplerLayer}: WeightsCreationProps) {
-  const [selectedID, setSelectedID] = React.useState<string | null>(null);
+function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
+  // const [selectedID, setSelectedID] = React.useState<string | null>(null);
+  const [inputK, setInputK] = React.useState<number>(4);
 
-  const onSelectIDChange = (key: React.Key) => {
-    setSelectedID(key as string);
-  };
+  // const onSelectIDChange = (key: React.Key) => {
+  // setSelectedID(key as string);
+  // };
 
   const onCreateWeights = async () => {
     console.log('create weights');
-    const k = 4;
-    const binaryGeometryType = keplerLayer.meta.featureTypes;
-    const binaryGeometries = keplerLayer.dataToFeature;
-    // @ts-expect-error
-    const weights = await getNearestNeighborsFromBinaryGeometries({ k, binaryGeometryType, binaryGeometries });
-    console.log(weights);
+    const k = inputK;
+    const binaryGeometryType = keplerLayer?.meta.featureTypes;
+    const binaryGeometries = keplerLayer?.dataToFeature;
+    if (binaryGeometries && binaryGeometryType) {
+      const weights = await getNearestNeighborsFromBinaryGeometries({
+        k,
+        binaryGeometryType,
+        // @ts-ignore
+        binaryGeometries
+      });
+      console.log(weights);
+    }
   };
 
   return (
     <>
       <div className="flex flex-col gap-2 ">
-        <div className="flex w-full flex-wrap gap-4 md:flex-nowrap">
+        {/* <div className="flex w-full flex-wrap gap-4 md:flex-nowrap">
           <Autocomplete
             label="Weights ID"
             placeholder="Select ID variable"
@@ -62,7 +67,7 @@ function WeightsCreationComponent({validFieldNames, keplerLayer}: WeightsCreatio
           >
             {item => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
           </Autocomplete>
-        </div>
+        </div> */}
         <div className="mt-4 flex w-full flex-col">
           <Tabs aria-label="Options" selectedKey="distance">
             <Tab key="contiguity" title="Contiguity Weight">
@@ -88,6 +93,8 @@ function WeightsCreationComponent({validFieldNames, keplerLayer}: WeightsCreatio
                           label="Number of neighbors:"
                           placeholder="4"
                           defaultValue="4"
+                          value={`${inputK}`}
+                          onInput={e => setInputK(parseInt(e.currentTarget.value))}
                         />
                       </Tab>
                       <Tab key="band" title="Distance band">
@@ -154,38 +161,44 @@ export function WeightsPanel() {
         defaultMessage: 'Create and manage spatial weights'
       })}
     >
-      {/* {!tableName ? <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" /> : <></>} */}
-      <>
-        <div className="flex w-full flex-col">
-          <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
-            <Tab
-              key="weights-creation"
-              title={
-                <div className="flex items-center space-x-2">
-                  <span>Weights Creation</span>
-                </div>
-              }
-            >
-              <Card>
-                <CardBody>
-                  <WeightsCreationComponent validFieldNames={validFieldNames} keplerLayer={keplerLayer} />
-                </CardBody>
-              </Card>
-            </Tab>
-            <Tab
-              key="weights-management"
-              title={
-                <div className="flex items-center space-x-2">
-                  <span>Weights Management</span>
-                  <Chip size="sm" variant="faded">
-                    3
-                  </Chip>
-                </div>
-              }
-            ></Tab>
-          </Tabs>
-        </div>
-      </>
+      {!tableName ? (
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+      ) : (
+        <>
+          <div className="flex w-full flex-col">
+            <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
+              <Tab
+                key="weights-creation"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <span>Weights Creation</span>
+                  </div>
+                }
+              >
+                <Card>
+                  <CardBody>
+                    <WeightsCreationComponent
+                      validFieldNames={validFieldNames}
+                      keplerLayer={keplerLayer}
+                    />
+                  </CardBody>
+                </Card>
+              </Tab>
+              <Tab
+                key="weights-management"
+                title={
+                  <div className="flex items-center space-x-2">
+                    <span>Weights Management</span>
+                    <Chip size="sm" variant="faded">
+                      3
+                    </Chip>
+                  </div>
+                }
+              ></Tab>
+            </Tabs>
+          </div>
+        </>
+      )}
     </RightPanelContainer>
   );
 }

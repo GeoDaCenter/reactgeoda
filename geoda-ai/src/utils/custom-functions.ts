@@ -52,5 +52,4 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     return {type: 'mapping', name: 'Natural Breaks', result};
   }
-
 };
