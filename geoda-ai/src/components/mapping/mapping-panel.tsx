@@ -267,7 +267,7 @@ export function MappingPanel() {
             </div>
           </div>
           <Spacer y={8} />
-          <Button color="primary" className="bg-rose-900" onClick={onCreateMap}>
+          <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateMap}>
             Create Map
           </Button>
         </>

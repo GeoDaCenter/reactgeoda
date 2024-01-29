@@ -17,6 +17,7 @@ type CustomFunctions = {
 
 type SummarizeDataProps = {
   tableName?: string;
+  result?: string;
 };
 
 type CustomMapBreaksProps = {
@@ -28,7 +29,8 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   summarizeData: function ({tableName}: SummarizeDataProps) {
     // dispatch summarize data action
     console.log('calling summarizeData() with arguments:', tableName);
-    return getTableNameSync();
+    const result = getTableNameSync();
+    return {tableName, result};
   },
 
   quantileBreaks: async function ({k, variableName}: CustomMapBreaksProps) {
@@ -50,4 +52,5 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     return {type: 'mapping', name: 'Natural Breaks', result};
   }
+
 };
