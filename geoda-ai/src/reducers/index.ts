@@ -21,6 +21,7 @@ import {
   choroplethDataReducer,
   choroplethLayerReducer
 } from './kepler-layer-reducer';
+import {weightsReducer} from './weights-reducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
@@ -38,7 +39,8 @@ const rootReducer = combineReducers({
   localMoranData: localMoranDataReducer,
   choroplethData: choroplethDataReducer,
   choroplethLayer: choroplethLayerReducer,
-  uiState: uiReducer
+  uiState: uiReducer,
+  weights: weightsReducer
 });
 
 export default rootReducer;
