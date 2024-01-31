@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import {Badge} from '@nextui-org/react';
 
 import {Avatar} from './avatar';
 import {GeoDaLogo} from './geoda-logo';
@@ -24,11 +25,18 @@ import {PanelName} from '../panel/panel-container';
 export function Navigator() {
   const dispatch = useDispatch();
 
+  const [showGridView, setShowGridView] = useState(false);
+
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
+
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
   );
-  const [showGridView, setShowGridView] = useState(false);
+
+  // get number of newly added weights from state.root.weights
+  const newWeightsCount = useSelector(
+    (state: GeoDaState) => state.root.weights.filter(weight => weight.isNew).length
+  );
 
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
@@ -82,10 +90,20 @@ export function Navigator() {
         <IconOpen className="icon-open-instance cursor-pointer" onClick={onOpenCallback} />
         <IconTable className="icon-table-instance cursor-pointer" onClick={onTableCallback} />
         <IconMap className="icon-map-instance cursor-pointer" onClick={onClickIconCallback} />
-        <IconWeights
-          className="icon-weights-instance cursor-pointer"
-          onClick={onClickIconCallback}
-        />
+        <Badge
+          color="danger"
+          content={newWeightsCount}
+          isInvisible={newWeightsCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+          className="absolute left-0"
+        >
+          <IconWeights
+            className="icon-weights-instance cursor-pointer"
+            onClick={onClickIconCallback}
+          />
+        </Badge>
         <IconChoropleth className="design-component-instance-node" />
         <IconHistogram className="design-component-instance-node" />
         <IconBoxplot className="icon-boxplot-instance" />

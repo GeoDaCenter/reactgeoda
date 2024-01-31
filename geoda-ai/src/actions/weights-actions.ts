@@ -5,16 +5,18 @@ export enum WEIGHTS_ACTIONS {
   REMOVE_WEIGHTS = 'REMOVE_WEIGHTS'
 }
 
-export type AddWeightsProps = {
+export type WeightsProps = {
   weightsMeta: WeightsMeta;
   weights: number[][];
+  // isNew is used to determine if the weights are newly added by chatbot, so a number badge can be shown on the weights icon
+  isNew?: boolean;
 };
 
 export type RemoveWeightsProps = {
   id: string;
 };
 
-export const addWeights = (newWeights: AddWeightsProps) => ({
+export const addWeights = (newWeights: WeightsProps) => ({
   type: WEIGHTS_ACTIONS.ADD_WEIGHS,
   payload: newWeights
 });

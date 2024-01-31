@@ -33,11 +33,20 @@ export function WeightsPanel() {
     return layer;
   }, [tableName, visState]);
 
-  const [showWeightsManagement, setShowWeightsManagement] = useState(false);
-  // show weights management tabe after creating weights
-  const afterCreateWeights = () => {
-    // setShowWeightsManagement(true);
-  };
+  // check if there is any newly added weights, if there is, show weights management tab
+  const newWeightsCount = weights.filter(weight => weight.isNew).length;
+  const [showWeightsManagement, setShowWeightsManagement] = useState(newWeightsCount > 0);
+
+  // reset isNew flag of weights
+  useEffect(() => {
+    if (newWeightsCount > 0) {
+      weights.forEach(weight => {
+        if (weight.isNew) {
+          weight.isNew = false;
+        }
+      });
+    }
+  }, [newWeightsCount, weights]);
 
   // monitor state.root.weights, if weights.length changed, update the tab title
   const weightsLength = weights?.length;
@@ -93,7 +102,6 @@ export function WeightsPanel() {
                     <WeightsCreationComponent
                       validFieldNames={validFieldNames}
                       keplerLayer={keplerLayer}
-                      afterCreateWeights={afterCreateWeights}
                     />
                   </CardBody>
                 </Card>

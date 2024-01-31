@@ -1,10 +1,11 @@
 import {WeightsMeta} from 'geoda-wasm';
 import {Button} from '@nextui-org/react';
 import Typewriter from 'typewriter-effect';
-
 import {useState} from 'react';
-import {CustomMessageProps, HeartIcon} from './custom-messages';
+
 import {addWeights} from '@/actions';
+import {CustomMessageProps} from './custom-messages';
+import {HeartIcon} from '../icons/heart';
 
 /**
  * Custom Weights Message
@@ -19,7 +20,7 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessageProps}) => {
   // handle click event
   const onClick = () => {
     // dispatch action to update redux state state.root.weights
-    dispatch(addWeights({weights, weightsMeta}));
+    dispatch(addWeights({weights, weightsMeta, isNew: true}));
     // hide the button once clicked
     setHide(true);
   };

@@ -19,10 +19,9 @@ import {addWeights} from '@/actions';
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
   keplerLayer: GeojsonLayer | null;
-  afterCreateWeights: () => void;
 };
 
-export function WeightsCreationComponent({keplerLayer, afterCreateWeights}: WeightsCreationProps) {
+export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const dispatch = useDispatch();
 
   // const [selectedID, setSelectedID] = React.useState<string | null>(null);
@@ -53,7 +52,6 @@ export function WeightsCreationComponent({keplerLayer, afterCreateWeights}: Weig
       };
       // dispatch action to update redux state state.root.weights
       dispatch(addWeights({weights, weightsMeta}));
-      afterCreateWeights();
     }
   };
 
