@@ -88,7 +88,7 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
 }
 
 export function getTableNameSync(): string | null {
-  return tableSummary;
+  return tableName;
 }
 
 /**

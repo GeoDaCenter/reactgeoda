@@ -6,6 +6,7 @@ import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 
 import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
+import {WeightsMeta} from 'geoda-wasm';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
@@ -36,6 +37,7 @@ export type GeoDaState = {
       showGridView: boolean;
       openAIKey: string;
     };
+    weights: Array<{weightsMeta: WeightsMeta; weights: number[][]}>;
   };
 };
 
