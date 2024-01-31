@@ -14,6 +14,7 @@ import {
 } from '@nextui-org/react';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
+import {WeightsMeta} from 'geoda-wasm';
 
 // weightsMeta: mapping its key to descriptive label
 const WeightsMetaLables: Record<string, string> = {
@@ -34,6 +35,51 @@ const WeightsMetaLables: Record<string, string> = {
   pctNoneZero: '% Non-Zero'
 };
 
+export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}) {
+  const rows = useMemo(() => {
+    const rows = Object.keys(WeightsMetaLables)
+      .filter(key => key in weightsMeta)
+      .map((key, i) => {
+        const value = weightsMeta[key];
+        // if value is a number, format it to string with 3 decimal places
+        let valueString = `${value}`;
+        if (typeof value === 'number') {
+          if (Number.isInteger(value)) {
+            valueString = `${value}`;
+          } else {
+            valueString = `${value.toFixed(4)}`;
+          }
+        }
+        return {
+          key: `${i}`,
+          property: WeightsMetaLables[key],
+          value: valueString
+        };
+      });
+    return rows;
+  }, [weightsMeta]);
+
+  return (
+    <Table aria-label="Weights Property Table" color="success" selectionMode="single">
+      <TableHeader>
+        <TableColumn key="property" className="bg-lime-600 text-white">
+          Property
+        </TableColumn>
+        <TableColumn key="value" className="bg-lime-600 text-white">
+          Value
+        </TableColumn>
+      </TableHeader>
+      <TableBody emptyContent={'No rows to display.'} items={rows}>
+        {item => (
+          <TableRow key={item.key}>
+            {columnKey => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  );
+}
+
 /**
  * WeightsManagementComponent
  * @component
@@ -45,35 +91,16 @@ export function WeightsManagementComponent() {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
 
   // create rows from weightsMeta using useMemo
-  const rows = useMemo(() => {
+  const weightsMeta = useMemo(() => {
     if (weights && weights.length > 0) {
       // find weights using selectedWeight
       const {weightsMeta} =
         weights.find(({weightsMeta}) => weightsMeta.id === selectedWeight) ??
         weights[weights.length - 1];
 
-      const rows = Object.keys(WeightsMetaLables)
-        .filter(key => key in weightsMeta)
-        .map((key, i) => {
-          const value = weightsMeta[key];
-          // if value is a number, format it to string with 3 decimal places
-          let valueString = `${value}`;
-          if (typeof value === 'number') {
-            if (Number.isInteger(value)) {
-              valueString = `${value}`;
-            } else {
-              valueString = `${value.toFixed(4)}`;
-            }
-          }
-          return {
-            key: `${i}`,
-            property: WeightsMetaLables[key],
-            value: valueString
-          };
-        });
-      return rows;
+      return weightsMeta;
     }
-    return [];
+    return null;
   }, [selectedWeight, weights]);
 
   // handle select weights
@@ -99,23 +126,7 @@ export function WeightsManagementComponent() {
                 </SelectItem>
               ))}
             </Select>
-            <Table aria-label="Weights Property Table" color="success" selectionMode="single">
-              <TableHeader>
-                <TableColumn key="property" className="bg-lime-600 text-white">
-                  Property
-                </TableColumn>
-                <TableColumn key="value" className="bg-lime-600 text-white">
-                  Value
-                </TableColumn>
-              </TableHeader>
-              <TableBody emptyContent={'No rows to display.'} items={rows}>
-                {item => (
-                  <TableRow key={item.key}>
-                    {columnKey => <TableCell>{getKeyValue(item, columnKey)}</TableCell>}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+            {weightsMeta && <WeightsMetaTable weightsMeta={weightsMeta} />}
           </>
         ) : (
           <p className="text-small">No Spatial Weights</p>

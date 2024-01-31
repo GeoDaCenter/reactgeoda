@@ -3,6 +3,8 @@ import OpenAI from 'openai';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {getTableSummary} from './use-duckdb';
 import {CUSTOM_FUNCTIONS} from '@/utils/custom-functions';
+import {GeoDaState} from '@/store';
+import {useRef} from 'react';
 
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
 
@@ -22,8 +24,8 @@ function createMessageFromCustomFunctionCall({
   functionArgs,
   output
 }: {
-  functionName: any;
-  functionArgs: any;
+  functionName: string;
+  functionArgs: Record<string, unknown>;
   output: any;
 }): MessageModel {
   const type = 'custom';
@@ -51,7 +53,9 @@ function createMessageFromCustomFunctionCall({
 /**
  * custom hook to use ChatGPT
  */
-export function useChatGPT() {
+export function useChatGPT(geodaState: GeoDaState) {
+  const geodaStateRef = useRef(geodaState);
+
   /**
    * Initialize ChatGPT assistant by passing the summary of the table from duckdb
    * @param apiKey
@@ -145,7 +149,7 @@ export function useChatGPT() {
           const func = CUSTOM_FUNCTIONS[functionName];
           if (func) {
             // run the function locally and get the output
-            const output = await func(args);
+            const output = await func(args, geodaStateRef.current);
             toolOutputs.push({
               tool_call_id: toolCall.id,
               output: JSON.stringify(output.result)
@@ -192,6 +196,7 @@ export function useChatGPT() {
             direction: 'incoming',
             position: 'normal'
           },
+          // append a custom response e.g. plot, map etc.
           ...(lastCustomFunctionCall
             ? [createMessageFromCustomFunctionCall(lastCustomFunctionCall)]
             : [])

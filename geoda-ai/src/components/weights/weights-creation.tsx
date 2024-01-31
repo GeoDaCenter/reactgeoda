@@ -51,7 +51,7 @@ export function WeightsCreationComponent({keplerLayer, afterCreateWeights}: Weig
         symmetry: 'asymmetric',
         k
       };
-      // dispatch action to update redux state state.root.file.weights
+      // dispatch action to update redux state state.root.weights
       dispatch(addWeights({weights, weightsMeta}));
       afterCreateWeights();
     }

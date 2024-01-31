@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
 import {Tabs, Tab, Card, CardBody, Chip} from '@nextui-org/react';
@@ -33,11 +33,19 @@ export function WeightsPanel() {
     return layer;
   }, [tableName, visState]);
 
-  const [showWeightsManagement, setShowWeightsManagement] = React.useState(false);
+  const [showWeightsManagement, setShowWeightsManagement] = useState(false);
   // show weights management tabe after creating weights
   const afterCreateWeights = () => {
-    setShowWeightsManagement(true);
+    // setShowWeightsManagement(true);
   };
+
+  // monitor state.root.weights, if weights.length changed, update the tab title
+  const weightsLength = weights?.length;
+  useEffect(() => {
+    if (weightsLength) {
+      setShowWeightsManagement(true);
+    }
+  }, [weightsLength]);
 
   const onTabChange = (key: React.Key) => {
     if (key === 'weights-creation') {
