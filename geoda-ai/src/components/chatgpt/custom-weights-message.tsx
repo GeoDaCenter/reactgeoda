@@ -30,7 +30,7 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessageProps}) => {
       {!hide && (
         <Button
           radius="full"
-          className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+          className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
           key={key}
           onClick={onClick}
           startContent={<HeartIcon />}
