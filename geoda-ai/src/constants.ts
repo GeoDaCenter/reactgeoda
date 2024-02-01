@@ -18,3 +18,15 @@ export enum MappingTypes {
   SPATIAL_RATE = 'spatial-rate',
   SPATIAL_EB_MAP = 'spatial-eb-map'
 }
+
+export const LISA_LEGEND = {
+  '#eeeeee': 'Not Significant',
+  '#ff0000': 'High-High',
+  '#0000ff': 'Low-Low',
+  '#f4ada8': 'High-Low',
+  '#a7adf9': 'Low-High',
+  '#464646': 'Isolated'
+  // '#999999': 'Invalid'
+};
+export const LISA_COLORS = Object.keys(LISA_LEGEND);
+export const LISA_LABELS = Object.values(LISA_LEGEND);

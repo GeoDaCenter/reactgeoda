@@ -55,7 +55,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
         {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
         {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
-        {propertyPanelName === PanelName.WEIGHTS && <LisaPanel />}
+        {propertyPanelName === PanelName.LISA && <LisaPanel />}
       </div>
     </div>
   ) : null;

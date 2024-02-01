@@ -15,6 +15,83 @@ type CreateCustomScaleMapProps = {
   colorFieldName: string;
 };
 
+type CreateUniqueValuesMapProps = {
+  dispatch: Dispatch<UnknownAction>;
+  geodaState: GeoDaState;
+  uniqueValues: number[];
+  hexColors: string[];
+  legendLabels: string[];
+  mappingType: string;
+  colorFieldName: string;
+};
+
+export function createUniqueValuesMap({
+  dispatch,
+  geodaState,
+  uniqueValues,
+  legendLabels,
+  hexColors,
+  mappingType,
+  colorFieldName
+}: CreateUniqueValuesMapProps) {
+  // get tableName and layer
+  const tableName = geodaState.root.file.rawFileData.name;
+  const layer = geodaState.keplerGl[MAP_ID].visState.layers.find((layer: any) =>
+    tableName.startsWith(layer.config.label)
+  );
+
+  // get colors, colorMap, colorLegend to create colorRange
+  const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
+  const colorMap = colors.map((color, index) => {
+    return [uniqueValues[index], color];
+  });
+  const colorLegend = colors.map((color, index) => ({
+    color,
+    legend: `${legendLabels[index]}`
+  }));
+  const colorRange = {
+    category: 'ordinal',
+    type: 'diverging',
+    name: 'ColorBrewer RdBu-5',
+    colors,
+    colorMap,
+    colorLegend
+  };
+
+  // get dataId
+  const dataId = layer.config.dataId;
+  // generate random id for a new layer
+  const id = Math.random().toString(36).substring(7);
+  // create a new Layer
+  const newLayer = {
+    id,
+    type: 'geojson',
+    config: {
+      dataId,
+      columns: {geojson: layer.config.columns.geojson.value},
+      label: `${mappingType} Map`,
+      colorScale: 'ordinal',
+      colorField: {
+        name: `${colorFieldName}`,
+        type: 'real'
+      },
+      visConfig: {
+        ...layer.config.visConfig,
+        colorRange,
+        colorDomain: uniqueValues
+      },
+      isVisible: true
+    }
+  };
+  // dispatch action to add new layer in kepler
+  dispatch(addLayer(newLayer, dataId));
+  // dispatch action to reorder layer
+  const existingLayerIds = geodaState.keplerGl[MAP_ID].visState.layers.map(
+    (layer: any) => layer.id
+  );
+  dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
+}
+
 export function useMapping() {
   const createCustomScaleMap = ({
     dispatch,

@@ -8,7 +8,6 @@ import {
   IconBoxplot,
   IconCartogram,
   IconChatgpt,
-  IconChoropleth,
   IconHistogram,
   IconLisa,
   IconMap,
