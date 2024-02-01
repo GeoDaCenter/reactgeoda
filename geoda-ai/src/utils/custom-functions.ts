@@ -8,7 +8,8 @@ import {
   naturalBreaks,
   getNearestNeighborsFromBinaryGeometries,
   WeightsMeta,
-  getMetaFromWeights
+  getMetaFromWeights,
+  localMoran
 } from 'geoda-wasm';
 import {getKeplerLayer} from './data-utils';
 
@@ -17,7 +18,8 @@ export enum CustomFunctionNames {
   SUMMARIZE_DATA = 'summarizeData',
   QUANTILE_BREAKS = 'quantileBreaks',
   NATURAL_BREAKS = 'naturalBreaks',
-  KNN_WEIGHT = 'knnWeight'
+  KNN_WEIGHT = 'knnWeight',
+  LOCAL_MORAN = 'univariateLocalMoran'
 }
 
 // key is the name of the function, value is the function itself
@@ -50,6 +52,24 @@ export type MappingOutput = {
   type: 'mapping';
   name: string;
   result: number[];
+};
+
+export type UniLocalMoranOutput = {
+  type: 'lisa';
+  name: string;
+  result: {
+    significanceThreshold: number;
+    permutations: number;
+    variableName: string;
+    weightsID: string;
+    numberOfHighHighClusters: number;
+    numberOfLowLowClusters: number;
+    numberOfHighLowClusters: number;
+    numberOfLowHighClusters: number;
+    numberOfIsolatedClusters: number;
+    globalMoranI: number;
+  };
+  data: any;
 };
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -124,6 +144,59 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       name: 'KNN',
       result: weightsMeta,
       data: weights
+    };
+  },
+
+  univariateLocalMoran: async function (
+    {variableName, weightsID, permutations = 999, significanceThreshold = 0.05},
+    geodaState: GeoDaState
+  ): Promise<UniLocalMoranOutput | ErrorOutput> {
+    // get weights using weightsID
+    let selectWeight = geodaState.root.weights.find(w => w.weightsMeta.id === weightsID);
+    if (geodaState.root.weights.length === 0) {
+      return {result: 'weights is empty. Please create a spatial weights first'};
+    }
+    if (!selectWeight) {
+      // using last weights if weightsID is not found
+      selectWeight = geodaState.root.weights[geodaState.root.weights.length - 1];
+    }
+
+    // get table name from geodaState
+    const tableName = geodaState.root.file.rawFileData.name;
+    if (!tableName) {
+      return {result: 'table name is empty'};
+    }
+    // get column data
+    const columnData = await getColumnData(variableName);
+    if (!columnData || columnData.length === 0) {
+      return {result: 'column data is empty'};
+    }
+    // run LISA analysis
+    const lm = await localMoran(columnData, selectWeight?.weights, permutations);
+    // get cluster values using significant cutoff
+    const clusters = lm.pValues.map((p: number, i) => {
+      if (p > significanceThreshold) {
+        return 0;
+      }
+      return lm.clusters[i];
+    });
+
+    return {
+      type: 'lisa',
+      name: 'Local Moran',
+      result: {
+        significanceThreshold,
+        permutations,
+        variableName,
+        weightsID,
+        numberOfHighHighClusters: clusters.filter(c => c === 1).length,
+        numberOfLowLowClusters: clusters.filter(c => c === 2).length,
+        numberOfHighLowClusters: clusters.filter(c => c === 3).length,
+        numberOfLowHighClusters: clusters.filter(c => c === 4).length,
+        numberOfIsolatedClusters: clusters.filter(c => c === 5).length,
+        globalMoranI: lm.lisaValues.reduce((a, b) => a + b, 0) / lm.lisaValues.length
+      },
+      data: lm
     };
   }
 };

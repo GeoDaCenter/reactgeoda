@@ -4,7 +4,7 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {getTableSummary} from './use-duckdb';
 import {CUSTOM_FUNCTIONS} from '@/utils/custom-functions';
 import {GeoDaState} from '@/store';
-import {useRef} from 'react';
+import {useSelector} from 'react-redux';
 
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
 
@@ -53,8 +53,8 @@ function createMessageFromCustomFunctionCall({
 /**
  * custom hook to use ChatGPT
  */
-export function useChatGPT(geodaState: GeoDaState) {
-  const geodaStateRef = useRef(geodaState);
+export function useChatGPT() {
+  const geodaState = useSelector((state: GeoDaState) => state);
 
   /**
    * Initialize ChatGPT assistant by passing the summary of the table from duckdb
@@ -147,15 +147,19 @@ export function useChatGPT(geodaState: GeoDaState) {
 
           // Dynamically call the function with arguments
           const func = CUSTOM_FUNCTIONS[functionName];
+          let output = null;
           if (func) {
             // run the function locally and get the output
-            const output = await func(args, geodaStateRef.current);
-            toolOutputs.push({
-              tool_call_id: toolCall.id,
-              output: JSON.stringify(output.result)
-            });
-            lastCustomFunctionCall = {functionName, functionArgs: args, output};
-          } else {
+            output = await func(args, geodaState);
+            if (output.result) {
+              toolOutputs.push({
+                tool_call_id: toolCall.id,
+                output: JSON.stringify(output.result)
+              });
+              lastCustomFunctionCall = {functionName, functionArgs: args, output};
+            }
+          }
+          if (!func || !output.result) {
             const errorMessage = `The function ${functionName} is not defined. You can contact GeoDa.AI team for assistance.`;
             console.error(errorMessage);
             // push an empty output
