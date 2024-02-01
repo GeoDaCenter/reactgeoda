@@ -8,6 +8,7 @@ import {
   IconBoxplot,
   IconCartogram,
   IconChatgpt,
+  IconChoropleth,
   IconHistogram,
   IconLisa,
   IconMap,
@@ -128,7 +129,7 @@ export function Navigator() {
             isEnabled={isFileLoaded}
           />
         </Badge>
-        {/* <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} /> */}
+        <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} />
         <IconHistogram className="design-component-instance-node" isEnabled={isFileLoaded} />
         <IconBoxplot className="icon-boxplot-instance" />
         <IconScatterplot className="design-component-instance-node" />

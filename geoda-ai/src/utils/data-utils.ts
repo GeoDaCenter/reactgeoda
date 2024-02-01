@@ -113,3 +113,24 @@ export function getColumnDataFromKeplerLayer(
 
   return [];
 }
+
+/**
+ * Check if the field name exists in the kepler.gl dataset
+ * @param tableName
+ * @param fieldName
+ * @param visState
+ * @returns
+ */
+export function checkIfFieldNameExists(
+  tableName: string,
+  fieldName: string,
+  visState: VisState
+): boolean {
+  // get dataset using tableName
+  const dataset = Object.values(visState.datasets).find(dataset => dataset.label === tableName);
+  // get fields from dataset
+  const fields = dataset?.fields;
+  // check if fieldName exists in fields
+  const isExisted = fields?.some(field => field.name === fieldName) || false;
+  return isExisted;
+}

@@ -5,6 +5,7 @@ import {getTableSummary} from './use-duckdb';
 import {CUSTOM_FUNCTIONS} from '@/utils/custom-functions';
 import {GeoDaState} from '@/store';
 import {useSelector} from 'react-redux';
+import {MAP_ID} from '@/constants';
 
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
 
@@ -54,7 +55,9 @@ function createMessageFromCustomFunctionCall({
  * custom hook to use ChatGPT
  */
 export function useChatGPT() {
-  const geodaState = useSelector((state: GeoDaState) => state);
+  const tableName = useSelector((state: GeoDaState) => state.root.file.rawFileData.name);
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  const weights = useSelector((state: GeoDaState) => state.root.weights);
 
   /**
    * Initialize ChatGPT assistant by passing the summary of the table from duckdb
@@ -150,7 +153,7 @@ export function useChatGPT() {
           let output = null;
           if (func) {
             // run the function locally and get the output
-            output = await func(args, geodaState);
+            output = await func(args, {tableName, visState, weights});
             if (output.result) {
               toolOutputs.push({
                 tool_call_id: toolCall.id,

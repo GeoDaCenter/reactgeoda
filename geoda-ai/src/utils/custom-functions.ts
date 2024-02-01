@@ -1,8 +1,5 @@
 // define a type of custom function that is an object contains key-value pairs
 
-import {MAP_ID} from '@/constants';
-import {getColumnData, getTableSummary} from '@/hooks/use-duckdb';
-import {GeoDaState} from '@/store';
 import {
   quantileBreaks,
   naturalBreaks,
@@ -11,7 +8,17 @@ import {
   getMetaFromWeights,
   localMoran
 } from 'geoda-wasm';
-import {getKeplerLayer} from './data-utils';
+
+import {getTableSummary} from '@/hooks/use-duckdb';
+import {GeoDaState} from '@/store';
+import {checkIfFieldNameExists, getColumnDataFromKeplerLayer, getKeplerLayer} from './data-utils';
+import {
+  MAP_ID,
+  CHAT_FIELD_NAME_NOT_FOUND,
+  CHAT_COLUMN_DATA_NOT_FOUND,
+  CHAT_WEIGHTS_NOT_FOUND
+} from '@/constants';
+import {WeightsProps} from '@/actions';
 
 // define enum for custom function names
 export enum CustomFunctionNames {
@@ -80,49 +87,54 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     return {tableName, result};
   },
 
-  quantileBreaks: async function ({
-    k,
-    variableName
-  }: CustomMapBreaksProps): Promise<MappingOutput | ErrorOutput> {
-    const columnData = await getColumnData(variableName);
+  quantileBreaks: async function (
+    {k, variableName}: CustomMapBreaksProps,
+    {tableName, visState}
+  ): Promise<MappingOutput | ErrorOutput> {
+    if (!checkIfFieldNameExists(tableName, variableName, visState)) {
+      return {
+        result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
+      };
+    }
+    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState);
     if (!columnData || columnData.length === 0) {
-      return {result: 'column data is empty'};
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
     const result = await quantileBreaks(k, columnData);
 
     return {type: 'mapping', name: 'Quantile Breaks', result};
   },
 
-  naturalBreaks: async function ({k, variableName}: CustomMapBreaksProps) {
-    const columnData = await getColumnData(variableName);
+  naturalBreaks: async function ({k, variableName}: CustomMapBreaksProps, {tableName, visState}) {
+    if (!checkIfFieldNameExists(tableName, variableName, visState)) {
+      return {
+        result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
+      };
+    }
+    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState);
     if (!columnData || columnData.length === 0) {
-      return {result: 'column data is empty'};
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
     const result = await naturalBreaks(k, columnData);
 
     return {type: 'mapping', name: 'Natural Breaks', result};
   },
 
-  knnWeight: async function ({k}, geodaState: GeoDaState): Promise<WeightsOutput | ErrorOutput> {
-    // get table name from geodaState
-    const tableName = geodaState.root.file.rawFileData.name;
+  knnWeight: async function ({k}, {tableName, visState}): Promise<WeightsOutput | ErrorOutput> {
     if (!tableName) {
-      return {result: 'table name is empty'};
+      return {result: 'Error: table name is empty'};
     }
-    // get kepler.gl visState
-    const visState = geodaState.keplerGl[MAP_ID].visState;
 
     // get kepler.gl layer using tableName
     const keplerLayer = getKeplerLayer(tableName, visState);
-
     if (!keplerLayer) {
-      return {result: 'layer is empty'};
+      return {result: 'Error: layer is empty'};
     }
 
     const binaryGeometryType = keplerLayer.meta.featureTypes;
     const binaryGeometries = keplerLayer.dataToFeature;
     if (!binaryGeometries || !binaryGeometryType) {
-      return {result: 'geometries in layer is empty'};
+      return {result: 'Error: geometries in layer is empty'};
     }
 
     const weights = await getNearestNeighborsFromBinaryGeometries({
@@ -149,27 +161,31 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
   univariateLocalMoran: async function (
     {variableName, weightsID, permutations = 999, significanceThreshold = 0.05},
-    geodaState: GeoDaState
+    {tableName, visState, weights}
   ): Promise<UniLocalMoranOutput | ErrorOutput> {
     // get weights using weightsID
-    let selectWeight = geodaState.root.weights.find(w => w.weightsMeta.id === weightsID);
-    if (geodaState.root.weights.length === 0) {
-      return {result: 'weights is empty. Please create a spatial weights first'};
+    let selectWeight = weights.find((w: WeightsProps) => w.weightsMeta.id === weightsID);
+    if (weights.length === 0) {
+      return {result: CHAT_WEIGHTS_NOT_FOUND};
     }
     if (!selectWeight) {
       // using last weights if weightsID is not found
-      selectWeight = geodaState.root.weights[geodaState.root.weights.length - 1];
+      selectWeight = weights[weights.length - 1];
     }
 
     // get table name from geodaState
-    const tableName = geodaState.root.file.rawFileData.name;
     if (!tableName) {
-      return {result: 'table name is empty'};
+      return {result: 'Error: table name is empty'};
+    }
+    if (!checkIfFieldNameExists(tableName, variableName, visState)) {
+      return {
+        result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, run local moran analysis using variable HR60 and KNN weights with k=4.`
+      };
     }
     // get column data
-    const columnData = await getColumnData(variableName);
+    const columnData = await getColumnDataFromKeplerLayer(tableName, variableName, visState);
     if (!columnData || columnData.length === 0) {
-      return {result: 'column data is empty'};
+      return {result: 'Error: column data is empty'};
     }
     // run LISA analysis
     const lm = await localMoran(columnData, selectWeight?.weights, permutations);

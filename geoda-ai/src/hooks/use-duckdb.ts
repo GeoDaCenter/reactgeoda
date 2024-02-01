@@ -68,21 +68,26 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
       if (!tableName && inputTableName) {
         tableName = inputTableName;
       }
-      // connect to the database
-      const conn = await db.connect();
-      // Query
-      const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
-      // Convert arrow table to json
-      const result = arrowResult.toArray().map((row: ArrowRow) => row.toJSON());
-      // close the connection
-      await conn.close();
-      // convert array of objects to a string with format of csv table
-      const csv = result.map((row: any) => Object.values(row).join(',')).join('\n');
-      // prepend the header
-      const header = Object.keys(result[0]).join(',');
-      tableSummary = `${header}\n${csv}`;
+      try {
+        // connect to the database
+        const conn = await db.connect();
+        // Query
+        const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
+        // Convert arrow table to json
+        const result = arrowResult.toArray().map((row: ArrowRow) => row.toJSON());
+        // close the connection
+        await conn.close();
+        // convert array of objects to a string with format of csv table
+        const csv = result.map((row: any) => Object.values(row).join(',')).join('\n');
+        // prepend the header
+        const header = Object.keys(result[0]).join(',');
+        tableSummary = `${header}\n${csv}`;
+        return tableSummary;
+      } catch (error) {
+        console.error(error);
+        return 'error: can not get summary of the table because table name is not found';
+      }
     }
-    return tableSummary;
   }
   return '';
 }
