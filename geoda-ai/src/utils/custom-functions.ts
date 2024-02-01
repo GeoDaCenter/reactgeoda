@@ -10,10 +10,8 @@ import {
 } from 'geoda-wasm';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
-import {GeoDaState} from '@/store';
 import {checkIfFieldNameExists, getColumnDataFromKeplerLayer, getKeplerLayer} from './data-utils';
 import {
-  MAP_ID,
   CHAT_FIELD_NAME_NOT_FOUND,
   CHAT_COLUMN_DATA_NOT_FOUND,
   CHAT_WEIGHTS_NOT_FOUND
