@@ -84,6 +84,9 @@ export function Navigator() {
         case 'icon-lisa':
           dispatch(setPropertyPanel(PanelName.LISA));
           break;
+        case 'icon-histogram':
+          dispatch(setPropertyPanel(PanelName.HISTOGRAM));
+          break;
       }
       event.stopPropagation();
     },
@@ -130,7 +133,11 @@ export function Navigator() {
           />
         </Badge>
         <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} />
-        <IconHistogram className="design-component-instance-node" isEnabled={isFileLoaded} />
+        <IconHistogram
+          className="design-component-instance-node cursor-pointer"
+          onClick={onClickIconCallback}
+          isEnabled={isFileLoaded}
+        />
         <IconBoxplot className="icon-boxplot-instance" />
         <IconScatterplot className="design-component-instance-node" />
         <IconCartogram className="icon-cartogram-instance" />

@@ -94,15 +94,17 @@ export function MappingPanel() {
   // use mapping hooks
   const {createCustomScaleMap} = useMapping();
 
-  const geodaState = useSelector((state: GeoDaState) => state);
-
+  // use selector to get tableName from redux store
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+
+  // use selector to get visState from redux store
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, geodaState.keplerGl[MAP_ID].visState);
+    const fieldNames = getNumericFieldNames(tableName, visState);
     return fieldNames;
-  }, [geodaState.keplerGl, tableName]);
+  }, [tableName, visState]);
 
   // handle map type change
   const onMapTypeChange = (value: any) => {
@@ -128,11 +130,7 @@ export function MappingPanel() {
     if (!tableName) return;
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(
-      tableName,
-      variable,
-      geodaState.keplerGl[MAP_ID].visState
-    );
+    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState);
 
     // run quantile breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);
