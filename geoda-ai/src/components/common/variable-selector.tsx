@@ -31,12 +31,12 @@ export function VariableSelector(props: VariableSelectorProps) {
 
   return (
     <Autocomplete
-      label="Select an animal"
-      className="max-w-xs"
+      label="Select a variable"
+      className="max-w"
       onSelectionChange={onVariableSelectionChange}
     >
       {numericColumns.map(column => (
-        <AutocompleteItem key={column} value={column}>
+        <AutocompleteItem key={column} value={column} required>
           {column}
         </AutocompleteItem>
       ))}

@@ -10,6 +10,7 @@ import {WeightsCreationComponent} from './weights-creation';
 import {GeoDaState} from '@/store';
 import {MAP_ID} from '@/constants';
 import {getIntegerAndStringFieldNames, getKeplerLayer} from '@/utils/data-utils';
+import {WeightsProps} from '@/actions/weights-actions';
 
 const NO_MAP_LOADED_MESSAGE =
   'Please load a map first before creating and managing spatial weights.';
@@ -34,13 +35,13 @@ export function WeightsPanel() {
   }, [tableName, visState]);
 
   // check if there is any newly added weights, if there is, show weights management tab
-  const newWeightsCount = weights.filter(weight => weight.isNew).length;
+  const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
   const [showWeightsManagement, setShowWeightsManagement] = useState(newWeightsCount > 0);
 
   // reset isNew flag of weights
   useEffect(() => {
     if (newWeightsCount > 0) {
-      weights.forEach(weight => {
+      weights.forEach((weight: WeightsProps) => {
         if (weight.isNew) {
           weight.isNew = false;
         }
