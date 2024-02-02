@@ -9,6 +9,7 @@ import {Button, Card, CardBody, Input, Spacer, Tab, Tabs} from '@nextui-org/reac
 import {MAP_ID} from '@/constants';
 import {getColumnDataFromKeplerLayer} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/histogram-utils';
+import {HistogramPlot} from './histogram-plot';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -31,6 +32,7 @@ export function HistogramPanel() {
     // get data from variable
     const data = getColumnDataFromKeplerLayer(tableName, variable, visState);
     const hist = createHistogram(data, 7);
+    // dispatch action to create histogram and add to store
   };
 
   return (
@@ -69,7 +71,7 @@ export function HistogramPanel() {
                   radius="sm"
                   color="primary"
                   className="bg-rose-900"
-                  disabled={!variable || variable !== '' || intervals <= 0}
+                  disabled={variable === '' || intervals <= 0}
                 >
                   Create Histogram
                 </Button>
@@ -83,7 +85,9 @@ export function HistogramPanel() {
                 <span>Plots Management</span>
               </div>
             }
-          ></Tab>
+          >
+            <HistogramPlot />
+          </Tab>
         </Tabs>
       )}
     </RightPanelContainer>
