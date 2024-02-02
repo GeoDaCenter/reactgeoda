@@ -135,8 +135,12 @@ export function MappingPanel() {
     // run quantile breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);
 
+    const selectState = {
+      tableName: tableName,
+      layers: visState.layers
+    };
     // create custom scale map
-    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, geodaState});
+    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, selectState});
   };
 
   return (

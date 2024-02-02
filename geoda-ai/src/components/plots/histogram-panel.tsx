@@ -12,7 +12,7 @@ export function HistogramPanel() {
   const intl = useIntl();
 
   // use state for variable
-  const [variable, setVariable] = useState('');
+  const [, setVariable] = useState('');
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   return (

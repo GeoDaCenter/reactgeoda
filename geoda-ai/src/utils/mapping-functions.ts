@@ -3,13 +3,16 @@ import colorbrewer from 'colorbrewer';
 import {UnknownAction} from 'redux';
 import {naturalBreaks, quantileBreaks} from 'geoda-wasm';
 import {addLayer, reorderLayer} from '@kepler.gl/actions';
+import {Layer} from '@kepler.gl/layers';
 
-import {MAP_ID, MappingTypes} from '@/constants';
-import {GeoDaState} from '@/store';
+import {MappingTypes} from '@/constants';
 
 type CreateCustomScaleMapProps = {
   dispatch: Dispatch<UnknownAction>;
-  geodaState: GeoDaState;
+  selectState: {
+    tableName: string;
+    layers: Layer[];
+  };
   breaks: number[];
   mappingType: string;
   colorFieldName: string;
@@ -17,7 +20,10 @@ type CreateCustomScaleMapProps = {
 
 type CreateUniqueValuesMapProps = {
   dispatch: Dispatch<UnknownAction>;
-  geodaState: GeoDaState;
+  selectState: {
+    tableName: string;
+    layers: Layer[];
+  };
   uniqueValues: number[];
   hexColors: string[];
   legendLabels: string[];
@@ -27,7 +33,7 @@ type CreateUniqueValuesMapProps = {
 
 export function createUniqueValuesMap({
   dispatch,
-  geodaState,
+  selectState,
   uniqueValues,
   legendLabels,
   hexColors,
@@ -35,10 +41,8 @@ export function createUniqueValuesMap({
   colorFieldName
 }: CreateUniqueValuesMapProps) {
   // get tableName and layer
-  const tableName = geodaState.root.file.rawFileData.name;
-  const layer = geodaState.keplerGl[MAP_ID].visState.layers.find((layer: any) =>
-    tableName.startsWith(layer.config.label)
-  );
+  const tableName = selectState.tableName;
+  const layer = selectState.layers.find((layer: any) => tableName.startsWith(layer.config.label));
 
   // get colors, colorMap, colorLegend to create colorRange
   const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
@@ -59,7 +63,7 @@ export function createUniqueValuesMap({
   };
 
   // get dataId
-  const dataId = layer.config.dataId;
+  const dataId = layer?.config.dataId;
   // generate random id for a new layer
   const id = Math.random().toString(36).substring(7);
   // create a new Layer
@@ -68,7 +72,7 @@ export function createUniqueValuesMap({
     type: 'geojson',
     config: {
       dataId,
-      columns: {geojson: layer.config.columns.geojson.value},
+      columns: {geojson: layer?.config.columns.geojson.value},
       label: `${mappingType} Map`,
       colorScale: 'ordinal',
       colorField: {
@@ -76,7 +80,7 @@ export function createUniqueValuesMap({
         type: 'real'
       },
       visConfig: {
-        ...layer.config.visConfig,
+        ...layer?.config.visConfig,
         colorRange,
         colorDomain: uniqueValues
       },
@@ -86,23 +90,21 @@ export function createUniqueValuesMap({
   // dispatch action to add new layer in kepler
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
-  const existingLayerIds = geodaState.keplerGl[MAP_ID].visState.layers.map(
-    (layer: any) => layer.id
-  );
+  const existingLayerIds = selectState.layers.map((layer: any) => layer.id);
   dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
 }
 
 export function useMapping() {
   const createCustomScaleMap = ({
     dispatch,
-    geodaState,
+    selectState,
     breaks,
     mappingType,
     colorFieldName
   }: CreateCustomScaleMapProps) => {
     // get tableName and layer
-    const tableName = geodaState.root.file.rawFileData.name;
-    const layer = geodaState.keplerGl[MAP_ID].visState.layers.find((layer: any) =>
+    const tableName = selectState.tableName;
+    const layer = selectState.layers?.find((layer: any) =>
       tableName.startsWith(layer.config.label)
     );
 
@@ -126,7 +128,7 @@ export function useMapping() {
     };
 
     // get dataId
-    const dataId = layer.config.dataId;
+    const dataId = layer?.config.dataId;
     // generate random id for a new layer
     const id = Math.random().toString(36).substring(7);
     // create a new Layer
@@ -135,7 +137,7 @@ export function useMapping() {
       type: 'geojson',
       config: {
         dataId,
-        columns: {geojson: layer.config.columns.geojson.value},
+        columns: {geojson: layer?.config.columns.geojson.value},
         label: `${mappingType} Map`,
         colorScale: 'custom',
         colorField: {
@@ -143,7 +145,7 @@ export function useMapping() {
           type: 'real'
         },
         visConfig: {
-          ...layer.config.visConfig,
+          ...layer?.config.visConfig,
           colorRange,
           colorDomain: breaks
         },
@@ -153,10 +155,10 @@ export function useMapping() {
     // dispatch action to add new layer in kepler
     dispatch(addLayer(newLayer, dataId));
     // dispatch action to reorder layer
-    const existingLayerIds = geodaState.keplerGl[MAP_ID].visState.layers.map(
-      (layer: any) => layer.id
-    );
-    dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
+    const existingLayerIds = selectState.layers?.map((layer: any) => layer.id);
+    if (existingLayerIds) {
+      dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
+    }
   };
 
   return {createCustomScaleMap};

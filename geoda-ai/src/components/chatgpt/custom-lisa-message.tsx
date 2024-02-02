@@ -71,7 +71,10 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessageProps}) =>
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,
-      geodaState
+      selectState: {
+        tableName: tableName,
+        layers: geodaState.keplerGl[MAP_ID].visState.layers
+      }
     });
     // hide the button once clicked
     setHide(true);
