@@ -31,7 +31,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const geodaState = useSelector((state: GeoDaState) => state);
-  const {initOpenAI, processMessage} = useChatGPT(geodaState);
+  const {initOpenAI, processMessage} = useChatGPT();
 
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
 
@@ -102,7 +102,8 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
     if (
       functionName === CustomFunctionNames.QUANTILE_BREAKS ||
       functionName === CustomFunctionNames.NATURAL_BREAKS ||
-      functionName === CustomFunctionNames.KNN_WEIGHT
+      functionName === CustomFunctionNames.KNN_WEIGHT ||
+      functionName === CustomFunctionNames.LOCAL_MORAN
     ) {
       return <CreateCustomMessage props={{key: i, functionArgs, output, dispatch, geodaState}} />;
     }

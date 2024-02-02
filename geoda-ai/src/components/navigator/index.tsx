@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Badge} from '@nextui-org/react';
 
@@ -25,9 +25,18 @@ import {PanelName} from '../panel/panel-container';
 export function Navigator() {
   const dispatch = useDispatch();
 
-  const [showGridView, setShowGridView] = useState(false);
-
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
+
+  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.name);
+
+  const [isFileLoaded, setIsFileLoaded] = useState(Boolean(fileName));
+
+  // monitor fileName and set isFileLoaded state
+  useEffect(() => {
+    setIsFileLoaded(Boolean(fileName));
+  }, [fileName]);
+
+  const [showGridView, setShowGridView] = useState(false);
 
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
@@ -72,6 +81,9 @@ export function Navigator() {
         case 'icon-settings':
           dispatch(setPropertyPanel(PanelName.SETTINGS));
           break;
+        case 'icon-lisa':
+          dispatch(setPropertyPanel(PanelName.LISA));
+          break;
       }
       event.stopPropagation();
     },
@@ -87,9 +99,21 @@ export function Navigator() {
     <div className="toolbar">
       <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
       <div className="tool-box">
-        <IconOpen className="icon-open-instance cursor-pointer" onClick={onOpenCallback} />
-        <IconTable className="icon-table-instance cursor-pointer" onClick={onTableCallback} />
-        <IconMap className="icon-map-instance cursor-pointer" onClick={onClickIconCallback} />
+        <IconOpen
+          className="icon-open-instance cursor-pointer"
+          onClick={onOpenCallback}
+          isEnabled={!isFileLoaded}
+        />
+        <IconTable
+          className="icon-table-instance cursor-pointer"
+          isEnabled={isFileLoaded}
+          onClick={onTableCallback}
+        />
+        <IconMap
+          className="icon-map-instance cursor-pointer"
+          isEnabled={isFileLoaded}
+          onClick={onClickIconCallback}
+        />
         <Badge
           color="danger"
           content={newWeightsCount}
@@ -102,15 +126,20 @@ export function Navigator() {
           <IconWeights
             className="icon-weights-instance cursor-pointer"
             onClick={onClickIconCallback}
+            isEnabled={isFileLoaded}
           />
         </Badge>
-        <IconChoropleth className="design-component-instance-node" />
-        <IconHistogram className="design-component-instance-node" />
+        <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} />
+        <IconHistogram className="design-component-instance-node" isEnabled={isFileLoaded} />
         <IconBoxplot className="icon-boxplot-instance" />
         <IconScatterplot className="design-component-instance-node" />
         <IconCartogram className="icon-cartogram-instance" />
         <IconParallel className="icon-parallel-instance" />
-        <IconLisa className="icon-lisa-instance" />
+        <IconLisa
+          className="icon-lisa-instance cursor-pointer"
+          isEnabled={isFileLoaded}
+          onClick={onClickIconCallback}
+        />
         <IconChatgpt
           className="design-component-instance-node cursor-pointer"
           onClick={onClickIconCallback}

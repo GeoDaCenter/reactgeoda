@@ -1,7 +1,12 @@
 import React from 'react';
 
+function getGrayScale(isEnabled?: boolean) {
+  return isEnabled ? '' : 'grayscale';
+}
+
 export type IconProps = {
   className: string;
+  isEnabled?: boolean;
   onClick?: (event: React.MouseEvent) => void;
 };
 
@@ -141,9 +146,9 @@ export const IconChatgpt = ({className, onClick}: IconProps) => {
   );
 };
 
-export const IconChoropleth = ({className}: IconProps) => {
+export const IconChoropleth = ({className, isEnabled}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}>
       <svg
         width="24"
         height="24"
@@ -172,9 +177,9 @@ export const IconChoropleth = ({className}: IconProps) => {
   );
 };
 
-export const IconHistogram = ({className}: IconProps) => {
+export const IconHistogram = ({className, isEnabled}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}>
       <svg
         width="24"
         height="24"
@@ -207,9 +212,13 @@ export const IconHistogram = ({className}: IconProps) => {
   );
 };
 
-export const IconLisa = ({className}: IconProps) => {
+export const IconLisa = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div
+      id="icon-lisa"
+      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
+      onClick={onClick}
+    >
       <svg
         width="24"
         height="24"
@@ -277,9 +286,13 @@ export const IconLisa = ({className}: IconProps) => {
   );
 };
 
-export const IconMap = ({className, onClick}: IconProps) => {
+export const IconMap = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`} onClick={onClick} id="icon-mapping">
+    <div
+      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
+      onClick={onClick}
+      id="icon-mapping"
+    >
       <svg
         width="24"
         height="24"
@@ -298,9 +311,9 @@ export const IconMap = ({className, onClick}: IconProps) => {
   );
 };
 
-export const IconOpen = ({className, onClick}: IconProps) => {
+export const IconOpen = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`} onClick={onClick}>
+    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`} onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -547,9 +560,9 @@ export const IconScatterplot = ({className}: IconProps) => {
   );
 };
 
-export const IconTable = ({className, onClick}: IconProps) => {
+export const IconTable = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`} onClick={onClick}>
+    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`} onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -654,9 +667,13 @@ export const IconTable = ({className, onClick}: IconProps) => {
   );
 };
 
-export const IconWeights = ({className, onClick}: IconProps) => {
+export const IconWeights = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`} onClick={onClick} id="icon-weights">
+    <div
+      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
+      onClick={onClick}
+      id="icon-weights"
+    >
       <svg
         width="24"
         height="24"

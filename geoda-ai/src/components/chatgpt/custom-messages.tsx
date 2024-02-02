@@ -7,6 +7,7 @@ import {CustomFunctionNames} from '@/utils/custom-functions';
 import {useMapping} from '@/utils/mapping-functions';
 import {GeoDaState} from '@/store';
 import {CustomWeightsMessage} from './custom-weights-message';
+import {CustomLocalMoranMessage} from './custom-lisa-message';
 
 type CustomFunctionOutputProps = {
   type: string;
@@ -77,6 +78,7 @@ export function CreateCustomMessage({props}: {props: CustomMessageProps}) {
         </Button>
       )}
       {output.type === 'weights' && <CustomWeightsMessage props={props} />}
+      {output.type === 'lisa' && <CustomLocalMoranMessage props={props} />}
     </>
   );
 }

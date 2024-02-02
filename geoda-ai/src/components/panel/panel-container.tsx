@@ -10,6 +10,7 @@ import {MappingPanel} from '../mapping/mapping-panel';
 
 import '../../styles/settings-panel.css';
 import {WeightsPanel} from '../weights/weights-panel';
+import {LisaPanel} from '../lisa/lisa-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
@@ -18,7 +19,8 @@ export enum PanelName {
   CHAT_GPT = 'ChatGpt',
   SETTINGS = 'Settings',
   MAPPING = 'Mapping',
-  WEIGHTS = 'Weights'
+  WEIGHTS = 'Weights',
+  LISA = 'Lisa'
 }
 
 export const PanelContainer = () => {
@@ -53,6 +55,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
         {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
         {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
+        {propertyPanelName === PanelName.LISA && <LisaPanel />}
       </div>
     </div>
   ) : null;

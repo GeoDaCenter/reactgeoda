@@ -18,3 +18,25 @@ export enum MappingTypes {
   SPATIAL_RATE = 'spatial-rate',
   SPATIAL_EB_MAP = 'spatial-eb-map'
 }
+
+export const LISA_LEGEND = {
+  '#eeeeee': 'Not Significant',
+  '#ff0000': 'High-High',
+  '#0000ff': 'Low-Low',
+  '#f4ada8': 'High-Low',
+  '#a7adf9': 'Low-High',
+  '#464646': 'Isolated'
+  // '#999999': 'Invalid'
+};
+export const LISA_COLORS = Object.keys(LISA_LEGEND);
+export const LISA_LABELS = Object.values(LISA_LEGEND);
+
+// openAI responses
+export const CHAT_FIELD_NAME_NOT_FOUND =
+  'Error: field name is not found. User may forget to mention a field name.';
+
+export const CHAT_COLUMN_DATA_NOT_FOUND =
+  'Error: column data is empty. User may forget to mention a field name.';
+
+export const CHAT_WEIGHTS_NOT_FOUND =
+  'Error: spatial weights is not found. User may forget to create a spatial weights. User can create a spatial weights using "create spatial weights" command.';
