@@ -14,7 +14,7 @@ export function getIntegerAndStringFieldNames(
   // get kepler.gl layer using tableName
   const layer = getKeplerLayer(tableName, visState);
 
-  if (layer instanceof GeojsonLayer) {
+  if (layer) {
     // get numeric columns from layer
     const columnNames: string[] = [];
     const dataContainer = layer.dataContainer;
@@ -38,12 +38,9 @@ export function getIntegerAndStringFieldNames(
  */
 export function getKeplerLayer(tableName: string, visState: VisState): GeojsonLayer | null {
   const layer = visState.layers.find((layer: Layer) => {
-    return layer instanceof GeojsonLayer && tableName.startsWith(layer.config.label);
+    return tableName.startsWith(layer.config.label);
   });
-  if (layer instanceof GeojsonLayer) {
-    return layer;
-  }
-  return null;
+  return layer as GeojsonLayer;
 }
 
 /**
@@ -56,7 +53,7 @@ export function getNumericFieldNames(tableName: string, visState: VisState): Arr
   // get kepler.gl layer using tableName
   const layer = getKeplerLayer(tableName, visState);
 
-  if (layer instanceof GeojsonLayer) {
+  if (layer) {
     // get numeric columns from layer
     const columnNames: string[] = [];
     const dataContainer = layer.dataContainer;
@@ -86,7 +83,7 @@ export function getColumnDataFromKeplerLayer(
 ): Array<number> {
   const layer = getKeplerLayer(tableName, visState);
 
-  if (layer instanceof GeojsonLayer) {
+  if (layer) {
     const dataContainer = layer.dataContainer;
     if (!dataContainer) {
       return [];
