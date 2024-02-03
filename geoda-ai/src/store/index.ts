@@ -7,6 +7,7 @@ import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
 import {WeightsProps} from '@/actions/weights-actions';
+import {PlotProps} from '@/actions/plot-actions';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
@@ -38,6 +39,7 @@ export type GeoDaState = {
       openAIKey: string;
     };
     weights: Array<WeightsProps>;
+    plots: Array<PlotProps>;
   };
 };
 

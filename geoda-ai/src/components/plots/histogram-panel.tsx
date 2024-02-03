@@ -1,38 +1,51 @@
 import {useIntl} from 'react-intl';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
-import {useState} from 'react';
-import {Button, Card, CardBody, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
+import {ChangeEvent, useState} from 'react';
+import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnDataFromKeplerLayer} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/histogram-utils';
-import {HistogramPlot} from './histogram-plot';
+import {addPlot} from '@/actions/plot-actions';
+import {PlotManagementPanel} from './plot-management';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
 export function HistogramPanel() {
   const intl = useIntl();
 
+  // use dispatch
+  const dispatch = useDispatch();
+
   // use state for variable
   const [variable, setVariable] = useState('');
   // use state for intervals
   const [intervals, setIntervals] = useState(7);
-
+  // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
-
-  // use selector to get visState
+  // TODO use selector to get visState
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  // use selector to get plots
+  const plots = useSelector((state: GeoDaState) => state.root.plots);
+
+  // on intervals change
+  const onIntervalsChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIntervals(parseInt(e.target.value, 10));
+  };
 
   // on create histogram
   const onCreateHistogram = () => {
     console.log('Create histogram');
     // get data from variable
     const data = getColumnDataFromKeplerLayer(tableName, variable, visState);
-    const hist = createHistogram(data, 7);
+    const histogram = createHistogram(data, 7);
+    // generate random id for histogram
+    const id = Math.random().toString(36).substring(7);
     // dispatch action to create histogram and add to store
+    dispatch(addPlot({id, type: 'histogram', variable, data: histogram}));
   };
 
   return (
@@ -63,7 +76,13 @@ export function HistogramPanel() {
               <CardBody>
                 <div className="flex flex-col gap-2">
                   <VariableSelector setVariable={setVariable} />
-                  <Input type="number" label="Intervals in histogram" value={`${intervals}`} />
+                  <Input
+                    type="number"
+                    label="Intervals in histogram"
+                    value={`${intervals}`}
+                    onChange={onIntervalsChange}
+                    min={1}
+                  />
                 </div>
                 <Spacer y={8} />
                 <Button
@@ -83,10 +102,15 @@ export function HistogramPanel() {
             title={
               <div className="flex items-center space-x-2">
                 <span>Plots Management</span>
+                {plots?.length > 0 && (
+                  <Chip size="sm" variant="faded">
+                    {plots.length}
+                  </Chip>
+                )}
               </div>
             }
           >
-            <HistogramPlot />
+            <PlotManagementPanel />
           </Tab>
         </Tabs>
       )}
