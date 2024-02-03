@@ -1,6 +1,6 @@
 import {bin} from 'd3-array';
 
-type DataItemProps = {
+export type HistogramDataItemProps = {
   index: number;
   value: number;
 };
@@ -10,7 +10,7 @@ export type HistogramDataProps = {
   binStart: number;
   binEnd: number;
   count: number;
-  items: DataItemProps[];
+  items: HistogramDataItemProps[];
 };
 
 /**
@@ -20,14 +20,14 @@ export function createHistogram(data: number[], numberOfBins: number): Histogram
   const minVal = Math.min(...data);
   const maxVal = Math.max(...data);
   // create a dictionary to store value and index of data
-  const dataDict: Array<DataItemProps> = data.map((d: number, i: number) => {
+  const dataDict: Array<HistogramDataItemProps> = data.map((d: number, i: number) => {
     return {index: i, value: d};
   });
   // put the data index into bins, which are separated equally in the range of minVal and maxVal
   const bins = bin()
     .thresholds(numberOfBins)
     .domain([minVal, maxVal])
-    .value((d: DataItemProps) => d.value)(dataDict);
+    .value((d: HistogramDataItemProps) => d.value)(dataDict);
   // calculate the bin width
   const binWidth = (maxVal - minVal) / numberOfBins;
   // create the histogram, store indexes of data items in each bin
