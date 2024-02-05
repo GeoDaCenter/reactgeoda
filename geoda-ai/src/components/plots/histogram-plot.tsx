@@ -39,10 +39,10 @@ import {
   // ParallelComponent,
   // CalendarComponent,
   // GraphicComponent,
-  // ToolboxComponent,
+  ToolboxComponent,
   TooltipComponent,
   // AxisPointerComponent,
-  // BrushComponent,
+  BrushComponent,
   TitleComponent
   // TimelineComponent,
   // MarkPointComponent,
@@ -66,12 +66,21 @@ import {
   CanvasRenderer
   // SVGRenderer,
 } from 'echarts/renderers';
-import {HistogramDataItemProps} from '@/utils/histogram-utils';
 import {useDispatch, useSelector} from 'react-redux';
+
+import {HistogramDataItemProps} from '@/utils/histogram-utils';
 import {GeoDaState} from '@/store';
 
 // Register the required components
-echarts.use([TitleComponent, TooltipComponent, GridComponent, BarChart, CanvasRenderer]);
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  ToolboxComponent,
+  BrushComponent,
+  GridComponent,
+  BarChart,
+  CanvasRenderer
+]);
 
 const defaultBarColors = ['#FF6B6B', '#48BB78', '#4299E1', '#ED64A6', '#F6E05E'];
 /**
@@ -107,8 +116,8 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
         alignWithLabel: false,
         // overflow: 'truncate' // or 'break' to continue in a new line
         interval: 0,
-        showMinLabel: true,
-        showMaxLabel: true,
+        // showMinLabel: true,
+        // showMaxLabel: true,
         formatter: function (value: any, idx: any) {
           console.log(value, idx);
           return `${value}`;
@@ -144,22 +153,52 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
       },
       formatter: function (params: any) {
         // ids that associated with the bar
-        const ids = params[0].data.ids;
-        // dispatch action to highlight the selected ids
-        dispatch({
-          type: 'SET_FILTER_INDEXES',
-          payload: {dataLabel: tableName, filteredIndex: ids}
-        });
-        return `Range: ${params[0].data.label}<br/> # Observations: ${params[0].value}`;
+        const range = params[0].data.label;
+        const count = params[0].value;
+        return `Range: ${range}<br/> # Observations: ${count}`;
       }
+    },
+    brush: {
+      toolbox: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear'],
+      xAxisIndex: 0
     },
     grid: {
       left: '3%',
       right: '0%',
-      top: '3%',
+      top: '20%',
       bottom: '0%',
       containLabel: true,
       height: 'auto'
+    }
+  };
+
+  const bindEvents = {
+    // click: function (params: any) {
+    //   console.log('click', params);
+    //   const ids = params.data.ids;
+    //   // dispatch action to highlight the selected ids
+    //   dispatch({
+    //     type: 'SET_FILTER_INDEXES',
+    //     payload: {dataLabel: tableName, filteredIndex: ids}
+    //   });
+    // },
+    brushSelected: function (params: any) {
+      console.log('brushSelected', params);
+      const brushed = [];
+      const brushComponent = params.batch[0];
+
+      for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+        const rawIndices = brushComponent.selected[sIdx].dataIndex;
+        // merge rawIndices to brushed
+        brushed.push(...rawIndices);
+      }
+      // get selected ids from brushed bars
+      const filteredIndex = brushed.map((idx: number) => barData[idx].ids).flat();
+      // dispatch action to highlight the selected ids
+      dispatch({
+        type: 'SET_FILTER_INDEXES',
+        payload: {dataLabel: tableName, filteredIndex}
+      });
     }
   };
 
@@ -177,7 +216,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           lazyUpdate={true}
           // theme={'theme_name'}
           // onChartReady={this.onChartReadyCallback}
-          // onEvents={EventsDict}
+          onEvents={bindEvents}
           // opts={}
           style={{height: '200px', width: '100%'}}
         />
