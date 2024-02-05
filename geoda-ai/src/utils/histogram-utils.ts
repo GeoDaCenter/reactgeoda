@@ -16,7 +16,7 @@ export type HistogramDataProps = {
 /**
  * Create a histogram from a list of numbers and a number of bins
  */
-export function createHistogram(data: number[], numberOfBins: number): HistogramDataProps {
+export function createHistogram(data: number[], numberOfBins: number): HistogramDataProps[] {
   const minVal = Math.min(...data);
   const maxVal = Math.max(...data);
   // create a dictionary to store value and index of data

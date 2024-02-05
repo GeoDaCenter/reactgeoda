@@ -4,7 +4,7 @@ import {WarningBox} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
-import {ChangeEvent, useState} from 'react';
+import {ChangeEvent, Key, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnDataFromKeplerLayer} from '@/utils/data-utils';
@@ -48,6 +48,26 @@ export function HistogramPanel() {
     dispatch(addPlot({id, type: 'histogram', variable, data: histogram}));
   };
 
+  // check if there is any newly added plots, if there is, show plots management tab
+  const newPlotsCount = plots.filter(plot => plot.isNew).length;
+  const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
+
+  // monitor state.root.plots, if plots.length changed, update the tab title
+  const plotsLength = plots?.length;
+  useEffect(() => {
+    if (plotsLength) {
+      setShowPlotsManagement(true);
+    }
+  }, [plotsLength]);
+
+  const onTabChange = (key: Key) => {
+    if (key === 'histogram-creation') {
+      setShowPlotsManagement(false);
+    } else {
+      setShowPlotsManagement(true);
+    }
+  };
+
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -63,7 +83,15 @@ export function HistogramPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
+        <Tabs
+          aria-label="Options"
+          variant="solid"
+          color="warning"
+          classNames={{}}
+          size="md"
+          selectedKey={showPlotsManagement ? 'plot-management' : 'histogram-creation'}
+          onSelectionChange={onTabChange}
+        >
           <Tab
             key="histogram-creation"
             title={

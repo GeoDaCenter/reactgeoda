@@ -47,7 +47,6 @@
   },
   "devDependencies": {
     "@next/third-parties": "14.0.5-canary.64",
-    "@nivo/bar": "^0.84.0",
     "@testing-library/jest-dom": "^6.2.0",
     "@testing-library/react": "^14.1.2",
     "@types/colorbrewer": "^1.0.32",
