@@ -52,7 +52,7 @@ export const PanelContainer = () => {
       <div className="prop-box-close" onClick={onCloseClick}>
         <IconXClose className="x-close" />
       </div>
-      <div className="prop-box-content">
+      <div className="h-full">
         {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
         {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
         {propertyPanelName === PanelName.MAPPING && <MappingPanel />}

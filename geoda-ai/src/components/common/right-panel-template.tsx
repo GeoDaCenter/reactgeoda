@@ -51,7 +51,7 @@ export const RightPanelContainer = ({
         </div>
         <div className="padding-bottom" />
       </div>
-      <div className="form-wrapper text-sm!important">{children}</div>
+      <div className="panel-content-wrapper">{children}</div>
     </div>
   );
 };

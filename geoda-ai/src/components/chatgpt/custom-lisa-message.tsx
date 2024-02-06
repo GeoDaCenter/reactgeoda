@@ -4,21 +4,28 @@ import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
-import {KeplerTable} from '@kepler.gl/table';
 import {addTableColumn} from '@kepler.gl/actions';
 
-import {CustomMessageProps} from './custom-messages';
+import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
 import {UniLocalMoranOutput} from '@/utils/custom-functions';
-import {LISA_COLORS, LISA_LABELS, MAP_ID} from '@/constants';
+import {LISA_COLORS, LISA_LABELS} from '@/constants';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
+import {useDispatch, useSelector} from 'react-redux';
+import {getDataset, getLayer} from '@/utils/data-utils';
+import {GeoDaState} from '@/store';
 
 /**
  * Custom LISA Message
  */
-export const CustomLocalMoranMessage = ({props}: {props: CustomMessageProps}) => {
+export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) => {
+  const dispatch = useDispatch();
   const [hide, setHide] = useState(false);
-  const {key, output, dispatch, geodaState} = props;
+
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
+  const dataset = useSelector((state: GeoDaState) => getDataset(state));
+
+  const {output} = props;
 
   const lm = output.data as LocalMoranResultType;
   const {significanceThreshold, variableName} = output.result as UniLocalMoranOutput['result'];
@@ -36,10 +43,6 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessageProps}) =>
     // add new column to kepler.gl
     const newFieldName = `lm_${variableName}`;
 
-    // get dataset from kepler.gl if dataset.label === tableName
-    const tableName = geodaState.root.file?.rawFileData?.name;
-    const datasets: KeplerTable[] = Object.values(geodaState.keplerGl[MAP_ID].visState.datasets);
-    const dataset = datasets.find(dataset => dataset.label === tableName);
     if (!dataset) {
       console.error('Dataset not found');
       return;
@@ -71,10 +74,7 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessageProps}) =>
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,
-      selectState: {
-        tableName: tableName,
-        layers: geodaState.keplerGl[MAP_ID].visState.layers
-      }
+      layer
     });
     // hide the button once clicked
     setHide(true);
@@ -87,7 +87,6 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessageProps}) =>
         <Button
           radius="full"
           className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          key={key}
           onClick={onClick}
           startContent={<HeartIcon />}
         >

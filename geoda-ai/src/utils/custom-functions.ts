@@ -10,22 +10,19 @@ import {
 } from 'geoda-wasm';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
-import {checkIfFieldNameExists, getColumnDataFromKeplerLayer, getKeplerLayer} from './data-utils';
+import {
+  checkIfFieldNameExists,
+  getColumnDataFromKeplerLayer,
+  getKeplerLayer,
+  getColumnData
+} from './data-utils';
 import {
   CHAT_FIELD_NAME_NOT_FOUND,
   CHAT_COLUMN_DATA_NOT_FOUND,
   CHAT_WEIGHTS_NOT_FOUND
 } from '@/constants';
 import {WeightsProps} from '@/actions';
-
-// define enum for custom function names
-export enum CustomFunctionNames {
-  SUMMARIZE_DATA = 'summarizeData',
-  QUANTILE_BREAKS = 'quantileBreaks',
-  NATURAL_BREAKS = 'naturalBreaks',
-  KNN_WEIGHT = 'knnWeight',
-  LOCAL_MORAN = 'univariateLocalMoran'
-}
+import {HistogramDataProps, createHistogram} from './histogram-utils';
 
 // key is the name of the function, value is the function itself
 type CustomFunctions = {
@@ -76,6 +73,28 @@ export type UniLocalMoranOutput = {
   };
   data: any;
 };
+
+export type HistogramOutput = {
+  type: 'histogram';
+  name: string;
+  result: {
+    id: string;
+    variableName: string;
+    numberOfBins: number;
+    histogram: HistogramDataProps[];
+  };
+};
+
+// define enum for custom function names, the value of each enum is
+// the name of the function that is defined in OpenAI assistant model
+export enum CustomFunctionNames {
+  SUMMARIZE_DATA = 'summarizeData',
+  QUANTILE_BREAKS = 'quantileBreaks',
+  NATURAL_BREAKS = 'naturalBreaks',
+  KNN_WEIGHT = 'knnWeight',
+  LOCAL_MORAN = 'univariateLocalMoran',
+  HISTOGRAM = 'histogram'
+}
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
   summarizeData: async function ({tableName}: SummarizeDataProps) {
@@ -215,6 +234,23 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         globalMoranI: lm.lisaValues.reduce((a, b) => a + b, 0) / lm.lisaValues.length
       },
       data: lm
+    };
+  },
+
+  histogram: function ({k, variableName}, {dataContainer}): HistogramOutput {
+    // get column data
+    const columnData = getColumnData(variableName, dataContainer);
+    // call histogram function
+    const result = createHistogram(columnData, k);
+    return {
+      type: 'histogram',
+      name: 'Histogram',
+      result: {
+        id: Math.random().toString(36).substring(7),
+        variableName,
+        numberOfBins: k,
+        histogram: result
+      }
     };
   }
 };

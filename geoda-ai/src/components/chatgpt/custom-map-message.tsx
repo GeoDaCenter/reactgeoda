@@ -1,28 +1,39 @@
-import {WeightsMeta} from 'geoda-wasm';
 import {Button} from '@nextui-org/react';
 import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 
-import {addWeights} from '@/actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {GeoDaState} from '@/store';
+import {createCustomScaleMap} from '@/utils/mapping-functions';
+import {getLayer} from '@/utils/data-utils';
 
 /**
- * Custom Weights Message
+ * Custom Map Message
  */
-export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   const [hide, setHide] = useState(false);
-  const {output} = props;
+  const {functionArgs, output} = props;
+
   const dispatch = useDispatch();
 
-  const weights = output.data as number[][];
-  const weightsMeta: WeightsMeta = output.result as WeightsMeta;
+  // use selector to get layer
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   // handle click event
   const onClick = () => {
-    // dispatch action to update redux state state.root.weights
-    dispatch(addWeights({weights, weightsMeta, isNew: true}));
+    if ('mapping' === output.type) {
+      const breaks = output.result as Array<number>;
+      const {variableName} = functionArgs;
+      createCustomScaleMap({
+        breaks,
+        mappingType: output.name,
+        colorFieldName: variableName,
+        dispatch,
+        layer
+      });
+    }
     // hide the button once clicked
     setHide(true);
   };
@@ -39,7 +50,7 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => 
         >
           <Typewriter
             options={{
-              strings: `Click to Add This Spatial Weights`,
+              strings: `Click to Add This Map`,
               autoStart: true,
               loop: false,
               delay: 10

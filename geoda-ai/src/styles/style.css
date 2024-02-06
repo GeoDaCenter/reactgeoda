@@ -178,6 +178,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  height: 100vh;
 }
 
 .react-geoda .prop-box .prop-box-close {
@@ -190,13 +191,6 @@
 
 .x-close {
   padding: 4px;
-}
-
-.react-geoda .prop-box .prop-box-content {
-  flex: 1;
-  flex-grow: 1;
-  overflow: auto;
-  padding: 0px;
 }
 
 /* readjust the size of the close button in modal dialog */

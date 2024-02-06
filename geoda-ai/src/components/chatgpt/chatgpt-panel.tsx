@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import {
   MainContainer,
@@ -7,21 +7,19 @@ import {
   Message,
   MessageInput,
   MessageModel,
-  TypingIndicator,
-  MessagePayload
+  TypingIndicator
 } from '@chatscope/chat-ui-kit-react';
 import {useIntl} from 'react-intl';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
-import {CustomFunctionNames} from '@/utils/custom-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {CustomMessagePayload, CreateCustomMessage} from './custom-messages';
+import {CustomMessage} from './custom-messages';
 
 const DEFAULT_WELCOME_MESSAGE =
-  "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data.";
+  "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
 
 const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
@@ -29,10 +27,7 @@ const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
-  const geodaState = useSelector((state: GeoDaState) => state);
   const {initOpenAI, processMessage} = useChatGPT();
-
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
 
   useEffect(() => {
@@ -97,65 +92,55 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
     setIsTyping(false);
   };
 
-  function renderCustomMessage(payload: MessagePayload, i: number) {
-    const {functionName, functionArgs, output} = payload as CustomMessagePayload;
-    if (
-      functionName === CustomFunctionNames.QUANTILE_BREAKS ||
-      functionName === CustomFunctionNames.NATURAL_BREAKS ||
-      functionName === CustomFunctionNames.KNN_WEIGHT ||
-      functionName === CustomFunctionNames.LOCAL_MORAN
-    ) {
-      return <CreateCustomMessage props={{key: i, functionArgs, output, dispatch, geodaState}} />;
+  // scroll to bottom when new message is added
+  useEffect(() => {
+    // hack to scroll to bottom
+    const element = document.getElementById('chat-message-list');
+    if (element?.firstElementChild) {
+      element.firstElementChild.scrollTop = element.firstElementChild.scrollHeight;
     }
-    return null;
-  }
+  }, [messages]);
 
   return (
-    <AutoSizer>
-      {({height, width}) => (
-        <div
-          style={{
-            position: 'relative',
-            height: `${height}px`,
-            width: `${width}px`
-          }}
-        >
-          <MainContainer>
-            <ChatContainer>
-              <MessageList
-                autoScrollToBottom={true}
-                scrollBehavior="smooth"
-                typingIndicator={
-                  isTyping ? (
-                    <TypingIndicator
-                      content={intl.formatMessage({
-                        id: 'chatGpt.isTyping',
-                        defaultMessage: 'GeoDa.AI is typing'
-                      })}
-                    />
-                  ) : null
-                }
-              >
-                {messages.map((message, i) => {
-                  return message.type === 'custom' ? (
-                    renderCustomMessage(message.payload, i)
-                  ) : (
-                    <Message key={i} model={message} />
-                  );
+    <MainContainer>
+      <ChatContainer>
+        <MessageList
+          id="chat-message-list"
+          autoScrollToBottom={true}
+          autoScrollToBottomOnMount={false}
+          scrollBehavior="smooth"
+          typingIndicator={
+            isTyping ? (
+              <TypingIndicator
+                content={intl.formatMessage({
+                  id: 'chatGpt.isTyping',
+                  defaultMessage: 'GeoDa.AI is typing'
                 })}
-              </MessageList>
-              <MessageInput
-                placeholder={intl.formatMessage({
-                  id: 'chatGpt.inputPlaceholder',
-                  defaultMessage: 'Type message here'
-                })}
-                onSend={handleSend}
               />
-            </ChatContainer>
-          </MainContainer>
-        </div>
-      )}
-    </AutoSizer>
+            ) : null
+          }
+        >
+          {messages.map((message, i) => {
+            return message.type === 'custom' ? (
+              <Message key={i} model={{direction: 'incoming', type: 'custom', position: 'normal'}}>
+                <Message.CustomContent className="bg-none">
+                  <CustomMessage props={message.payload ?? {}} />
+                </Message.CustomContent>
+              </Message>
+            ) : (
+              <Message key={i} model={message} />
+            );
+          })}
+        </MessageList>
+        <MessageInput
+          placeholder={intl.formatMessage({
+            id: 'chatGpt.inputPlaceholder',
+            defaultMessage: 'Type message here'
+          })}
+          onSend={handleSend}
+        />
+      </ChatContainer>
+    </MainContainer>
   );
 };
 
@@ -175,7 +160,7 @@ const ChatGPTPanel = () => {
       })}
       description={intl.formatMessage({
         id: 'chatGpt.description',
-        defaultMessage: 'Powered by ChatGPT'
+        defaultMessage: 'Powered by OpenAI'
       })}
     >
       {!openAIKey ? (

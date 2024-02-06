@@ -1,7 +1,7 @@
 {
   "fileUpload.dropHere": "Drop the files here ...",
   "fileUpload.dragDropClick": "Drag and drop csv, geojson, or json files here, or click to select files",
-  "chatGpt.initialMessage": "Hello, I'm GeoDa.AI powered by ChatGPT! Let's do spatial analysis! Ask me anything about your data.",
+  "chatGpt.initialMessage": "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.",
   "chatGpt.isTyping": "ChatGPT is typing",
   "chatGpt.inputPlaceholder": "Type the message here",
   "toolbar.title": "Toolbar",

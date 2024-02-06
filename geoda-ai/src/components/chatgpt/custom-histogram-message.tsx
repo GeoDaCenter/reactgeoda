@@ -1,35 +1,42 @@
-import {WeightsMeta} from 'geoda-wasm';
 import {Button} from '@nextui-org/react';
 import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 
-import {addWeights} from '@/actions';
+import {HistogramPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
+import {HistogramOutput} from '@/utils/custom-functions';
+import {HistogramPlot} from '../plots/histogram-plot';
 import {useDispatch} from 'react-redux';
 
 /**
- * Custom Weights Message
+ * Custom Histogram Message
  */
-export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) => {
+  const dispatch = useDispatch();
   const [hide, setHide] = useState(false);
   const {output} = props;
-  const dispatch = useDispatch();
 
-  const weights = output.data as number[][];
-  const weightsMeta: WeightsMeta = output.result as WeightsMeta;
+  const {id, variableName, histogram} = output.result as HistogramOutput['result'];
+
+  const histogramPlotProps: HistogramPlotProps = {
+    id,
+    type: 'histogram',
+    variable: variableName,
+    data: histogram
+  };
 
   // handle click event
   const onClick = () => {
     // dispatch action to update redux state state.root.weights
-    dispatch(addWeights({weights, weightsMeta, isNew: true}));
+    dispatch(addPlot({id, type: 'histogram', variable: variableName, data: histogram}));
     // hide the button once clicked
     setHide(true);
   };
 
   return (
     <div className="w-60">
-      {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
+      {<HistogramPlot props={histogramPlotProps} />}
       {!hide && (
         <Button
           radius="full"
@@ -39,7 +46,7 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => 
         >
           <Typewriter
             options={{
-              strings: `Click to Add This Spatial Weights`,
+              strings: `Click to Add This Histogram`,
               autoStart: true,
               loop: false,
               delay: 10

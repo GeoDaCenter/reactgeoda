@@ -87,15 +87,10 @@
   border-bottom: 1px solid var(--gray-300);
 }
 
-.right-panel-container .form-wrapper {
-  align-self: stretch;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  flex-grow: 1;
+.right-panel-container .panel-content-wrapper {
   padding: 16px 16px 0px;
-  position: relative;
   width: 100%;
+  height: calc(100% - 91px);
 }
 
 .right-panel-container .form {

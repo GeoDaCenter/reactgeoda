@@ -102,7 +102,7 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       return acc;
     }, []);
     return {
-      value: hasHighlighted ? highlightedIds.length : 0,
+      value: hasHighlighted ? highlightedIds?.length : 0,
       itemStyle: {
         color: defaultBarColors[i % defaultBarColors.length],
         opacity: 1
@@ -224,8 +224,8 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       },
       formatter: function (params: any) {
         // ids that associated with the bar
-        const range = params[0].data.label;
-        const count = params[0].value;
+        const range = params[1].data.label;
+        const count = params[1].value;
         return `Range: ${range}<br/> # Observations: ${count}`;
       }
     },
@@ -244,6 +244,7 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       }
     ]
   };
+  console.log('getChartOption', option);
   return option;
 }
 
@@ -310,6 +311,11 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
     return layer.filteredIndex;
   });
 
+  // use selector to check if plot is in state
+  const validPlot = useSelector((state: GeoDaState) =>
+    state.root.plots.find(p => p.id === props.id)
+  );
+
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
     return getChartOption(filteredIndex, props);
@@ -342,7 +348,8 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           : [];
 
       console.log('brushSelected', brushed);
-      if (brushed.length === 0) {
+      // check if this plot is in state.plots
+      if (validPlot && brushed.length === 0) {
         // reset options
         const chart = eChartsRef.current;
         if (chart) {
@@ -351,12 +358,13 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           chartInstance.setOption(updatedOption);
         }
       }
-
-      // dispatch action to highlight the selected ids
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex}
-      });
+      if (validPlot) {
+        // dispatch action to highlight the selected ids
+        dispatch({
+          type: 'SET_FILTER_INDEXES',
+          payload: {dataLabel: tableName, filteredIndex}
+        });
+      }
     }
     // brushEnd: function (params: any) {
     //   console.log('brushEnd');

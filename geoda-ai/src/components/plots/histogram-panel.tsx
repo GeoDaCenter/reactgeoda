@@ -26,7 +26,7 @@ export function HistogramPanel() {
   const [intervals, setIntervals] = useState(7);
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
-  // TODO use selector to get dataContainer
+  // use selector to get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );

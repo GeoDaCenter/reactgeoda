@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
-import {createMapBreaks, useMapping} from '@/utils/mapping-functions';
+import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnDataFromKeplerLayer, getNumericFieldNames} from '@/utils/data-utils';
@@ -90,9 +90,6 @@ export function MappingPanel() {
 
   // useState for mapping type
   const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
-
-  // use mapping hooks
-  const {createCustomScaleMap} = useMapping();
 
   // use selector to get tableName from redux store
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
