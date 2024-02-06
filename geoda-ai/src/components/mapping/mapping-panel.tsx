@@ -130,7 +130,7 @@ export function MappingPanel() {
     if (!tableName) return;
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState);
+    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState.datasets);
 
     // run quantile breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);

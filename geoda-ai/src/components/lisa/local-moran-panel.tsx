@@ -73,7 +73,7 @@ export function LocalMoranPanel() {
     }
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState);
+    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState.datasets);
 
     // get permutation input
     const permutations = parseFloat(permValue) || 999;

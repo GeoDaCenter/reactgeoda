@@ -7,7 +7,7 @@ import {VariableSelector} from '../common/variable-selector';
 import {ChangeEvent, Key, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
-import {getColumnDataFromKeplerLayer} from '@/utils/data-utils';
+import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/histogram-utils';
 import {addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
@@ -26,8 +26,10 @@ export function HistogramPanel() {
   const [intervals, setIntervals] = useState(7);
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
-  // TODO use selector to get visState
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  // TODO use selector to get dataContainer
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
+  );
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
@@ -40,7 +42,7 @@ export function HistogramPanel() {
   const onCreateHistogram = () => {
     console.log('Create histogram');
     // get data from variable
-    const data = getColumnDataFromKeplerLayer(tableName, variable, visState);
+    const data = getColumnData(tableName, variable, dataContainer);
     const histogram = createHistogram(data, 7);
     // generate random id for histogram
     const id = Math.random().toString(36).substring(7);

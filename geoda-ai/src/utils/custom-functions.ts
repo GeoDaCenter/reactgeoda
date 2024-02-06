@@ -94,7 +94,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
       };
     }
-    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState);
+    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
     if (!columnData || columnData.length === 0) {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
@@ -109,7 +109,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
       };
     }
-    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState);
+    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
     if (!columnData || columnData.length === 0) {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
@@ -181,7 +181,11 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       };
     }
     // get column data
-    const columnData = await getColumnDataFromKeplerLayer(tableName, variableName, visState);
+    const columnData = await getColumnDataFromKeplerLayer(
+      tableName,
+      variableName,
+      visState.datasets
+    );
     if (!columnData || columnData.length === 0) {
       return {result: 'Error: column data is empty'};
     }
