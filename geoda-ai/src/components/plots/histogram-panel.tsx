@@ -42,7 +42,7 @@ export function HistogramPanel() {
   const onCreateHistogram = () => {
     console.log('Create histogram');
     // get data from variable
-    const data = getColumnData(tableName, variable, dataContainer);
+    const data = getColumnData(variable, dataContainer);
     const histogram = createHistogram(data, 7);
     // generate random id for histogram
     const id = Math.random().toString(36).substring(7);

@@ -3,6 +3,7 @@ import {createLogger} from 'redux-logger';
 
 import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
+import {Filter} from '@kepler.gl/types';
 
 import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
@@ -83,8 +84,18 @@ const customizedKeplerGlReducer = keplerGlReducer
         l.formatLayerData(datasets);
       });
 
+      // remove filters that typ is polygon
+      const filters = visState.filters.filter((f: Filter) => f.type !== 'polygon');
       return {
-        ...state
+        ...state,
+        visState: {
+          ...visState,
+          datasets: {
+            ...datasets,
+            [dataId]: dataset
+          },
+          filters
+        }
       };
     }
   });
@@ -97,11 +108,7 @@ const reducers = combineReducers({
 // Customize logger
 const loggerMiddleware = createLogger({
   predicate: (_getState: any, action: any) => {
-    const skipLogging = [
-      '@@kepler.gl/LAYER_HOVER',
-      '@@kepler.gl/MOUSE_MOVE',
-      '@@kepler.gl/SET_FEATURES'
-    ];
+    const skipLogging = ['@@kepler.gl/LAYER_HOVER', '@@kepler.gl/MOUSE_MOVE'];
     return !skipLogging.includes(action.type);
   }
 });

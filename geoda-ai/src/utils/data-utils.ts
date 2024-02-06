@@ -137,9 +137,8 @@ export function checkIfFieldNameExists(
 }
 
 export function getColumnData(
-  tableName: string,
   columnName: string,
-  dataContainer: DataContainerInterface
+  dataContainer: DataContainerInterface | null
 ): Array<number> {
   // get dataset from datasets if dataset.label === tableName
   if (dataContainer) {

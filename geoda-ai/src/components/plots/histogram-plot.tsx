@@ -69,6 +69,7 @@ import {
 } from 'echarts/renderers';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeojsonLayer, Layer} from '@kepler.gl/layers';
+import {Filter} from '@kepler.gl/types';
 
 import {HistogramDataItemProps, HistogramDataProps} from '@/utils/histogram-utils';
 import {GeoDaState} from '@/store';
@@ -101,14 +102,14 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       return acc;
     }, []);
     return {
-      value: highlightedIds.length,
+      value: hasHighlighted ? highlightedIds.length : 0,
       itemStyle: {
         color: defaultBarColors[i % defaultBarColors.length],
         opacity: 1
       },
       label: `[${d.binStart.toFixed(1)} - ${d.binEnd.toFixed(1)}]`,
       // ids that associated with the bar and been filtered
-      ids: highlightedIds
+      ids: hasHighlighted ? highlightedIds : 0
     };
   });
 
@@ -130,7 +131,9 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       value: hasHighlighted ? d.count - highlightedBars[i].value : d.count,
       itemStyle: {
         color: defaultBarColors[i % defaultBarColors.length],
-        opacity: hasHighlighted ? 0.5 : 1
+        opacity: hasHighlighted ? 0.5 : 1,
+        shadowBlur: 10,
+        shadowColor: 'rgba(0,0,0,0.3)'
       },
       label: `[${d.binStart.toFixed(1)} - ${d.binEnd.toFixed(1)}]`,
       // ids that associated with the bar and been filtered
@@ -139,23 +142,19 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
   });
 
   const series = [
-    ...(hasHighlighted
-      ? [
-          {
-            data: highlightedBars,
-            type: 'bar',
-            barWidth: '90%',
-            stack: 'total',
-            xAxisIndex: 1
-          }
-        ]
-      : []),
+    {
+      data: highlightedBars,
+      type: 'bar',
+      barWidth: '90%',
+      stack: 'total',
+      xAxisIndex: 0
+    },
     {
       data: barData,
       type: 'bar',
       barWidth: '90%',
       stack: 'total',
-      xAxisIndex: 1,
+      xAxisIndex: 0,
       label: {
         show: false,
         position: [0, -15],
@@ -170,21 +169,6 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
   const option: EChartsOption = {
     xAxis: [
       {
-        scale: true,
-        type: 'value',
-        min: minValue,
-        max: maxValue,
-        interval: interval,
-        axisLabel: {
-          hideOverlap: true,
-          rotate: 35,
-          overflow: 'truncate',
-          formatter: function (d: any) {
-            return `${d.toFixed(1)}`;
-          }
-        }
-      },
-      {
         type: 'category',
         // data: xTickValues,
         // axisLabel: {
@@ -197,7 +181,27 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
         // },
         axisTick: {show: false},
         axisLabel: {show: false},
-        axisLine: {show: false}
+        axisLine: {show: false},
+        position: 'bottom'
+      },
+      {
+        scale: true,
+        type: 'value',
+        min: minValue,
+        max: maxValue,
+        interval: interval,
+        axisLabel: {
+          hideOverlap: true,
+          rotate: 35,
+          overflow: 'truncate',
+          formatter: function (d: any) {
+            return `${d.toFixed(1)}`;
+          }
+        },
+        splitLine: {
+          show: false
+        },
+        position: 'bottom'
       }
     ],
     yAxis: {
@@ -206,6 +210,9 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
         formatter: function (d: any) {
           return `${d}`;
         }
+      },
+      splitLine: {
+        show: true
       }
     },
     // @ts-ignore
@@ -223,7 +230,7 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       }
     },
     brush: {
-      toolbox: ['rect', 'polygon', 'lineX', 'lineY', 'keep', 'clear'],
+      toolbox: ['rect', 'keep', 'clear'],
       xAxisIndex: 0
     },
     grid: [
@@ -242,30 +249,46 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
 
 type EChartsUpdaterProps = {
   filteredIndex: Uint8ClampedArray | null;
-  tableName: string;
   eChartsRef: RefObject<ReactEChartsCore>;
   props: HistogramPlotProps;
   getChartOption: (filteredIndex: Uint8ClampedArray | null, props: HistogramPlotProps) => any;
 };
 
-const EChartsUpdater = ({filteredIndex, tableName, eChartsRef, props}: EChartsUpdaterProps) => {
+const EChartsUpdater = ({
+  filteredIndex,
+  eChartsRef,
+  props,
+  getChartOption
+}: EChartsUpdaterProps) => {
   // use selector to get filteredIndexTrigger
-  const filteredIndexTrigger = useSelector((state: GeoDaState) => {
-    const layer: GeojsonLayer = state.keplerGl[MAP_ID].visState.layers.find((layer: Layer) =>
-      tableName.startsWith(layer.config.label)
+  // const filteredIndexTrigger = useSelector((state: GeoDaState) => {
+  //   const layer: GeojsonLayer = state.keplerGl[MAP_ID].visState.layers.find((layer: Layer) =>
+  //     tableName.startsWith(layer.config.label)
+  //   );
+  //   return layer.filteredIndexTrigger;
+  // });
+
+  // use selector to get filters with type === 'polygon'
+  const polygonFilter = useSelector((state: GeoDaState) => {
+    const polyFilter = state.keplerGl[MAP_ID].visState.filters.find(
+      (f: Filter) => f.type === 'polygon' && f.enabled === true
     );
-    return layer.filteredIndexTrigger;
+    return polyFilter?.value?.geometry;
   });
 
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
-    console.log('filteredIndexTrigger changed');
-    if (eChartsRef.current) {
-      console.log('setOption');
+    if (eChartsRef.current && polygonFilter) {
+      console.log('EChartsUpdater setOption');
       const updatedOption = getChartOption(filteredIndex, props);
-      eChartsRef.current?.getEchartsInstance().setOption(updatedOption);
+      const chart = eChartsRef.current;
+      if (chart) {
+        const chartInstance = chart.getEchartsInstance();
+        // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
+        chartInstance.setOption(updatedOption, true);
+      }
     }
-  }, [eChartsRef, filteredIndex, filteredIndexTrigger, props]);
+  }, [eChartsRef, filteredIndex, getChartOption, polygonFilter, props]);
 
   return null;
 };
@@ -289,7 +312,6 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    console.log('run getChartOption');
     return getChartOption(filteredIndex, props);
   }, [filteredIndex, props]);
 
@@ -304,7 +326,6 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
     //   });
     // },
     brushSelected: function (params: any) {
-      console.log('brushSelected', params);
       const brushed = [];
       const brushComponent = params.batch[0];
 
@@ -314,19 +335,32 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
         brushed.push(...rawIndices);
       }
 
-      if (brushed.length > 0) {
-        console.log('brushed set dispatch');
-        // get selected ids from brushed bars
-        const filteredIndex = brushed
-          .map((idx: number) => props.data[idx].items.map(item => item.index))
-          .flat();
-        // dispatch action to highlight the selected ids
-        dispatch({
-          type: 'SET_FILTER_INDEXES',
-          payload: {dataLabel: tableName, filteredIndex}
-        });
+      // get selected ids from brushed bars
+      const filteredIndex =
+        brushed.length > 0
+          ? brushed.map((idx: number) => props.data[idx].items.map(item => item.index)).flat()
+          : [];
+
+      console.log('brushSelected', brushed);
+      if (brushed.length === 0) {
+        // reset options
+        const chart = eChartsRef.current;
+        if (chart) {
+          const chartInstance = chart.getEchartsInstance();
+          const updatedOption = getChartOption(null, props);
+          chartInstance.setOption(updatedOption);
+        }
       }
+
+      // dispatch action to highlight the selected ids
+      dispatch({
+        type: 'SET_FILTER_INDEXES',
+        payload: {dataLabel: tableName, filteredIndex}
+      });
     }
+    // brushEnd: function (params: any) {
+    //   console.log('brushEnd');
+    // }
   };
 
   // get reference of echarts
@@ -353,7 +387,6 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
         />
         <EChartsUpdater
           filteredIndex={filteredIndex}
-          tableName={tableName}
           eChartsRef={eChartsRef}
           props={props}
           getChartOption={getChartOption}
