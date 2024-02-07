@@ -47,6 +47,12 @@ export function Navigator() {
     (state: GeoDaState) => state.root.weights.filter(weight => weight.isNew).length
   );
 
+  // get number of newly added plots from state.root.plots
+  const newHistogramCount = useSelector(
+    (state: GeoDaState) =>
+      state.root.plots.filter(plot => plot.isNew && plot.type === 'histogram').length
+  );
+
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
       // dispatch action to open modal, update redux state state.root.uiState.showOpenFileModal
@@ -133,11 +139,21 @@ export function Navigator() {
           />
         </Badge>
         <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} />
-        <IconHistogram
-          className="design-component-instance-node cursor-pointer"
-          onClick={onClickIconCallback}
-          isEnabled={isFileLoaded}
-        />
+        <Badge
+          color="danger"
+          content={newHistogramCount}
+          isInvisible={newHistogramCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+          className="absolute left-0"
+        >
+          <IconHistogram
+            className="design-component-instance-node cursor-pointer"
+            onClick={onClickIconCallback}
+            isEnabled={isFileLoaded}
+          />
+        </Badge>
         <IconBoxplot className="icon-boxplot-instance" />
         <IconScatterplot className="design-component-instance-node" />
         <IconCartogram className="icon-cartogram-instance" />

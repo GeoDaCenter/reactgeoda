@@ -268,3 +268,6 @@ div[mapboxgl-children] {
 .cs-button--attachment {
   color: #999999 !important; 
 }
+.cs-typing-indicator {
+  background-color: transparent !important;
+}

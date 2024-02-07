@@ -30,7 +30,9 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   // handle click event
   const onClick = () => {
     // dispatch action to update redux state state.root.weights
-    dispatch(addPlot({id, type: 'histogram', variable: variableName, data: histogram}));
+    dispatch(
+      addPlot({id, type: 'histogram', variable: variableName, data: histogram, isNew: true})
+    );
     // hide the button once clicked
     setHide(true);
   };

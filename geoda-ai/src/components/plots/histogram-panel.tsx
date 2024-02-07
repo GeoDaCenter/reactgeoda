@@ -54,6 +54,17 @@ export function HistogramPanel() {
   const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
+  // reset isNew flag of plots
+  useEffect(() => {
+    if (newPlotsCount > 0) {
+      plots.forEach((plot: PlotProps) => {
+        if (plot.isNew) {
+          plot.isNew = false;
+        }
+      });
+    }
+  }, [newPlotsCount, plots]);
+
   // monitor state.root.plots, if plots.length changed, update the tab title
   const plotsLength = plots?.length;
   useEffect(() => {

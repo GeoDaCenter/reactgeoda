@@ -252,7 +252,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     // remove key items from hist
     const histogram = hist.map((h: HistogramDataProps) => {
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {items, ...rest} = h;
       return rest;
     });
