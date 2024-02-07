@@ -6,6 +6,7 @@ export type UiAction = {
 };
 
 const initialState = {
+  theme: 'light',
   showOpenFileModal: false,
   showKeplerTableModal: false,
   showGridView: false

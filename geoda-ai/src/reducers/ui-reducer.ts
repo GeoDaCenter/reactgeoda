@@ -8,6 +8,7 @@ export type UiAction = {
 };
 
 const initialState = {
+  theme: 'light',
   showOpenFileModal: false,
   showKeplerTableModal: false,
   showGridView: false,
@@ -18,6 +19,11 @@ const initialState = {
 
 export const uiReducer = (state = initialState, action: UiAction) => {
   switch (action.type) {
+    case UI_ACTIONS.SET_THEME:
+      return {
+        ...state,
+        theme: action.payload
+      };
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {
         ...state,

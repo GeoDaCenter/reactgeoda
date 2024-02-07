@@ -375,7 +375,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
   return (
-    <Card className="my-4">
+    <Card className="my-4" shadow="none">
       <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
         <p className="text-tiny font-bold uppercase">{props.type}</p>
         <small className="text-default-500">{props.variable}</small>

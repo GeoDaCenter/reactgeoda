@@ -1,41 +1,31 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
-import {useTheme} from 'styled-components';
+import {themeLT, theme as themeDK} from '@kepler.gl/styles';
+
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
-import {useEffect} from 'react';
-
-// type KeplerMapProps = {
-//   dispatch?: any;
-//   dataUrl?: string;
-// };
+import {useSelector} from 'react-redux';
 
 const KeplerMap = () => {
-  const theme = useTheme();
+  // use selector to get theme
+  const theme = useSelector((state: any) => state.root.uiState.theme);
 
   // trigger use hooks to load wasm files
   useDuckDB();
-  const {runNaturalBreaks} = useGeoDa();
-
-  useEffect(() => {
-    // run runNaturalBreaks in useEffect
-    const breaks = runNaturalBreaks(2, [1, 2, 3, 4, 5, 6]);
-    console.log('natural breaks:', breaks);
-  }, [runNaturalBreaks]);
+  useGeoDa();
 
   return (
     <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>
       <AutoSizer defaultHeight={400} defaultWidth={500}>
         {({height, width}) => {
-          console.log('height', height, 'width', width);
           return (
             <KeplerGl
               id={MAP_ID}
               mapboxApiAccessToken={MAPBOX_TOKEN}
               height={height}
               width={width}
-              theme={theme}
+              theme={theme === 'light' ? themeLT : themeDK}
             />
           );
         }}

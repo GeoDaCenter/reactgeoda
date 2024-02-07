@@ -9,6 +9,8 @@ export const metadata = {
   description: 'Powered by GeoDa'
 };
 
+// for <Providers> see https://nextui.org/docs/frameworks/nextjs
+
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className="light">

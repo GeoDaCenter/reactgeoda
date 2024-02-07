@@ -21,6 +21,8 @@ import {
 import {setGridView, setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
+import {ThemeSwitcher} from '../buttons/theme-switch';
+import {DashboardSwitcher} from '../buttons/bashboard-switch';
 
 export function Navigator() {
   const dispatch = useDispatch();
@@ -35,8 +37,6 @@ export function Navigator() {
   useEffect(() => {
     setIsFileLoaded(Boolean(fileName));
   }, [fileName]);
-
-  const [showGridView, setShowGridView] = useState(false);
 
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
@@ -98,11 +98,6 @@ export function Navigator() {
     },
     [dispatch]
   );
-
-  const onToggleGridCallback = useCallback(() => {
-    setShowGridView(!setShowGridView);
-    dispatch(setGridView(!setShowGridView));
-  }, [dispatch]);
 
   return (
     <div className="toolbar">
@@ -169,18 +164,8 @@ export function Navigator() {
         />
       </div>
       <div className="user-box">
-        <div>
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              value=""
-              className="peer sr-only"
-              checked={showGridView}
-              onChange={onToggleGridCallback}
-            />
-            <div className="dark:border-gray-600·dark:bg-gray-700·dark:peer-focus:ring-blue-800·rtl:peer-checked:after:-translate-x-full peer h-4 w-6 rounded-full bg-gray-200 after:absolute after:start-[0px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
-          </label>
-        </div>
+        <DashboardSwitcher />
+        <ThemeSwitcher />
         <Avatar onClick={onClickIconCallback} />
       </div>
     </div>

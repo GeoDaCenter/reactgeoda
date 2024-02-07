@@ -32,6 +32,7 @@ export type GeoDaState = {
     localMoranData: any;
     language: string;
     uiState: {
+      theme: 'light' | 'dark';
       showPropertyPanel: boolean;
       propertyPanelName: string;
       showOpenFileModal: boolean;
