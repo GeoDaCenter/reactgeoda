@@ -1,5 +1,9 @@
 import {VisState} from '@kepler.gl/schemas';
 import {GeojsonLayer, Layer} from '@kepler.gl/layers';
+import {KeplerTable, Datasets} from '@kepler.gl/table';
+import {DataContainerInterface} from '../../../../csds_kepler/src/utils/src/data-container-interface';
+import {MAP_ID} from '@/constants';
+import {GeoDaState} from '@/store';
 
 /**
  * Get the names of the integer and string fields from the kepler.gl layer
@@ -79,12 +83,14 @@ export function getNumericFieldNames(tableName: string, visState: VisState): Arr
 export function getColumnDataFromKeplerLayer(
   tableName: string,
   columnName: string,
-  visState: VisState
+  datasets: Datasets
 ): Array<number> {
-  const layer = getKeplerLayer(tableName, visState);
-
-  if (layer) {
-    const dataContainer = layer.dataContainer;
+  // get dataset from datasets if dataset.label === tableName
+  const dataset = Object.values(datasets).find(
+    (dataset: KeplerTable) => dataset.label === tableName
+  );
+  if (dataset) {
+    const dataContainer = dataset.dataContainer;
     if (!dataContainer) {
       return [];
     }
@@ -130,4 +136,88 @@ export function checkIfFieldNameExists(
   // check if fieldName exists in fields
   const isExisted = fields?.some(field => field.name === fieldName) || false;
   return isExisted;
+}
+
+// get data type of a specific column
+export function getColumnDataType(
+  columnName: string,
+  dataContainer: DataContainerInterface | null
+): string {
+  // get dataset from datasets if dataset.label === tableName
+  if (dataContainer) {
+    // get column index from dataContainer
+    let columnIndex = -1;
+    for (let i = 0; i < dataContainer.numColumns(); i++) {
+      const field = dataContainer.getField?.(i);
+      if (field && field.name === columnName) {
+        columnIndex = i;
+        break;
+      }
+    }
+
+    // get column data from dataContainer
+    const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
+    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+      // handle error
+      return 'string';
+    }
+
+    return 'number';
+  }
+
+  return 'string';
+}
+
+export function getColumnData(
+  columnName: string,
+  dataContainer: DataContainerInterface | null
+): Array<number> {
+  // get dataset from datasets if dataset.label === tableName
+  if (dataContainer) {
+    // get column index from dataContainer
+    let columnIndex = -1;
+    for (let i = 0; i < dataContainer.numColumns(); i++) {
+      const field = dataContainer.getField?.(i);
+      if (field && field.name === columnName) {
+        columnIndex = i;
+        break;
+      }
+    }
+
+    // get column data from dataContainer
+    const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
+    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+      // handle error
+      return [];
+    }
+
+    return columnData;
+  }
+
+  return [];
+}
+
+export function getDataContainer(
+  tableName: string,
+  datasets: Datasets
+): DataContainerInterface | null {
+  // get dataset from datasets if dataset.label === tableName
+  const dataset = Object.values(datasets).find(
+    (dataset: KeplerTable) => dataset.label === tableName
+  );
+  return dataset?.dataContainer || null;
+}
+
+export function getLayer(state: GeoDaState) {
+  const tableName = state.root.file?.rawFileData?.name;
+  return state.keplerGl[MAP_ID].map?.visState?.layers.find((layer: Layer) =>
+    tableName.startsWith(layer.config.label)
+  );
+}
+
+export function getDataset(state: GeoDaState) {
+  const tableName = state.root.file?.rawFileData?.name;
+  const datasets = state.keplerGl[MAP_ID].map?.visState?.datasets;
+  const dataset = datasets.find((dataset: KeplerTable) => dataset.label === tableName);
+  return dataset;
 }

@@ -36,7 +36,7 @@ export const CHAT_FIELD_NAME_NOT_FOUND =
   'Error: field name is not found. User may forget to mention a field name.';
 
 export const CHAT_COLUMN_DATA_NOT_FOUND =
-  'Error: column data is empty. User may forget to mention a field name.';
+  'Error: column data is empty. User may forget to mention a field name, or the field type does not match the required data type.';
 
 export const CHAT_WEIGHTS_NOT_FOUND =
   'Error: spatial weights is not found. User may forget to create a spatial weights. User can create a spatial weights using "create spatial weights" command.';

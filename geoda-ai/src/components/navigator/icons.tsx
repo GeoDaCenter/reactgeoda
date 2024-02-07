@@ -177,9 +177,13 @@ export const IconChoropleth = ({className, isEnabled}: IconProps) => {
   );
 };
 
-export const IconHistogram = ({className, isEnabled}: IconProps) => {
+export const IconHistogram = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}>
+    <div
+      id="icon-histogram"
+      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
+      onClick={onClick}
+    >
       <svg
         width="24"
         height="24"

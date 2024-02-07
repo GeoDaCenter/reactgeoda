@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
-import {createMapBreaks, useMapping} from '@/utils/mapping-functions';
+import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnDataFromKeplerLayer, getNumericFieldNames} from '@/utils/data-utils';
@@ -91,18 +91,17 @@ export function MappingPanel() {
   // useState for mapping type
   const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
 
-  // use mapping hooks
-  const {createCustomScaleMap} = useMapping();
-
-  const geodaState = useSelector((state: GeoDaState) => state);
-
+  // use selector to get tableName from redux store
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+
+  // use selector to get visState from redux store
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, geodaState.keplerGl[MAP_ID].visState);
+    const fieldNames = getNumericFieldNames(tableName, visState);
     return fieldNames;
-  }, [geodaState.keplerGl, tableName]);
+  }, [tableName, visState]);
 
   // handle map type change
   const onMapTypeChange = (value: any) => {
@@ -128,17 +127,17 @@ export function MappingPanel() {
     if (!tableName) return;
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(
-      tableName,
-      variable,
-      geodaState.keplerGl[MAP_ID].visState
-    );
+    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState.datasets);
 
     // run quantile breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);
 
+    const selectState = {
+      tableName: tableName,
+      layers: visState.layers
+    };
     // create custom scale map
-    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, geodaState});
+    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, selectState});
   };
 
   return (
@@ -156,7 +155,7 @@ export function MappingPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <>
+        <div className="p-4">
           <div className="flex flex-col gap-2 ">
             <div className="space-y-1">
               <p className="text-small text-default-600">Map Type</p>
@@ -207,7 +206,7 @@ export function MappingPanel() {
           <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateMap}>
             Create Map
           </Button>
-        </>
+        </div>
       )}
     </RightPanelContainer>
   );

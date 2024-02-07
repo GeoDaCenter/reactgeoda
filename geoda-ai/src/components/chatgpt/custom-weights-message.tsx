@@ -4,15 +4,17 @@ import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 
 import {addWeights} from '@/actions';
-import {CustomMessageProps} from './custom-messages';
+import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
+import {useDispatch} from 'react-redux';
 
 /**
  * Custom Weights Message
  */
-export const CustomWeightsMessage = ({props}: {props: CustomMessageProps}) => {
+export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => {
   const [hide, setHide] = useState(false);
-  const {key, output, dispatch} = props;
+  const {output} = props;
+  const dispatch = useDispatch();
 
   const weights = output.data as number[][];
   const weightsMeta: WeightsMeta = output.result as WeightsMeta;
@@ -32,7 +34,6 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessageProps}) => {
         <Button
           radius="full"
           className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          key={key}
           onClick={onClick}
           startContent={<HeartIcon />}
         >

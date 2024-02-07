@@ -10,22 +10,19 @@ import {
 } from 'geoda-wasm';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
-import {checkIfFieldNameExists, getColumnDataFromKeplerLayer, getKeplerLayer} from './data-utils';
+import {
+  checkIfFieldNameExists,
+  getColumnDataFromKeplerLayer,
+  getKeplerLayer,
+  getColumnData
+} from './data-utils';
 import {
   CHAT_FIELD_NAME_NOT_FOUND,
   CHAT_COLUMN_DATA_NOT_FOUND,
   CHAT_WEIGHTS_NOT_FOUND
 } from '@/constants';
 import {WeightsProps} from '@/actions';
-
-// define enum for custom function names
-export enum CustomFunctionNames {
-  SUMMARIZE_DATA = 'summarizeData',
-  QUANTILE_BREAKS = 'quantileBreaks',
-  NATURAL_BREAKS = 'naturalBreaks',
-  KNN_WEIGHT = 'knnWeight',
-  LOCAL_MORAN = 'univariateLocalMoran'
-}
+import {HistogramDataProps, createHistogram} from './histogram-utils';
 
 // key is the name of the function, value is the function itself
 type CustomFunctions = {
@@ -77,6 +74,29 @@ export type UniLocalMoranOutput = {
   data: any;
 };
 
+export type HistogramOutput = {
+  type: 'histogram';
+  name: string;
+  result: {
+    id: string;
+    variableName: string;
+    numberOfBins: number;
+    histogram: Array<Omit<HistogramDataProps, 'items'>>;
+  };
+  data: HistogramDataProps[];
+};
+
+// define enum for custom function names, the value of each enum is
+// the name of the function that is defined in OpenAI assistant model
+export enum CustomFunctionNames {
+  SUMMARIZE_DATA = 'summarizeData',
+  QUANTILE_BREAKS = 'quantileBreaks',
+  NATURAL_BREAKS = 'naturalBreaks',
+  KNN_WEIGHT = 'knnWeight',
+  LOCAL_MORAN = 'univariateLocalMoran',
+  HISTOGRAM = 'histogram'
+}
+
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
   summarizeData: async function ({tableName}: SummarizeDataProps) {
     // dispatch summarize data action
@@ -94,7 +114,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
       };
     }
-    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState);
+    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
     if (!columnData || columnData.length === 0) {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
@@ -109,7 +129,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
       };
     }
-    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState);
+    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
     if (!columnData || columnData.length === 0) {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
@@ -181,7 +201,11 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       };
     }
     // get column data
-    const columnData = await getColumnDataFromKeplerLayer(tableName, variableName, visState);
+    const columnData = await getColumnDataFromKeplerLayer(
+      tableName,
+      variableName,
+      visState.datasets
+    );
     if (!columnData || columnData.length === 0) {
       return {result: 'Error: column data is empty'};
     }
@@ -211,6 +235,38 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         globalMoranI: lm.lisaValues.reduce((a, b) => a + b, 0) / lm.lisaValues.length
       },
       data: lm
+    };
+  },
+
+  histogram: function ({k, variableName}, {dataContainer}): HistogramOutput | ErrorOutput {
+    // get column data
+    const columnData = getColumnData(variableName, dataContainer);
+
+    // check column data is empty
+    if (!columnData || columnData.length === 0) {
+      return {type: 'histogram', result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+    }
+
+    // call histogram function
+    const hist = createHistogram(columnData, k);
+
+    // remove key items from hist
+    const histogram = hist.map((h: HistogramDataProps) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const {items, ...rest} = h;
+      return rest;
+    });
+
+    return {
+      type: 'histogram',
+      name: 'Histogram',
+      result: {
+        id: Math.random().toString(36).substring(7),
+        variableName,
+        numberOfBins: k,
+        histogram
+      },
+      data: hist
     };
   }
 };

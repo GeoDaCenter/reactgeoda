@@ -16,7 +16,7 @@ const initialState = {
   openAIKey: LOCAL_API_KEY
 };
 
-const uiReducer = (state = initialState, action: UiAction) => {
+export const uiReducer = (state = initialState, action: UiAction) => {
   switch (action.type) {
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {
@@ -54,5 +54,3 @@ const uiReducer = (state = initialState, action: UiAction) => {
       return state;
   }
 };
-
-export default uiReducer;

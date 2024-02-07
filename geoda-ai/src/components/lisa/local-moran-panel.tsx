@@ -33,9 +33,9 @@ export const accordionItemClasses = {
 export function LocalMoranPanel() {
   const dispatch = useDispatch();
 
-  const geodaState = useSelector((state: GeoDaState) => state);
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
 
   // useState for variable name
   const [variable, setVariable] = useState('');
@@ -45,9 +45,9 @@ export function LocalMoranPanel() {
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, geodaState.keplerGl[MAP_ID].visState);
+    const fieldNames = getNumericFieldNames(tableName, visState);
     return fieldNames;
-  }, [geodaState.keplerGl, tableName]);
+  }, [tableName, visState]);
 
   // handle variable change
   const onVariableSelectionChange = (value: any) => {
@@ -73,11 +73,7 @@ export function LocalMoranPanel() {
     }
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(
-      tableName,
-      variable,
-      geodaState.keplerGl[MAP_ID].visState
-    );
+    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState.datasets);
 
     // get permutation input
     const permutations = parseFloat(permValue) || 999;
@@ -100,7 +96,7 @@ export function LocalMoranPanel() {
     const newFieldName = `lm_${variable}`;
 
     // get dataset from kepler.gl if dataset.label === tableName
-    const datasets: KeplerTable[] = Object.values(geodaState.keplerGl[MAP_ID].visState.datasets);
+    const datasets: KeplerTable[] = Object.values(visState.datasets);
     const dataset = datasets.find(dataset => dataset.label === tableName);
     if (!dataset) {
       console.error('Dataset not found');
@@ -133,7 +129,10 @@ export function LocalMoranPanel() {
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,
-      geodaState
+      selectState: {
+        tableName: tableName,
+        layers: visState.layers
+      }
     });
   };
 

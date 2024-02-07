@@ -3,10 +3,12 @@ import {createLogger} from 'redux-logger';
 
 import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
+import {Filter} from '@kepler.gl/types';
 
 import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
 import {WeightsProps} from '@/actions/weights-actions';
+import {PlotProps} from '@/actions/plot-actions';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
@@ -38,6 +40,7 @@ export type GeoDaState = {
       openAIKey: string;
     };
     weights: Array<WeightsProps>;
+    plots: Array<PlotProps>;
   };
 };
 
@@ -73,16 +76,26 @@ const customizedKeplerGlReducer = keplerGlReducer
         return state;
       }
       const dataset = datasets[dataId];
-      dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
+      if (filteredIndex) {
+        dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
+        const layers = visState.layers.filter((l: Layer) => l.config.dataId === dataId);
+        layers.forEach((l: Layer) => {
+          l.formatLayerData(datasets);
+        });
+      }
 
-      // calculate layer data
-      const layers = visState.layers.filter((l: Layer) => l.config.dataId === dataId);
-      layers.forEach((l: Layer) => {
-        l.formatLayerData(datasets);
-      });
-
+      // remove filters that typ is polygon
+      visState.filters = visState.filters.filter((f: Filter) => f.type !== 'polygon');
       return {
         ...state
+        // visState: {
+        //   ...visState,
+        //   datasets: {
+        //     ...datasets,
+        //     [dataId]: dataset
+        //   },
+        //   filters
+        // }
       };
     }
   });
@@ -95,11 +108,7 @@ const reducers = combineReducers({
 // Customize logger
 const loggerMiddleware = createLogger({
   predicate: (_getState: any, action: any) => {
-    const skipLogging = [
-      '@@kepler.gl/LAYER_HOVER',
-      '@@kepler.gl/MOUSE_MOVE',
-      '@@kepler.gl/SET_FEATURES'
-    ];
+    const skipLogging = ['@@kepler.gl/LAYER_HOVER', '@@kepler.gl/MOUSE_MOVE'];
     return !skipLogging.includes(action.type);
   }
 });

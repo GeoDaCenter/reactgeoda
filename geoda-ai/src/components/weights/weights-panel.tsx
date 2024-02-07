@@ -10,6 +10,7 @@ import {WeightsCreationComponent} from './weights-creation';
 import {GeoDaState} from '@/store';
 import {MAP_ID} from '@/constants';
 import {getIntegerAndStringFieldNames, getKeplerLayer} from '@/utils/data-utils';
+import {WeightsProps} from '@/actions/weights-actions';
 
 const NO_MAP_LOADED_MESSAGE =
   'Please load a map first before creating and managing spatial weights.';
@@ -34,13 +35,13 @@ export function WeightsPanel() {
   }, [tableName, visState]);
 
   // check if there is any newly added weights, if there is, show weights management tab
-  const newWeightsCount = weights.filter(weight => weight.isNew).length;
+  const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
   const [showWeightsManagement, setShowWeightsManagement] = useState(newWeightsCount > 0);
 
   // reset isNew flag of weights
   useEffect(() => {
     if (newWeightsCount > 0) {
-      weights.forEach(weight => {
+      weights.forEach((weight: WeightsProps) => {
         if (weight.isNew) {
           weight.isNew = false;
         }
@@ -78,52 +79,50 @@ export function WeightsPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <>
-          <div className="flex w-full flex-col">
-            <Tabs
-              aria-label="Options"
-              variant="solid"
-              color="warning"
-              classNames={{}}
-              size="md"
-              selectedKey={showWeightsManagement ? 'weights-management' : 'weights-creation'}
-              onSelectionChange={onTabChange}
+        <div className="flex w-full flex-col p-4">
+          <Tabs
+            aria-label="Options"
+            variant="solid"
+            color="warning"
+            classNames={{}}
+            size="md"
+            selectedKey={showWeightsManagement ? 'weights-management' : 'weights-creation'}
+            onSelectionChange={onTabChange}
+          >
+            <Tab
+              key="weights-creation"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Weights Creation</span>
+                </div>
+              }
             >
-              <Tab
-                key="weights-creation"
-                title={
-                  <div className="flex items-center space-x-2">
-                    <span>Weights Creation</span>
-                  </div>
-                }
-              >
-                <Card>
-                  <CardBody>
-                    <WeightsCreationComponent
-                      validFieldNames={validFieldNames}
-                      keplerLayer={keplerLayer}
-                    />
-                  </CardBody>
-                </Card>
-              </Tab>
-              <Tab
-                key="weights-management"
-                title={
-                  <div className="flex items-center space-x-2">
-                    <span>Weights Management</span>
-                    {weights?.length > 0 && (
-                      <Chip size="sm" variant="faded">
-                        {weights.length}
-                      </Chip>
-                    )}
-                  </div>
-                }
-              >
-                <WeightsManagementComponent />
-              </Tab>
-            </Tabs>
-          </div>
-        </>
+              <Card>
+                <CardBody>
+                  <WeightsCreationComponent
+                    validFieldNames={validFieldNames}
+                    keplerLayer={keplerLayer}
+                  />
+                </CardBody>
+              </Card>
+            </Tab>
+            <Tab
+              key="weights-management"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Weights Management</span>
+                  {weights?.length > 0 && (
+                    <Chip size="sm" variant="faded">
+                      {weights.length}
+                    </Chip>
+                  )}
+                </div>
+              }
+            >
+              <WeightsManagementComponent />
+            </Tab>
+          </Tabs>
+        </div>
       )}
     </RightPanelContainer>
   );

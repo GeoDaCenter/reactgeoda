@@ -1,12 +1,11 @@
 import {combineReducers} from 'redux';
+
 import languageReducer from './language-reducer';
 import fileReducer from './file-reducer';
-import uiReducer from './ui-reducer';
 import {
   selectedGraphVariablesReducer,
   selectedChoroplethVariableReducer
 } from './select-variables-reducer';
-import plotTypeReducer from './plot-reducer';
 import choroplethMethodReducer from './choropleth-reducer';
 import numberOfBreaksReducer from './colorbreaks-reducer';
 import {
@@ -21,14 +20,16 @@ import {
   choroplethDataReducer,
   choroplethLayerReducer
 } from './kepler-layer-reducer';
+
+import {uiReducer} from './ui-reducer';
 import {weightsReducer} from './weights-reducer';
+import {plotReducer} from './plot-reducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
   file: fileReducer,
   selectedGraphVariables: selectedGraphVariablesReducer,
   selectedChoroplethVariable: selectedChoroplethVariableReducer,
-  plotType: plotTypeReducer,
   choroplethMethod: choroplethMethodReducer,
   numberOfBreaks: numberOfBreaksReducer,
   localMoranWeights: localMoranWeightsReducer,
@@ -40,7 +41,8 @@ const rootReducer = combineReducers({
   choroplethData: choroplethDataReducer,
   choroplethLayer: choroplethLayerReducer,
   uiState: uiReducer,
-  weights: weightsReducer
+  weights: weightsReducer,
+  plots: plotReducer
 });
 
 export default rootReducer;

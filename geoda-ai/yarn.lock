@@ -4092,6 +4092,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/d3-array@npm:^3":
+  version: 3.2.1
+  resolution: "@types/d3-array@npm:3.2.1"
+  checksum: 8a41cee0969e53bab3f56cc15c4e6c9d76868d6daecb2b7d8c9ce71e0ececccc5a8239697cc52dadf5c665f287426de5c8ef31a49e7ad0f36e8846889a383df4
+  languageName: node
+  linkType: hard
+
 "@types/d3-dsv@npm:^3":
   version: 3.0.7
   resolution: "@types/d3-dsv@npm:3.0.7"
@@ -5812,6 +5819,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-array@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "d3-array@npm:3.2.4"
+  dependencies:
+    internmap: 1 - 2
+  checksum: a5976a6d6205f69208478bb44920dd7ce3e788c9dceb86b304dbe401a4bfb42ecc8b04c20facde486e9adcb488b5d1800d49393a3f81a23902b68158e12cddd0
+  languageName: node
+  linkType: hard
+
 "d3-dsv@npm:^3.0.1":
   version: 3.0.1
   resolution: "d3-dsv@npm:3.0.1"
@@ -6098,6 +6114,29 @@ __metadata:
   version: 0.2.0
   resolution: "eastasianwidth@npm:0.2.0"
   checksum: 7d00d7cd8e49b9afa762a813faac332dee781932d6f2c848dc348939c4253f1d4564341b7af1d041853bc3f32c2ef141b58e0a4d9862c17a7f08f68df1e0f1ed
+  languageName: node
+  linkType: hard
+
+"echarts-for-react@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "echarts-for-react@npm:3.0.2"
+  dependencies:
+    fast-deep-equal: ^3.1.3
+    size-sensor: ^1.0.1
+  peerDependencies:
+    echarts: ^3.0.0 || ^4.0.0 || ^5.0.0
+    react: ^15.0.0 || >=16.0.0
+  checksum: d3b16325befb1294d99f6f089462415be739c1654370945eef2172efd5868596f10e4cd021e0ff65b89a6f9de5e9c331ccf3765d9167ccb12d573f9632b5b7a6
+  languageName: node
+  linkType: hard
+
+"echarts@npm:^5.4.3":
+  version: 5.4.3
+  resolution: "echarts@npm:5.4.3"
+  dependencies:
+    tslib: 2.3.0
+    zrender: 5.4.4
+  checksum: f4f69becf1cf8f546f9488ffa3bffaa971dcfbd49f5d635f288cbc8c5177839154bd6c325d6ed72c2b822c89c9bba4947ac73400614fd23c6f2f7ace3c939132
   languageName: node
   linkType: hard
 
@@ -7063,6 +7102,7 @@ __metadata:
     "@testing-library/jest-dom": ^6.2.0
     "@testing-library/react": ^14.1.2
     "@types/colorbrewer": ^1.0.32
+    "@types/d3-array": ^3
     "@types/d3-dsv": ^3
     "@types/jest": ^29.5.11
     "@types/jsonp": ^0.2.3
@@ -7079,7 +7119,10 @@ __metadata:
     colorbrewer: ^1.5.6
     copy-webpack-plugin: ^11.0.0
     cross-env: ^7.0.3
+    d3-array: ^3.2.4
     d3-dsv: ^3.0.1
+    echarts: ^5.4.3
+    echarts-for-react: ^3.0.2
     eslint: ^8
     eslint-config-next: 14.0.4
     eslint-config-prettier: ^9.1.0
@@ -7572,6 +7615,13 @@ __metadata:
     hasown: ^2.0.0
     side-channel: ^1.0.4
   checksum: 7872454888047553ce97a3fa1da7cc054a28ec5400a9c2e9f4dbe4fe7c1d041cb8e8301467614b80d4246d50377aad2fb58860b294ed74d6700cc346b6f89549
+  languageName: node
+  linkType: hard
+
+"internmap@npm:1 - 2":
+  version: 2.0.3
+  resolution: "internmap@npm:2.0.3"
+  checksum: 7ca41ec6aba8f0072fc32fa8a023450a9f44503e2d8e403583c55714b25efd6390c38a87161ec456bf42d7bc83aab62eb28f5aef34876b1ac4e60693d5e1d241
   languageName: node
   linkType: hard
 
@@ -10753,6 +10803,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"size-sensor@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "size-sensor@npm:1.0.2"
+  checksum: de7050178ae9afee3388eb9191af0902b30ef83c26e8c9d9c203e1b560e270b947d978e4f56d211802112d09ef296931fa612f69155a483900f3b4717a0750d7
+  languageName: node
+  linkType: hard
+
 "slash@npm:^3.0.0":
   version: 3.0.0
   resolution: "slash@npm:3.0.0"
@@ -11513,6 +11570,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.3.0":
+  version: 2.3.0
+  resolution: "tslib@npm:2.3.0"
+  checksum: 8869694c26e4a7b56d449662fd54a4f9ba872c889d991202c74462bd99f10e61d5bd63199566c4284c0f742277736292a969642cc7b590f98727a7cae9529122
+  languageName: node
+  linkType: hard
+
 "tslib@npm:2.5.0":
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
@@ -12221,6 +12285,15 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
+  languageName: node
+  linkType: hard
+
+"zrender@npm:5.4.4":
+  version: 5.4.4
+  resolution: "zrender@npm:5.4.4"
+  dependencies:
+    tslib: 2.3.0
+  checksum: 4b317346af8eca38e62ba029239c3a13e97eac4fa15b3ddadbae23442d8b373f0e937c255dee8080d6bb2fc79c9da54f1106415586ed8942bd8bc684b3890ea9
   languageName: node
   linkType: hard
 
