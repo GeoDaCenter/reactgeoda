@@ -79,52 +79,50 @@ export function WeightsPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <>
-          <div className="flex w-full flex-col">
-            <Tabs
-              aria-label="Options"
-              variant="solid"
-              color="warning"
-              classNames={{}}
-              size="md"
-              selectedKey={showWeightsManagement ? 'weights-management' : 'weights-creation'}
-              onSelectionChange={onTabChange}
+        <div className="flex w-full flex-col p-4">
+          <Tabs
+            aria-label="Options"
+            variant="solid"
+            color="warning"
+            classNames={{}}
+            size="md"
+            selectedKey={showWeightsManagement ? 'weights-management' : 'weights-creation'}
+            onSelectionChange={onTabChange}
+          >
+            <Tab
+              key="weights-creation"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Weights Creation</span>
+                </div>
+              }
             >
-              <Tab
-                key="weights-creation"
-                title={
-                  <div className="flex items-center space-x-2">
-                    <span>Weights Creation</span>
-                  </div>
-                }
-              >
-                <Card>
-                  <CardBody>
-                    <WeightsCreationComponent
-                      validFieldNames={validFieldNames}
-                      keplerLayer={keplerLayer}
-                    />
-                  </CardBody>
-                </Card>
-              </Tab>
-              <Tab
-                key="weights-management"
-                title={
-                  <div className="flex items-center space-x-2">
-                    <span>Weights Management</span>
-                    {weights?.length > 0 && (
-                      <Chip size="sm" variant="faded">
-                        {weights.length}
-                      </Chip>
-                    )}
-                  </div>
-                }
-              >
-                <WeightsManagementComponent />
-              </Tab>
-            </Tabs>
-          </div>
-        </>
+              <Card>
+                <CardBody>
+                  <WeightsCreationComponent
+                    validFieldNames={validFieldNames}
+                    keplerLayer={keplerLayer}
+                  />
+                </CardBody>
+              </Card>
+            </Tab>
+            <Tab
+              key="weights-management"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Weights Management</span>
+                  {weights?.length > 0 && (
+                    <Chip size="sm" variant="faded">
+                      {weights.length}
+                    </Chip>
+                  )}
+                </div>
+              }
+            >
+              <WeightsManagementComponent />
+            </Tab>
+          </Tabs>
+        </div>
       )}
     </RightPanelContainer>
   );

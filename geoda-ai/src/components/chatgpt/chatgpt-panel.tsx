@@ -101,7 +101,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   }, [messages]);
 
   return (
-    <MainContainer>
+    <MainContainer className="p-4">
       <ChatContainer>
         <MessageList
           id="chat-message-list"

@@ -155,7 +155,7 @@ export function MappingPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <>
+        <div className="p-4">
           <div className="flex flex-col gap-2 ">
             <div className="space-y-1">
               <p className="text-small text-default-600">Map Type</p>
@@ -206,7 +206,7 @@ export function MappingPanel() {
           <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateMap}>
             Create Map
           </Button>
-        </>
+        </div>
       )}
     </RightPanelContainer>
   );

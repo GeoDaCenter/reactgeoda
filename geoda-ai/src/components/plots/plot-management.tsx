@@ -1,29 +1,65 @@
-import {GeoDaState} from '@/store';
-import {useMemo} from 'react';
 import {useSelector} from 'react-redux';
+import {Tab, Tabs} from '@nextui-org/react';
+
 import {HistogramPlot} from './histogram-plot';
-import {HistogramPlotProps} from '@/actions/plot-actions';
+import {HistogramPlotProps, PlotProps} from '@/actions/plot-actions';
+import {GeoDaState} from '@/store';
+
+// type guard function to check if the plot is a histogram plot
+function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
+  return plot.type === 'histogram';
+}
 
 export const PlotManagementPanel = () => {
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
-  // get all histogram plots from plots array use useMemo
-  const histogramPlots = useMemo(() => {
-    const selPlots: HistogramPlotProps[] = [];
-    plots.forEach(plot => {
-      if (plot.type === 'histogram') {
-        selPlots.push(plot);
-      }
-    });
-    return selPlots;
-  }, [plots]);
-
   return (
-    <div className="flex flex-col gap-4">
-      {histogramPlots.map((plot: HistogramPlotProps) => {
-        return <HistogramPlot key={plot.id} props={plot} />;
-      })}
+    <div className="flex flex-col overflow-y-scroll">
+      <Tabs aria-label="Options" color="primary" variant="underlined" className="overflow-y-auto">
+        <Tab
+          key="all"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>All</span>
+            </div>
+          }
+          className="overflow-y-auto"
+        >
+          {plots.toReversed().map(plot => {
+            if (isHistogramPlot(plot)) {
+              return <HistogramPlot key={plot.id} props={plot} />;
+            }
+          })}
+        </Tab>
+        <Tab
+          key="histogram"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Histogram</span>
+            </div>
+          }
+          className="p-2"
+        >
+          {plots
+            .filter(plot => plot.type === 'histogram')
+            .toReversed()
+            .map(plot => {
+              if (isHistogramPlot(plot)) {
+                return <HistogramPlot key={plot.id} props={plot} />;
+              }
+            })}
+        </Tab>
+        <Tab
+          key="boxplot"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Box plot</span>
+            </div>
+          }
+          className="p-2"
+        />
+      </Tabs>
     </div>
   );
 };

@@ -96,64 +96,66 @@ export function HistogramPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <Tabs
-          aria-label="Options"
-          variant="solid"
-          color="warning"
-          classNames={{}}
-          size="md"
-          selectedKey={showPlotsManagement ? 'plot-management' : 'histogram-creation'}
-          onSelectionChange={onTabChange}
-        >
-          <Tab
-            key="histogram-creation"
-            title={
-              <div className="flex items-center space-x-2">
-                <span>Create Histogram</span>
-              </div>
-            }
+        <div className="h-full overflow-y-auto p-4">
+          <Tabs
+            aria-label="Options"
+            variant="solid"
+            color="warning"
+            classNames={{}}
+            size="md"
+            selectedKey={showPlotsManagement ? 'plot-management' : 'histogram-creation'}
+            onSelectionChange={onTabChange}
           >
-            <Card>
-              <CardBody>
-                <div className="flex flex-col gap-2">
-                  <VariableSelector setVariable={setVariable} />
-                  <Input
-                    type="number"
-                    label="Intervals in histogram"
-                    value={`${intervals}`}
-                    onChange={onIntervalsChange}
-                    min={1}
-                  />
+            <Tab
+              key="histogram-creation"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Create Histogram</span>
                 </div>
-                <Spacer y={8} />
-                <Button
-                  onClick={onCreateHistogram}
-                  radius="sm"
-                  color="primary"
-                  className="bg-rose-900"
-                  disabled={variable === '' || intervals <= 0}
-                >
-                  Create Histogram
-                </Button>
-              </CardBody>
-            </Card>
-          </Tab>
-          <Tab
-            key="plot-management"
-            title={
-              <div className="flex items-center space-x-2">
-                <span>Plots Management</span>
-                {plots?.length > 0 && (
-                  <Chip size="sm" variant="faded">
-                    {plots.length}
-                  </Chip>
-                )}
-              </div>
-            }
-          >
-            <PlotManagementPanel />
-          </Tab>
-        </Tabs>
+              }
+            >
+              <Card>
+                <CardBody>
+                  <div className="flex flex-col gap-2">
+                    <VariableSelector setVariable={setVariable} />
+                    <Input
+                      type="number"
+                      label="Intervals in histogram"
+                      value={`${intervals}`}
+                      onChange={onIntervalsChange}
+                      min={1}
+                    />
+                  </div>
+                  <Spacer y={8} />
+                  <Button
+                    onClick={onCreateHistogram}
+                    radius="sm"
+                    color="primary"
+                    className="bg-rose-900"
+                    disabled={variable === '' || intervals <= 0}
+                  >
+                    Create Histogram
+                  </Button>
+                </CardBody>
+              </Card>
+            </Tab>
+            <Tab
+              key="plot-management"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Plots Management</span>
+                  {plots?.length > 0 && (
+                    <Chip size="sm" variant="faded">
+                      {plots.length}
+                    </Chip>
+                  )}
+                </div>
+              }
+            >
+              <PlotManagementPanel />
+            </Tab>
+          </Tabs>
+        </div>
       )}
     </RightPanelContainer>
   );

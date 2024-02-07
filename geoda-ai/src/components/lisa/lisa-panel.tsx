@@ -42,7 +42,7 @@ export function LisaPanel() {
       ) : weights.length === 0 ? (
         <WarningBox message={NO_WEIGHTS_MESSAGE} type="warning" />
       ) : (
-        <>
+        <div className="p-4">
           <Accordion
             variant="splitted"
             className="max-w text-small"
@@ -75,7 +75,7 @@ export function LisaPanel() {
               className="text-small"
             ></AccordionItem>
           </Accordion>
-        </>
+        </div>
       )}
     </RightPanelContainer>
   );

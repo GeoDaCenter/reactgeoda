@@ -38,31 +38,33 @@ export function SettingsPanel() {
         defaultMessage: 'Change your personal settings'
       })}
     >
-      <div className="form">
-        <div className="div">
+      <div className="p-4">
+        <div className="form">
           <div className="div">
-            <div className="label">ChatGPT API Key</div>
-            <div className="input">
-              <input
-                type="text"
-                onChange={onOpenAIKeyChange}
-                className="inputToken"
-                value={key || ''}
-              />
+            <div className="div">
+              <div className="label">ChatGPT API Key</div>
+              <div className="input">
+                <input
+                  type="text"
+                  onChange={onOpenAIKeyChange}
+                  className="inputToken"
+                  value={key || ''}
+                />
+              </div>
             </div>
+            <p className="hint-text">You can get your API key from openai.com.</p>
           </div>
-          <p className="hint-text">You can get your API key from openai.com.</p>
         </div>
-      </div>
-      <div className="padding-bottom" />
-      <div className="bottom-buttons">
-        <div className="two-buttons-container">
-          <button className="confirm-button">
-            <div className="text-confirm">Confirm</div>
-          </button>
-          <button className="cancel-button">
-            <div className="text-cancel">Cancel</div>
-          </button>
+        <div className="padding-bottom" />
+        <div className="bottom-buttons">
+          <div className="two-buttons-container">
+            <button className="confirm-button">
+              <div className="text-confirm">Confirm</div>
+            </button>
+            <button className="cancel-button">
+              <div className="text-cancel">Cancel</div>
+            </button>
+          </div>
         </div>
       </div>
     </RightPanelContainer>
