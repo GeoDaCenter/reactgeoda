@@ -1,4 +1,4 @@
-import {bin} from 'd3-array';
+import {bin as d3bin} from 'd3-array';
 
 export type HistogramDataItemProps = {
   index: number;
@@ -16,11 +16,7 @@ export type HistogramDataProps = {
 /**
  * Create a histogram from a list of numbers and a number of bins
  */
-export function createHistogram(
-  data: number[],
-  numberOfBins: number,
-  includeDataIndices = true
-): HistogramDataProps[] {
+export function createHistogram(data: number[], numberOfBins: number): HistogramDataProps[] {
   const minVal = Math.min(...data);
   const maxVal = Math.max(...data);
   // create a dictionary to store value and index of data
@@ -28,10 +24,10 @@ export function createHistogram(
     return {index: i, value: d};
   });
   // put the data index into bins, which are separated equally in the range of minVal and maxVal
-  const bins = bin()
-    .thresholds(numberOfBins)
-    .domain([minVal, maxVal])
-    .value((d: HistogramDataItemProps) => d.value)(dataDict);
+  // the domain will be uniformly divided into approximately count bins
+  const binning = d3bin().thresholds(numberOfBins).domain([minVal, maxVal]);
+  // @ts-expect-error NOTE: d3-array types doesn't include the custom value accessor, but this works in d3-array
+  const bins = binning.value((d: HistogramDataItemProps) => d.value)(dataDict);
   // calculate the bin width
   const binWidth = (maxVal - minVal) / numberOfBins;
   // create the histogram, store indexes of data items in each bin
@@ -41,9 +37,8 @@ export function createHistogram(
       binStart: minVal + i * binWidth,
       binEnd: minVal + (i + 1) * binWidth,
       count: bin.length,
-      ...(includeDataIndices ? {items: bin} : {})
+      items: bin
     };
   });
-  console.log('histogram', histogram);
   return histogram;
 }
