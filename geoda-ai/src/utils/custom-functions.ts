@@ -81,8 +81,9 @@ export type HistogramOutput = {
     id: string;
     variableName: string;
     numberOfBins: number;
-    histogram: HistogramDataProps[];
+    histogram: Array<Omit<HistogramDataProps, "items">>;
   };
+  data: HistogramDataProps[];
 };
 
 // define enum for custom function names, the value of each enum is
@@ -237,11 +238,24 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     };
   },
 
-  histogram: function ({k, variableName}, {dataContainer}): HistogramOutput {
+  histogram: function ({k, variableName}, {dataContainer}): HistogramOutput | ErrorOutput {
     // get column data
     const columnData = getColumnData(variableName, dataContainer);
+
+    // check column data is empty
+    if (!columnData || columnData.length === 0) {
+      return {type: 'histogram', result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+    }
+
     // call histogram function
-    const result = createHistogram(columnData, k);
+    const hist = createHistogram(columnData, k);
+
+    // remove key items from hist
+    const histogram = hist.map((h: HistogramDataProps) => {
+      const {items, ...rest} = h;
+      return rest;
+    });
+
     return {
       type: 'histogram',
       name: 'Histogram',
@@ -249,8 +263,9 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         id: Math.random().toString(36).substring(7),
         variableName,
         numberOfBins: k,
-        histogram: result
-      }
+        histogram
+      },
+      data: hist 
     };
   }
 };

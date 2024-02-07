@@ -9,7 +9,7 @@ import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-or
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/histogram-utils';
-import {addPlot} from '@/actions/plot-actions';
+import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
@@ -51,7 +51,7 @@ export function HistogramPanel() {
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
-  const newPlotsCount = plots.filter(plot => plot.isNew).length;
+  const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
   // monitor state.root.plots, if plots.length changed, update the tab title

@@ -138,6 +138,36 @@ export function checkIfFieldNameExists(
   return isExisted;
 }
 
+// get data type of a specific column
+export function getColumnDataType(
+  columnName: string,
+  dataContainer: DataContainerInterface | null
+): string {
+  // get dataset from datasets if dataset.label === tableName
+  if (dataContainer) {
+    // get column index from dataContainer
+    let columnIndex = -1;
+    for (let i = 0; i < dataContainer.numColumns(); i++) {
+      const field = dataContainer.getField?.(i);
+      if (field && field.name === columnName) {
+        columnIndex = i;
+        break;
+      }
+    }
+
+    // get column data from dataContainer
+    const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
+    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+      // handle error
+      return 'string';
+    }
+
+    return 'number';
+  }
+
+  return 'string';
+}
+
 export function getColumnData(
   columnName: string,
   dataContainer: DataContainerInterface | null

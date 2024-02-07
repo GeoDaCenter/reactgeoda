@@ -11,7 +11,6 @@ import {
 } from '@chatscope/chat-ui-kit-react';
 import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
-import AutoSizer from 'react-virtualized-auto-sizer';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
 import {WarningBox} from '../common/warning-box';
@@ -122,8 +121,12 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
         >
           {messages.map((message, i) => {
             return message.type === 'custom' ? (
-              <Message key={i} model={{direction: 'incoming', type: 'custom', position: 'normal'}}>
-                <Message.CustomContent className="bg-none">
+              <Message
+                key={i}
+                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
+                style={{backgroundColor: 'transparent!important'}}
+              >
+                <Message.CustomContent className="w-[270px]">
                   <CustomMessage props={message.payload ?? {}} />
                 </Message.CustomContent>
               </Message>

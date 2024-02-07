@@ -182,9 +182,9 @@
 }
 
 .react-geoda .prop-box .prop-box-close {
-  position:absolute;
-  top:10px;
-  right:10px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
   z-index: 99;
   cursor: pointer;
 }
@@ -216,28 +216,41 @@ div[mapboxgl-children] {
 
 /* custom chatGPT css */
 .cs-main-container {
-  border: none!important;
+  border: none !important;
   width: 100%;
-  background-color: transparent!important;
+  background-color: transparent !important;
   margin-bottom: 12px;
 }
 .cs-chat-container {
-  background-color: transparent!important;
+  background-color: transparent !important;
 }
 .cs-message-list {
-  background-color: transparent!important;
-  margin-bottom: 20px!important;
+  background-color: transparent !important;
+  margin-bottom: 20px !important;
 }
 .scrollbar-container {
-  padding: 0!important;
+  padding: 0 !important;
 }
 .cs-message-input {
-  border: none!important;
-  background-color: transparent!important;
-  padding-bottom: 12px!important;
+  border: none !important;
+  background-color: transparent !important;
+  padding-bottom: 12px !important;
 }
 .cs-message--outgoing {
-  padding-right: 12px!important;
+  padding-right: 12px !important;
+}
+.cs-message.cs-message--incoming .cs-message__content {
+  border-radius: 0 0.7em 0.7em 0;
+  background-color: #eeeeee !important;
+}
+.cs-message-input__content-editor-wrapper {
+  background-color: #eeeeee !important;
+}
+.cs-message-input__content-editor {
+  background-color: #eeeeee !important;
+}
+.ps__thumb-y {
+  background-color: #999999!important;
 }
 .cs-message--outgoing .cs-message__content {
   color: #ffffff !important;
@@ -247,5 +260,11 @@ div[mapboxgl-children] {
   font-size: var(--text-sm-regular-font-size);
 }
 .cs-message-list__scroll-wrapper {
-  padding: 0!important;
+  padding: 0 !important;
+}
+.cs-button--send {
+  color: #333333 !important;
+}
+.cs-button--attachment {
+  color: #999999 !important; 
 }

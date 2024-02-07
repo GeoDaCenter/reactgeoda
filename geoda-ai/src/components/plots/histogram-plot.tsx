@@ -358,13 +358,11 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           chartInstance.setOption(updatedOption);
         }
       }
-      if (validPlot) {
-        // dispatch action to highlight the selected ids
-        dispatch({
-          type: 'SET_FILTER_INDEXES',
-          payload: {dataLabel: tableName, filteredIndex}
-        });
-      }
+      // dispatch action to highlight the selected ids
+      dispatch({
+        type: 'SET_FILTER_INDEXES',
+        payload: {dataLabel: tableName, filteredIndex}
+      });
     }
     // brushEnd: function (params: any) {
     //   console.log('brushEnd');
@@ -393,12 +391,14 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           style={{height: '200px', width: '100%'}}
           ref={eChartsRef}
         />
-        <EChartsUpdater
-          filteredIndex={filteredIndex}
-          eChartsRef={eChartsRef}
-          props={props}
-          getChartOption={getChartOption}
-        />
+        {validPlot &&
+          <EChartsUpdater
+            filteredIndex={filteredIndex}
+            eChartsRef={eChartsRef}
+            props={props}
+            getChartOption={getChartOption}
+          />
+        }
       </CardBody>
     </Card>
   );

@@ -17,7 +17,8 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   const [hide, setHide] = useState(false);
   const {output} = props;
 
-  const {id, variableName, histogram} = output.result as HistogramOutput['result'];
+  const { id, variableName } = output.result as HistogramOutput['result'];
+  const histogram = output.data as HistogramOutput['data'];
 
   const histogramPlotProps: HistogramPlotProps = {
     id,
@@ -35,12 +36,12 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   };
 
   return (
-    <div className="w-60">
+    <div className="w-full">
       {<HistogramPlot props={histogramPlotProps} />}
       {!hide && (
         <Button
           radius="full"
-          className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+          className="w-full mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
           onClick={onClick}
           startContent={<HeartIcon />}
         >
