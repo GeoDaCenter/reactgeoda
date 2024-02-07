@@ -31,8 +31,8 @@ const ChatGpt = () => {
     setMessages([
       {
         message: intl.formatMessage({
-          id: 'chatGpt.initialMessage',
-          defaultMessage: "Hello, I'm ChatGPT! Ask me anything!"
+          id: 'GeoDa.AI.initialMessage',
+          defaultMessage: "Hello, I'm GeoDa.AI! Ask me anything!"
         }),
         sentTime: 'just now',
         sender: 'ChatGPT',
@@ -122,8 +122,8 @@ const ChatGpt = () => {
                   isTyping ? (
                     <TypingIndicator
                       content={intl.formatMessage({
-                        id: 'chatGpt.isTyping',
-                        defaultMessage: 'ChatGPT is typing'
+                        id: 'GeoDa.AI.isTyping',
+                        defaultMessage: 'GeoDa.AI is typing'
                       })}
                     />
                   ) : null

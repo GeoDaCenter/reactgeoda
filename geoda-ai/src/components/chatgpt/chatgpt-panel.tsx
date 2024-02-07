@@ -33,7 +33,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
     setMessages([
       {
         message: intl.formatMessage({
-          id: 'chatGpt.initialMessage',
+          id: 'GeoDa.AI.initialMessage',
           defaultMessage: DEFAULT_WELCOME_MESSAGE
         }),
         sentTime: 'just now',
@@ -112,7 +112,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
             isTyping ? (
               <TypingIndicator
                 content={intl.formatMessage({
-                  id: 'chatGpt.isTyping',
+                  id: 'GeoDa.AI.isTyping',
                   defaultMessage: 'GeoDa.AI is typing'
                 })}
               />

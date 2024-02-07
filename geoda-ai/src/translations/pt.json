@@ -1,8 +1,8 @@
 {
   "fileUpload.dropHere": "Solte os arquivos aqui ...",
   "fileUpload.dragDropClick": "Arraste e solte arquivos csv, geojson ou json aqui, ou clique para selecionar arquivos",
-  "chatGpt.initialMessage": "Olá, sou o ChatGPT! Pergunte-me qualquer coisa!",
-  "chatGpt.isTyping": "ChatGPT está digitando",
+  "GeoDa.AI.initialMessage": "Olá, sou o GeoDa.AI! Pergunte-me qualquer coisa!",
+  "GeoDa.AI.isTyping": "GeoDa.AI está digitando",
   "chatGpt.inputPlaceholder": "Digite a mensagem aqui",
   "toolbar.title": "Barra de Ferramentas",
   "toolbar.plotType": "Tipo de Gráfico",

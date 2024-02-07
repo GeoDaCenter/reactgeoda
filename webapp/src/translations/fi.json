@@ -1,9 +1,9 @@
 {
   "fileUpload.dropHere": "Pudota tiedostot tähän ...",
   "fileUpload.dragDropClick": "Vedä ja pudota csv-, geojson- tai json-tiedostoja tähän, tai napsauta valitaksesi tiedostoja",
-  "chatGpt.initialMessage": "Hei, olen ChatGPT! Kysy minulta mitä tahansa!",
-  "chatGpt.isTyping": "ChatGPT kirjoittaa",
-  "chatGpt.inputPlaceholder": "Kirjoita viesti tähän",
+  "GeoDa.AI.initialMessage": "Hei, olen GeoDa.AI! Kysy minulta mitä tahansa!",
+  "GeoDa.AI.isTyping": "GeoDa.AI kirjoittaa",
+  "GeoDa.AI.inputPlaceholder": "Kirjoita viesti tähän",
   "toolbar.title": "Työkalurivi",
   "toolbar.plotType": "Kaavion tyyppi",
   "toolbar.selectPlotType": "Valitse kaavion tyyppi",

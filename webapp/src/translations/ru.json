@@ -1,9 +1,9 @@
 {
   "fileUpload.dropHere": "Бросьте файлы сюда ...",
   "fileUpload.dragDropClick": "Перетащите сюда csv, geojson или json файлы, или нажмите, чтобы выбрать файлы",
-  "chatGpt.initialMessage": "Привет, я ChatGPT! Спроси меня о чем угодно!",
-  "chatGpt.isTyping": "ChatGPT печатает",
-  "chatGpt.inputPlaceholder": "Введите сообщение здесь",
+  "GeoDa.AI.initialMessage": "Привет, я GeoDa.AI! Спроси меня о чем угодно!",
+  "GeoDa.AI.isTyping": "GeoDa.AI печатает",
+  "GeoDa.AI.inputPlaceholder": "Введите сообщение здесь",
   "toolbar.title": "Панель инструментов",
   "toolbar.plotType": "Тип графика",
   "toolbar.selectPlotType": "Выберите тип графика",
