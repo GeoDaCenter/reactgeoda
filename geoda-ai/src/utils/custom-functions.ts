@@ -81,7 +81,7 @@ export type HistogramOutput = {
     id: string;
     variableName: string;
     numberOfBins: number;
-    histogram: Array<Omit<HistogramDataProps, "items">>;
+    histogram: Array<Omit<HistogramDataProps, 'items'>>;
   };
   data: HistogramDataProps[];
 };
@@ -252,6 +252,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     // remove key items from hist
     const histogram = hist.map((h: HistogramDataProps) => {
+      // @ts-ignore
       const {items, ...rest} = h;
       return rest;
     });
@@ -265,7 +266,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         numberOfBins: k,
         histogram
       },
-      data: hist 
+      data: hist
     };
   }
 };

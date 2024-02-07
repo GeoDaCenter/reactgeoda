@@ -361,7 +361,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
       // dispatch action to highlight the selected ids
       dispatch({
         type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex}
+        payload: {dataLabel: tableName, filteredIndex: validPlot ? filteredIndex : null}
       });
     }
     // brushEnd: function (params: any) {
@@ -391,14 +391,14 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           style={{height: '200px', width: '100%'}}
           ref={eChartsRef}
         />
-        {validPlot &&
+        {validPlot && (
           <EChartsUpdater
             filteredIndex={filteredIndex}
             eChartsRef={eChartsRef}
             props={props}
             getChartOption={getChartOption}
           />
-        }
+        )}
       </CardBody>
     </Card>
   );

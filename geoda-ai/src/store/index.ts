@@ -76,10 +76,8 @@ const customizedKeplerGlReducer = keplerGlReducer
         return state;
       }
       const dataset = datasets[dataId];
-      dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
-
-      // calculate layer data
-      if (filteredIndex.length > 0) {
+      if (filteredIndex) {
+        dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
         const layers = visState.layers.filter((l: Layer) => l.config.dataId === dataId);
         layers.forEach((l: Layer) => {
           l.formatLayerData(datasets);
@@ -89,7 +87,7 @@ const customizedKeplerGlReducer = keplerGlReducer
       // remove filters that typ is polygon
       visState.filters = visState.filters.filter((f: Filter) => f.type !== 'polygon');
       return {
-        ...state,
+        ...state
         // visState: {
         //   ...visState,
         //   datasets: {
