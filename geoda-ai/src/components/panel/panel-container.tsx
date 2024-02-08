@@ -47,7 +47,7 @@ export const PanelContainer = () => {
   );
 
   return showPropertyPanel ? (
-    <div className="flex h-screen w-[380px] flex-col">
+    <div className="flex h-screen w-[380px] flex-col bg-gray-50 dark:bg-gray-900">
       <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
         <IconXClose />
       </div>

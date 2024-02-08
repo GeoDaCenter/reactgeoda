@@ -1,98 +1,23 @@
-.react-geoda {
-  align-items: flex-start;
-  /* background-color: #ffffff; */
-  border: 1px none;
-  display: flex;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.react-geoda .toolbar {
-  align-items: center;
-  align-self: stretch;
-  background-color: rgba(60, 0, 0, 1);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  width: 48px;
-}
-
-.react-geoda .tool-box {
-  align-items: center;
-  align-self: stretch;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  flex-grow: 1;
-  gap: 12px;
-  position: relative;
-  width: 100%;
-  z-index: 1;
-  margin-top: 24px;
-}
-
-.main-box {
-  align-self: stretch;
-  /* background-color: #ffffff; */
-  flex: 1;
-  flex-grow: 1;
-  position: relative;
-  overflow: auto;
-  height: 100vh;
-  /* main-grid and main-table */
-  display: flex;
-  flex-direction: column;
-}
-
-.main-grid {
-  padding: 0px;
-  flex: 1;
-  flex-grow: 1;
-}
-
+/* adjust kepler.gl map and table height */
 .default-kepler-map {
   height: 100% !important;
 }
-
-.react-geoda .main-table {
+.main-table {
   padding: 0px;
   flex-grow: 0;
   height: 40%;
-}
-
-.react-geoda .prop-box {
-  align-self: stretch;
-  /* background-color: var(--variable-collection-panelbgcolor); */
-  position: relative;
-  width: 380px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  height: 100vh;
-}
-
-.react-geoda .prop-box .prop-box-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 99;
-  cursor: pointer;
 }
 
 /* readjust the size of the close button in modal dialog */
 .react-responsive-modal-closeButton {
   width: 18px;
 }
-
 .dataset-modal {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
-
 .data-ex-icons-gear {
   visibility: hidden;
 }

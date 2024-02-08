@@ -101,8 +101,8 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   }, [messages]);
 
   return (
-    <MainContainer className="p-4">
-      <ChatContainer className="">
+    <MainContainer className="pl-4">
+      <ChatContainer>
         <MessageList
           id="chat-message-list"
           autoScrollToBottom={true}
