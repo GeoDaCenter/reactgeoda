@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Badge} from '@nextui-org/react';
+import {Badge, Button, Tooltip} from '@nextui-org/react';
 
 import {Avatar} from './avatar';
 import {GeoDaLogo} from './geoda-logo';
@@ -101,11 +101,36 @@ export function Navigator() {
 
   return (
     <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-amber-950">
-      <GeoDaLogo className="flex-none" />
-      <div className="justify-top mt-4 flex w-full grow flex-col items-center gap-2">
-        <IconOpen onClick={onOpenCallback} isEnabled={!isFileLoaded} />
-        <IconTable isEnabled={isFileLoaded} onClick={onTableCallback} />
-        <IconMap isEnabled={isFileLoaded} onClick={onClickIconCallback} />
+      <GeoDaLogo />
+      <div className="justify-top mt-4 flex w-full grow flex-col items-center">
+        <Tooltip key="openFileTooltip" placement="right" content="Open File">
+          <Button isIconOnly size="sm" className="bg-transparent" onClick={onOpenCallback}>
+            <IconOpen />
+          </Button>
+        </Tooltip>
+        <Tooltip key="tableTooltip" placement="right" content="Table">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            isDisabled={!isFileLoaded}
+            onClick={onTableCallback}
+          >
+            <IconTable />
+          </Button>
+        </Tooltip>
+        <Tooltip key="mappingTooltip" placement="right" content="Map">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-mapping"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconMap />
+          </Button>
+        </Tooltip>
         <Badge
           color="danger"
           content={newWeightsCount}
@@ -115,9 +140,31 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <IconWeights onClick={onClickIconCallback} isEnabled={isFileLoaded} />
+          <Tooltip key="weightsTooltip" placement="right" content="Spatial Weights">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-weights"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconWeights />
+            </Button>
+          </Tooltip>
         </Badge>
-        <IconChoropleth isEnabled={isFileLoaded} />
+        <Tooltip key="customMapTooltip" placement="right" content="Custom Map">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-custom-map"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconChoropleth />
+          </Button>
+        </Tooltip>
         <Badge
           color="danger"
           content={newHistogramCount}
@@ -127,14 +174,95 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <IconHistogram onClick={onClickIconCallback} isEnabled={isFileLoaded} />
+          <Tooltip key="histogramTooltip" placement="right" content="Histogram">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-histogram"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconHistogram />
+            </Button>
+          </Tooltip>
         </Badge>
-        <IconBoxplot />
-        <IconScatterplot />
-        <IconCartogram />
-        <IconParallel />
-        <IconLisa isEnabled={isFileLoaded} onClick={onClickIconCallback} />
-        <IconChatgpt onClick={onClickIconCallback} />
+        <Tooltip key="boxplotTooltip" placement="right" content="Box Plot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-boxplot"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconBoxplot />
+          </Button>
+        </Tooltip>
+        <Tooltip key="scatterTooltip" placement="right" content="Scatter Plot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-scatterplot"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconScatterplot />
+          </Button>
+        </Tooltip>
+        <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-cartogram"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconCartogram />
+          </Button>
+        </Tooltip>
+        <Tooltip key="pcpTooltip" placement="right" content="Parallel Coordinate Plot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-pcp"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconParallel />
+          </Button>
+        </Tooltip>
+        <Tooltip
+          key="lisaTooltip"
+          placement="right"
+          content="Local Indicators of Spatial Autocorrelation"
+        >
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-lisa"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconLisa />
+          </Button>
+        </Tooltip>
+        <Tooltip key="chatgptTooltip" placement="right" content="GeoDa.AI ChatBot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-chatgpt"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconChatgpt />
+          </Button>
+        </Tooltip>
       </div>
       <div className="user-box flex-none">
         <DashboardSwitcher />

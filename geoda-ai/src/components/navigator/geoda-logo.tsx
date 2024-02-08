@@ -1,12 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-export type GeoDaLogoProps = {
-  className: string;
-  geodaLogoClassName: string;
-};
-
-export const GeoDaLogo = ({className, geodaLogoClassName}: GeoDaLogoProps) => {
+export const GeoDaLogo = () => {
   return (
-    <div className="m-2 h-8 w-8">
+    <div className="m-2 h-8 w-8 flex-none">
       <svg
         width="32"
         height="32"
