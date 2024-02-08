@@ -6,11 +6,10 @@ export type GeoDaLogoProps = {
 
 export const GeoDaLogo = ({className, geodaLogoClassName}: GeoDaLogoProps) => {
   return (
-    <div className={`geo-da-logo ${className}`}>
+    <div className="m-2 h-8 w-8">
       <svg
         width="32"
         height="32"
-        className={`geoda-logo ${geodaLogoClassName}`}
         viewBox="0 0 22 21"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

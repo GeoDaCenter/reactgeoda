@@ -100,24 +100,12 @@ export function Navigator() {
   );
 
   return (
-    <div className="toolbar">
-      <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
-      <div className="tool-box">
-        <IconOpen
-          className="icon-open-instance cursor-pointer"
-          onClick={onOpenCallback}
-          isEnabled={!isFileLoaded}
-        />
-        <IconTable
-          className="icon-table-instance cursor-pointer"
-          isEnabled={isFileLoaded}
-          onClick={onTableCallback}
-        />
-        <IconMap
-          className="icon-map-instance cursor-pointer"
-          isEnabled={isFileLoaded}
-          onClick={onClickIconCallback}
-        />
+    <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-amber-950">
+      <GeoDaLogo className="flex-none" />
+      <div className="justify-top mt-4 flex w-full grow flex-col items-center gap-2">
+        <IconOpen onClick={onOpenCallback} isEnabled={!isFileLoaded} />
+        <IconTable isEnabled={isFileLoaded} onClick={onTableCallback} />
+        <IconMap isEnabled={isFileLoaded} onClick={onClickIconCallback} />
         <Badge
           color="danger"
           content={newWeightsCount}
@@ -127,13 +115,9 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <IconWeights
-            className="icon-weights-instance cursor-pointer"
-            onClick={onClickIconCallback}
-            isEnabled={isFileLoaded}
-          />
+          <IconWeights onClick={onClickIconCallback} isEnabled={isFileLoaded} />
         </Badge>
-        <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} />
+        <IconChoropleth isEnabled={isFileLoaded} />
         <Badge
           color="danger"
           content={newHistogramCount}
@@ -143,27 +127,16 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <IconHistogram
-            className="design-component-instance-node cursor-pointer"
-            onClick={onClickIconCallback}
-            isEnabled={isFileLoaded}
-          />
+          <IconHistogram onClick={onClickIconCallback} isEnabled={isFileLoaded} />
         </Badge>
-        <IconBoxplot className="icon-boxplot-instance" />
-        <IconScatterplot className="design-component-instance-node" />
-        <IconCartogram className="icon-cartogram-instance" />
-        <IconParallel className="icon-parallel-instance" />
-        <IconLisa
-          className="icon-lisa-instance cursor-pointer"
-          isEnabled={isFileLoaded}
-          onClick={onClickIconCallback}
-        />
-        <IconChatgpt
-          className="design-component-instance-node cursor-pointer"
-          onClick={onClickIconCallback}
-        />
+        <IconBoxplot />
+        <IconScatterplot />
+        <IconCartogram />
+        <IconParallel />
+        <IconLisa isEnabled={isFileLoaded} onClick={onClickIconCallback} />
+        <IconChatgpt onClick={onClickIconCallback} />
       </div>
-      <div className="user-box">
+      <div className="user-box flex-none">
         <DashboardSwitcher />
         <ThemeSwitcher />
         <Avatar onClick={onClickIconCallback} />

@@ -12,7 +12,7 @@ export type IconProps = {
 
 export const IconBoxplot = ({className}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div>
       <svg
         width="24"
         height="24"
@@ -65,7 +65,7 @@ export const IconBoxplot = ({className}: IconProps) => {
 
 export const IconCartogram = ({className}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div>
       <svg
         width="24"
         height="24"
@@ -122,7 +122,7 @@ export const IconCartogram = ({className}: IconProps) => {
 
 export const IconChatgpt = ({className, onClick}: IconProps) => {
   return (
-    <div id="icon-chatgpt" className={`icon-toolbar ${className}`} onClick={onClick}>
+    <div id="icon-chatgpt" onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -148,7 +148,7 @@ export const IconChatgpt = ({className, onClick}: IconProps) => {
 
 export const IconChoropleth = ({className, isEnabled}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}>
+    <div className={`${getGrayScale(isEnabled)}`}>
       <svg
         width="24"
         height="24"
@@ -179,11 +179,7 @@ export const IconChoropleth = ({className, isEnabled}: IconProps) => {
 
 export const IconHistogram = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div
-      id="icon-histogram"
-      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
-      onClick={onClick}
-    >
+    <div id="icon-histogram" onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -218,11 +214,7 @@ export const IconHistogram = ({className, isEnabled, onClick}: IconProps) => {
 
 export const IconLisa = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div
-      id="icon-lisa"
-      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
-      onClick={onClick}
-    >
+    <div id="icon-lisa" onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -292,11 +284,7 @@ export const IconLisa = ({className, isEnabled, onClick}: IconProps) => {
 
 export const IconMap = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div
-      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
-      onClick={onClick}
-      id="icon-mapping"
-    >
+    <div onClick={onClick} id="icon-mapping">
       <svg
         width="24"
         height="24"
@@ -317,7 +305,7 @@ export const IconMap = ({className, isEnabled, onClick}: IconProps) => {
 
 export const IconOpen = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`} onClick={onClick}>
+    <div onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -382,7 +370,7 @@ export const IconOpen = ({className, isEnabled, onClick}: IconProps) => {
 
 export const IconParallel = ({className}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div>
       <svg
         width="24"
         height="24"
@@ -487,7 +475,7 @@ export const IconParallel = ({className}: IconProps) => {
 
 export const IconScatterplot = ({className}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className}`}>
+    <div>
       <svg
         width="24"
         height="24"
@@ -566,7 +554,7 @@ export const IconScatterplot = ({className}: IconProps) => {
 
 export const IconTable = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`} onClick={onClick}>
+    <div onClick={onClick}>
       <svg
         width="24"
         height="24"
@@ -673,11 +661,7 @@ export const IconTable = ({className, isEnabled, onClick}: IconProps) => {
 
 export const IconWeights = ({className, isEnabled, onClick}: IconProps) => {
   return (
-    <div
-      className={`icon-toolbar ${className} ${getGrayScale(isEnabled)}`}
-      onClick={onClick}
-      id="icon-weights"
-    >
+    <div onClick={onClick} id="icon-weights">
       <svg
         width="24"
         height="24"
