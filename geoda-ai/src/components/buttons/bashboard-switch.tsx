@@ -1,4 +1,5 @@
 import {setGridView} from '@/actions';
+import {Tooltip} from '@nextui-org/react';
 import {useCallback, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
@@ -36,7 +37,8 @@ export function MapIcon() {
       width="24"
     >
       <g fill="#fff">
-        <path d="M22 2v20H2V2h20m1-2H1a1 1 0 00-1 1v22a1 1 0 001 1h22a1 1 0 001-1V1a1 1 0 00-1-1z"></path>
+        <rect x="0" y="2" width="14" height="22" rx="2" ry="2" />
+        <rect x="16" y="2" width="7" height="22" />
       </g>
     </svg>
   );
@@ -53,8 +55,10 @@ export function DashboardSwitcher() {
   }, [dispatch, useDashboard]);
 
   return (
-    <div className="cursor-pointer" onClick={onToggleGridCallback}>
-      {useDashboard ? <MapIcon /> : <DashboardIcon />}
-    </div>
+    <Tooltip content={useDashboard ? 'Switch to Map' : 'Switch to Dashboard'} placement="right">
+      <div className="cursor-pointer" onClick={onToggleGridCallback}>
+        {useDashboard ? <MapIcon /> : <DashboardIcon />}
+      </div>
+    </Tooltip>
   );
 }

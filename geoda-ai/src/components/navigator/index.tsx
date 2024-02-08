@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Badge, Button, Tooltip} from '@nextui-org/react';
+import {Badge, Button, Tooltip, Avatar} from '@nextui-org/react';
 
-import {Avatar} from './avatar';
 import {GeoDaLogo} from './geoda-logo';
 import {
   IconBoxplot,
@@ -18,7 +17,7 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setGridView, setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 import {ThemeSwitcher} from '../buttons/theme-switch';
@@ -264,10 +263,18 @@ export function Navigator() {
           </Button>
         </Tooltip>
       </div>
-      <div className="user-box flex-none">
+      <div className="justify-top mb-4 mt-4 flex w-full flex-none flex-col items-center gap-2">
         <DashboardSwitcher />
         <ThemeSwitcher />
-        <Avatar onClick={onClickIconCallback} />
+        <Button
+          isIconOnly
+          size="sm"
+          className="bg-transparent"
+          id="icon-settings"
+          onClick={onClickIconCallback}
+        >
+          <Avatar showFallback src="" className="mt-2 h-6 w-6" />
+        </Button>
       </div>
     </div>
   );

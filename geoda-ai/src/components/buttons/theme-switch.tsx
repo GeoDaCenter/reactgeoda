@@ -1,3 +1,4 @@
+import {Tooltip} from '@nextui-org/react';
 import {useTheme} from 'next-themes';
 import {useEffect, useState} from 'react';
 
@@ -52,8 +53,13 @@ export function ThemeSwitcher() {
 
   // if light theme return the moon icon, else return the sun icon
   return (
-    <div className="cursor-pointer" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-      {theme === 'light' ? <SunIcon /> : <MoonIcon />}
-    </div>
+    <Tooltip content={theme === 'light' ? 'Switch to Dark' : 'Switch to Light'} placement="right">
+      <div
+        className="cursor-pointer"
+        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      >
+        {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+      </div>
+    </Tooltip>
   );
 }
