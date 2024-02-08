@@ -102,7 +102,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
 
   return (
     <MainContainer className="p-4">
-      <ChatContainer>
+      <ChatContainer className="">
         <MessageList
           id="chat-message-list"
           autoScrollToBottom={true}
@@ -141,6 +141,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
             defaultMessage: 'Type message here'
           })}
           onSend={handleSend}
+          className="fill-current text-black dark:text-white"
         />
       </ChatContainer>
     </MainContainer>

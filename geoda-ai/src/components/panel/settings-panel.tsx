@@ -1,11 +1,13 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {GeoDaState} from '../../store';
+import {useIntl} from 'react-intl';
+import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
 
+import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
 import '../../styles/settings-panel.css';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {useIntl} from 'react-intl';
+import {accordionItemClasses} from '../lisa/local-moran-panel';
 
 export function SettingsPanel() {
   const intl = useIntl();
@@ -38,34 +40,25 @@ export function SettingsPanel() {
         defaultMessage: 'Change your personal settings'
       })}
     >
-      <div className="p-4">
-        <div className="form">
-          <div className="div">
-            <div className="div">
-              <div className="label">ChatGPT API Key</div>
-              <div className="input">
-                <input
-                  type="text"
-                  onChange={onOpenAIKeyChange}
-                  className="inputToken"
-                  value={key || ''}
-                />
-              </div>
-            </div>
-            <p className="hint-text">You can get your API key from openai.com.</p>
-          </div>
-        </div>
-        <div className="padding-bottom" />
-        <div className="bottom-buttons">
-          <div className="two-buttons-container">
-            <button className="confirm-button">
-              <div className="text-confirm">Confirm</div>
-            </button>
-            <button className="cancel-button">
-              <div className="text-cancel">Cancel</div>
-            </button>
-          </div>
-        </div>
+      <div className="flex flex-col gap-4 p-4">
+        <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1']}>
+          <AccordionItem
+            key="1"
+            aria-label="OpenAI Settings"
+            title="OpenAI Settings"
+            subtitle="Change your OpenAI settings"
+          >
+            <Input
+              type="string"
+              label="OpenAI Key"
+              defaultValue="Enter your OpenAI key here"
+              className="max-w-full"
+              onChange={onOpenAIKeyChange}
+              value={key || ''}
+            />
+          </AccordionItem>
+        </Accordion>
+        <Button color="danger">Confirm</Button>
       </div>
     </RightPanelContainer>
   );

@@ -189,10 +189,6 @@ react-geoda .icon-open-instance {
   cursor: pointer;
 }
 
-.x-close {
-  padding: 4px;
-}
-
 /* readjust the size of the close button in modal dialog */
 .react-responsive-modal-closeButton {
   width: 18px;
@@ -263,7 +259,7 @@ div[mapboxgl-children] {
   padding: 0 !important;
 }
 .cs-button--send {
-  color: #333333 !important;
+  color: #999999 !important;
 }
 .cs-button--attachment {
   color: #999999 !important; 

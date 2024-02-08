@@ -48,9 +48,9 @@ export const PanelContainer = () => {
   );
 
   return showPropertyPanel ? (
-    <div className="prop-box">
-      <div className="prop-box-close" onClick={onCloseClick}>
-        <IconXClose className="x-close" />
+    <div className="flex h-screen w-[380px] flex-col">
+      <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
+        <IconXClose />
       </div>
       <div className="h-full">
         {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}

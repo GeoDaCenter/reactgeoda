@@ -302,6 +302,9 @@ const EChartsUpdater = ({
 export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const dispatch = useDispatch();
 
+  // use selector to get theme
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
+
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
 
@@ -386,7 +389,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           option={option}
           notMerge={true}
           lazyUpdate={true}
-          // theme={'theme_name'}
+          theme={theme}
           // onChartReady={this.onChartReadyCallback}
           onEvents={bindEvents}
           // opts={}
