@@ -1,6 +1,6 @@
 .react-geoda {
   align-items: flex-start;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   border: 1px none;
   display: flex;
   position: relative;
@@ -11,7 +11,7 @@
 .react-geoda .toolbar {
   align-items: center;
   align-self: stretch;
-  background-color: var(--primary-marron);
+  background-color: rgba(60, 0, 0, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -47,7 +47,7 @@
   margin-top: 24px;
 }
 
-.react-geoda .icon-open-instance {
+react-geoda .icon-open-instance {
   height: 21.14px !important;
   left: unset !important;
   margin-left: -12px !important;
@@ -143,7 +143,7 @@
 
 .react-geoda .main-box {
   align-self: stretch;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   flex: 1;
   flex-grow: 1;
   position: relative;
@@ -172,7 +172,7 @@
 
 .react-geoda .prop-box {
   align-self: stretch;
-  background-color: var(--variable-collection-panelbgcolor);
+  /* background-color: var(--variable-collection-panelbgcolor); */
   position: relative;
   width: 380px;
   display: flex;
