@@ -33,7 +33,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
     setMessages([
       {
         message: intl.formatMessage({
-          id: 'chatGpt.initialMessage',
+          id: 'GeoDa.AI.initialMessage',
           defaultMessage: DEFAULT_WELCOME_MESSAGE
         }),
         sentTime: 'just now',
@@ -101,7 +101,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   }, [messages]);
 
   return (
-    <MainContainer className="p-4">
+    <MainContainer className="pl-4">
       <ChatContainer>
         <MessageList
           id="chat-message-list"
@@ -112,7 +112,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
             isTyping ? (
               <TypingIndicator
                 content={intl.formatMessage({
-                  id: 'chatGpt.isTyping',
+                  id: 'GeoDa.AI.isTyping',
                   defaultMessage: 'GeoDa.AI is typing'
                 })}
               />
@@ -141,6 +141,7 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
             defaultMessage: 'Type message here'
           })}
           onSend={handleSend}
+          className="fill-current text-black dark:text-white"
         />
       </ChatContainer>
     </MainContainer>

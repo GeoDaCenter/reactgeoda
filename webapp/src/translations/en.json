@@ -1,9 +1,9 @@
 {
   "fileUpload.dropHere": "Drop the files here ...",
   "fileUpload.dragDropClick": "Drag and drop csv, geojson, or json files here, or click to select files",
-  "chatGpt.initialMessage": "Hello, I'm ChatGPT! Ask me anything!",
-  "chatGpt.isTyping": "ChatGPT is typing",
-  "chatGpt.inputPlaceholder": "Type the message here",
+  "GeoDa.AI.initialMessage": "Hello, I'm GeoDa.AI! Ask me anything!",
+  "GeoDa.AI.isTyping": "GeoDa.AI is typing",
+  "GeoDa.AI.inputPlaceholder": "Type the message here",
   "toolbar.title": "Toolbar",
   "toolbar.plotType": "Plot Type",
   "toolbar.selectPlotType": "Select Plot Type",

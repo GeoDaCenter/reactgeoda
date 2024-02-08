@@ -8,7 +8,6 @@ import {IconXClose} from '../icons/xclose';
 import {setShowPropertyPanel} from '@/actions';
 import {MappingPanel} from '../mapping/mapping-panel';
 
-import '../../styles/settings-panel.css';
 import {WeightsPanel} from '../weights/weights-panel';
 import {LisaPanel} from '../lisa/lisa-panel';
 import {HistogramPanel} from '../plots/histogram-panel';
@@ -48,9 +47,9 @@ export const PanelContainer = () => {
   );
 
   return showPropertyPanel ? (
-    <div className="prop-box">
-      <div className="prop-box-close" onClick={onCloseClick}>
-        <IconXClose className="x-close" />
+    <div className="flex h-screen w-[380px] flex-col bg-gray-50 dark:bg-gray-900">
+      <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
+        <IconXClose />
       </div>
       <div className="h-full">
         {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}

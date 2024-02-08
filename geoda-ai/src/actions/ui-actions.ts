@@ -1,4 +1,5 @@
 export enum UI_ACTIONS {
+  SET_THEME = 'SET_THEME',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
   SET_KEPLER_TABLE_MODAL = 'SET_KEPLER_TABLE_MODAL',
   SET_GRID_VIEW = 'SET_GRID_VIEW',
@@ -6,6 +7,11 @@ export enum UI_ACTIONS {
   SET_PROPERTY_PANEL = 'SET_PROPERTY_PANEL',
   SET_OPENAI_KEY = 'SET_OPENAI_KEY'
 }
+
+export const setTheme = (payload: 'dark' | 'light') => ({
+  type: UI_ACTIONS.SET_THEME,
+  payload
+});
 
 export const setOpenFileModal = (payload: boolean) => ({
   type: UI_ACTIONS.SET_OPEN_FILE_MODAL,

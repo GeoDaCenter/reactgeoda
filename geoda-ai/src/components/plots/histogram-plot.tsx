@@ -302,6 +302,9 @@ const EChartsUpdater = ({
 export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const dispatch = useDispatch();
 
+  // use selector to get theme
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
+
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
 
@@ -375,7 +378,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
   return (
-    <Card className="my-4">
+    <Card className="my-4" shadow="none">
       <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
         <p className="text-tiny font-bold uppercase">{props.type}</p>
         <small className="text-default-500">{props.variable}</small>
@@ -386,7 +389,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           option={option}
           notMerge={true}
           lazyUpdate={true}
-          // theme={'theme_name'}
+          theme={theme}
           // onChartReady={this.onChartReadyCallback}
           onEvents={bindEvents}
           // opts={}

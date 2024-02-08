@@ -1,3 +1,4 @@
+import {Divider} from '@nextui-org/react';
 import React from 'react';
 
 /**
@@ -31,7 +32,6 @@ export function GearIcon() {
 export const RightPanelContainer = ({
   title,
   description,
-  icon,
   children
 }: {
   title: string;
@@ -40,18 +40,17 @@ export const RightPanelContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <div className="right-panel-container">
-      <div className="right-panel-header">
-        <div className="right-panel-header-content">
-          {icon && <GearIcon />}
-          <div className="text-and-supporting">
-            <div className="text">{title}</div>
-            <div className="supporting-text">{description}</div>
-          </div>
+    <div className="h-scree h-full">
+      <div className="w-full">
+        <div className="space-y-1 p-4">
+          <h4 className="text-medium font-medium">{title}</h4>
+          <p className="text-small text-default-400">{description}</p>
         </div>
-        <div className="padding-bottom" />
+        <Divider className="my-2" />
       </div>
-      <div className="panel-content-wrapper">{children}</div>
+      <div className="flex flex-col" style={{height: 'calc(100% - 97px)'}}>
+        {children}
+      </div>
     </div>
   );
 };

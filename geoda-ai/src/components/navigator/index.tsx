@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Badge} from '@nextui-org/react';
+import {Badge, Button, Tooltip, Avatar} from '@nextui-org/react';
 
-import {Avatar} from './avatar';
 import {GeoDaLogo} from './geoda-logo';
 import {
   IconBoxplot,
@@ -18,9 +17,11 @@ import {
   IconTable,
   IconWeights
 } from './icons';
-import {setGridView, setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
+import {ThemeSwitcher} from '../buttons/theme-switch';
+import {DashboardSwitcher} from '../buttons/bashboard-switch';
 
 export function Navigator() {
   const dispatch = useDispatch();
@@ -35,8 +36,6 @@ export function Navigator() {
   useEffect(() => {
     setIsFileLoaded(Boolean(fileName));
   }, [fileName]);
-
-  const [showGridView, setShowGridView] = useState(false);
 
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
@@ -99,30 +98,38 @@ export function Navigator() {
     [dispatch]
   );
 
-  const onToggleGridCallback = useCallback(() => {
-    setShowGridView(!setShowGridView);
-    dispatch(setGridView(!setShowGridView));
-  }, [dispatch]);
-
   return (
-    <div className="toolbar">
-      <GeoDaLogo className="logo-box" geodaLogoClassName="geo-da-logo-instance" />
-      <div className="tool-box">
-        <IconOpen
-          className="icon-open-instance cursor-pointer"
-          onClick={onOpenCallback}
-          isEnabled={!isFileLoaded}
-        />
-        <IconTable
-          className="icon-table-instance cursor-pointer"
-          isEnabled={isFileLoaded}
-          onClick={onTableCallback}
-        />
-        <IconMap
-          className="icon-map-instance cursor-pointer"
-          isEnabled={isFileLoaded}
-          onClick={onClickIconCallback}
-        />
+    <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-amber-950">
+      <GeoDaLogo />
+      <div className="justify-top mt-4 flex w-full grow flex-col items-center">
+        <Tooltip key="openFileTooltip" placement="right" content="Open File">
+          <Button isIconOnly size="sm" className="bg-transparent" onClick={onOpenCallback}>
+            <IconOpen />
+          </Button>
+        </Tooltip>
+        <Tooltip key="tableTooltip" placement="right" content="Table">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            isDisabled={!isFileLoaded}
+            onClick={onTableCallback}
+          >
+            <IconTable />
+          </Button>
+        </Tooltip>
+        <Tooltip key="mappingTooltip" placement="right" content="Map">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-mapping"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconMap />
+          </Button>
+        </Tooltip>
         <Badge
           color="danger"
           content={newWeightsCount}
@@ -132,13 +139,31 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <IconWeights
-            className="icon-weights-instance cursor-pointer"
-            onClick={onClickIconCallback}
-            isEnabled={isFileLoaded}
-          />
+          <Tooltip key="weightsTooltip" placement="right" content="Spatial Weights">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-weights"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconWeights />
+            </Button>
+          </Tooltip>
         </Badge>
-        <IconChoropleth className="design-component-instance-node" isEnabled={isFileLoaded} />
+        <Tooltip key="customMapTooltip" placement="right" content="Custom Map">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-custom-map"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconChoropleth />
+          </Button>
+        </Tooltip>
         <Badge
           color="danger"
           content={newHistogramCount}
@@ -148,40 +173,108 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <IconHistogram
-            className="design-component-instance-node cursor-pointer"
-            onClick={onClickIconCallback}
-            isEnabled={isFileLoaded}
-          />
+          <Tooltip key="histogramTooltip" placement="right" content="Histogram">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-histogram"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconHistogram />
+            </Button>
+          </Tooltip>
         </Badge>
-        <IconBoxplot className="icon-boxplot-instance" />
-        <IconScatterplot className="design-component-instance-node" />
-        <IconCartogram className="icon-cartogram-instance" />
-        <IconParallel className="icon-parallel-instance" />
-        <IconLisa
-          className="icon-lisa-instance cursor-pointer"
-          isEnabled={isFileLoaded}
-          onClick={onClickIconCallback}
-        />
-        <IconChatgpt
-          className="design-component-instance-node cursor-pointer"
-          onClick={onClickIconCallback}
-        />
+        <Tooltip key="boxplotTooltip" placement="right" content="Box Plot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-boxplot"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconBoxplot />
+          </Button>
+        </Tooltip>
+        <Tooltip key="scatterTooltip" placement="right" content="Scatter Plot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-scatterplot"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconScatterplot />
+          </Button>
+        </Tooltip>
+        <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-cartogram"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconCartogram />
+          </Button>
+        </Tooltip>
+        <Tooltip key="pcpTooltip" placement="right" content="Parallel Coordinate Plot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-pcp"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconParallel />
+          </Button>
+        </Tooltip>
+        <Tooltip
+          key="lisaTooltip"
+          placement="right"
+          content="Local Indicators of Spatial Autocorrelation"
+        >
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-lisa"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconLisa />
+          </Button>
+        </Tooltip>
+        <Tooltip key="chatgptTooltip" placement="right" content="GeoDa.AI ChatBot">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-chatgpt"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconChatgpt />
+          </Button>
+        </Tooltip>
       </div>
-      <div className="user-box">
-        <div>
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              value=""
-              className="peer sr-only"
-              checked={showGridView}
-              onChange={onToggleGridCallback}
-            />
-            <div className="dark:border-gray-600·dark:bg-gray-700·dark:peer-focus:ring-blue-800·rtl:peer-checked:after:-translate-x-full peer h-4 w-6 rounded-full bg-gray-200 after:absolute after:start-[0px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300"></div>
-          </label>
-        </div>
-        <Avatar onClick={onClickIconCallback} />
+      <div className="justify-top mb-4 mt-4 flex w-full flex-none flex-col items-center gap-2">
+        <DashboardSwitcher />
+        <ThemeSwitcher />
+        <Button
+          isIconOnly
+          size="sm"
+          className="bg-transparent"
+          id="icon-settings"
+          onClick={onClickIconCallback}
+        >
+          <Avatar showFallback src="" className="mt-2 h-6 w-6" />
+        </Button>
       </div>
     </div>
   );
