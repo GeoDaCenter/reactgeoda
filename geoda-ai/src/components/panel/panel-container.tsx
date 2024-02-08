@@ -8,7 +8,6 @@ import {IconXClose} from '../icons/xclose';
 import {setShowPropertyPanel} from '@/actions';
 import {MappingPanel} from '../mapping/mapping-panel';
 
-import '../../styles/settings-panel.css';
 import {WeightsPanel} from '../weights/weights-panel';
 import {LisaPanel} from '../lisa/lisa-panel';
 import {HistogramPanel} from '../plots/histogram-panel';

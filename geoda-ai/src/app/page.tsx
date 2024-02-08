@@ -2,7 +2,7 @@
 
 import {SignUpButton} from '@/components/user/signup';
 import '@/styles/globals.css';
-import '@/styles/styleguide.css';
+import '@/styles/landing-guide.css';
 import '@/styles/landing.css';
 
 export default function Page() {

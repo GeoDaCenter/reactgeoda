@@ -5,7 +5,6 @@ import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
 
 import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
-import '../../styles/settings-panel.css';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {accordionItemClasses} from '../lisa/local-moran-panel';
 
