@@ -103,7 +103,13 @@ export function Navigator() {
       <GeoDaLogo />
       <div className="justify-top mt-4 flex w-full grow flex-col items-center">
         <Tooltip key="openFileTooltip" placement="right" content="Open File">
-          <Button isIconOnly size="sm" className="bg-transparent" onClick={onOpenCallback}>
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            onClick={onOpenCallback}
+            isDisabled={isFileLoaded}
+          >
             <IconOpen />
           </Button>
         </Tooltip>
@@ -137,7 +143,6 @@ export function Navigator() {
           size="sm"
           placement="bottom-right"
           isOneChar
-          className="absolute left-0"
         >
           <Tooltip key="weightsTooltip" placement="right" content="Spatial Weights">
             <Button
@@ -171,7 +176,6 @@ export function Navigator() {
           size="sm"
           placement="bottom-right"
           isOneChar
-          className="absolute left-0"
         >
           <Tooltip key="histogramTooltip" placement="right" content="Histogram">
             <Button

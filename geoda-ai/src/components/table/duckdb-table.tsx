@@ -179,7 +179,7 @@ export function DuckDBTableComponent() {
   useEffect(() => {
     console.log('useEffect importArrowFile');
     importArrowFile(rawFileData);
-    setCode(`select * from "${tableName}" LIMIT 5`);
+    setCode(`select * from "${tableName}"`);
   }, [rawFileData, importArrowFile, tableName]);
 
   return (

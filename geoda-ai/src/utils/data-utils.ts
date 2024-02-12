@@ -210,14 +210,14 @@ export function getDataContainer(
 
 export function getLayer(state: GeoDaState) {
   const tableName = state.root.file?.rawFileData?.name;
-  return state.keplerGl[MAP_ID].map?.visState?.layers.find((layer: Layer) =>
+  return state.keplerGl[MAP_ID]?.visState?.layers.find((layer: Layer) =>
     tableName.startsWith(layer.config.label)
   );
 }
 
 export function getDataset(state: GeoDaState) {
   const tableName = state.root.file?.rawFileData?.name;
-  const datasets = state.keplerGl[MAP_ID].map?.visState?.datasets;
+  const datasets: KeplerTable[] = Object.values(state.keplerGl[MAP_ID]?.visState?.datasets);
   const dataset = datasets.find((dataset: KeplerTable) => dataset.label === tableName);
   return dataset;
 }

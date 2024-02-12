@@ -7,6 +7,7 @@ import {addWeights} from '@/actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
 import {useDispatch} from 'react-redux';
+import {GreenCheckIcon} from '../icons/green-check';
 
 /**
  * Custom Weights Message
@@ -30,23 +31,22 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => 
   return (
     <div className="w-60">
       {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
-      {!hide && (
-        <Button
-          radius="full"
-          className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          onClick={onClick}
-          startContent={<HeartIcon />}
-        >
-          <Typewriter
-            options={{
-              strings: `Click to Add This Spatial Weights`,
-              autoStart: true,
-              loop: false,
-              delay: 10
-            }}
-          />
-        </Button>
-      )}
+      <Button
+        radius="full"
+        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        onClick={onClick}
+        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
+        isDisabled={hide}
+      >
+        <Typewriter
+          options={{
+            strings: `Click to Add This Spatial Weights`,
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
     </div>
   );
 };

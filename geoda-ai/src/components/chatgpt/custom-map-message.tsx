@@ -4,6 +4,7 @@ import {useState} from 'react';
 
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
+import {GreenCheckIcon} from '../icons/green-check';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {createCustomScaleMap} from '@/utils/mapping-functions';
@@ -41,23 +42,22 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   return (
     <div className="w-60">
       {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
-      {!hide && (
-        <Button
-          radius="full"
-          className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          onClick={onClick}
-          startContent={<HeartIcon />}
-        >
-          <Typewriter
-            options={{
-              strings: `Click to Add This Map`,
-              autoStart: true,
-              loop: false,
-              delay: 10
-            }}
-          />
-        </Button>
-      )}
+      <Button
+        radius="full"
+        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        onClick={onClick}
+        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
+        isDisabled={hide}
+      >
+        <Typewriter
+          options={{
+            strings: `Click to Add This Map`,
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
     </div>
   );
 };

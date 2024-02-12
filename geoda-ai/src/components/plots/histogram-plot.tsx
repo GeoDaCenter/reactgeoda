@@ -366,7 +366,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
       // dispatch action to highlight the selected ids
       dispatch({
         type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: validPlot ? filteredIndex : null}
+        payload: {dataLabel: tableName, filteredIndex: filteredIndex}
       });
     }
     // brushEnd: function (params: any) {

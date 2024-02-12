@@ -88,8 +88,9 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
         return 'error: can not get summary of the table because table name is not found';
       }
     }
+    return tableSummary;
   }
-  return '';
+  return 'Error: can not get summary of the table because the duckdb is not working properly.';
 }
 
 export function getTableNameSync(): string | null {
