@@ -134,7 +134,8 @@ export function createCustomScaleMap({
       visConfig: {
         ...layer?.config.visConfig,
         colorRange,
-        colorDomain: breaks
+        colorDomain: breaks,
+        thickness: 0.2
       },
       isVisible: false
     }

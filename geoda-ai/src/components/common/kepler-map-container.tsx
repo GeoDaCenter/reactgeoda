@@ -154,7 +154,10 @@ export function KeplerMapContainer({
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
 
   return (
-    <div style={{height: mapHeight ?? 280, width: mapWidth ?? 300}} className="rounded">
+    <div
+      style={{height: mapHeight ?? 280, width: mapWidth ?? 300}}
+      className="rounded bg-white dark:bg-black"
+    >
       <AutoSizer defaultHeight={280} defaultWidth={300}>
         {({height, width}) => {
           // get center and zoom from bounds for preview map
