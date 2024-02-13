@@ -13,6 +13,9 @@ const nextConfig = {
     // !! WARN !! This is to ignore build errors from Kepler.gl
     ignoreBuildErrors: true
   },
+  compiler: {
+    styledComponents: true
+  },
   webpack: config => {
     // This following line is to support WASM modules
     config.experiments = {

@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
@@ -9,6 +10,7 @@ import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnDataFromKeplerLayer, getNumericFieldNames} from '@/utils/data-utils';
+const KeplerMapContainer = dynamic(() => import('../common/kepler-map-container'), {ssr: false});
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -156,6 +158,7 @@ export function MappingPanel() {
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
         <div className="p-4">
+          <KeplerMapContainer mapIndex={1} />
           <div className="flex flex-col gap-2 ">
             <div className="space-y-1">
               <p className="text-small text-default-600">Map Type</p>

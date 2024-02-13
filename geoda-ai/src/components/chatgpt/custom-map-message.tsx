@@ -9,6 +9,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {createCustomScaleMap} from '@/utils/mapping-functions';
 import {getLayer} from '@/utils/data-utils';
+import KeplerMapContainer from '../common/kepler-map-container';
 
 /**
  * Custom Map Message
@@ -41,7 +42,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
 
   return (
     <div className="w-60">
-      {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
+      <KeplerMapContainer mapIndex={0} />
       <Button
         radius="full"
         className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
