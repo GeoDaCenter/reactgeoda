@@ -41,9 +41,15 @@ type KeplerMapContainerProps = {
   mapIndex: number;
   mapHeight?: number;
   mapWidth?: number;
+  layerId?: string;
 };
 
-export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapContainerProps) {
+export function KeplerMapContainer({
+  mapIndex,
+  mapHeight,
+  mapWidth,
+  layerId
+}: KeplerMapContainerProps) {
   const dispatch = useDispatch();
 
   const dispatchKepler = (action: any) => dispatch(wrapTo(NO_MAP_ID, action));
@@ -65,10 +71,22 @@ export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapCon
   const {visStateActions, mapStateActions, uiStateActions, providerActions, mapStyleActions} =
     keplerActionSelector(dispatchKepler, keplerOwnProps);
 
+  // get updated layers
+  const updatedLayers = useMemo(() => {
+    const layers = keplerState.visState.layers.map((l: Layer) => {
+      if (tableName.startsWith(l.config.label)) {
+        // l.updateLayerConfig(newLayerConfig?.config);
+        return l;
+      }
+      return l;
+    });
+    return layers;
+  }, [keplerState.visState.layers, tableName]);
+
   // get splitmaps
   const splitMaps = useMemo(() => {
-    const visibleLayers = keplerState.visState.layers
-      .filter((l: Layer) => tableName.startsWith(l.config.label))
+    const visibleLayers = updatedLayers
+      .filter((l: Layer) => l.id === layerId)
       .map((l: Layer) => l.id);
     // array to object {[layer.id]: true}
     const layers = visibleLayers?.reduce(
@@ -81,7 +99,7 @@ export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapCon
     return new Array(mapIndex + 1)
       .fill(0)
       .map((s, i) => (i === mapIndex ? {layers} : {layers: []}));
-  }, [keplerState.visState.layers, mapIndex, tableName]);
+  }, [layerId, mapIndex, updatedLayers]);
 
   const connectedProps = {
     id: MAP_ID,
@@ -99,7 +117,21 @@ export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapCon
     mapStyleActions,
     visState: {
       ...keplerState?.visState,
-      splitMaps
+      splitMaps,
+      layers: keplerState?.visState.layers
+        .filter((l: Layer) => l.id === layerId)
+        .map((l: Layer) => {
+          l.updateLayerConfig({
+            isVisible: true
+          });
+          return l;
+        }),
+      layerOrder: [layerId],
+      layerData: [
+        keplerState?.visState.layerData[
+          keplerState?.visState.layers.findIndex((l: Layer) => l.id === layerId)
+        ]
+      ]
     },
     mapState: {
       ...keplerState?.mapState,
@@ -122,7 +154,7 @@ export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapCon
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
 
   return (
-    <div style={{height: mapHeight ?? 280, width: mapWidth ?? 300}}>
+    <div style={{height: mapHeight ?? 280, width: mapWidth ?? 300}} className="rounded">
       <AutoSizer defaultHeight={280} defaultWidth={300}>
         {({height, width}) => {
           // get center and zoom from bounds for preview map
@@ -139,7 +171,7 @@ export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapCon
               : {})
           };
           return (
-            <div style={{height: height, width: width}}>
+            <div style={{height: height, width: width}} className="rounded p-2">
               <MapViewStateContextProvider mapState={newMapState}>
                 <MapContainer
                   width={width}
