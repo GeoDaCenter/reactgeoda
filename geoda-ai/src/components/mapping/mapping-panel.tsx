@@ -9,7 +9,6 @@ import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnData, getLayer, getNumericFieldNames} from '@/utils/data-utils';
-import {KeplerMapContainer} from '../common/kepler-map-container';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 

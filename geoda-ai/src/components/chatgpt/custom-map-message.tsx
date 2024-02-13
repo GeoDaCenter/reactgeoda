@@ -1,6 +1,6 @@
 import {Button} from '@nextui-org/react';
 import Typewriter from 'typewriter-effect';
-import {useEffect, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
 import {Layer} from '@kepler.gl/layers';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
