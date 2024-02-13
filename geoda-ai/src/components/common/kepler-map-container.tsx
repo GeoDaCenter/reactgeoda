@@ -1,43 +1,29 @@
-'use client';
-
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
-import {ThemeProvider, styled, withTheme} from 'styled-components';
 import {useDispatch, useSelector} from 'react-redux';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import {useMemo} from 'react';
 import {
   appInjector,
   MapContainerFactory,
   makeGetActionCreators,
   mapFieldsSelector,
-  provideRecipesToInjector,
-  ContainerFactory,
-  MapPopoverFactory
+  MapViewStateContextProvider
 } from '@kepler.gl/components';
-import {INITIAL_PROVIDER_STATE, uiStateUpdaters} from '@kepler.gl/reducers';
+import {findMapBounds, uiStateUpdaters} from '@kepler.gl/reducers';
 import {NO_MAP_ID} from '@kepler.gl/constants';
 import {Layer} from '@kepler.gl/layers';
-
-import {useMemo, useRef} from 'react';
 import {themeLT} from '@kepler.gl/styles';
+import {wrapTo} from '@kepler.gl/actions';
+import {getCenterAndZoomFromBounds, hexToRgb} from '@kepler.gl/utils';
 
-function getInjectedKepler() {
-  const KeplerInjector = provideRecipesToInjector([], appInjector);
-  const injectedKepler = KeplerInjector.get(ContainerFactory);
-  return {KeplerInjector, injectedKepler};
-}
-const injected = getInjectedKepler();
-export const KeplerInjector = injected.KeplerInjector;
-
-const MapContainer = withTheme(KeplerInjector.get(MapContainerFactory));
-KeplerInjector.get(MapPopoverFactory);
-
-const StyledMapContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  test: ${(props: any) => props.theme.mapControl.padding};
-`;
+// For inject customized component to kepler.gl
+// const KeplerInjector = provideRecipesToInjector([], appInjector);
+// const MapContainer = KeplerInjector.get(MapContainerFactory);
+const MapContainer = appInjector.get(MapContainerFactory);
 
 const initialMapUiState = {
+  // disable all map controls
   mapControls: Object.keys(uiStateUpdaters.DEFAULT_MAP_CONTROLS).reduce(
     (accu, key) => ({
       ...accu,
@@ -45,15 +31,22 @@ const initialMapUiState = {
     }),
     {}
   ),
-  activeSidePanel: null
+  // disable side panel
+  activeSidePanel: null,
+  // disable toggle button
+  readonly: true
 };
 
 type KeplerMapContainerProps = {
   mapIndex: number;
+  mapHeight?: number;
+  mapWidth?: number;
 };
 
-function KeplerMapContainer({mapIndex}: KeplerMapContainerProps) {
+export function KeplerMapContainer({mapIndex, mapHeight, mapWidth}: KeplerMapContainerProps) {
   const dispatch = useDispatch();
+
+  const dispatchKepler = (action: any) => dispatch(wrapTo(NO_MAP_ID, action));
 
   // get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
@@ -62,15 +55,15 @@ function KeplerMapContainer({mapIndex}: KeplerMapContainerProps) {
   const keplerState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]);
 
   // // use selector to get theme
-  const theme = useSelector((state: any) => state.root.uiState.theme);
+  const uiTheme = useSelector((state: any) => state.root.uiState.theme);
 
-  const selectedTheme = theme === 'light' ? themeLT : themeLT;
+  const selectedTheme = uiTheme === 'light' ? themeLT : themeLT;
 
   // get kepler actions
   const keplerActionSelector = makeGetActionCreators();
   const keplerOwnProps = {};
   const {visStateActions, mapStateActions, uiStateActions, providerActions, mapStyleActions} =
-    keplerActionSelector(dispatch, keplerOwnProps);
+    keplerActionSelector(dispatchKepler, keplerOwnProps);
 
   // get splitmaps
   const splitMaps = useMemo(() => {
@@ -96,7 +89,6 @@ function KeplerMapContainer({mapIndex}: KeplerMapContainerProps) {
     getState: (state: GeoDaState) => state.keplerGl[MAP_ID],
     // width: contentWidth,
     // height: dimensions?.height,
-    theme: selectedTheme,
     initialUiState: initialMapUiState,
     mapboxApiAccessToken: '',
     dispatch,
@@ -110,44 +102,61 @@ function KeplerMapContainer({mapIndex}: KeplerMapContainerProps) {
       splitMaps
     },
     mapState: {
-      ...keplerState?.mapState
+      ...keplerState?.mapState,
+      isViewportSynced: false,
+      isZoomLocked: false
     },
     uiState: {
       ...keplerState?.uiState,
       ...initialMapUiState
     },
-    providerState: INITIAL_PROVIDER_STATE,
+    providerState: keplerState.providerState,
     mapStyle: {
       ...keplerState?.mapStyle,
-      styleType: NO_MAP_ID
+      styleType: NO_MAP_ID,
+      bottomMapStyle: null,
+      backgroundColor: hexToRgb(uiTheme === 'light' ? '#FFFFFF' : '#000000')
     }
   };
 
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
-  const rootNode = useRef<HTMLDivElement>(null);
-
-  // copy datasets
-  // const newDatasets = useMemo(() => {
-  //   Object.keys(keplerState.visState.datasets).reduce((accu: {}, key: string) => {
-  //     accu[key] = copyTableAndUpdate(keplerState.visState.datasets[key]);
-  //     return accu;
-  //   }, {});
-  // }, [keplerState.visState.datasets]);
 
   return (
-    // <ThemeProvider theme={selectedTheme}>
-    <StyledMapContainer>
-      <MapContainer
-        primary={true}
-        key={mapIndex}
-        index={mapIndex}
-        containerId={mapIndex}
-        {...mapFields}
-        theme={selectedTheme}
-      />
-    </StyledMapContainer>
-    // </ThemeProvider>
-
+    <div style={{height: mapHeight ?? 280, width: mapWidth ?? 300}}>
+      <AutoSizer defaultHeight={280} defaultWidth={300}>
+        {({height, width}) => {
+          // get center and zoom from bounds for preview map
+          const bounds = findMapBounds(mapFields.visState.layers);
+          const centerAndZoom = getCenterAndZoomFromBounds(bounds, {width, height});
+          const newMapState = {
+            ...mapFields.mapState,
+            ...(centerAndZoom
+              ? {
+                  latitude: centerAndZoom.center[1],
+                  longitude: centerAndZoom.center[0],
+                  ...(Number.isFinite(centerAndZoom.zoom) ? {zoom: centerAndZoom.zoom} : {})
+                }
+              : {})
+          };
+          return (
+            <div style={{height: height, width: width}}>
+              <MapViewStateContextProvider mapState={newMapState}>
+                <MapContainer
+                  width={width}
+                  height={height}
+                  primary={false}
+                  key={mapIndex}
+                  index={mapIndex}
+                  containerId={mapIndex}
+                  theme={selectedTheme}
+                  {...mapFields}
+                />
+              </MapViewStateContextProvider>
+            </div>
+          );
+        }}
+      </AutoSizer>
+    </div>
     // <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>
     //   <AutoSizer defaultHeight={400} defaultWidth={500}>
     //     {({height, width}) => {
@@ -157,8 +166,20 @@ function KeplerMapContainer({mapIndex}: KeplerMapContainerProps) {
     //           mapboxApiAccessToken=""
     //           height={height}
     //           width={width}
-    //           theme={theme}
+    //           theme={selectedTheme}
     //           initialUiState={initialMapUiState}
+    //           mapOnly={true}
+    //           mapStyles={[
+    //             {
+    //               id: 'no_map',
+    //               label: 'No Basemap',
+    //               url: '',
+    //               icon: '',
+    //               colorMode: 'NONE',
+    //               backgroundColor: 'white',
+    //             }
+    //           ]}
+    //           mapStylesReplaceDefault={true}
     //         />
     //       );
     //     }}
@@ -166,5 +187,3 @@ function KeplerMapContainer({mapIndex}: KeplerMapContainerProps) {
     // </div>
   );
 }
-
-export default KeplerMapContainer;

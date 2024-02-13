@@ -1,16 +1,14 @@
-import dynamic from 'next/dynamic';
 import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {GeoDaState} from '@/store';
-import {MAP_ID, MappingTypes} from '@/constants';
+import {MappingTypes} from '@/constants';
 import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {getColumnDataFromKeplerLayer, getNumericFieldNames} from '@/utils/data-utils';
-const KeplerMapContainer = dynamic(() => import('../common/kepler-map-container'), {ssr: false});
+import {getColumnData, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -96,14 +94,13 @@ export function MappingPanel() {
   // use selector to get tableName from redux store
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
 
-  // use selector to get visState from redux store
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, visState);
+    const fieldNames = getNumericFieldNames(layer);
     return fieldNames;
-  }, [tableName, visState]);
+  }, [layer]);
 
   // handle map type change
   const onMapTypeChange = (value: any) => {
@@ -129,17 +126,13 @@ export function MappingPanel() {
     if (!tableName) return;
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState.datasets);
+    const columnData = getColumnData(variable, layer.dataContainer);
 
     // run quantile breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);
 
-    const selectState = {
-      tableName: tableName,
-      layers: visState.layers
-    };
     // create custom scale map
-    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, selectState});
+    createCustomScaleMap({breaks, mappingType, colorFieldName: variable, dispatch, layer});
   };
 
   return (
@@ -158,7 +151,6 @@ export function MappingPanel() {
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
         <div className="p-4">
-          <KeplerMapContainer mapIndex={1} />
           <div className="flex flex-col gap-2 ">
             <div className="space-y-1">
               <p className="text-small text-default-600">Map Type</p>

@@ -9,7 +9,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {createCustomScaleMap} from '@/utils/mapping-functions';
 import {getLayer} from '@/utils/data-utils';
-import KeplerMapContainer from '../common/kepler-map-container';
+import {KeplerMapContainer} from '../common/kepler-map-container';
 
 /**
  * Custom Map Message

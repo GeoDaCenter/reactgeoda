@@ -47,17 +47,19 @@ export function getKeplerLayer(tableName: string, visState: VisState): GeojsonLa
   return layer as GeojsonLayer;
 }
 
+// type guard function checks if the layer is a GeojsonLayer
+function isGeojsonLayer(layer: Layer): layer is GeojsonLayer {
+  return layer.type === 'geojson';
+}
+
 /**
  * Get the names of the numeric fields from the kepler.gl layer
  * @param tableName the name of the table
  * @param visState the kepler.gl visState
  * @returns the names of the numeric fields
  */
-export function getNumericFieldNames(tableName: string, visState: VisState): Array<string> {
-  // get kepler.gl layer using tableName
-  const layer = getKeplerLayer(tableName, visState);
-
-  if (layer) {
+export function getNumericFieldNames(layer: Layer): Array<string> {
+  if (layer && isGeojsonLayer(layer)) {
     // get numeric columns from layer
     const columnNames: string[] = [];
     const dataContainer = layer.dataContainer;
