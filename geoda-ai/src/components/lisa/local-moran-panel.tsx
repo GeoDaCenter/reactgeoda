@@ -13,12 +13,11 @@ import {
 import {Key, useMemo, useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
-import {KeplerTable} from '@kepler.gl/table';
 import {addTableColumn} from '@kepler.gl/actions';
-import {LISA_COLORS, LISA_LABELS, MAP_ID} from '@/constants';
+import {LISA_COLORS, LISA_LABELS} from '@/constants';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {getColumnDataFromKeplerLayer, getNumericFieldNames} from '@/utils/data-utils';
+import {getColumnData, getDataset, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {localMoran} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 
@@ -35,7 +34,8 @@ export function LocalMoranPanel() {
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
+  const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   // useState for variable name
   const [variable, setVariable] = useState('');
@@ -45,9 +45,9 @@ export function LocalMoranPanel() {
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, visState);
+    const fieldNames = getNumericFieldNames(layer);
     return fieldNames;
-  }, [tableName, visState]);
+  }, [layer]);
 
   // handle variable change
   const onVariableSelectionChange = (value: any) => {
@@ -63,7 +63,7 @@ export function LocalMoranPanel() {
 
   // handle onCreateMap
   const onCreateMap = async () => {
-    if (!tableName) return;
+    if (!tableName || !dataset) return;
 
     // get selected weight
     const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === selectedWeight);
@@ -73,7 +73,7 @@ export function LocalMoranPanel() {
     }
 
     // get column data from dataContainer
-    const columnData = getColumnDataFromKeplerLayer(tableName, variable, visState.datasets);
+    const columnData = getColumnData(variable, dataset.dataContainer);
 
     // get permutation input
     const permutations = parseFloat(permValue) || 999;
@@ -96,12 +96,7 @@ export function LocalMoranPanel() {
     const newFieldName = `lm_${variable}`;
 
     // get dataset from kepler.gl if dataset.label === tableName
-    const datasets: KeplerTable[] = Object.values(visState.datasets);
-    const dataset = datasets.find(dataset => dataset.label === tableName);
-    if (!dataset) {
-      console.error('Dataset not found');
-      return;
-    }
+
     const dataContainer = dataset.dataContainer;
     const fieldsLength = dataset.fields.length;
 
@@ -129,10 +124,7 @@ export function LocalMoranPanel() {
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,
-      selectState: {
-        tableName: tableName,
-        layers: visState.layers
-      }
+      layer
     });
   };
 

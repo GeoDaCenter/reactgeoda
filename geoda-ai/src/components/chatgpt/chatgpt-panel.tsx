@@ -121,12 +121,8 @@ const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
         >
           {messages.map((message, i) => {
             return message.type === 'custom' ? (
-              <Message
-                key={i}
-                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
-                style={{backgroundColor: 'transparent!important'}}
-              >
-                <Message.CustomContent className="w-[270px]">
+              <Message key={i} model={{direction: 'incoming', type: 'custom', position: 'normal'}}>
+                <Message.CustomContent className="w-[283px]">
                   <CustomMessage props={message.payload ?? {}} />
                 </Message.CustomContent>
               </Message>

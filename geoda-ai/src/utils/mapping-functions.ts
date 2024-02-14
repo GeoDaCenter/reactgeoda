@@ -13,6 +13,7 @@ type CreateCustomScaleMapProps = {
   breaks: number[];
   mappingType: string;
   colorFieldName: string;
+  isPreview?: boolean;
 };
 
 type CreateUniqueValuesMapProps = {
@@ -72,7 +73,8 @@ export function createUniqueValuesMap({
       visConfig: {
         ...layer?.config.visConfig,
         colorRange,
-        colorDomain: uniqueValues
+        colorDomain: uniqueValues,
+        thickness: 0.2
       },
       isVisible: true
     }
@@ -81,7 +83,7 @@ export function createUniqueValuesMap({
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
   const existingLayerIds = layer.id;
-  dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
+  dispatch(reorderLayer([newLayer.id, existingLayerIds]));
 }
 
 export function createCustomScaleMap({
@@ -89,7 +91,8 @@ export function createCustomScaleMap({
   layer,
   breaks,
   mappingType,
-  colorFieldName
+  colorFieldName,
+  isPreview
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
@@ -114,6 +117,7 @@ export function createCustomScaleMap({
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
   const id = Math.random().toString(36).substring(7);
+  const label = `${mappingType} Map`;
   // create a new Layer
   const newLayer = {
     id,
@@ -121,7 +125,7 @@ export function createCustomScaleMap({
     config: {
       dataId,
       columns: {geojson: layer?.config.columns.geojson.value},
-      label: `${mappingType} Map`,
+      label,
       colorScale: 'custom',
       colorField: {
         name: `${colorFieldName}`,
@@ -130,18 +134,20 @@ export function createCustomScaleMap({
       visConfig: {
         ...layer?.config.visConfig,
         colorRange,
-        colorDomain: breaks
+        colorDomain: breaks,
+        thickness: 0.2
       },
-      isVisible: true
+      isVisible: false
     }
   };
   // dispatch action to add new layer in kepler
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
   const existingLayerIds = layer.id;
-  if (existingLayerIds) {
-    dispatch(reorderLayer([newLayer.id, ...existingLayerIds]));
+  if (existingLayerIds && isPreview) {
+    dispatch(reorderLayer([existingLayerIds, newLayer.id]));
   }
+  return newLayer;
 }
 
 export async function createMapBreaks(

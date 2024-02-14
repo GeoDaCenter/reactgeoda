@@ -29,7 +29,7 @@ function createMessageFromCustomFunctionCall({
   functionName: string;
   functionArgs: Record<string, unknown>;
   output: any;
-}): MessageModel {
+}): MessageModel | null {
   const type = 'custom';
   const message = '';
   const sender = 'GeoDa.AI';
@@ -42,14 +42,17 @@ function createMessageFromCustomFunctionCall({
     output
   };
 
-  return {
-    type,
-    message,
-    sender,
-    direction,
-    position,
-    payload
-  };
+  if (functionName !== 'summarizeData') {
+    return {
+      type,
+      message,
+      sender,
+      direction,
+      position,
+      payload
+    };
+  }
+  return null;
 }
 
 /**
@@ -201,18 +204,22 @@ export function useChatGPT() {
       if ('text' in lastMessageForRun.content[0]) {
         const messageContent = lastMessageForRun.content[0].text.value;
         console.log(`The assistant responded with: ${messageContent}`);
-        return [
+        const responseMsgs: MessageModel[] = [
           {
             message: messageContent,
             sender: 'ChatGPT',
             direction: 'incoming',
             position: 'normal'
-          },
-          // append a custom response e.g. plot, map etc.
-          ...(lastCustomFunctionCall
-            ? [createMessageFromCustomFunctionCall(lastCustomFunctionCall)]
-            : [])
+          }
         ];
+        // append a custom response e.g. plot, map etc.
+        if (lastCustomFunctionCall) {
+          const customReponseMsg = createMessageFromCustomFunctionCall(lastCustomFunctionCall);
+          if (customReponseMsg) {
+            responseMsgs.push(customReponseMsg);
+          }
+        }
+        return responseMsgs;
       }
     } else if (!['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
       console.log('No response received from the assistant.');
