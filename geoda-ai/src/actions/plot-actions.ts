@@ -1,4 +1,5 @@
 import {HistogramDataProps} from '@/utils/histogram-utils';
+import {ScatPlotDataProps} from '@/utils/scatterplot-utils';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
@@ -17,15 +18,16 @@ export type HistogramPlotProps = BasePlotProps & {
   data: HistogramDataProps[];
 };
 
-type ScaterPlotProps = BasePlotProps & {
+export type ScatterPlotProps = BasePlotProps & {
   type: 'scatter';
   variableX: string;
   variableY: string;
+  data: ScatPlotDataProps[];
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
   isNew?: boolean;
 };
 
-export type PlotProps = HistogramPlotProps | ScaterPlotProps;
+export type PlotProps = HistogramPlotProps | ScatterPlotProps;
 
 export type RemovePlotProps = {
   id: string;

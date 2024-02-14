@@ -117,7 +117,7 @@ export function HistogramPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-2">
-                    <VariableSelector setVariable={setVariable} />
+                  <VariableSelector axis="x" setVariable={(axis, variable) => setVariable(variable)} />
                     <Input
                       type="number"
                       label="Intervals in histogram"

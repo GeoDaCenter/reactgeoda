@@ -6,8 +6,9 @@ import {Key, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 
 type VariableSelectorProps = {
+  axis: 'x' | 'y';
   variable?: string;
-  setVariable: (variable: string) => void;
+  setVariable: (axis: 'x' | 'y', variable: string) => void;
 };
 
 export function VariableSelector(props: VariableSelectorProps) {
@@ -26,12 +27,12 @@ export function VariableSelector(props: VariableSelectorProps) {
   // handle variable change
   const onVariableSelectionChange = (value: Key) => {
     const selectValue = value as string;
-    props.setVariable(selectValue);
+    props.setVariable(props.axis, selectValue);
   };
 
   return (
     <Autocomplete
-      label="Select a variable"
+      label={'Select a variable for ${props.axis} axis'}
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
     >
