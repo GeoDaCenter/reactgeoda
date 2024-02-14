@@ -1,6 +1,17 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Modal} from 'react-responsive-modal';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Card,
+  CardBody,
+  ModalFooter,
+  CardFooter,
+  Progress
+} from '@nextui-org/react';
+
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
@@ -21,6 +32,7 @@ import {
   processFileData,
   readFileInBatches
 } from '@kepler.gl/processors';
+import {MAP_ID} from '@/constants';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -79,7 +91,7 @@ const OpenFileComponent = () => {
   const dispatch = useDispatch();
 
   // create a useState to store the status of loading file
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // const getFileExtension = (fileName: string) => {
   //   return fileName.split('.').pop()?.toLowerCase();
@@ -119,7 +131,7 @@ const OpenFileComponent = () => {
       // dispatch addDataToMap action to default kepler.gl instance
       dispatch(
         wrapTo(
-          'kepler_map',
+          MAP_ID,
           addDataToMap({
             datasets: parsedDataset,
             options: {centerMap: true}
@@ -139,35 +151,37 @@ const OpenFileComponent = () => {
   const {getRootProps, getInputProps} = useDropzone({onDrop});
 
   return (
-    <div className="open-file-modal">
-      <div className="overlap-group">
-        <div className="heading-upload">
-          <div className="text-wrapper">Open File</div>
-        </div>
-        <div className="file-upload-area" {...getRootProps()}>
+    <Card>
+      <CardBody>
+        <div
+          className="flex h-[200px] w-full place-content-center"
+          {...getRootProps()}
+          style={{
+            backgroundColor: '#eeeeee',
+            opacity: 0.8,
+            backgroundImage: 'radial-gradient(#444cf7 0.5px, #eeeeee 0.5px)',
+            backgroundSize: '10px 10px'
+          }}
+        >
           <input {...getInputProps()} />
-          <div className="drag-drop-files">
-            <p className="drag-drop-files-or">
-              <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
-            </p>
+          <div className="flex flex-col items-center justify-center gap-y-2 text-black opacity-70">
+            <IconUpload />
+            <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
+            {loading && (
+              <Progress size="sm" isIndeterminate aria-label="Loading..." className="max-w-md" />
+            )}
           </div>
-          <div className="supported-formats">
-            <p className="div">Supported formates: GeoJSON, ESRI Shapefile, CSV</p>
-          </div>
-          <IconUpload />
         </div>
-        {loading && (
-          <>
-            <div className="uploading-file">
-              <div className="document-name">
-                <div className="text-wrapper-4">60%</div>
-              </div>
-              <div className="loading-bar" />
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+      </CardBody>
+      <CardFooter className="justify-between text-small">
+        <div>
+          <p className="text-tiny">Supported formates: GeoJSON, ESRI Shapefile, CSV</p>
+        </div>
+        {/* <Button className="text-tiny" color="primary" radius="full" size="sm">
+          Notify Me
+        </Button> */}
+      </CardFooter>
+    </Card>
   );
 };
 
@@ -179,15 +193,28 @@ export function OpenFileModal() {
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
 
   // create a reference to the modal for focus
-  const modalRef = useRef(null);
+  // const modalRef = useRef(null);
 
   const onCloseModal = () => {
     dispatch(setOpenFileModal(false));
   };
 
   return showOpenModal ? (
-    <Modal open={showOpenModal} onClose={onCloseModal} center initialFocusRef={modalRef}>
-      <OpenFileComponent />
+    <Modal
+      isOpen={showOpenModal}
+      onClose={onCloseModal}
+      size="3xl"
+      placement="center"
+      className="min-w-80"
+      isDismissable={false}
+    >
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1">Open File</ModalHeader>
+        <ModalBody>
+          <OpenFileComponent />
+        </ModalBody>
+        <ModalFooter />
+      </ModalContent>
     </Modal>
   ) : null;
 }

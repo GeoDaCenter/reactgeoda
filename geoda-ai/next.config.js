@@ -14,7 +14,8 @@ const nextConfig = {
     ignoreBuildErrors: true
   },
   compiler: {
-    styledComponents: true
+    // remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production'
   },
   webpack: config => {
     // This following line is to support WASM modules
