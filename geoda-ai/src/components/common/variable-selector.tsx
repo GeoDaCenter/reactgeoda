@@ -1,6 +1,5 @@
-import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
-import {getNumericFieldNames} from '@/utils/data-utils';
+import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
 import {Key, useMemo} from 'react';
 import {useSelector} from 'react-redux';
@@ -11,17 +10,14 @@ type VariableSelectorProps = {
 };
 
 export function VariableSelector(props: VariableSelectorProps) {
-  // use selector to get tableName from redux store
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
-
-  // use selector to get visState from redux store
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  // use selector to get layer from redux store
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, visState);
+    const fieldNames = getNumericFieldNames(layer);
     return fieldNames;
-  }, [tableName, visState]);
+  }, [layer]);
 
   // handle variable change
   const onVariableSelectionChange = (value: Key) => {
