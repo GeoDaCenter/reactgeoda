@@ -1,11 +1,13 @@
-import {Point, MultiPoint, LineString, Polygon} from 'geojson';
+import {Point, MultiPoint, LineString, Polygon, MultiLineString, MultiPolygon} from 'geojson';
 import {Schema as ArrowSchema, Table as ArrowTable} from 'apache-arrow';
 import {parseGeometryFromArrow} from '@loaders.gl/arrow';
 import {
   geojsonPointToArrowVector,
   geojsonMultiPointToArrowVector,
   geojsonLineStringToArrowVector,
-  geojsonPolygonToArrowVector
+  geojsonPolygonToArrowVector,
+  geojsonMultiLineStringToArrowVector,
+  geojsonMultiPolygonToArrowVector
 } from '../../src/utils/file-utils';
 
 describe('file-utils', () => {
@@ -95,7 +97,39 @@ describe('file-utils', () => {
 
   describe('geojsonMultiLineStringToArrowVector', () => {
     it('should convert an array of GeoJSON MultiLineStrings to an Arrow Vector', () => {
-      // Test implementation here
+      const multilines: MultiLineString[] = [
+        {
+          type: 'MultiLineString',
+          coordinates: [
+            [
+              [-122.45, 37.78],
+              [-77.03, 38.91]
+            ],
+            [
+              [-22.45, 7.78],
+              [-7.03, 8.91]
+            ]
+          ]
+        },
+        {
+          type: 'MultiLineString',
+          coordinates: [
+            [
+              [-122.45, 37.78],
+              [-77.03, 38.91]
+            ]
+          ]
+        }
+      ];
+      const {field, geometry} = geojsonMultiLineStringToArrowVector(multilines);
+      const schema = new ArrowSchema([field]);
+      const table = new ArrowTable(schema, {geometry});
+
+      const firstArrowGeometry = table.getChild('geometry')?.get(0);
+      const encoding = 'geoarrow.multilinestring';
+
+      const firstGeometry = parseGeometryFromArrow(firstArrowGeometry, encoding);
+      expect(firstGeometry).toEqual(multilines[0]);
     });
   });
 
@@ -139,7 +173,49 @@ describe('file-utils', () => {
 
   describe('geojsonMultiPolygonToArrowVector', () => {
     it('should convert an array of GeoJSON MultiPolygons to an Arrow Vector', () => {
-      // Test implementation here
+      const multiPolygons: MultiPolygon[] = [
+        {
+          type: 'MultiPolygon',
+          coordinates: [
+            [
+              [
+                [-122.45, 37.78],
+                [-77.03, 38.91],
+                [-77.03, 38.91],
+                [-122.45, 37.78]
+              ],
+              [
+                [-122.45, 37.78],
+                [-77.03, 38.91],
+                [-77.03, 38.91],
+                [-122.45, 37.78]
+              ]
+            ]
+          ]
+        },
+        {
+          type: 'MultiPolygon',
+          coordinates: [
+            [
+              [
+                [-122.45, 37.78],
+                [-77.03, 38.91],
+                [-77.03, 38.91],
+                [-122.45, 37.78]
+              ]
+            ]
+          ]
+        }
+      ];
+      const {field, geometry} = geojsonMultiPolygonToArrowVector(multiPolygons);
+      const schema = new ArrowSchema([field]);
+      const table = new ArrowTable(schema, {geometry});
+
+      const firstArrowGeometry = table.getChild('geometry')?.get(0);
+      const encoding = 'geoarrow.multipolygon';
+
+      const firstGeometry = parseGeometryFromArrow(firstArrowGeometry, encoding);
+      expect(firstGeometry).toEqual(multiPolygons[0]);
     });
   });
 });

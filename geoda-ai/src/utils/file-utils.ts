@@ -6,7 +6,15 @@ import {
   List as ArrowList,
   makeBuilder
 } from 'apache-arrow';
-import {FeatureCollection, Point, MultiPoint, LineString, Polygon} from 'geojson';
+import {
+  FeatureCollection,
+  Point,
+  MultiPoint,
+  LineString,
+  MultiLineString,
+  Polygon,
+  MultiPolygon
+} from 'geojson';
 
 /** convert geojson object to arrow table
  * @param geojson
@@ -184,7 +192,7 @@ export function geojsonLineStringToArrowVector(lines: LineString[]) {
 /**
  * Convert GeoJSON MultiLineString to arrow.Vector
  */
-export function geojsonMultiLineStringToArrowVector(lines: LineString[]) {
+export function geojsonMultiLineStringToArrowVector(lines: MultiLineString[]) {
   // get dimension from the first line
   const dimension = lines[0].coordinates[0].length;
   const pointFieldName = dimension === 2 ? 'xy' : 'xyz';
@@ -290,9 +298,9 @@ export function geojsonPolygonToArrowVector(polygons: Polygon[]) {
 /**
  * Convert GeoJSON MultiPolygon to arrow.Vector
  */
-export function geojsonMultiPolygonToArrowVector(polygons: Polygon[]) {
+export function geojsonMultiPolygonToArrowVector(polygons: MultiPolygon[]) {
   // get dimension from the first polygon
-  const dimension = polygons[0].coordinates[0][0].length;
+  const dimension = polygons[0].coordinates[0][0][0].length;
   const pointFieldName = dimension === 2 ? 'xy' : 'xyz';
 
   // get polygon data type
