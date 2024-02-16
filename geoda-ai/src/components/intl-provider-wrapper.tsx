@@ -10,7 +10,7 @@ type IntelProviderWrapperProps = {
 };
 
 const IntlProviderWrapper = ({children}: IntelProviderWrapperProps) => {
-  const language = useSelector((state: GeoDaState) => state.root.language);
+  const language = useSelector((state: GeoDaState) => state.root.language || 'en');
 
   return (
     <IntlProvider messages={MESSAGES[language]} locale={language}>

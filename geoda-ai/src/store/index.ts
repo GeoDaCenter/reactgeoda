@@ -101,7 +101,7 @@ const customizedKeplerGlReducer = keplerGlReducer
     }
   });
 
-const reducers = combineReducers({
+export const reducers = combineReducers({
   keplerGl: customizedKeplerGlReducer,
   root: rootReducer
 });
@@ -114,10 +114,11 @@ const loggerMiddleware = createLogger({
   }
 });
 
-const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
+export const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
 
 // create store with initial state and reducers and middlewares
 // @ts-ignore FIXME
 const store = createStore(reducers, {}, applyMiddleware(...middlewares));
+// const store = configureStore({reducer: reducers, middleware: middlewares});
 
 export default store;

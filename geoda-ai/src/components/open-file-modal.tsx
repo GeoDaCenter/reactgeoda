@@ -82,7 +82,9 @@ async function processDropFiles(files: File[]) {
       break;
     }
   }
-
+  // TODO
+  // parsedData[0].data.fields[] contains the column information (e.g. type, name)
+  // so we can utilize them to convert non-arrow data to arrow data
   // return the first dataset only in webgeoda
   return parsedData[0];
 }
