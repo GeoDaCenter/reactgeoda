@@ -33,6 +33,7 @@ import {
   readFileInBatches
 } from '@kepler.gl/processors';
 import {MAP_ID} from '@/constants';
+import {convertFileCacheItemToArrowTable} from '@/utils/file-utils';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -86,7 +87,8 @@ async function processDropFiles(files: File[]) {
   // parsedData[0].data.fields[] contains the column information (e.g. type, name)
   // so we can utilize them to convert non-arrow data to arrow data
   // return the first dataset only in webgeoda
-  return parsedData[0];
+  const arrowFormatData = convertFileCacheItemToArrowTable(parsedData[0]);
+  return arrowFormatData;
 }
 
 const OpenFileComponent = () => {
