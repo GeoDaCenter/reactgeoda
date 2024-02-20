@@ -11,7 +11,7 @@ import {
   CardFooter,
   Progress
 } from '@nextui-org/react';
-
+import {Table as ArrowTable, RecordBatch as ArrowRecordBatch} from 'apache-arrow';
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
@@ -29,6 +29,7 @@ import {setRawFileData} from '../actions/file-actions';
 import {
   FileCacheItem,
   ProcessFileDataContent,
+  isArrowData,
   processFileData,
   readFileInBatches
 } from '@kepler.gl/processors';
@@ -67,7 +68,7 @@ async function processDropFiles(files: File[]) {
 
   const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
   let result = await batches.next();
-  let content: ProcessFileDataContent;
+  let content: ProcessFileDataContent = {data: [], fileName: ''};
   let parsedData: FileCacheItem[] = [];
 
   while (!result.done) {
@@ -83,12 +84,15 @@ async function processDropFiles(files: File[]) {
       break;
     }
   }
-  // TODO
-  // parsedData[0].data.fields[] contains the column information (e.g. type, name)
-  // so we can utilize them to convert non-arrow data to arrow data
-  // return the first dataset only in webgeoda
-  const arrowFormatData = convertFileCacheItemToArrowTable(parsedData[0]);
-  return arrowFormatData;
+
+  if (isArrowData(content.data)) {
+    const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
+    return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+  }
+  return {
+    fileName: content.fileName,
+    ...convertFileCacheItemToArrowTable(parsedData[0])
+  };
 }
 
 const OpenFileComponent = () => {
@@ -127,7 +131,7 @@ const OpenFileComponent = () => {
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const parsedDataset = await processDropFiles(acceptedFiles);
+      const {fileName, arrowTable, arrowFormatData} = await processDropFiles(acceptedFiles);
 
       // set loading to true to show loading bar
       setLoading(true);
@@ -137,7 +141,7 @@ const OpenFileComponent = () => {
         wrapTo(
           MAP_ID,
           addDataToMap({
-            datasets: parsedDataset,
+            datasets: arrowFormatData,
             options: {centerMap: true}
           })
         )
@@ -147,7 +151,7 @@ const OpenFileComponent = () => {
       dispatch(setOpenFileModal(false));
 
       // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData(acceptedFiles[0]));
+      dispatch(setRawFileData({name: fileName, arrowTable}));
     },
     [dispatch]
   );

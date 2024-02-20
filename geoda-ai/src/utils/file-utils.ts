@@ -26,60 +26,52 @@ import {
  * Read FileCacheItem, and use the file extension info.label to get the file type,
  * if the file type is not arrow, then convert the data.rows to ArrowTable using the data.fields info.
  */
-export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem): FileCacheItem {
+export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   const {data, info} = fileCacheItem;
-  if (info.format === DATASET_FORMATS.arrow) {
-    return fileCacheItem;
-  } else {
-    // get column values from data.rows
-    const columnValues: unknown[][] = [];
-    for (let i = 0; i < data.rows.length; i++) {
-      const row = data.rows[i];
-      for (let j = 0; j < row.length; j++) {
-        columnValues[j] = columnValues[j] || [];
-        columnValues[j].push(row[j]);
-      }
+  // get column values from data.rows
+  const columnValues: unknown[][] = [];
+  for (let i = 0; i < data.rows.length; i++) {
+    const row = data.rows[i];
+    for (let j = 0; j < row.length; j++) {
+      columnValues[j] = columnValues[j] || [];
+      columnValues[j].push(row[j]);
     }
-    // get field and vector from data.fields and columnValues
-    const fields: ArrowField[] = [];
-    const vectors: {[key: string]: ArrowVector} = {};
-
-    for (let i = 0; i < data.fields.length; i++) {
-      const field: Field = data.fields[i];
-      const {name, type} = field;
-      const {arrowField, arrowVector} = KeplerFieldTypeToArrowFieldType(
-        name,
-        type,
-        columnValues[i]
-      );
-      fields.push(arrowField);
-      vectors[name] = arrowVector;
-    }
-    // make a new ArrowTable
-    const schema = new ArrowSchema(fields);
-    // @ts-ignore TODO FIXME
-    const arrowTable = new ArrowTable(schema, vectors);
-    // append metadata from geoarrow fields to fileCacheItem.data.fields for geometry field
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i];
-      if (data.fields[i].type === ALL_FIELD_TYPES.geojson) {
-        const metadata = field.metadata;
-        if (metadata) {
-          data.fields[i].metadata = metadata;
-        }
-      }
-    }
-    // set fileCacheItem.cols
-    const cols = [...Array(arrowTable.numCols).keys()].map(i => arrowTable.getChildAt(i));
-    fileCacheItem.data.cols = cols;
-    // remove fileCacheItem.data.rows
-    delete fileCacheItem.data.rows;
-    fileCacheItem.data.rows = [];
-    // change fileCacheItem.info.format to arrow
-    fileCacheItem.info.format = DATASET_FORMATS.arrow;
-    // fileCacheItem.data.fields = [fileCacheItem.data.fields[0]];
-    return fileCacheItem;
   }
+  // get field and vector from data.fields and columnValues
+  const fields: ArrowField[] = [];
+  const vectors: {[key: string]: ArrowVector} = {};
+
+  for (let i = 0; i < data.fields.length; i++) {
+    const field: Field = data.fields[i];
+    const {name, type} = field;
+    const {arrowField, arrowVector} = KeplerFieldTypeToArrowFieldType(name, type, columnValues[i]);
+    fields.push(arrowField);
+    vectors[name] = arrowVector;
+  }
+  // make a new ArrowTable
+  const schema = new ArrowSchema(fields);
+  // @ts-ignore TODO FIXME
+  const arrowTable = new ArrowTable(schema, vectors);
+  // append metadata from geoarrow fields to fileCacheItem.data.fields for geometry field
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+    if (data.fields[i].type === ALL_FIELD_TYPES.geojson) {
+      const metadata = field.metadata;
+      if (metadata) {
+        data.fields[i].metadata = metadata;
+      }
+    }
+  }
+  // set fileCacheItem.cols
+  const cols = [...Array(arrowTable.numCols).keys()].map(i => arrowTable.getChildAt(i));
+  fileCacheItem.data.cols = cols;
+  // remove fileCacheItem.data.rows
+  delete fileCacheItem.data.rows;
+  fileCacheItem.data.rows = [];
+  // change fileCacheItem.info.format to arrow
+  fileCacheItem.info.format = DATASET_FORMATS.arrow;
+  // fileCacheItem.data.fields = [fileCacheItem.data.fields[0]];
+  return {arrowTable, arrowFormatData: fileCacheItem};
 }
 
 function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unknown[]) {
