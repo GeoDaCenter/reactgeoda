@@ -1,22 +1,14 @@
-import {
-  Feature,
-  Point,
-  MultiPoint,
-  LineString,
-  Polygon,
-  MultiLineString,
-  MultiPolygon
-} from 'geojson';
+import {Feature} from 'geojson';
 import {Schema as ArrowSchema, Table as ArrowTable} from 'apache-arrow';
-import {parseGeometryFromArrow} from '@loaders.gl/arrow';
 import {
-  geojsonPointToArrowVector,
-  geojsonMultiPointToArrowVector,
-  geojsonLineStringToArrowVector,
-  geojsonPolygonToArrowVector,
-  geojsonMultiLineStringToArrowVector,
-  geojsonMultiPolygonToArrowVector
-} from '../../src/utils/geojson-feature-to-arrow';
+  parseGeometryFromArrow,
+  geojsonPointToArrow,
+  geojsonMultiPointToArrow,
+  geojsonLineStringToArrow,
+  geojsonPolygonToArrow,
+  geojsonMultiLineStringToArrow,
+  geojsonMultiPolygonToArrow
+} from '@loaders.gl/arrow';
 
 describe('file-utils', () => {
   describe('geojsonToArrow', () => {
@@ -25,14 +17,15 @@ describe('file-utils', () => {
     });
   });
 
-  describe('geojsonPointToArrowVector', () => {
+  describe('geojsonPointToArrow', () => {
     it('should convert an array of GeoJSON Points to an Arrow Vector', () => {
       const points: Feature[] = [
         {type: 'Feature', geometry: {type: 'Point', coordinates: [-122.45, 37.78]}, properties: {}},
         {type: 'Feature', geometry: {type: 'Point', coordinates: [-77.03, 38.91]}, properties: {}}
       ];
-      const {field, geometry} = geojsonPointToArrowVector('geometry', points);
+      const {field, geometry} = geojsonPointToArrow('geometry', points);
       const schema = new ArrowSchema([field]);
+      // @ts-ignore
       const table = new ArrowTable(schema, {geometry});
 
       const firstArrowGeometry = table.getChild('geometry')?.get(0);
@@ -43,7 +36,7 @@ describe('file-utils', () => {
     });
   });
 
-  describe('geojsonMultiPointToArrowVector', () => {
+  describe('geojsonMultiPointToArrow', () => {
     it('should convert an array of GeoJSON MultiPoints to an Arrow Vector', () => {
       const multipoints: Feature[] = [
         {
@@ -69,8 +62,9 @@ describe('file-utils', () => {
           properties: {}
         }
       ];
-      const {field, geometry} = geojsonMultiPointToArrowVector('geometry', multipoints);
+      const {field, geometry} = geojsonMultiPointToArrow('geometry', multipoints);
       const schema = new ArrowSchema([field]);
+      // @ts-ignore
       const table = new ArrowTable(schema, {geometry});
 
       const firstArrowGeometry = table.getChild('geometry')?.get(0);
@@ -81,7 +75,7 @@ describe('file-utils', () => {
     });
   });
 
-  describe('geojsonLineStringToArrowVector', () => {
+  describe('geojsonLineStringToArrow', () => {
     it('should convert an array of GeoJSON LineStrings to an Arrow Data', () => {
       const lines: Feature[] = [
         {
@@ -107,8 +101,9 @@ describe('file-utils', () => {
           properties: {}
         }
       ];
-      const {field, geometry} = geojsonLineStringToArrowVector('geometry', lines);
+      const {field, geometry} = geojsonLineStringToArrow('geometry', lines);
       const schema = new ArrowSchema([field]);
+      // @ts-ignore
       const table = new ArrowTable(schema, {geometry});
 
       const firstArrowGeometry = table.getChild('geometry')?.get(0);
@@ -119,7 +114,7 @@ describe('file-utils', () => {
     });
   });
 
-  describe('geojsonMultiLineStringToArrowVector', () => {
+  describe('geojsonMultiLineStringToArrow', () => {
     it('should convert an array of GeoJSON MultiLineStrings to an Arrow Vector', () => {
       const multilines: Feature[] = [
         {
@@ -153,8 +148,9 @@ describe('file-utils', () => {
           properties: {}
         }
       ];
-      const {field, geometry} = geojsonMultiLineStringToArrowVector('geometry', multilines);
+      const {field, geometry} = geojsonMultiLineStringToArrow('geometry', multilines);
       const schema = new ArrowSchema([field]);
+      // @ts-ignore
       const table = new ArrowTable(schema, {geometry});
 
       const firstArrowGeometry = table.getChild('geometry')?.get(0);
@@ -165,7 +161,7 @@ describe('file-utils', () => {
     });
   });
 
-  describe('geojsonPolygonToArrowVector', () => {
+  describe('geojsonPolygonToArrow', () => {
     it('should convert an array of GeoJSON Polygons to an Arrow Data', () => {
       const polygons: Feature[] = [
         {
@@ -199,8 +195,9 @@ describe('file-utils', () => {
           properties: {}
         }
       ];
-      const {field, geometry} = geojsonPolygonToArrowVector('geometry', polygons);
+      const {field, geometry} = geojsonPolygonToArrow('geometry', polygons);
       const schema = new ArrowSchema([field]);
+      // @ts-ignore
       const table = new ArrowTable(schema, {geometry});
 
       const firstArrowGeometry = table.getChild('geometry')?.get(0);
@@ -211,7 +208,7 @@ describe('file-utils', () => {
     });
   });
 
-  describe('geojsonMultiPolygonToArrowVector', () => {
+  describe('geojsonMultiPolygonToArrow', () => {
     it('should convert an array of GeoJSON MultiPolygons to an Arrow Vector', () => {
       const multiPolygons: Feature[] = [
         {
@@ -255,8 +252,9 @@ describe('file-utils', () => {
           properties: {}
         }
       ];
-      const {field, geometry} = geojsonMultiPolygonToArrowVector('geometry', multiPolygons);
+      const {field, geometry} = geojsonMultiPolygonToArrow('geometry', multiPolygons);
       const schema = new ArrowSchema([field]);
+      // @ts-ignore
       const table = new ArrowTable(schema, {geometry});
 
       const firstArrowGeometry = table.getChild('geometry')?.get(0);

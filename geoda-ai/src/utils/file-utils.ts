@@ -2,13 +2,16 @@ import {ALL_FIELD_TYPES, DATASET_FORMATS} from '@kepler.gl/constants';
 import {FileCacheItem} from '@kepler.gl/processors';
 import {Field} from '@kepler.gl/types';
 import {Feature} from 'geojson';
+import {geojsonFeaturesToArrow} from '@loaders.gl/arrow';
 import {
   Field as ArrowField,
   Float64 as ArrowFloat,
   Int32 as ArrowInteger,
   Bool as ArrowBool,
   Date_ as ArrowDate,
+  DateUnit as ArrowDateUnit,
   Timestamp as ArrowTimestamp,
+  TimeUnit as ArrowTimeUnit,
   List as ArrowList,
   Utf8 as ArrowString,
   makeVector,
@@ -18,7 +21,6 @@ import {
   Table as ArrowTable,
   makeBuilder
 } from 'apache-arrow';
-import {geojsonFeaturesToArrow} from './geojson-feature-to-arrow';
 
 /**
  * Read FileCacheItem, and use the file extension info.label to get the file type,
@@ -55,6 +57,7 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem): 
     }
     // make a new ArrowTable
     const schema = new ArrowSchema(fields);
+    // @ts-ignore TODO FIXME
     const arrowTable = new ArrowTable(schema, vectors);
     // append metadata from geoarrow fields to fileCacheItem.data.fields for geometry field
     for (let i = 0; i < fields.length; i++) {
@@ -93,15 +96,18 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     const arrowVector = makeVector(new Uint8Array(values as number[]));
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.date) {
-    const arrowField = new ArrowField(name, new ArrowDate());
+    const arrowField = new ArrowField(name, new ArrowDate(ArrowDateUnit.DAY));
     const arrowVector = vectorFromArray(values);
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.timestamp) {
-    const arrowField = new ArrowField(name, new ArrowTimestamp());
+    const arrowField = new ArrowField(name, new ArrowTimestamp(ArrowTimeUnit.SECOND));
     const arrowVector = vectorFromArray(values);
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.array) {
-    const arrowField = new ArrowField(name, new ArrowList());
+    const arrowField = new ArrowField(
+      name,
+      new ArrowList(new ArrowField(`${name}-list`, new ArrowFloat()))
+    );
     const arrowVector = vectorFromArray(values);
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.geojson) {
@@ -111,7 +117,7 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     const arrowField = new ArrowField(name, new ArrowString());
     const utf8Builder = makeBuilder({type: new ArrowString(), nullValues: [null, 'n/a']});
     for (let i = 0; i < values.length; i++) {
-      utf8Builder.append(values[i]);
+      utf8Builder.append(values[i] as string);
     }
     const arrowVector = utf8Builder.finish().toVector();
     return {arrowField, arrowVector};

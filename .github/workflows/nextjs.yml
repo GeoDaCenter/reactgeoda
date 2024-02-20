@@ -36,6 +36,7 @@ jobs:
         with:
           path: |
             /home/runner/work/reactgeoda/csds_kepler
+            /home/runner/work/reactgeoda/loaders.gl
           key: ${{ runner.os }}-csds_kepler-${{ hashFiles('deps.txt') }}
       - name: Install Kepler.gl 
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -53,6 +54,13 @@ jobs:
         run: |
           cd ..
           git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
+      - name: Install loaders.gl
+        run: |
+          cd ..
+          git clone https://github.com/visgl/loaders.gl.git --branch=xli/geoarrow-fix-in-mem-table loaders.gl
+          cd loaders.gl
+          yarn
+          cd ..
       - name: Run Lint
         run: |
           cd geoda-ai
