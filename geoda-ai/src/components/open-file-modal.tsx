@@ -15,7 +15,7 @@ import {Table as ArrowTable, RecordBatch as ArrowRecordBatch} from 'apache-arrow
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
-// import {_BrowserFileSystem as BrowserFileSystem, loadInBatches} from '@loaders.gl/core';
+import {_BrowserFileSystem as BrowserFileSystem, loadInBatches} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {ArrowLoader} from '@loaders.gl/arrow';
@@ -57,13 +57,22 @@ const JSON_LOADER_OPTIONS = {
 
 async function processDropFiles(files: File[]) {
   const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
-  const file = files[0];
   const fileCache: FileCacheItem[] = [];
+  const droppedFilesFS = new BrowserFileSystem(files);
+
+  // check if there is a file with extension .shp
+  const shpFile = files.find(file => file.name.endsWith('.shp'));
+  // use shpFile if it exists, otherwise use the first file
+  const file = shpFile || files[0];
+
   const loadOptions = {
     csv: CSV_LOADER_OPTIONS,
     arrow: ARROW_LOADER_OPTIONS,
     json: JSON_LOADER_OPTIONS,
-    metadata: true
+    metadata: true,
+    fetch: droppedFilesFS.fetch,
+    gis: {reproject: true},
+    shp: {_maxDimensions: Number.MAX_SAFE_INTEGER}
   };
 
   const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
