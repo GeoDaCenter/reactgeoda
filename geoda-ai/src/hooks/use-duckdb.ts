@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 
-import {tableFromIPC, Table as ArrowTable} from 'apache-arrow';
+import {Table as ArrowTable} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
@@ -107,7 +107,7 @@ export async function getColumnData(columnName: string): Promise<number[]> {
     // Query
     const arrowResult = await conn.query(`SELECT "${columnName}" FROM "${tableName}"`);
     // Convert arrow table to json
-    const result = arrowResult.toArray().map((row: ArrowRow) => row.toArray()[0]);
+    const result = arrowResult.toArray().map((row: any) => row.toArray()[0]);
     // close the connection
     await conn.close();
     return result;

@@ -27,7 +27,7 @@ import {
  * if the file type is not arrow, then convert the data.rows to ArrowTable using the data.fields info.
  */
 export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
-  const {data, info} = fileCacheItem;
+  const {data} = fileCacheItem;
   // get column values from data.rows
   const columnValues: unknown[][] = [];
   for (let i = 0; i < data.rows.length; i++) {
