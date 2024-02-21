@@ -1,10 +1,21 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Modal} from 'react-responsive-modal';
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Card,
+  CardBody,
+  ModalFooter,
+  CardFooter,
+  Progress
+} from '@nextui-org/react';
+import {Table as ArrowTable, RecordBatch as ArrowRecordBatch} from 'apache-arrow';
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
-// import {_BrowserFileSystem as BrowserFileSystem, loadInBatches} from '@loaders.gl/core';
+import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {ArrowLoader} from '@loaders.gl/arrow';
@@ -18,9 +29,12 @@ import {setRawFileData} from '../actions/file-actions';
 import {
   FileCacheItem,
   ProcessFileDataContent,
+  isArrowData,
   processFileData,
   readFileInBatches
 } from '@kepler.gl/processors';
+import {MAP_ID} from '@/constants';
+import {convertFileCacheItemToArrowTable} from '@/utils/file-utils';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -43,22 +57,33 @@ const JSON_LOADER_OPTIONS = {
 
 async function processDropFiles(files: File[]) {
   const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
-  const file = files[0];
   const fileCache: FileCacheItem[] = [];
+  const droppedFilesFS = new BrowserFileSystem(files);
+
+  // check if there is a file with extension .shp
+  const shpFile = files.find(file => file.name.endsWith('.shp'));
+  // use shpFile if it exists, otherwise use the first file
+  const file = shpFile || files[0];
+
   const loadOptions = {
     csv: CSV_LOADER_OPTIONS,
     arrow: ARROW_LOADER_OPTIONS,
     json: JSON_LOADER_OPTIONS,
-    metadata: true
+    metadata: true,
+    fetch: droppedFilesFS.fetch,
+    gis: {reproject: true},
+    shp: {_maxDimensions: Number.MAX_SAFE_INTEGER}
   };
 
   const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
   let result = await batches.next();
-  let content: ProcessFileDataContent;
+  let content: ProcessFileDataContent = {data: [], fileName: ''};
   let parsedData: FileCacheItem[] = [];
 
+  // let totalRowCount = 0;
   while (!result.done) {
-    console.log('processBatchesUpdater', result.value, result.done);
+    // get progress
+    // totalRowCount += result.value.progress.rowCountInBatch;
     content = result.value as ProcessFileDataContent;
     result = await batches.next();
     if (result.done) {
@@ -66,13 +91,20 @@ async function processDropFiles(files: File[]) {
         content,
         fileCache: []
       });
-      console.log('parsedData', parsedData);
       break;
     }
   }
 
-  // return the first dataset only in webgeoda
-  return parsedData[0];
+  if (isArrowData(content.data)) {
+    const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
+    return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+  }
+
+  // convert other spatial data format e.g. GeoJSON, Shapefile to arrow table
+  return {
+    fileName: content.fileName,
+    ...convertFileCacheItemToArrowTable(parsedData[0])
+  };
 }
 
 const OpenFileComponent = () => {
@@ -81,47 +113,20 @@ const OpenFileComponent = () => {
   // create a useState to store the status of loading file
   const [loading, setLoading] = useState(false);
 
-  // const getFileExtension = (fileName: string) => {
-  //   return fileName.split('.').pop()?.toLowerCase();
-  // };
-
-  // const processShapeFiles = async (shpFiles: Map<string, File>) => {
-  //   const shpFileName = shpFiles.get('shp')?.name;
-  //   const dbfFileName = shpFiles.get('dbf')?.name;
-  //   if (shpFileName === undefined || dbfFileName === undefined) {
-  //     // TODO: @justin-kleid replace it with a React message box
-  //     console.error('Missing required Shapefile files (shp, dbf)');
-  //     return;
-  //   }
-  //   const fileSystem = new BrowserFileSystem(Array.from(shpFiles.values()));
-  //   const {fetch} = fileSystem;
-  //   const batches = await loadInBatches(shpFileName, ShapefileLoader, {
-  //     fetch,
-  //     gis: {reproject: false},
-  //     shp: {_maxDimensions: Number.MAX_SAFE_INTEGER},
-  //     metadata: false
-  //   });
-  //   const data = [];
-  //   for await (const batch of batches) {
-  //     // @ts-ignore FIXME
-  //     data.push(...batch.data);
-  //   }
-  //   return {type: 'FeatureCollection', features: data};
-  // };
-
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const parsedDataset = await processDropFiles(acceptedFiles);
-
-      // set loading to true to show loading bar
+      // show loading bar
       setLoading(true);
+
+      // process dropped files
+      const {fileName, arrowTable, arrowFormatData} = await processDropFiles(acceptedFiles);
 
       // dispatch addDataToMap action to default kepler.gl instance
       dispatch(
         wrapTo(
-          'kepler_map',
+          MAP_ID,
           addDataToMap({
-            datasets: parsedDataset,
+            datasets: arrowFormatData,
             options: {centerMap: true}
           })
         )
@@ -131,7 +136,10 @@ const OpenFileComponent = () => {
       dispatch(setOpenFileModal(false));
 
       // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData(acceptedFiles[0]));
+      dispatch(setRawFileData({name: fileName, arrowTable}));
+
+      // set loading to true to show loading bar
+      setLoading(false);
     },
     [dispatch]
   );
@@ -139,35 +147,42 @@ const OpenFileComponent = () => {
   const {getRootProps, getInputProps} = useDropzone({onDrop});
 
   return (
-    <div className="open-file-modal">
-      <div className="overlap-group">
-        <div className="heading-upload">
-          <div className="text-wrapper">Open File</div>
-        </div>
-        <div className="file-upload-area" {...getRootProps()}>
+    <Card>
+      <CardBody>
+        <div
+          className="flex h-[200px] w-full place-content-center"
+          {...getRootProps()}
+          style={{
+            backgroundColor: '#eeeeee',
+            opacity: 0.8,
+            backgroundImage: 'radial-gradient(#444cf7 0.5px, #eeeeee 0.5px)',
+            backgroundSize: '10px 10px'
+          }}
+        >
           <input {...getInputProps()} />
-          <div className="drag-drop-files">
-            <p className="drag-drop-files-or">
-              <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
-            </p>
+          <div className="flex flex-col items-center justify-center gap-y-2 text-black opacity-70">
+            <IconUpload />
+            <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
+            {loading && (
+              <Progress
+                size="sm"
+                isIndeterminate
+                aria-label="Loading..."
+                className="mt-2 max-w-md"
+              />
+            )}
           </div>
-          <div className="supported-formats">
-            <p className="div">Supported formates: GeoJSON, ESRI Shapefile, CSV</p>
-          </div>
-          <IconUpload />
         </div>
-        {loading && (
-          <>
-            <div className="uploading-file">
-              <div className="document-name">
-                <div className="text-wrapper-4">60%</div>
-              </div>
-              <div className="loading-bar" />
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+      </CardBody>
+      <CardFooter className="justify-between text-small">
+        <div>
+          <p className="text-tiny">Supported formates: GeoJSON, ESRI Shapefile, CSV</p>
+        </div>
+        {/* <Button className="text-tiny" color="primary" radius="full" size="sm">
+          Notify Me
+        </Button> */}
+      </CardFooter>
+    </Card>
   );
 };
 
@@ -179,15 +194,28 @@ export function OpenFileModal() {
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
 
   // create a reference to the modal for focus
-  const modalRef = useRef(null);
+  // const modalRef = useRef(null);
 
   const onCloseModal = () => {
     dispatch(setOpenFileModal(false));
   };
 
   return showOpenModal ? (
-    <Modal open={showOpenModal} onClose={onCloseModal} center initialFocusRef={modalRef}>
-      <OpenFileComponent />
+    <Modal
+      isOpen={showOpenModal}
+      onClose={onCloseModal}
+      size="3xl"
+      placement="center"
+      className="min-w-80"
+      isDismissable={false}
+    >
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1">Open File</ModalHeader>
+        <ModalBody>
+          <OpenFileComponent />
+        </ModalBody>
+        <ModalFooter />
+      </ModalContent>
     </Modal>
   ) : null;
 }

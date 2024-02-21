@@ -20,7 +20,7 @@ const layout = [
     y: 0,
     i: 'kepler',
     moved: true,
-    static: true
+    static: false
   },
   // {
   //   w: 12,
@@ -87,7 +87,7 @@ const GridLayout = () => {
         rowHeight={30}
         width={1200}
         margin={[0, 0]}
-        allowOverlap={false}
+        allowOverlap={true}
         onLayoutChange={onLayoutChange}
       >
         <div key="kepler">

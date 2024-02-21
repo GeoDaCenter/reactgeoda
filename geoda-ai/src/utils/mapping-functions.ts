@@ -137,7 +137,7 @@ export function createCustomScaleMap({
         colorDomain: breaks,
         thickness: 0.2
       },
-      isVisible: false
+      isVisible: true
     }
   };
   // dispatch action to add new layer in kepler

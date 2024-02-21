@@ -5,7 +5,6 @@ import 'react-responsive-modal/styles.css';
 
 import '@/styles/globals.css';
 import '@/styles/style.css';
-import '@/styles/open-file-modal-style.css';
 
 import {useRef} from 'react';
 // import dynamic from 'next/dynamic';
@@ -29,7 +28,7 @@ export default function Home() {
     <RootContext.Provider value={rootNode}>
       <ReduxProvider store={store}>
         <IntlProviderWrapper>
-          <div className="flex h-screen w-screen flex-row items-start border-none">
+          <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
             <Navigator />
             <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
               <div className="flex-1 flex-grow p-0">

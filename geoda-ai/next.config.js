@@ -14,7 +14,8 @@ const nextConfig = {
     ignoreBuildErrors: true
   },
   compiler: {
-    styledComponents: true
+    // remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production'
   },
   webpack: config => {
     // This following line is to support WASM modules
@@ -62,19 +63,19 @@ const nextConfig = {
         __dirname,
         '../../csds_kepler/src/cloud-providers/src/index'
       ),
-      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index')
+      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index'),
       // '@deck.gl/layers': resolve(__dirname, '../../csds_kepler/node_modules/@deck.gl/layers'),
-      // '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
-      // '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
-      // '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
-      // '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
-      // '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
-      // '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
-      // '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
-      // '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
-      // '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
-      // '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
-      // '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
+      '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
+      '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
+      '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
+      '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
+      '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
+      '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
+      '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
+      '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
+      '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
+      '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
+      '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
     };
 
     // This is to fix warnings about missing critical dependencies reported by loaders.gl using require()
