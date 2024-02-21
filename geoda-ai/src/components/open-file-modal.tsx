@@ -15,7 +15,7 @@ import {Table as ArrowTable, RecordBatch as ArrowRecordBatch} from 'apache-arrow
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
-import {_BrowserFileSystem as BrowserFileSystem, loadInBatches} from '@loaders.gl/core';
+import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {ArrowLoader} from '@loaders.gl/arrow';
@@ -80,8 +80,10 @@ async function processDropFiles(files: File[]) {
   let content: ProcessFileDataContent = {data: [], fileName: ''};
   let parsedData: FileCacheItem[] = [];
 
+  // let totalRowCount = 0;
   while (!result.done) {
-    console.log('processBatchesUpdater', result.value, result.done);
+    // get progress
+    // totalRowCount += result.value.progress.rowCountInBatch;
     content = result.value as ProcessFileDataContent;
     result = await batches.next();
     if (result.done) {
@@ -89,7 +91,6 @@ async function processDropFiles(files: File[]) {
         content,
         fileCache: []
       });
-      console.log('parsedData', parsedData);
       break;
     }
   }
@@ -98,6 +99,8 @@ async function processDropFiles(files: File[]) {
     const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
     return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
   }
+
+  // convert other spatial data format e.g. GeoJSON, Shapefile to arrow table
   return {
     fileName: content.fileName,
     ...convertFileCacheItemToArrowTable(parsedData[0])
@@ -108,42 +111,15 @@ const OpenFileComponent = () => {
   const dispatch = useDispatch();
 
   // create a useState to store the status of loading file
-  const [loading, setLoading] = useState(true);
-
-  // const getFileExtension = (fileName: string) => {
-  //   return fileName.split('.').pop()?.toLowerCase();
-  // };
-
-  // const processShapeFiles = async (shpFiles: Map<string, File>) => {
-  //   const shpFileName = shpFiles.get('shp')?.name;
-  //   const dbfFileName = shpFiles.get('dbf')?.name;
-  //   if (shpFileName === undefined || dbfFileName === undefined) {
-  //     // TODO: @justin-kleid replace it with a React message box
-  //     console.error('Missing required Shapefile files (shp, dbf)');
-  //     return;
-  //   }
-  //   const fileSystem = new BrowserFileSystem(Array.from(shpFiles.values()));
-  //   const {fetch} = fileSystem;
-  //   const batches = await loadInBatches(shpFileName, ShapefileLoader, {
-  //     fetch,
-  //     gis: {reproject: false},
-  //     shp: {_maxDimensions: Number.MAX_SAFE_INTEGER},
-  //     metadata: false
-  //   });
-  //   const data = [];
-  //   for await (const batch of batches) {
-  //     // @ts-ignore FIXME
-  //     data.push(...batch.data);
-  //   }
-  //   return {type: 'FeatureCollection', features: data};
-  // };
+  const [loading, setLoading] = useState(false);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const {fileName, arrowTable, arrowFormatData} = await processDropFiles(acceptedFiles);
-
-      // set loading to true to show loading bar
+      // show loading bar
       setLoading(true);
+
+      // process dropped files
+      const {fileName, arrowTable, arrowFormatData} = await processDropFiles(acceptedFiles);
 
       // dispatch addDataToMap action to default kepler.gl instance
       dispatch(
@@ -161,6 +137,9 @@ const OpenFileComponent = () => {
 
       // dispatch action to set file data, update redux state state.fileData
       dispatch(setRawFileData({name: fileName, arrowTable}));
+
+      // set loading to true to show loading bar
+      setLoading(false);
     },
     [dispatch]
   );
@@ -185,7 +164,12 @@ const OpenFileComponent = () => {
             <IconUpload />
             <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
             {loading && (
-              <Progress size="sm" isIndeterminate aria-label="Loading..." className="max-w-md" />
+              <Progress
+                size="sm"
+                isIndeterminate
+                aria-label="Loading..."
+                className="mt-2 max-w-md"
+              />
             )}
           </div>
         </div>
