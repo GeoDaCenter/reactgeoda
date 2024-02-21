@@ -1,11 +1,7 @@
-import {bin as d3bin} from 'd3-array';
-
-
 export type ScatterplotDataItemProps = {
-    x: number;
-    y: number;
-  };
-
+  x: number;
+  y: number;
+};
 
 export type ScatPlotDataProps = {
   variableX: string;
@@ -14,15 +10,16 @@ export type ScatPlotDataProps = {
 };
 
 
-export function createScatterplotData(xData: number[], yData: number[]): ScatterplotDataItemProps[] {
-    if (xData.length !== yData.length) {
-      throw new Error("xData and yData arrays must  the same length.");
-    }
-  
-    const scatterplotData = xData.map((x, index) => ({
-      x: x,
-      y: yData[index],
-    }));
-  
-    return scatterplotData;
+export function createScatterplotData(variableX: string, variableY: string, xData: number[], yData: number[]): ScatPlotDataProps {
+  if (xData.length !== yData.length) {
+    throw new Error("xData and yData arrays must have the same length.");
   }
+
+  const points = xData.map((x, index) => ({ x, y: yData[index] }));
+
+  return {
+    variableX,
+    variableY,
+    points,
+  };
+}

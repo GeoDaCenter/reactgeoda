@@ -32,7 +32,7 @@ export function VariableSelector(props: VariableSelectorProps) {
 
   return (
     <Autocomplete
-      label={'Select a variable for ${props.axis} axis'}
+      label={`Select a variable for ${props.axis} axis`}
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
     >

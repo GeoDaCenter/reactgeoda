@@ -11,6 +11,7 @@ import {MappingPanel} from '../mapping/mapping-panel';
 import {WeightsPanel} from '../weights/weights-panel';
 import {LisaPanel} from '../lisa/lisa-panel';
 import {HistogramPanel} from '../plots/histogram-panel';
+import { ScatterplotPanel } from '../plots/scatterplot-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
@@ -21,7 +22,8 @@ export enum PanelName {
   MAPPING = 'Mapping',
   WEIGHTS = 'Weights',
   LISA = 'Lisa',
-  HISTOGRAM = 'Histogram'
+  HISTOGRAM = 'Histogram',
+  SCATTERPLOT = 'Scatterplot'
 }
 
 export const PanelContainer = () => {
@@ -58,6 +60,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
         {propertyPanelName === PanelName.LISA && <LisaPanel />}
         {propertyPanelName === PanelName.HISTOGRAM && <HistogramPanel />}
+        {propertyPanelName === PanelName.SCATTERPLOT && <ScatterplotPanel />}
       </div>
     </div>
   ) : null;

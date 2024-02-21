@@ -8,7 +8,7 @@ import { ChangeEvent, Key, useEffect, useState } from 'react';
 import { Button, Card, CardBody, Chip, Spacer, Tab, Tabs } from '@nextui-org/react';
 import { MAP_ID } from '@/constants';
 import { getColumnData, getDataContainer } from '@/utils/data-utils';
-import { createScatterplotData } from '@/utils/scatterplot-utils'; //  TODO
+import { createScatterplotData } from '@/utils/scatterplot-utils';
 import { PlotProps, addPlot } from '@/actions/plot-actions';
 import { PlotManagementPanel } from './plot-management';
 
@@ -22,7 +22,6 @@ export function ScatterplotPanel() {
   const [variableX, setXVariable] = useState('');
   const [variableY, setYVariable] = useState('');
 
-  // More states and selectors as needed
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
@@ -34,9 +33,9 @@ export function ScatterplotPanel() {
     console.log('Create scatterplot');
     const xData = getColumnData(variableX, dataContainer);
     const yData = getColumnData(variableY, dataContainer);
-    const scatterplotData = createScatterplotData(xData, yData);
+    const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
     const id = Math.random().toString(36).substring(7);
-    dispatch(addPlot({ id, type: 'scatter', variableX, variableY, data: scatterplotData }));
+    dispatch(addPlot({ id, type: 'scatter', variableX, variableY, data: [scatterplotData] }));
   };
 
   // Logic for managing new plots and updating UI similar to HistogramPanel
@@ -93,7 +92,7 @@ export function ScatterplotPanel() {
                     <Spacer y={1} />
                     <Button
                       onClick={onCreateScatterplot}
-                      disabled={!xVariable || !yVariable}
+                      disabled={!variableX || !variableY}
                     >
                       Create Scatterplot
                     </Button>

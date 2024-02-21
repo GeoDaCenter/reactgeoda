@@ -23,8 +23,6 @@ export type ScatterPlotProps = BasePlotProps & {
   variableX: string;
   variableY: string;
   data: ScatPlotDataProps[];
-  // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
-  isNew?: boolean;
 };
 
 export type PlotProps = HistogramPlotProps | ScatterPlotProps;
