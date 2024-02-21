@@ -55,6 +55,7 @@ jobs:
           cd ..
           git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
       - name: Install loaders.gl
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           cd ..
           git clone https://github.com/visgl/loaders.gl.git --branch=xli/geoarrow-fix-in-mem-table loaders.gl
