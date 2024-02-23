@@ -128,17 +128,17 @@ function getChartOption(
     },
     // @ts-ignore
     series,
-    dataZoom: [
-      {
-        type: 'inside'
-      },
-      {
-        type: 'slider',
-        height: 15,
-        bottom: 25,
-        fillerColor: 'rgba(255,255,255,0.1)'
-      }
-    ],
+    // dataZoom: [
+    //   {
+    //     type: 'inside'
+    //   },
+    //   {
+    //     type: 'slider',
+    //     height: 15,
+    //     bottom: 25,
+    //     fillerColor: 'rgba(255,255,255,0.1)'
+    //   }
+    // ],
     tooltip: {
       trigger: 'item',
       axisPointer: {
