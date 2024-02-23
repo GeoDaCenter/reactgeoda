@@ -9,8 +9,8 @@ export type CreateBoxplotProps = {
 // Boxplot data output props, which is compatible with eCharts boxplot series data
 export type BoxplotDataProps = {
   // the boxData which will be rendred as boxplot by eCharts
-  // [[itemName, low, Q1, Q2, Q3, high]]
-  boxData: Array<[number, number, number, number, number]>;
+  // [low, Q1, Q2, Q3, high]
+  boxData: Array<{name: string; value: [number, number, number, number, number]}>;
   // the outliers, which will be rendred as red points, not used for now
   outlier?: [string, number][];
   // the mean point, which will be rendred as a green point
@@ -27,25 +27,23 @@ export function createBoxplot({data, boundIQR}: CreateBoxplotProps): BoxplotData
   const visiblePoints: [string, number][] = [];
 
   // iterate through the data and calculate the boxplot data
-  const boxData: [number, number, number, number, number][] = Object.keys(data).map(
-    (key: string) => {
-      const values = data[key];
-      const sortedData = values.sort((a, b) => a - b);
-      const q1 = d3Quantile(sortedData, 0.25) || 0;
-      const q3 = d3Quantile(sortedData, 0.75) || 0;
-      const iqr = q3 - q1;
-      const min = q1 - boundIQR * iqr;
-      const max = q3 + boundIQR * iqr;
-      const median = d3Median(sortedData) || 0;
-      const mean = d3Mean(sortedData) || 0;
-      // const outliers = sortedData.filter(d => d < min || d > max);
-      const visible = sortedData.filter(d => d >= q3 && d <= q1);
-      visible.map((d: number) => visiblePoints.push([key, d]));
-      meanPoint.push([key, mean]);
+  const boxData: BoxplotDataProps['boxData'] = Object.keys(data).map((key: string) => {
+    const values = data[key];
+    const sortedData = values.sort((a, b) => a - b);
+    const q1 = d3Quantile(sortedData, 0.25) || 0;
+    const q3 = d3Quantile(sortedData, 0.75) || 0;
+    const iqr = q3 - q1;
+    const min = q1 - boundIQR * iqr;
+    const max = q3 + boundIQR * iqr;
+    const median = d3Median(sortedData) || 0;
+    const mean = d3Mean(sortedData) || 0;
+    // const outliers = sortedData.filter(d => d < min || d > max);
+    const visible = sortedData.filter(d => d >= q3 && d <= q1);
+    visible.map((d: number) => visiblePoints.push([key, d]));
+    meanPoint.push([key, mean]);
 
-      return {name: key, value: [min, q1, median, q3, max]};
-    }
-  );
+    return {name: key, value: [min, q1, median, q3, max]};
+  });
 
   return {boxData, meanPoint, visiblePoints};
 }

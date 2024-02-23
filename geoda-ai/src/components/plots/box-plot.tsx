@@ -5,28 +5,27 @@ import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import {EChartsOption} from 'echarts';
 // Import charts, all with Chart suffix
-import {BoxplotChart} from 'echarts/charts';
+import {BoxplotChart, ScatterChart} from 'echarts/charts';
 // import components, all suffixed with Component
 import {
   GridComponent,
   ToolboxComponent,
   TooltipComponent,
   BrushComponent,
-  TitleComponent
+  TitleComponent,
+  DataZoomComponent,
+  DataZoomInsideComponent
 } from 'echarts/components';
-// Import renderer, note that introducing the CanvasRenderer or SVGRenderer is a required step
-import {
-  CanvasRenderer
-  // SVGRenderer,
-} from 'echarts/renderers';
+import {CanvasRenderer} from 'echarts/renderers';
 import {useDispatch, useSelector} from 'react-redux';
-import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 import {Filter} from '@kepler.gl/types';
 
 import {BoxplotDataProps} from '@/utils/boxplot-utils';
 import {GeoDaState} from '@/store';
 import {MAP_ID} from '@/constants';
 import {BoxPlotProps} from '@/actions/plot-actions';
+import {getColumnData, getDataContainer} from '@/utils/data-utils';
+import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 
 // Register the required components
 echarts.use([
@@ -35,11 +34,18 @@ echarts.use([
   ToolboxComponent,
   BrushComponent,
   GridComponent,
+  DataZoomComponent,
+  DataZoomInsideComponent,
   BoxplotChart,
+  ScatterChart,
   CanvasRenderer
 ]);
 
-function getChartOption(filteredIndex: Uint8ClampedArray | null, props: BoxPlotProps) {
+function getChartOption(
+  filteredIndex: Uint8ClampedArray | null,
+  props: BoxPlotProps,
+  rawDataArray?: number[][]
+) {
   // check if there is highlighted from layer by checking if filteredIndex has any 0
   // const hasHighlighted =
   //   filteredIndex && filteredIndex.some((idx: number) => idx === 0) && filteredIndex.length > 1;
@@ -49,32 +55,58 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: BoxPlotP
   // get plotData from props.data
   const plotData: BoxplotDataProps = props.data;
 
+  // build scatter plot data using rawData in the form of [0, value]
+  const pointsData = rawDataArray?.map(
+    (rawData, dataIndex) => rawData?.map((value: number) => [value, dataIndex]) || []
+  );
+
+  // build mean point
+  const meanPoint = plotData.meanPoint.map((mp, dataIndex) => [mp[1], dataIndex]);
+
+  const scatterSeries =
+    pointsData?.map(data => ({
+      type: 'scatter',
+      data,
+      symbolSize: 6,
+      itemStyle: {
+        color: 'lightblue'
+      }
+    })) || [];
+
   const series = [
+    ...scatterSeries,
     {
-      data: plotData.boxData,
       type: 'boxplot',
-      label: {
-        show: true,
-        position: [0, -15],
-        formatter: function (params: {value: any}) {
-          return params.value; //display series name
-        }
+      data: plotData.boxData,
+      itemStyle: {
+        borderColor: 'black',
+        color: '#DB631C'
+      }
+    },
+    {
+      type: 'scatter',
+      data: meanPoint,
+      symbolSize: 8,
+      itemStyle: {
+        color: '#14C814',
+        borderColor: 'black',
+        opacity: 1
       }
     }
   ];
 
   // build option for echarts
   const option: EChartsOption = {
-    xAxis: {
+    yAxis: {
       type: 'category',
-      position: 'bottom',
       boundaryGap: true,
-      splitArea: {show: true},
-      splitLine: {show: true},
+      splitArea: {show: false},
+      splitLine: {show: false},
       axisLine: {
         show: false,
         onZero: false
       },
+      axisTick: {show: false},
       axisLabel: {
         formatter: function (d: any, i) {
           console.log(d, i);
@@ -82,20 +114,31 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: BoxPlotP
         }
       }
     },
-    yAxis: {
+    xAxis: {
       type: 'value',
       axisLabel: {
         formatter: function (d: any) {
           return `${d}`;
         }
       },
-      splitLine: {show: true},
-      splitArea: {show: true},
+      splitLine: {show: true, interval: 'auto', lineStyle: {color: '#f3f3f3'}},
+      splitArea: {show: false},
       axisTick: {show: true},
       axisLine: {show: true}
     },
     // @ts-ignore
     series,
+    dataZoom: [
+      {
+        type: 'inside'
+      },
+      {
+        type: 'slider',
+        height: 15,
+        bottom: 25,
+        fillerColor: 'rgba(255,255,255,0.1)'
+      }
+    ],
     tooltip: {
       trigger: 'item',
       axisPointer: {
@@ -192,10 +235,21 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     state.root.plots.find(p => p.id === props.id)
   );
 
+  // use selector to get dataContainer
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
+  );
+
+  // get raw data from props.variable
+  const rawDataArray = useMemo(() => {
+    const data = props.variables.map(variable => getColumnData(variable, dataContainer));
+    return data;
+  }, [props.variables, dataContainer]);
+
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getChartOption(filteredIndex, props);
-  }, [filteredIndex, props]);
+    return getChartOption(filteredIndex, props, rawDataArray);
+  }, [filteredIndex, props, rawDataArray]);
 
   const bindEvents = {
     // click: function (params: any) {
@@ -210,14 +264,28 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     brushSelected: function (params: any) {
       const brushed = [];
       const brushComponent = params.batch[0];
-
       for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
         const rawIndices = brushComponent.selected[sIdx].dataIndex;
         // merge rawIndices to brushed
         brushed.push(...rawIndices);
       }
-
       console.log('brushSelected', brushed);
+
+      // check if this plot is in state.plots
+      if (validPlot && brushed.length === 0) {
+        // reset options
+        const chart = eChartsRef.current;
+        if (chart) {
+          const chartInstance = chart.getEchartsInstance();
+          const updatedOption = getChartOption(null, props, rawDataArray);
+          chartInstance.setOption(updatedOption);
+        }
+      }
+      // dispatch action to highlight the selected ids
+      dispatch({
+        type: 'SET_FILTER_INDEXES',
+        payload: {dataLabel: tableName, filteredIndex: brushed}
+      });
     }
     // brushEnd: function (params: any) {
     //   console.log('brushEnd');
@@ -231,7 +299,7 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     <Card className="my-4" shadow="none">
       <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
         <p className="text-tiny font-bold uppercase">{props.type}</p>
-        <small className="text-default-500">{props.variable}</small>
+        <small className="text-default-500">{props.variables.join(',')}</small>
       </CardHeader>
       <CardBody className="w-full py-2">
         <ReactEChartsCore

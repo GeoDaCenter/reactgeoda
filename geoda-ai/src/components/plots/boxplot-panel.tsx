@@ -3,7 +3,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {VariableSelector} from '../common/variable-selector';
+import {MultiVariableSelector} from '../common/multivariable-selector';
 import {Key, useEffect, useState} from 'react';
 import {
   Button,
@@ -18,7 +18,7 @@ import {
 } from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createBoxplot} from '@/utils/boxplot-utils'; // Updated import
+import {CreateBoxplotProps, createBoxplot} from '@/utils/boxplot-utils'; // Updated import
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 
@@ -32,7 +32,7 @@ export function BoxplotPanel() {
   const dispatch = useDispatch();
 
   // use state for variable
-  const [variable, setVariable] = useState('');
+  const [variables, setVariables] = useState<string[]>([]);
   // useState for hingeValue
   const [hingeValue, setHingeValue] = useState('1.5');
 
@@ -50,14 +50,22 @@ export function BoxplotPanel() {
     // Updated function name
     console.log('Create boxplot'); // Updated log message
     // get data from variable
-    const data = getColumnData(variable, dataContainer);
+    const data: CreateBoxplotProps['data'] = variables.reduce(
+      (prev: CreateBoxplotProps['data'], cur: string) => {
+        const values = getColumnData(cur, dataContainer);
+        prev[cur] = values;
+        return prev;
+      },
+      {}
+    );
+
     // get hinge value as number
     const boundIQR = parseFloat(hingeValue);
-    const boxplot = createBoxplot({data: {[variable]: data}, boundIQR});
+    const boxplot = createBoxplot({data, boundIQR});
     // generate random id for boxplot
     const id = Math.random().toString(36).substring(7);
     // dispatch action to create boxplot and add to store
-    dispatch(addPlot({id, type: 'boxplot', variable, data: boxplot}));
+    dispatch(addPlot({id, type: 'boxplot', variables, data: boxplot}));
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
@@ -128,7 +136,7 @@ export function BoxplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <VariableSelector setVariable={setVariable} />
+                    <MultiVariableSelector setVariables={setVariables} />
                     <RadioGroup
                       orientation="horizontal"
                       value={hingeValue}
@@ -145,7 +153,7 @@ export function BoxplotPanel() {
                     radius="sm"
                     color="primary"
                     className="bg-rose-900"
-                    disabled={variable === ''}
+                    disabled={variables.length === 0}
                   >
                     Create Boxplot
                   </Button>

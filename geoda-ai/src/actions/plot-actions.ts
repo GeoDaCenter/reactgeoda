@@ -28,7 +28,7 @@ type ScaterPlotProps = BasePlotProps & {
 
 export type BoxPlotProps = BasePlotProps & {
   type: 'boxplot';
-  variable: string;
+  variables: string[];
   data: BoxplotDataProps;
 };
 
