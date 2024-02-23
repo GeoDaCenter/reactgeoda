@@ -11,20 +11,12 @@ describe('createBoxplot', () => {
     const expected: BoxplotDataProps = {
       boxData: [
         {
-          itemName: 'category1',
-          low: 1,
-          Q1: 2,
-          Q2: 3,
-          Q3: 4,
-          high: 5
+          name: 'category1',
+          value: [1, 2, 3, 4, 5]
         },
         {
-          itemName: 'category2',
-          low: 6,
-          Q1: 7,
-          Q2: 8,
-          Q3: 9,
-          high: 10
+          name: 'category2',
+          value: [6, 7, 8, 9, 10]
         }
       ],
       meanPoint: [],
@@ -61,20 +53,12 @@ describe('createBoxplot', () => {
     const expected: BoxplotDataProps = {
       boxData: [
         {
-          itemName: 'category1',
-          low: 1,
-          Q1: 2,
-          Q2: 3,
-          Q3: 4,
-          high: 5
+          name: 'category1',
+          value: [1, 2, 3, 4, 5]
         },
         {
-          itemName: 'category2',
-          low: 6,
-          Q1: 7,
-          Q2: 8,
-          Q3: 9,
-          high: 10
+          name: 'category2',
+          value: [6, 7, 8, 9, 10]
         }
       ],
       outlier: [
@@ -100,20 +84,12 @@ describe('createBoxplot', () => {
     const expected: BoxplotDataProps = {
       boxData: [
         {
-          itemName: 'category1',
-          low: 1,
-          Q1: 2,
-          Q2: 3,
-          Q3: 4,
-          high: 5
+          name: 'category1',
+          value: [1, 2, 3, 4, 5]
         },
         {
-          itemName: 'category2',
-          low: 6,
-          Q1: 7,
-          Q2: 8,
-          Q3: 9,
-          high: 10
+          name: 'category2',
+          value: [6, 7, 8, 9, 10]
         }
       ],
       meanPoint: [
@@ -138,20 +114,12 @@ describe('createBoxplot', () => {
     const expected: BoxplotDataProps = {
       boxData: [
         {
-          itemName: 'category1',
-          low: 1,
-          Q1: 2,
-          Q2: 3,
-          Q3: 4,
-          high: 5
+          name: 'category1',
+          value: [1, 2, 3, 4, 5]
         },
         {
-          itemName: 'category2',
-          low: 6,
-          Q1: 7,
-          Q2: 8,
-          Q3: 9,
-          high: 10
+          name: 'category2',
+          value: [6, 7, 8, 9, 10]
         }
       ],
       meanPoint: [],
