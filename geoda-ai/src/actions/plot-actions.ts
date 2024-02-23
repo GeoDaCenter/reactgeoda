@@ -1,4 +1,5 @@
 import {HistogramDataProps} from '@/utils/histogram-utils';
+import {BoxplotDataProps} from '@/utils/boxplot-utils';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
@@ -25,7 +26,13 @@ type ScaterPlotProps = BasePlotProps & {
   isNew?: boolean;
 };
 
-export type PlotProps = HistogramPlotProps | ScaterPlotProps;
+export type BoxPlotProps = BasePlotProps & {
+  type: 'boxplot';
+  variable: string;
+  data: BoxplotDataProps;
+};
+
+export type PlotProps = HistogramPlotProps | ScaterPlotProps | BoxPlotProps;
 
 export type RemovePlotProps = {
   id: string;
