@@ -23,6 +23,7 @@ import {
 } from '@/constants';
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './histogram-utils';
+import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
 
 // key is the name of the function, value is the function itself
 type CustomFunctions = {
@@ -94,7 +95,8 @@ export enum CustomFunctionNames {
   NATURAL_BREAKS = 'naturalBreaks',
   KNN_WEIGHT = 'knnWeight',
   LOCAL_MORAN = 'univariateLocalMoran',
-  HISTOGRAM = 'histogram'
+  HISTOGRAM = 'histogram',
+  BOXPLOT = 'boxplot'
 }
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -268,5 +270,51 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       },
       data: hist
     };
-  }
+  },
+
+  boxplot: boxplotFunction
 };
+
+export type BoxplotOutput = {
+  type: 'boxplot';
+  name: string;
+  result: {
+    id: string;
+    variables: string[];
+    boundIQR: number;
+    boxplot: BoxplotDataProps['boxData'];
+  };
+  data: BoxplotDataProps;
+};
+
+function boxplotFunction({variableNames, boundIQR}, {dataContainer}): BoxplotOutput | ErrorOutput {
+  // get data from variable
+  const data: CreateBoxplotProps['data'] = variableNames.reduce(
+    (prev: CreateBoxplotProps['data'], cur: string) => {
+      const values = getColumnData(cur, dataContainer);
+      prev[cur] = values;
+      return prev;
+    },
+    {}
+  );
+
+  // check column data is empty
+  if (!data || Object.keys(data).length === 0) {
+    return {type: 'boxplot', result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+  }
+
+  // call boxplot function
+  const boxplot = createBoxplot({data, boundIQR: boundIQR || 1.5});
+
+  return {
+    type: 'boxplot',
+    name: 'Boxplot',
+    result: {
+      id: Math.random().toString(36).substring(7),
+      variables: variableNames,
+      boundIQR,
+      boxplot: boxplot.boxData
+    },
+    data: boxplot
+  };
+}
