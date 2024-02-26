@@ -9,7 +9,7 @@ module.exports = (env) => {
   console.log('env', env);
   return {
     entry: {
-      app: env.ai ? './src/ai.js' : './src/main.js',
+      app: env.ai ? './src/ai.tsx' : './src/main.js',
     },
     output: {
       path: path.join(__dirname, '/out'),

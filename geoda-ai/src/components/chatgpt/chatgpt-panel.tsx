@@ -30,6 +30,7 @@ export const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   const [messages, setMessages] = useState<Array<MessageModel>>([]);
 
   useEffect(() => {
+    // set initial message
     setMessages([
       {
         message: intl.formatMessage({
@@ -41,6 +42,7 @@ export const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
         direction: 'incoming',
         position: 'first'
       }
+      // test any custom message
       // {
       //   type: 'custom',
       //   message: '',
