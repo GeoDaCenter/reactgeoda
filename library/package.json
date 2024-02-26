@@ -4,10 +4,12 @@
   "description": "Build reactgeoda library with a single bundled file",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack --mode development --open",
+    "start": "webpack serve --open --mode development",
     "dev": "webpack-dev-server --mode development --open",
+    "dev-ai": "webpack-dev-server --mode development --env ai --open --port 4002",
     "build": "webpack --mode production",
     "build-geoda": "webpack --mode production --env geoda",
+    "build-ai": "webpack --mode production --env ai",
     "lint": "eslint"
   },
   "keywords": [],
@@ -18,7 +20,11 @@
     "yarn": "3.0.2"
   },
   "dependencies": {
-    "global": "^4.3.0"
+    "@nextui-org/react": "^2.2.9",
+    "framer-motion": "^11.0.6",
+    "global": "^4.3.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.1",
@@ -31,15 +37,20 @@
     "@babel/preset-typescript": "^7.16.7",
     "babel-loader": "^8.0.0",
     "babel-plugin-search-and-replace": "^1.1.1",
+    "css-loader": "^6.10.0",
     "csv-loader": "^3.0.5",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^4.0.0",
+    "postcss-loader": "^8.1.0",
+    "postcss-preset-env": "^9.4.0",
     "redux-logger": "^3.0.6",
-    "webpack": "^4.29.0",
-    "webpack-cli": "^3.2.1",
-    "webpack-dev-middleware": "^3.5.1",
-    "webpack-dev-server": "^3.1.14",
-    "webpack-hot-middleware": "^2.24.3"
+    "sass": "^1.71.1",
+    "sass-loader": "^14.1.1",
+    "style-loader": "^3.3.4",
+    "tailwindcss": "^3.4.1",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-dev-server": "latest"
   },
   "resolutions": {
     "react-vis": "1.11.7",
