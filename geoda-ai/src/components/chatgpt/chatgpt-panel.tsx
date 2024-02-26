@@ -20,11 +20,11 @@ import {CustomMessage} from './custom-messages';
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
 
-const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
+export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
-const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
+export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
-const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
+export const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
   const intl = useIntl();
   const {initOpenAI, processMessage} = useChatGPT();
   const [messages, setMessages] = useState<Array<MessageModel>>([]);

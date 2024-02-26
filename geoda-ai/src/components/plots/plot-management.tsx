@@ -1,13 +1,19 @@
 import {useSelector} from 'react-redux';
 import {Tab, Tabs} from '@nextui-org/react';
 
+import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
-import {HistogramPlotProps, PlotProps} from '@/actions/plot-actions';
+import {HistogramPlotProps, BoxPlotProps, PlotProps} from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
 
 // type guard function to check if the plot is a histogram plot
 function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
   return plot.type === 'histogram';
+}
+
+// type guard function to check if the plot is a boxplot
+function isBoxPlot(plot: PlotProps): plot is BoxPlotProps {
+  return plot.type === 'boxplot';
 }
 
 export const PlotManagementPanel = () => {
@@ -29,6 +35,8 @@ export const PlotManagementPanel = () => {
           {plots.toReversed().map(plot => {
             if (isHistogramPlot(plot)) {
               return <HistogramPlot key={plot.id} props={plot} />;
+            } else if (isBoxPlot(plot)) {
+              return <BoxPlot key={plot.id} props={plot} />;
             }
           })}
         </Tab>
@@ -58,7 +66,16 @@ export const PlotManagementPanel = () => {
             </div>
           }
           className="p-2"
-        />
+        >
+          {plots
+            .filter(plot => plot.type === 'boxplot')
+            .toReversed()
+            .map(plot => {
+              if (isBoxPlot(plot)) {
+                return <BoxPlot key={plot.id} props={plot} />;
+              }
+            })}
+        </Tab>
       </Tabs>
     </div>
   );

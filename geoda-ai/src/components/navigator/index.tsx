@@ -92,6 +92,9 @@ export function Navigator() {
         case 'icon-histogram':
           dispatch(setPropertyPanel(PanelName.HISTOGRAM));
           break;
+        case 'icon-boxplot':
+          dispatch(setPropertyPanel(PanelName.BOXPLOT));
+          break;
       }
       event.stopPropagation();
     },
