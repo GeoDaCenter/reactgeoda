@@ -17,7 +17,8 @@ import '@webgeoda/styles/style.css';
 const customFunctions = {
   histogram: function ({k, variableName}: {k: number; variableName: string}, {}) {
     // call histogram function
-    window.postMessage({type: 'histogram', k, variableName});
+    // @ts-ignore-next-line This is a hack to communicate with desktop GeoDa
+    window.wx_msg.postMessage({type: 'histogram', k, variableName});
     // const hist = createHistogram(columnData, k);
 
     return {
