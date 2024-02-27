@@ -26,7 +26,7 @@ import {HistogramDataProps, createHistogram} from './histogram-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
 
 // key is the name of the function, value is the function itself
-type CustomFunctions = {
+export type CustomFunctions = {
   [key: string]: (...args: any[]) => any;
 };
 
