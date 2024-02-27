@@ -37,6 +37,8 @@ git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda c
 
 git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib
 
+git clone https://github.com/visgl/loaders.gl.git --branch=xli/geoarrow-fix-in-mem-table loaders.gl
+
 git clone https://github.com/GeoDaCenter/reactgeoda.git reactgeoda
 ```
 
@@ -47,6 +49,25 @@ cd csds_kepler
 yarn
 ```
 
+```bash
+cd loader.gl
+yarn
+```
+
+For M1 users: puppeteer error when yarn csds_kepler(The chromium binary is not available for arm64):
+
+```bash
+brew install --cask chromium --no-quarantine
+```
+vim ~/.zshrc and add
+```bash
+export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+export PUPPETEER_EXECUTABLE_PATH=`which chromium`
+```
+source ~/.zshrc
+```bash
+yarn
+```
 
 ## 2. Work in react-geoda directory
 
