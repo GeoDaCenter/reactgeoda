@@ -66,10 +66,11 @@ export PUPPETEER_EXECUTABLE_PATH=`which chromium`
 ```
 source ~/.zshrc
 ```bash
+cd csds_kepler
 yarn
 ```
 
-## 2. Work in react-geoda directory
+## 2. Work in react-geoda directoryß
 
 ```bash
 cd reactgeoda/geoda-ai
