@@ -58,14 +58,12 @@ For M1 users: puppeteer error when yarn csds_kepler(The chromium binary is not a
 
 ```bash
 brew install --cask chromium --no-quarantine
-```
-vim ~/.zshrc and add
-```bash
+
+vim ~/.zshrc
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 export PUPPETEER_EXECUTABLE_PATH=`which chromium`
-```
 source ~/.zshrc
-```bash
+
 cd csds_kepler
 yarn
 ```
