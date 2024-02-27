@@ -63,12 +63,12 @@ vim ~/.zshrc
 export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 export PUPPETEER_EXECUTABLE_PATH=`which chromium`
 source ~/.zshrc
-
+```bash
 cd csds_kepler
 yarn
 ```
 
-## 2. Work in react-geoda directoryß
+## 2. Work in react-geoda directory
 
 ```bash
 cd reactgeoda/geoda-ai
