@@ -8,7 +8,6 @@ import {Key, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createBoxplot} from '@/utils/boxplot-utils';
 import {CreateParallelCoordinateProps} from '@/utils/parallel-coordinate-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
@@ -34,10 +33,10 @@ export function ParallelCoordinatePanel() {
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
-  // on create boxplot // Updated function name
-  const onCreateBoxplot = () => {
+  // on create pcp
+  const onCreateParallelCoordinate = () => {
     // Updated function name
-    console.log('Create boxplot'); // Updated log message
+    console.log('Create PCP'); // Updated log message
     // get data from variable
     const data: CreateParallelCoordinateProps['data'] = variables.reduce(
       (prev: CreateParallelCoordinateProps['data'], cur: string) => {
@@ -50,10 +49,9 @@ export function ParallelCoordinatePanel() {
 
     // get hinge value as number
     const boundIQR = parseFloat('1');
-    const boxplot = createBoxplot({data, boundIQR});
-    // generate random id for boxplot
+    // generate random id for pcp
     const id = Math.random().toString(36).substring(7);
-    // dispatch action to create boxplot and add to store
+    // dispatch action to create pcp and add to store
     dispatch(addPlot({id, type: 'parallel-coordinate', variables}));
   };
 
@@ -129,7 +127,7 @@ export function ParallelCoordinatePanel() {
                   </div>
                   <Spacer y={8} />
                   <Button
-                    onClick={onCreateBoxplot}
+                    onClick={onCreateParallelCoordinate}
                     radius="sm"
                     color="primary"
                     className="bg-rose-900"
