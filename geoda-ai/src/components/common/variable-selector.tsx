@@ -1,38 +1,33 @@
-import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
-import {getNumericFieldNames} from '@/utils/data-utils';
+import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
 import {Key, useMemo} from 'react';
 import {useSelector} from 'react-redux';
 
 type VariableSelectorProps = {
-  axis: 'x' | 'y';
   variable?: string;
-  setVariable: (axis: 'x' | 'y', variable: string) => void;
+  setVariable: (variable: string) => void;
 };
 
 export function VariableSelector(props: VariableSelectorProps) {
-  // use selector to get tableName from redux store
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
-
-  // use selector to get visState from redux store
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
+  // use selector to get layer from redux store
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, visState);
+    const fieldNames = getNumericFieldNames(layer);
     return fieldNames;
-  }, [tableName, visState]);
+  }, [layer]);
 
   // handle variable change
   const onVariableSelectionChange = (value: Key) => {
     const selectValue = value as string;
-    props.setVariable(props.axis, selectValue);
+    props.setVariable(selectValue);
   };
 
   return (
     <Autocomplete
-      label={`Select a variable for ${props.axis} axis`}
+      label="Select a variable"
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
     >

@@ -154,7 +154,8 @@ const ChatGPTPanel = () => {
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
 
   // get api key from state.root
-  const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
+  //const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
+  const openAIKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
   return (
     <RightPanelContainer
