@@ -6,6 +6,7 @@ import { GeoDaState } from '@/store';
 import { VariableSelector } from '../common/variable-selector';
 import { ChangeEvent, Key, useEffect, useState } from 'react';
 import { Button, Card, CardBody, Chip, Spacer, Tab, Tabs } from '@nextui-org/react';
+import { MultiVariableSelector } from '../common/multivariable-selector';
 import { MAP_ID } from '@/constants';
 import { getColumnData, getDataContainer } from '@/utils/data-utils';
 import { createScatterplotData } from '@/utils/scatterplot-utils';
@@ -19,8 +20,7 @@ export function ScatterplotPanel() {
   const dispatch = useDispatch();
 
   // State for x and y variables
-  const [variableX, setXVariable] = useState('');
-  const [variableY, setYVariable] = useState('');
+  const [variables, setVariables] = useState<string[]>([]);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   const dataContainer = useSelector((state: GeoDaState) =>
@@ -31,11 +31,11 @@ export function ScatterplotPanel() {
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
     console.log('Create scatterplot');
-    const xData = getColumnData(variableX, dataContainer);
-    const yData = getColumnData(variableY, dataContainer);
-    const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
+    const xData = getColumnData(variables[0], dataContainer);
+    const yData = getColumnData(variables[1], dataContainer);
+    const scatterplotData = createScatterplotData(variables[0], variables[1], xData, yData);
     const id = Math.random().toString(36).substring(7);
-    dispatch(addPlot({ id, type: 'scatter', variableX, variableY, data: [scatterplotData] }));
+    dispatch(addPlot({ id, type: 'scatter', variableX: variables[0], variableY: variables[1], data: [scatterplotData] }));
   };
 
   // Logic for managing new plots and updating UI similar to HistogramPanel
@@ -87,12 +87,11 @@ export function ScatterplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <VariableSelector axis="x" setVariable={(axis, variable) => setXVariable(variable)} />
-                    <VariableSelector axis="y" setVariable={(axis, variable) => setYVariable(variable)} />
+                    <MultiVariableSelector setVariables={setVariables} />
                     <Spacer y={1} />
                     <Button
                       onClick={onCreateScatterplot}
-                      disabled={!variableX || !variableY}
+                      disabled={variables.some(variable => variable === '')}
                     >
                       Create Scatterplot
                     </Button>

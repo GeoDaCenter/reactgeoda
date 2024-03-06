@@ -231,18 +231,6 @@ export function Navigator() {
             <IconBoxplot />
           </Button>
         </Tooltip>
-        <Tooltip key="scatterTooltip" placement="right" content="Scatter Plot">
-          <Button
-            isIconOnly
-            size="sm"
-            className="bg-transparent"
-            id="icon-scatterplot"
-            onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
-          >
-            <IconScatterplot />
-          </Button>
-        </Tooltip>
         <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
           <Button
             isIconOnly
