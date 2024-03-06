@@ -43,23 +43,25 @@ function getChartOption(
   props: ParallelCoordinateProps,
   rawDataArray?: number[][]
 ) {
-    const axis = props.variables.map((variable, index) => ({ dim: index, name: variable }));
-    let dataCols: number[][] = [];
-    if (rawDataArray) {
-        const transposedData = rawDataArray[0].map((_, colIndex) => rawDataArray.map(row => row[colIndex]));
-        dataCols = transposedData
-      }
-    
+  const axis = props.variables.map((variable, index) => ({dim: index, name: variable}));
+  let dataCols: number[][] = [];
+  if (rawDataArray) {
+    const transposedData = rawDataArray[0].map((_, colIndex) =>
+      rawDataArray.map(row => row[colIndex])
+    );
+    dataCols = transposedData;
+  }
+
   // build option for echarts
   const option: EChartsOption = {
     parallelAxis: axis,
-      series: {
-        type: 'parallel',
-        lineStyle: {
-          width: 4
-        },
-        data: dataCols,
-      }
+    series: {
+      type: 'parallel',
+      lineStyle: {
+        width: 4
+      },
+      data: dataCols
+    }
   };
   console.log('getChartOption', option);
   return option;

@@ -37,7 +37,11 @@ export type ParallelCoordinateProps = BasePlotProps & {
   variables: string[];
 };
 
-export type PlotProps = HistogramPlotProps | ScaterPlotProps | BoxPlotProps | ParallelCoordinateProps;
+export type PlotProps =
+  | HistogramPlotProps
+  | ScaterPlotProps
+  | BoxPlotProps
+  | ParallelCoordinateProps;
 
 export type RemovePlotProps = {
   id: string;

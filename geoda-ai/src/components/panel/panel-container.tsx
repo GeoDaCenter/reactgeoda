@@ -12,7 +12,7 @@ import {WeightsPanel} from '../weights/weights-panel';
 import {LisaPanel} from '../lisa/lisa-panel';
 import {HistogramPanel} from '../plots/histogram-panel';
 import {BoxplotPanel} from '../plots/boxplot-panel';
-import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel'
+import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 

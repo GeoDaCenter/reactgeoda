@@ -5,15 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {Key, useEffect, useState} from 'react';
-import {
-  Button,
-  Card,
-  CardBody,
-  Chip,
-  Spacer,
-  Tab,
-  Tabs
-} from '@nextui-org/react';
+import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {createBoxplot} from '@/utils/boxplot-utils';
@@ -32,7 +24,7 @@ export function ParallelCoordinatePanel() {
 
   // use state for variable
   const [variables, setVariables] = useState<string[]>([]);
-  
+
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   // use selector to get dataContainer
@@ -57,7 +49,7 @@ export function ParallelCoordinatePanel() {
     );
 
     // get hinge value as number
-    const boundIQR = parseFloat("1");
+    const boundIQR = parseFloat('1');
     const boxplot = createBoxplot({data, boundIQR});
     // generate random id for boxplot
     const id = Math.random().toString(36).substring(7);

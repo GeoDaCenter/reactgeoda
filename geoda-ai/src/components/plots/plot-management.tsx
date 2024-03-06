@@ -3,9 +3,14 @@ import {Tab, Tabs} from '@nextui-org/react';
 
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
-import {HistogramPlotProps, BoxPlotProps, ParallelCoordinateProps, PlotProps} from '@/actions/plot-actions';
+import {
+  HistogramPlotProps,
+  BoxPlotProps,
+  ParallelCoordinateProps,
+  PlotProps
+} from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
-import { ParallelCoordinatePlot } from './parallel-coordinate-plot';
+import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
 
 // type guard function to check if the plot is a histogram plot
 function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
@@ -44,7 +49,7 @@ export const PlotManagementPanel = () => {
             } else if (isBoxPlot(plot)) {
               return <BoxPlot key={plot.id} props={plot} />;
             } else if (isParallelCoordinate(plot)) {
-              return <ParallelCoordinatePlot key={plot.id} props={plot} />
+              return <ParallelCoordinatePlot key={plot.id} props={plot} />;
             }
           })}
         </Tab>
@@ -80,7 +85,7 @@ export const PlotManagementPanel = () => {
             .toReversed()
             .map(plot => {
               if (isBoxPlot(plot)) {
-                console.log(plot)
+                console.log(plot);
                 return <BoxPlot key={plot.id} props={plot} />;
               }
             })}
@@ -99,7 +104,7 @@ export const PlotManagementPanel = () => {
             .toReversed()
             .map(plot => {
               if (isParallelCoordinate(plot)) {
-                console.log(plot)
+                console.log(plot);
                 return <ParallelCoordinatePlot key={plot.id} props={plot} />;
               }
             })}
