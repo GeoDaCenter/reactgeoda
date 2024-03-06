@@ -11,6 +11,7 @@ function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
   return plot.type === 'histogram';
 }
 
+// type guard function to check if the plot is a scatter plot
 function isScatterPlot(plot: PlotProps): plot is ScatterPlotProps {
   return plot.type === 'scatter';
 }
@@ -63,9 +64,14 @@ export const PlotManagementPanel = () => {
           title={<div className="flex items-center space-x-2"><span>Scatter Plot</span></div>}
           className="p-2"
         >
-          {plots.filter(isScatterPlot).map(plot => (
-            <Scatterplot key={plot.id} data={plot.data[0]} />
-          ))}
+          {plots
+            .filter(plot => plot.type === 'scatter')
+            .toReversed()
+            .map(plot => {
+              if (isScatterPlot(plot)) {
+                return <Scatterplot key={plot.id} data={plot.data[0]} />
+              }
+            })}
         </Tab>
         <Tab
           key="boxplot"

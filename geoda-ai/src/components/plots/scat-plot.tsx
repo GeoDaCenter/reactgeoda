@@ -5,6 +5,7 @@ import * as echarts from 'echarts/core';
 import {
   TooltipComponent,
   GridComponent
+  //DataZoomComponent
 } from 'echarts/components';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import { Card, CardHeader, CardBody } from '@nextui-org/react';
@@ -18,12 +19,33 @@ echarts.use([
   GridComponent,
   ScatterChart,
   CanvasRenderer
+  //DataZoomComponent
 ]);
+
+const ChartSettings = {
+    defaultOptions: {
+      toolbox: {
+        show: true,
+        feature: {
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      }
+    },
+    theme: {
+      textStyle: {
+        fontFamily: 'Helvetica Neue, Arial, Verdana, sans-serif'
+      }
+    }
+  };
+  
 
 const createScatterplotOption = (data: ScatPlotDataProps) => {
   const seriesData = data.points.map((item: ScatterplotDataItemProps) => [item.x, item.y]);
 
-  const option = {
+  let option = {
     tooltip: {
       trigger: 'item',
       axisPointer: {
@@ -43,14 +65,19 @@ const createScatterplotOption = (data: ScatPlotDataProps) => {
       type: 'value',
       name: data.variableY,
       nameLocation: 'middle',
-      nameGap: 50
+      nameGap: 30
     },
     series: [{
       type: 'scatter',
       symbolSize: 10,
       data: seriesData,
-    }]
-  };
+    }],
+    grid: { // Adjust the grid settings to ensure there's enough space for the Y-axis name
+        left: '4%', // Increase the left padding. Adjust this value to ensure the Y-axis name fits without getting cut off.
+        containLabel: true // This property ensures that the labels are contained within the chart area
+      }
+    };
+  option = { ...ChartSettings.defaultOptions, ...option };
 
   return option;
 };

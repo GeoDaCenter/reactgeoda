@@ -8,6 +8,7 @@ import {HeartIcon} from '../icons/heart';
 import {ScatterplotOutput} from '@/utils/custom-functions';
 import {Scatterplot} from '../plots/scat-plot';
 import {useDispatch} from 'react-redux';
+import { ScatterplotDataItemProps } from '@/utils/scatterplot-utils';
 
 
 /**
@@ -18,9 +19,20 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   const [hide, setHide] = useState(false);
   const {output} = props;
 
-  const {variableX, variableY, points} = output.result as ScatterplotOutput['result'];
-  const scatterplotData = output.data as ScatterplotOutput['data'][0]; // Assuming data is an array with a single ScatPlotDataProps object
+  if (!output.data || !Array.isArray(output.data) || output.data.length === 0) {
+    console.error('Scatterplot data is unavailable or invalid.');
+    return null;
+  }
+
+  const scatterplotData = output.data[0] as ScatterplotOutput['data'][0]; // Assuming data is an array with a single ScatPlotDataProps object
   console.log(output.data)
+
+
+  if (!scatterplotData) {
+    console.error('Scatterplot data is unavailable or invalid.');
+    return null;
+  }
+  const {variableX, variableY, points} = output.result as ScatterplotOutput['result'];
 
   const scatterPlotProps: ScatterPlotProps = {
     id: Math.random().toString(36).substring(7),

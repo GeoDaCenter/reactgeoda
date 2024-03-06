@@ -20,7 +20,7 @@ export function ScatterplotPanel() {
   const dispatch = useDispatch();
 
   // State for x and y variables
-  const [variables, setVariables] = useState<string[]>([]);
+  const [selectedVariables, setSelectedVariables] = useState<string[]>([]);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   const dataContainer = useSelector((state: GeoDaState) =>
@@ -28,17 +28,27 @@ export function ScatterplotPanel() {
   );
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
+  useEffect(() => {
+    if (selectedVariables.length > 2) {
+      setSelectedVariables(selectedVariables.slice(0, 2));
+    }
+  }, [selectedVariables]);
+
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
-    console.log('Create scatterplot');
-    const xData = getColumnData(variables[0], dataContainer);
-    const yData = getColumnData(variables[1], dataContainer);
-    const scatterplotData = createScatterplotData(variables[0], variables[1], xData, yData);
-    const id = Math.random().toString(36).substring(7);
-    dispatch(addPlot({ id, type: 'scatter', variableX: variables[0], variableY: variables[1], data: [scatterplotData] }));
+    if (selectedVariables.length === 2) {
+      const [variableX, variableY] = selectedVariables;
+      const xData = getColumnData(variableX, dataContainer);
+      const yData = getColumnData(variableY, dataContainer);
+      const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
+      const id = Math.random().toString(36).substring(7);
+      dispatch(addPlot({ id, type: 'scatter', variableX, variableY, data: [scatterplotData] }));
+    } else {
+      console.error('Two variables must be selected for a scatter plot');
+    }
   };
 
-  // Logic for managing new plots and updating UI similar to HistogramPanel
+  // Logic for managing new plots
   const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
@@ -87,11 +97,11 @@ export function ScatterplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <MultiVariableSelector setVariables={setVariables} />
+                    <MultiVariableSelector setVariables={setSelectedVariables} />
                     <Spacer y={1} />
                     <Button
                       onClick={onCreateScatterplot}
-                      disabled={variables.some(variable => variable === '')}
+                      disabled={selectedVariables.length !== 2}
                     >
                       Create Scatterplot
                     </Button>
