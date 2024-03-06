@@ -14,20 +14,77 @@ import {initOpenAI, processMessage} from '@webgeoda/ai/openai-utils';
 import './style.css';
 import '@webgeoda/styles/style.css';
 
+let ws: WebSocket | null;
+
+// response from websocket server
+let response: any = null;
+
+// initilize connection to websocket wait 600 ms until page fully loaded
+setTimeout(async () => {
+  ws = new WebSocket('ws://localhost:1982/echo');
+  ws.addEventListener('open', event => {
+    console.log('Connected to websocket server');
+  });
+  ws?.addEventListener('message', event => {
+    console.log('Message from server ', event.data);
+    // response = JSON.parse(event.data);
+    response = event.data;
+  });
+}, 600);
+
+// create a function that send message using websocket client, and then wait and get response from websocket server, return the response
+const callGeoDa = async (message: Object) => {
+  // wait until websocket connection is ready
+  while (ws?.readyState === 0) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  // send message to websocket server
+  console.log('sending message', message);
+  ws?.send(JSON.stringify(message));
+
+  while (response === null) {
+    // wait for 100ms until the websocket server returns something
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  // return response
+  return response;
+};
+
+
 const customFunctions = {
-  histogram: function ({k, variableName}: {k: number; variableName: string}, {}) {
+  histogram: async function ({k, variableName}: {k: number; variableName: string}, {}) {
     // call histogram function
-    // @ts-ignore-next-line This is a hack to communicate with desktop GeoDa
-    window.wx_msg.postMessage({type: 'histogram', k, variableName});
     // const hist = createHistogram(columnData, k);
+    const result = await callGeoDa({ type: 'histogram', k, variableName });
+    console.log('result', result);
 
     return {
       type: 'histogram',
       name: 'Histogram',
-      result: `Histogram for ${variableName} with ${k} bins has been created in GeoDa. Please check the new histogram window.`
+      result: `Histogram for ${variableName} with ${k} bins has been created in GeoDa. Here is the result: ${result}`
     };
   }
 };
+
+const customMessageCallback = ({
+  functionName,
+  functionArgs,
+  output
+}: {
+  functionName: string;
+  functionArgs: Record<string, unknown>;
+  output: any;
+}) => {
+  console.log('customMessageCallback', functionName, functionArgs, output);
+  if (functionName === 'histogram') {
+    const {k, variableName} = functionArgs;
+    // @ts-ignore-next-line This is a hack to communicate with desktop GeoDa
+    window.wx_msg.postMessage({type: 'histogram', k, variableName});
+  }
+  // no custom message to render
+  return null;
+}
 
 const ChatGPTPanel = () => {
   const intl = useIntl();
@@ -44,7 +101,7 @@ const ChatGPTPanel = () => {
       customFunctions,
       customFunctionContext,
       // no need to render custom message, just popup window
-      customMessageCallback: () => null
+      customMessageCallback: customMessageCallback
     });
     return response;
   }
