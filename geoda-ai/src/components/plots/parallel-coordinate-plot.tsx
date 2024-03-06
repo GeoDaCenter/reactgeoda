@@ -1,11 +1,8 @@
 import {RefObject, useEffect, useMemo, useRef} from 'react';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
-// Import the echarts core module, which provides the necessary interfaces for using echarts.
 import * as echarts from 'echarts/core';
 import {EChartsOption} from 'echarts';
-// Import charts, all with Chart suffix
-// import components, all suffixed with Component
 import {
   GridComponent,
   ToolboxComponent,
@@ -54,11 +51,32 @@ function getChartOption(
 
   // build option for echarts
   const option: EChartsOption = {
+    parallel: {
+      left: '5%',
+      right: '35%',
+      top: '6%',
+      bottom: '15%',
+      layout: 'vertical',
+      parallelAxisDefault: {
+        axisLabel: {
+          formatter: (value: number): string => {
+            // The logic remains the same, but with explicit typing
+            if (value >= 1000 && value < 1000000) {
+              return `${value / 1000}K`; // Convert to "K" for thousands
+            } else if (value >= 1000000) {
+              return `${value / 1000000}M`; // Convert to "M" for millions
+            }
+            return value.toString(); // Convert the number to string if less than 1000
+          }
+        }
+      }
+    },
     parallelAxis: axis,
     series: {
       type: 'parallel',
       lineStyle: {
-        width: 4
+        width: 0.5,
+        opacity: 0.05
       },
       data: dataCols
     }
@@ -106,11 +124,9 @@ const EChartsUpdater = ({
 };
 
 /**
- * The react component of a box plot using eCharts
+ * The react component of a parallel-coordinate using eCharts
  */
 export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}) => {
-  const dispatch = useDispatch();
-
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
 
@@ -146,49 +162,11 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
     return getChartOption(filteredIndex, props, rawDataArray);
   }, [filteredIndex, props, rawDataArray]);
 
-  const bindEvents = {
-    // click: function (params: any) {
-    //   console.log('click', params);
-    //   const ids = params.data.ids;
-    //   // dispatch action to highlight the selected ids
-    //   dispatch({
-    //     type: 'SET_FILTER_INDEXES',
-    //     payload: {dataLabel: tableName, filteredIndex: ids}
-    //   });
-    // },
-    brushSelected: function (params: any) {
-      const brushed = [];
-      const brushComponent = params.batch[0];
-      for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-        const rawIndices = brushComponent.selected[sIdx].dataIndex;
-        // merge rawIndices to brushed
-        brushed.push(...rawIndices);
-      }
-      console.log('brushSelected', brushed);
-
-      // check if this plot is in state.plots
-      if (validPlot && brushed.length === 0) {
-        // reset options
-        const chart = eChartsRef.current;
-        if (chart) {
-          const chartInstance = chart.getEchartsInstance();
-          const updatedOption = getChartOption(null, props, rawDataArray);
-          chartInstance.setOption(updatedOption);
-        }
-      }
-      // dispatch action to highlight the selected ids
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: brushed}
-      });
-    }
-    // brushEnd: function (params: any) {
-    //   console.log('brushEnd');
-    // }
-  };
-
   // get reference of echarts
   const eChartsRef = useRef<ReactEChartsCore>(null);
+
+  // dynamically increase height with set max
+  const height = 175 + Math.min(props.variables.length - 2, 3) * 25;
 
   return (
     <Card className="my-4" shadow="none">
@@ -203,10 +181,7 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
           notMerge={true}
           lazyUpdate={true}
           theme={theme}
-          // onChartReady={this.onChartReadyCallback}
-          onEvents={bindEvents}
-          // opts={}
-          style={{height: '200px', width: '100%'}}
+          style={{height: height + 'px', width: '100%'}}
           ref={eChartsRef}
         />
         {validPlot && (

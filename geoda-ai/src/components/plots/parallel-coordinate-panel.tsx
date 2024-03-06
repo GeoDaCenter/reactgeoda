@@ -6,9 +6,6 @@ import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {Key, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
-import {MAP_ID} from '@/constants';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {CreateParallelCoordinateProps} from '@/utils/parallel-coordinate-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 
@@ -26,29 +23,20 @@ export function ParallelCoordinatePanel() {
 
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
-  // use selector to get dataContainer
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
+
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // on create pcp
   const onCreateParallelCoordinate = () => {
+    // Must have at least 2 variables in order to create a pcp
+    if (variables.length < 2) {
+      return;
+    }
+
     // Updated function name
     console.log('Create PCP'); // Updated log message
-    // get data from variable
-    const data: CreateParallelCoordinateProps['data'] = variables.reduce(
-      (prev: CreateParallelCoordinateProps['data'], cur: string) => {
-        const values = getColumnData(cur, dataContainer);
-        prev[cur] = values;
-        return prev;
-      },
-      {}
-    );
 
-    // get hinge value as number
-    const boundIQR = parseFloat('1');
     // generate random id for pcp
     const id = Math.random().toString(36).substring(7);
     // dispatch action to create pcp and add to store
@@ -109,7 +97,7 @@ export function ParallelCoordinatePanel() {
             color="warning"
             classNames={{}}
             size="md"
-            selectedKey={showPlotsManagement ? 'plot-management' : 'parallel-coordinate-creation'} // Updated key value
+            selectedKey={showPlotsManagement ? 'plot-management' : 'parallel-coordinate-creation'}
             onSelectionChange={onTabChange}
           >
             <Tab
