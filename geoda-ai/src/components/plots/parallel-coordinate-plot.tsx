@@ -13,7 +13,7 @@ import {
   DataZoomInsideComponent
 } from 'echarts/components';
 import {CanvasRenderer} from 'echarts/renderers';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {Filter} from '@kepler.gl/types';
 import {ParallelChart} from 'echarts/charts';
 import {GeoDaState} from '@/store';
