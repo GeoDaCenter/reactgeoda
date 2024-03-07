@@ -3,9 +3,8 @@ import {Accordion, AccordionItem} from '@nextui-org/react';
 import {useSelector} from 'react-redux';
 import {useMemo} from 'react';
 
-import {getNumericFieldNames} from '@/utils/data-utils';
+import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
-import {MAP_ID} from '@/constants';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {LocalMoranPanel, accordionItemClasses} from './local-moran-panel';
@@ -16,15 +15,14 @@ const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running LISA analy
 export function LisaPanel() {
   const intl = useIntl();
 
-  const geodaState = useSelector((state: GeoDaState) => state);
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(tableName, geodaState.keplerGl[MAP_ID].visState);
+    const fieldNames = getNumericFieldNames(layer);
     return fieldNames;
-  }, [geodaState.keplerGl, tableName]);
+  }, [layer]);
 
   return (
     <RightPanelContainer
