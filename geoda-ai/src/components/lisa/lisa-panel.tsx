@@ -5,7 +5,6 @@ import {useMemo} from 'react';
 
 import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
-import {MAP_ID} from '@/constants';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {LocalMoranPanel, accordionItemClasses} from './local-moran-panel';
