@@ -74,9 +74,6 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
-          echo ${{ github.event.head_commit.message }}
-          echo ${{ contains(github.event.head_commit.message, '[Preview]') }}
-     
       - name: Get Head Commit Message
         id: get_head_commit_message
         run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> $GITHUB_ENV
