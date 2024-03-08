@@ -36,7 +36,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
-      'geoda-wasm': resolve(__dirname, '../../geoda-lib/js'),
+      'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,
@@ -99,7 +99,7 @@ const nextConfig = {
       new CopyPlugin({
         patterns: [
           {
-            from: resolve(__dirname, '../../geoda-lib/js/dist/geoda.wasm'),
+            from: resolve(__dirname, '../../geoda-lib/src/js/dist/geoda.wasm'),
             to: 'public/geoda.wasm'
           }
         ]
