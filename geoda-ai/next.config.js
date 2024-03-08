@@ -1,5 +1,5 @@
 const {resolve} = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
+// const CopyPlugin = require('copy-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -18,7 +18,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production'
   },
   webpack: config => {
-    // This following line is to support WASM modules
+    // Support WASM modules for duckdb and geoda
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true,
@@ -28,8 +28,12 @@ const nextConfig = {
     config.output.publicPath = '/_next/';
     config.module.rules.push({
       test: /\.wasm/,
-      type: 'asset/resource'
+      type: 'asset/resource',
       // type: 'webassembly/async'
+      generator: {
+        // specify the output location of the wasm files
+        filename: 'static/chunks/app/mapland/[name][ext]'
+      }
     });
 
     // Configure to use local version of Kepler.gl
@@ -94,17 +98,17 @@ const nextConfig = {
     // This is to avoid error when using GeoDaWASM
     config.resolve.fallback = {fs: false};
 
-    // Use copyPlugin to copy static file to public folder
-    config.plugins.push(
-      new CopyPlugin({
-        patterns: [
-          {
-            from: resolve(__dirname, '../../geoda-lib/src/js/dist/geoda.wasm'),
-            to: 'public/geoda.wasm'
-          }
-        ]
-      })
-    );
+    // discard: Use copyPlugin to copy static file to public folder
+    // config.plugins.push(
+    //   new CopyPlugin({
+    //     patterns: [
+    //       {
+    //         from: resolve(__dirname, '../../geoda-lib/src/js/dist/geoda.wasm'),
+    //         to: 'public/geoda.wasm'
+    //       }
+    //     ]
+    //   })
+    // );
 
     return config;
   }
