@@ -52,7 +52,7 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
     if (binaryGeometries && binaryGeometryType) {
       if (weightsType === 'contiguity') {
         const isQueen = contiguityType === 'queen';
-        const useCentroids = false; // binaryGeometryType.point || binaryGeometryType.line;
+        const useCentroids = binaryGeometryType.point || binaryGeometryType.line;
         const weights = await getContiguityNeighborsFromBinaryGeometries({
           binaryGeometryType,
           // @ts-ignore
@@ -65,7 +65,9 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
         });
         const weightsMeta: WeightsMeta = {
           ...getMetaFromWeights(weights),
-          id: `w-${contiguityType}-contiguity`,
+          id: `w-${contiguityType}-contiguity-${orderOfContiguity}${
+            includeLowerOrder ? '-lower' : ''
+          }`,
           type: contiguityType === 'queen' ? 'queen' : 'rook',
           symmetry: 'symmetric',
           order: orderOfContiguity,
