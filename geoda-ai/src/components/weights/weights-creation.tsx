@@ -9,10 +9,17 @@ import {
   Slider,
   Checkbox,
   Spacer,
-  Button
+  Button,
+  RadioGroup,
+  Radio
 } from '@nextui-org/react';
 import {GeojsonLayer} from '@kepler.gl/layers';
-import {WeightsMeta, getMetaFromWeights, getNearestNeighborsFromBinaryGeometries} from 'geoda-wasm';
+import {
+  WeightsMeta,
+  getMetaFromWeights,
+  getNearestNeighborsFromBinaryGeometries,
+  getContiguityNeighborsFromBinaryGeometries
+} from 'geoda-wasm';
 
 import {addWeights} from '@/actions';
 
@@ -24,60 +31,128 @@ type WeightsCreationProps = {
 export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const dispatch = useDispatch();
 
-  // const [selectedID, setSelectedID] = React.useState<string | null>(null);
+  const [weightsType, setWeightsType] = React.useState<string>('contiguity');
   const [inputK, setInputK] = React.useState<number>(4);
+  const [contiguityType, setContiguityType] = React.useState<string>('queen');
+  const [orderOfContiguity, setOrderContiguity] = React.useState<number>(1);
+  const [precisionThreshold, setPrecisionThreshold] = React.useState<number>(0);
+  const [includeLowerOrder, setIncludeLowerOrder] = React.useState<boolean>(false);
 
-  // const onSelectIDChange = (key: React.Key) => {
-  // setSelectedID(key as string);
-  // };
+  const onWeightsSelectionChange = (key: React.Key) => {
+    setWeightsType(key as string);
+  };
+
+  const onContiguityTypeChange = (value: string) => {
+    setContiguityType(value);
+  };
 
   const onCreateWeights = async () => {
-    console.log('create weights');
-    const k = inputK;
     const binaryGeometryType = keplerLayer?.meta.featureTypes;
     const binaryGeometries = keplerLayer?.dataToFeature;
     if (binaryGeometries && binaryGeometryType) {
-      const weights = await getNearestNeighborsFromBinaryGeometries({
-        k,
-        binaryGeometryType,
-        // @ts-ignore
-        binaryGeometries
-      });
-      const weightsMeta: WeightsMeta = {
-        ...getMetaFromWeights(weights),
-        id: `w-${k}-nn`,
-        type: 'knn',
-        symmetry: 'asymmetric',
-        k
-      };
-      // dispatch action to update redux state state.root.weights
-      dispatch(addWeights({weights, weightsMeta}));
+      if (weightsType === 'contiguity') {
+        const isQueen = contiguityType === 'queen';
+        const useCentroids = false; // binaryGeometryType.point || binaryGeometryType.line;
+        const weights = await getContiguityNeighborsFromBinaryGeometries({
+          binaryGeometryType,
+          // @ts-ignore
+          binaryGeometries,
+          isQueen,
+          useCentroids,
+          precisionThreshold,
+          orderOfContiguity,
+          includeLowerOrder
+        });
+        const weightsMeta: WeightsMeta = {
+          ...getMetaFromWeights(weights),
+          id: `w-${contiguityType}-contiguity`,
+          type: contiguityType === 'queen' ? 'queen' : 'rook',
+          symmetry: 'symmetric',
+          order: orderOfContiguity,
+          includeLowerOrder,
+          threshold: precisionThreshold
+        };
+        // dispatch action to update redux state state.root.weights
+        dispatch(addWeights({weights, weightsMeta}));
+      } else if (weightsType === 'distance') {
+        const k = inputK;
+        const weights = await getNearestNeighborsFromBinaryGeometries({
+          k,
+          binaryGeometryType,
+          // @ts-ignore
+          binaryGeometries
+        });
+        const weightsMeta: WeightsMeta = {
+          ...getMetaFromWeights(weights),
+          id: `w-${k}-nn`,
+          type: 'knn',
+          symmetry: 'asymmetric',
+          k
+        };
+        // dispatch action to update redux state state.root.weights
+        dispatch(addWeights({weights, weightsMeta}));
+      }
     }
   };
 
   return (
     <>
       <div className="flex flex-col gap-2 ">
-        {/* <div className="flex w-full flex-wrap gap-4 md:flex-nowrap">
-          <Autocomplete
-            label="Weights ID"
-            placeholder="Select ID variable"
-            className="max-w"
-            radius="sm"
-            defaultItems={validFieldNames}
-            onSelectionChange={onSelectIDChange}
+        <div className="mt-4 flex w-full flex-col text-small text-default-600">
+          <Tabs
+            aria-label="Options"
+            onSelectionChange={onWeightsSelectionChange}
+            defaultSelectedKey={weightsType || 'contiguity'}
           >
-            {item => <AutocompleteItem key={item.value}>{item.label}</AutocompleteItem>}
-          </Autocomplete>
-        </div> */}
-        <div className="mt-4 flex w-full flex-col">
-          <Tabs aria-label="Options" selectedKey="distance">
             <Tab key="contiguity" title="Contiguity Weight">
               <Card className="rounded">
                 <CardBody>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                  incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                  exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                  <div className="flex flex-col gap-2 ">
+                    <RadioGroup
+                      label=""
+                      size="sm"
+                      defaultValue={contiguityType}
+                      onValueChange={onContiguityTypeChange}
+                    >
+                      <Radio value="queen">Queen contiguity</Radio>
+                      <Radio value="rook">Rook contiguity</Radio>
+                    </RadioGroup>
+                    <div className="flex flex-row items-center gap-2">
+                      <p className="text-small text-default-600 ">Order of contiguity</p>
+                      <Input
+                        size="sm"
+                        type="number"
+                        label=""
+                        labelPlacement="outside-left"
+                        className="w-[120px]"
+                        value={`${orderOfContiguity}`}
+                        onInput={e => setOrderContiguity(parseInt(e.currentTarget.value))}
+                      />
+                    </div>
+                    <Checkbox
+                      size="sm"
+                      isSelected={includeLowerOrder}
+                      onValueChange={e => setIncludeLowerOrder(e)}
+                    >
+                      Include lower Orders
+                    </Checkbox>
+                    <div className="flex flex-row items-center gap-2">
+                      <Checkbox size="sm" className="grow">
+                        Precivion threshold
+                      </Checkbox>
+                      <Input
+                        size="sm"
+                        type="number"
+                        label=""
+                        placeholder="0"
+                        defaultValue="0"
+                        labelPlacement="outside-left"
+                        className="w-[120px]"
+                        value={`${precisionThreshold}`}
+                        onInput={e => setPrecisionThreshold(parseInt(e.currentTarget.value))}
+                      />
+                    </div>
+                  </div>
                 </CardBody>
               </Card>
             </Tab>
