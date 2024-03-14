@@ -1,6 +1,25 @@
 import OpenAI from 'openai';
+import {ReactNode} from 'react';
 
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
+export interface MessageImageContentProps {
+  src?: string;
+  width?: string | number;
+  height?: string | number;
+  alt?: string;
+}
+export type MessageDirection = 'incoming' | 'outgoing' | 0 | 1;
+export type MessageType = 'html' | 'text' | 'image' | 'custom';
+export type MessagePayload = string | Record<string, any> | MessageImageContentProps | ReactNode;
+
+export interface MessageModel {
+  message?: string;
+  sentTime?: string;
+  sender?: string;
+  direction: MessageDirection;
+  position: 'single' | 'first' | 'normal' | 'last' | 0 | 1 | 2 | 3;
+  type?: MessageType;
+  payload?: MessagePayload;
+}
 
 const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
 
@@ -27,7 +46,11 @@ export async function initOpenAI(apiKey: string) {
 
 // key is the name of the function, value is the function itself
 export type CustomFunctions = {
-  [key: string]: (...args: any[]) => any;
+  [key: string]: (
+    ...args: any[]
+  ) =>
+    | {result: string | Object; error?: string}
+    | Promise<{result: string | Object; error?: string}>;
 };
 
 export type CustomFunctionCall = {
@@ -102,7 +125,7 @@ export async function processMessage({
             lastCustomFunctionCall = {functionName, functionArgs: args, output};
           }
         }
-        if (!func || !output.result) {
+        if (!func || !output?.result) {
           const errorMessage = `The function ${functionName} is not defined. You can contact GeoDa.AI team for assistance.`;
           console.error(errorMessage);
           // push an empty output
