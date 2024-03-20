@@ -190,7 +190,7 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
     } else {
       return undefined;
     }
-  }, [eChartsRef.current]);
+  }, [dispatch, props, rawDataArray, tableName, validPlot]);
 
   // dynamically increase height with set max
   const DEFAULT_PCP_HEIGHT = 175;
