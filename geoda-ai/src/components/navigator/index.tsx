@@ -95,6 +95,8 @@ export function Navigator() {
         case 'icon-boxplot':
           dispatch(setPropertyPanel(PanelName.BOXPLOT));
           break;
+        case 'icon-pcp':
+          dispatch(setPropertyPanel(PanelName.PARALLEL_COORDINATE));
       }
       event.stopPropagation();
     },

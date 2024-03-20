@@ -3,8 +3,14 @@ import {Tab, Tabs} from '@nextui-org/react';
 
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
-import {HistogramPlotProps, BoxPlotProps, PlotProps} from '@/actions/plot-actions';
+import {
+  HistogramPlotProps,
+  BoxPlotProps,
+  ParallelCoordinateProps,
+  PlotProps
+} from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
+import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
 
 // type guard function to check if the plot is a histogram plot
 function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
@@ -14,6 +20,11 @@ function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
 // type guard function to check if the plot is a boxplot
 function isBoxPlot(plot: PlotProps): plot is BoxPlotProps {
   return plot.type === 'boxplot';
+}
+
+// type guard function to check if the plot is a boxplot
+function isParallelCoordinate(plot: PlotProps): plot is ParallelCoordinateProps {
+  return plot.type === 'parallel-coordinate';
 }
 
 export const PlotManagementPanel = () => {
@@ -37,6 +48,8 @@ export const PlotManagementPanel = () => {
               return <HistogramPlot key={plot.id} props={plot} />;
             } else if (isBoxPlot(plot)) {
               return <BoxPlot key={plot.id} props={plot} />;
+            } else if (isParallelCoordinate(plot)) {
+              return <ParallelCoordinatePlot key={plot.id} props={plot} />;
             }
           })}
         </Tab>
@@ -73,6 +86,25 @@ export const PlotManagementPanel = () => {
             .map(plot => {
               if (isBoxPlot(plot)) {
                 return <BoxPlot key={plot.id} props={plot} />;
+              }
+            })}
+        </Tab>
+        <Tab
+          key="parallel-coordinate"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Parallel Coordinate</span>
+            </div>
+          }
+          className="p-2"
+        >
+          {plots
+            .filter(plot => plot.type === 'parallel-coordinate')
+            .toReversed()
+            .map(plot => {
+              if (isParallelCoordinate(plot)) {
+                console.log(plot);
+                return <ParallelCoordinatePlot key={plot.id} props={plot} />;
               }
             })}
         </Tab>

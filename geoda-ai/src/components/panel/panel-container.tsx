@@ -12,6 +12,7 @@ import {WeightsPanel} from '../weights/weights-panel';
 import {LisaPanel} from '../lisa/lisa-panel';
 import {HistogramPanel} from '../plots/histogram-panel';
 import {BoxplotPanel} from '../plots/boxplot-panel';
+import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
@@ -23,7 +24,8 @@ export enum PanelName {
   WEIGHTS = 'Weights',
   LISA = 'Lisa',
   HISTOGRAM = 'Histogram',
-  BOXPLOT = 'Boxplot'
+  BOXPLOT = 'Boxplot',
+  PARALLEL_COORDINATE = 'Parallel Coordinate'
 }
 
 export const PanelContainer = () => {
@@ -61,6 +63,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.LISA && <LisaPanel />}
         {propertyPanelName === PanelName.HISTOGRAM && <HistogramPanel />}
         {propertyPanelName === PanelName.BOXPLOT && <BoxplotPanel />}
+        {propertyPanelName === PanelName.PARALLEL_COORDINATE && <ParallelCoordinatePanel />}
       </div>
     </div>
   ) : null;
