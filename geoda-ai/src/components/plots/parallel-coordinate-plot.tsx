@@ -3,17 +3,8 @@ import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import {EChartsOption} from 'echarts';
-import {
-  GridComponent,
-  ToolboxComponent,
-  TooltipComponent,
-  BrushComponent,
-  TitleComponent,
-  DataZoomComponent,
-  DataZoomInsideComponent
-} from 'echarts/components';
 import {CanvasRenderer} from 'echarts/renderers';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {Filter} from '@kepler.gl/types';
 import {ParallelChart} from 'echarts/charts';
 import {GeoDaState} from '@/store';
@@ -23,17 +14,7 @@ import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 
 // Register the required components
-echarts.use([
-  TitleComponent,
-  TooltipComponent,
-  ToolboxComponent,
-  BrushComponent,
-  GridComponent,
-  DataZoomComponent,
-  DataZoomInsideComponent,
-  CanvasRenderer,
-  ParallelChart
-]);
+echarts.use([CanvasRenderer, ParallelChart]);
 
 function getChartOption(
   filteredIndex: Uint8ClampedArray | null,
@@ -54,19 +35,16 @@ function getChartOption(
     parallel: {
       left: '5%',
       right: '35%',
-      top: '6%',
+      top: '23%',
       bottom: '15%',
       layout: 'vertical',
       parallelAxisDefault: {
         axisLabel: {
           formatter: (value: number): string => {
-            // The logic remains the same, but with explicit typing
-            if (value >= 1000 && value < 1000000) {
-              return `${value / 1000}K`; // Convert to "K" for thousands
-            } else if (value >= 1000000) {
-              return `${value / 1000000}M`; // Convert to "M" for millions
-            }
-            return value.toString(); // Convert the number to string if less than 1000
+            return Intl.NumberFormat('en-US', {
+              notation: 'compact',
+              maximumFractionDigits: 1
+            }).format(value);
           }
         }
       }
@@ -76,12 +54,21 @@ function getChartOption(
       type: 'parallel',
       lineStyle: {
         width: 0.5,
-        opacity: 0.05
+        opacity: 0.5
       },
       data: dataCols
-    }
+    },
+    grid: [
+      {
+        left: '3%',
+        right: '5%',
+        top: '20%',
+        bottom: '0%',
+        containLabel: true,
+        height: 'auto'
+      }
+    ]
   };
-  console.log('getChartOption', option);
   return option;
 }
 
@@ -127,6 +114,8 @@ const EChartsUpdater = ({
  * The react component of a parallel-coordinate using eCharts
  */
 export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}) => {
+  const dispatch = useDispatch();
+
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
 
@@ -165,8 +154,49 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
   // get reference of echarts
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
+  useEffect(() => {
+    // Ensure that the chart instance is available
+    if (eChartsRef.current) {
+      const chartInstance = eChartsRef.current.getEchartsInstance();
+
+      // Define the event handler function
+      const onAxisAreaSelected = () => {
+        // @ts-ignore todo: will fix later
+        const series = chartInstance.getModel().getSeries()[0];
+        const brushed = series.getRawIndicesByActiveState('active');
+
+        // When user clears selection on map also clear selection on chart
+        if (validPlot && brushed.length === 0) {
+          // reset options
+          const chart = eChartsRef.current;
+          if (chart) {
+            const chartInstance = chart.getEchartsInstance();
+            const updatedOption = getChartOption(null, props, rawDataArray);
+            chartInstance.setOption(updatedOption);
+          }
+        }
+        // dispatch action to highlight the selected ids
+        dispatch({
+          type: 'SET_FILTER_INDEXES',
+          payload: {dataLabel: tableName, filteredIndex: brushed}
+        });
+      };
+
+      // Attach the event listener
+      chartInstance.on('axisareaselected', onAxisAreaSelected);
+      return () => {
+        chartInstance.off('axisareaselected', onAxisAreaSelected);
+      };
+    } else {
+      return undefined;
+    }
+  }, [eChartsRef.current]);
+
   // dynamically increase height with set max
-  const height = 175 + Math.min(props.variables.length - 2, 3) * 25;
+  const DEFAULT_PCP_HEIGHT = 175;
+  const PCP_HEIGHT_PER_VARIABLE = 25;
+  const height =
+    DEFAULT_PCP_HEIGHT + Math.min(props.variables.length - 2, 3) * PCP_HEIGHT_PER_VARIABLE;
 
   return (
     <Card className="my-4" shadow="none">

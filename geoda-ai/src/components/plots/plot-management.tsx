@@ -85,7 +85,6 @@ export const PlotManagementPanel = () => {
             .toReversed()
             .map(plot => {
               if (isBoxPlot(plot)) {
-                console.log(plot);
                 return <BoxPlot key={plot.id} props={plot} />;
               }
             })}

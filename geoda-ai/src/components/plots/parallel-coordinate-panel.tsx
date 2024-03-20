@@ -35,7 +35,6 @@ export function ParallelCoordinatePanel() {
     }
 
     // Updated function name
-    console.log('Create PCP'); // Updated log message
 
     // generate random id for pcp
     const id = Math.random().toString(36).substring(7);
@@ -79,11 +78,11 @@ export function ParallelCoordinatePanel() {
     <RightPanelContainer
       title={intl.formatMessage({
         id: 'plot.parallel-coordinate.title',
-        defaultMessage: 'Parallel Coordinate'
+        defaultMessage: 'Parallel Coordinate Plot'
       })}
       description={intl.formatMessage({
         id: 'plot.parallel-coordinate.description',
-        defaultMessage: 'Create and manage your parallel coordinates'
+        defaultMessage: 'Create and manage your parallel coordinate plots'
       })}
       icon={null}
     >
@@ -95,7 +94,6 @@ export function ParallelCoordinatePanel() {
             aria-label="Options"
             variant="solid"
             color="warning"
-            classNames={{}}
             size="md"
             selectedKey={showPlotsManagement ? 'plot-management' : 'parallel-coordinate-creation'}
             onSelectionChange={onTabChange}
@@ -104,7 +102,7 @@ export function ParallelCoordinatePanel() {
               key="parallel-coordinate-creation"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Create Parallel Coordinate</span>
+                  <span>Create Parallel Coordinate Plot</span>
                 </div>
               }
             >
@@ -121,7 +119,7 @@ export function ParallelCoordinatePanel() {
                     className="bg-rose-900"
                     disabled={variables.length === 0}
                   >
-                    Create Parallel Coordinate
+                    Create Parallel Coordinate Plot
                   </Button>
                 </CardBody>
               </Card>
