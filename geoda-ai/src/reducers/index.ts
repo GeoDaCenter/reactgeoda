@@ -24,6 +24,7 @@ import {
 import {uiReducer} from './ui-reducer';
 import {weightsReducer} from './weights-reducer';
 import {plotReducer} from './plot-reducer';
+import {regressionReducer} from './regression-reducer';
 
 const rootReducer = combineReducers({
   language: languageReducer,
@@ -42,7 +43,8 @@ const rootReducer = combineReducers({
   choroplethLayer: choroplethLayerReducer,
   uiState: uiReducer,
   weights: weightsReducer,
-  plots: plotReducer
+  plots: plotReducer,
+  regressions: regressionReducer
 });
 
 export default rootReducer;

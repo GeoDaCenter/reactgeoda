@@ -9,6 +9,7 @@ import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
 import {WeightsProps} from '@/actions/weights-actions';
 import {PlotProps} from '@/actions/plot-actions';
+import {RegressionProps} from '@/actions/regression-actions';
 
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
@@ -42,6 +43,7 @@ export type GeoDaState = {
     };
     weights: Array<WeightsProps>;
     plots: Array<PlotProps>;
+    regressions: Array<RegressionProps>;
   };
 };
 

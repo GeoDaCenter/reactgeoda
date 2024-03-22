@@ -15,7 +15,8 @@ import {
   IconParallel,
   IconScatterplot,
   IconTable,
-  IconWeights
+  IconWeights,
+  IconSpreg
 } from './icons';
 import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
@@ -94,6 +95,9 @@ export function Navigator() {
           break;
         case 'icon-boxplot':
           dispatch(setPropertyPanel(PanelName.BOXPLOT));
+          break;
+        case 'icon-spreg':
+          dispatch(setPropertyPanel(PanelName.SPREG));
           break;
         case 'icon-pcp':
           dispatch(setPropertyPanel(PanelName.PARALLEL_COORDINATE));
@@ -257,6 +261,18 @@ export function Navigator() {
             isDisabled={!isFileLoaded}
           >
             <IconLisa />
+          </Button>
+        </Tooltip>
+        <Tooltip key="spregTooltip" placement="right" content="Spatial Regression">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-spreg"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconSpreg />
           </Button>
         </Tooltip>
         <Tooltip key="chatgptTooltip" placement="right" content="GeoDa.AI ChatBot">
