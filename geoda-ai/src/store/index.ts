@@ -11,7 +11,11 @@ import {WeightsProps} from '@/actions/weights-actions';
 import {PlotProps} from '@/actions/plot-actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RawFileDataProps} from '@/actions';
+import {MessageModel} from '@chatscope/chat-ui-kit-react';
 
+/**
+ * Define the State of the Redux store
+ */
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
   root: {
@@ -32,6 +36,9 @@ export type GeoDaState = {
     weights: Array<WeightsProps>;
     plots: Array<PlotProps>;
     regressions: Array<RegressionProps>;
+    ai: {
+      messages: Array<MessageModel>;
+    };
   };
 };
 
