@@ -1,6 +1,5 @@
 import {useCallback} from 'react';
 
-import {Table as ArrowTable} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
