@@ -29,6 +29,9 @@ import {WarningBox} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {addRegression, RegressionProps} from '@/actions/regression-actions';
 import {runRegression} from '@/utils/regression-utils';
+import {printLinearRegressionResultUsingMarkdown} from 'geoda-wasm';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const NO_WEIGHTS_MESSAGE =
   'Please create a spatial weights matrix before running regression analysis.';
@@ -38,20 +41,7 @@ const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression
 const formatNumber = (num: number) => num.toFixed(4);
 
 // format dependent variable and independent variables as y ~ x1 + x2 + x3
-const formatEquation = (y: string, x: string[]) => `${y} ~ ${x.join(' + ')}`;
-
-// function to print out the REGRESSION DIAGNOSTICS as string, if there is object, it will be printed as key: value and new line
-const printRegressionDiagnostics = (diagnostics: any) => {
-  return Object.entries(diagnostics)
-    .map(([key, value]) => {
-      if (typeof value === 'object') {
-        // if it is an object, print it as key: value one by one in new line
-        return `${key}: ${JSON.stringify(value)}`;
-      }
-      return `${key}: ${value}`;
-    })
-    .join('\n');
-};
+const formatEquation = (y: string, x: string[]) => `${y} ~ CONSTANT + ${x.join(' + ')}`;
 
 export function SpregPanel() {
   const intl = useIntl();
@@ -242,13 +232,15 @@ export function SpregPanel() {
                         </small>
                       </CardHeader>
                       <CardBody>
-                        <ScrollShadow className="h-[400px] w-full text-small">
+                        <ScrollShadow className="h-[400px] w-[800px] text-small">
                           <div className="flex w-full flex-col gap-2 rounded-none text-small">
                             <Table className="w-full rounded-none" shadow="none">
                               <TableHeader>
                                 <TableColumn>Variable</TableColumn>
                                 <TableColumn>Coefficient</TableColumn>
                                 <TableColumn>Probability</TableColumn>
+                                <TableColumn>Std. Error</TableColumn>
+                                <TableColumn>t-Statistics</TableColumn>
                               </TableHeader>
                               <TableBody className="text-small">
                                 {regression.data.result['Variable Coefficients'].map(stats => (
@@ -256,16 +248,17 @@ export function SpregPanel() {
                                     <TableCell className="text-small">{stats.Variable}</TableCell>
                                     <TableCell>{formatNumber(stats.Coefficient)}</TableCell>
                                     <TableCell>{formatNumber(stats.Probability)}</TableCell>
+                                    <TableCell>{formatNumber(stats['Std Error'])}</TableCell>
+                                    <TableCell>{formatNumber(stats['t-Statistic'])}</TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
                             </Table>
-                            <p className="text-small font-bold uppercase">Regression Diagnostics</p>
-                            <pre className="text-small">
-                              {printRegressionDiagnostics(
-                                regression.data.result['REGRESSION DIAGNOSTICS']
-                              )}
-                            </pre>
+                            <div className="p-4 font-mono text-tiny">
+                              <Markdown remarkPlugins={[remarkGfm]}>
+                                {printLinearRegressionResultUsingMarkdown(regression.data.result)}
+                              </Markdown>
+                            </div>
                           </div>
                         </ScrollShadow>
                       </CardBody>
