@@ -10,7 +10,7 @@ export async function runRegression({
   weights,
   datasetName
 }: LinearRegressionProps): Promise<RegressionDataProps> {
-  const result = await linearRegression({x, y, xNames, yName, weights, datasetName});
+  const result = await linearRegression({x, y, xNames, yName, weightsId, weights, datasetName});
   return {
     dependentVariable: yName,
     independentVariables: xNames,

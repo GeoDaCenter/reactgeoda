@@ -10,16 +10,12 @@ import {
   CardBody,
   Chip,
   ScrollShadow,
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-  CardHeader
+  CardHeader,
+  RadioGroup,
+  Radio
 } from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Key, useMemo, useState} from 'react';
+import {Key, useEffect, useMemo, useState} from 'react';
 
 import {getColumnData, getDataContainer, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
@@ -33,15 +29,10 @@ import {printLinearRegressionResultUsingMarkdown} from 'geoda-wasm';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-const NO_WEIGHTS_MESSAGE =
-  'Please create a spatial weights matrix before running regression analysis.';
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
-// format the number to display 4 decimal places
-const formatNumber = (num: number) => num.toFixed(4);
-
 // format dependent variable and independent variables as y ~ x1 + x2 + x3
-const formatEquation = (y: string, x: string[]) => `${y} ~ CONSTANT + ${x.join(' + ')}`;
+const formatEquation = (y: string, x: string[]) => `${y} ~ ${x.join(' + ')}`;
 
 export function SpregPanel() {
   const intl = useIntl();
@@ -66,6 +57,7 @@ export function SpregPanel() {
   const [selectedWeight, setSelectedWeight] = useState<string>(
     weights.length > 0 ? weights[weights.length - 1].weightsMeta.id || '' : ''
   );
+  const [model, setModel] = useState('classic');
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
@@ -87,24 +79,19 @@ export function SpregPanel() {
 
   // handle onRunRegression callback
   const onRunRegression = async () => {
-    console.log('Run regression');
     // get data from Y variable
     const yData = getColumnData(yVariable, dataContainer);
     // get data for X variables
     const xData = xVariables.map((variable: string) => getColumnData(variable, dataContainer));
     // get weights data
     const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === selectedWeight);
-    if (!selectedWeightData) {
-      console.error('Selected weight not found');
-      return;
-    }
-    const w = selectedWeightData.weights;
+    const w = selectedWeightData?.weights;
     // run regression analysis
     const regression = await runRegression({
       x: xData,
       y: yData,
       weights: w,
-      weightsId: selectedWeight,
+      ...(w ? {weightsId: selectedWeight} : {}),
       xNames: xVariables,
       yName: yVariable,
       datasetName: tableName
@@ -123,6 +110,14 @@ export function SpregPanel() {
     }
   };
 
+  // monitor state.root.regressions, if regressions.length changed, update the tab title
+  const regressionsLength = regressions?.length;
+  useEffect(() => {
+    if (regressionsLength) {
+      setShowRegressionManagement(true);
+    }
+  }, [regressionsLength]);
+
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -136,8 +131,6 @@ export function SpregPanel() {
     >
       {numericColumns.length === 0 ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
-      ) : weights.length === 0 ? (
-        <WarningBox message={NO_WEIGHTS_MESSAGE} type="warning" />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -159,7 +152,7 @@ export function SpregPanel() {
             >
               <Card>
                 <CardBody>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 text-sm">
                     <Select
                       label="Select Dependent Variable"
                       className="max-w"
@@ -177,7 +170,8 @@ export function SpregPanel() {
                     />
                     <Select
                       label="Select Spatial Weights"
-                      className="max-w mb-6"
+                      className="max-w"
+                      isDisabled={weights.length === 0}
                       onSelectionChange={onSelectWeights}
                       selectedKeys={[
                         selectedWeight ?? weights[weights.length - 1].weightsMeta.id ?? ''
@@ -189,7 +183,23 @@ export function SpregPanel() {
                         </SelectItem>
                       ))}
                     </Select>
-                    <Spacer y={8} />
+                    <RadioGroup
+                      label="Select model"
+                      size="sm"
+                      className="ml-2"
+                      value={model}
+                      onValueChange={setModel}
+                    >
+                      <Radio value="classic" defaultChecked={true}>
+                        Classic
+                      </Radio>
+                      <Radio value="lag" isDisabled={weights.length === 0}>
+                        Spatial Lag
+                      </Radio>
+                      <Radio value="error" isDisabled={weights.length === 0}>
+                        Spatial Error
+                      </Radio>
+                    </RadioGroup>
                     <Button
                       onClick={onRunRegression}
                       radius="sm"
@@ -218,52 +228,33 @@ export function SpregPanel() {
             >
               <div className="p-1">
                 <div className="flex flex-col gap-4">
-                  {regressions.map((regression: RegressionProps) => (
-                    <Card key={regression.id} className="p-0">
-                      <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-                        <p className="text-tiny font-bold uppercase">
-                          {regression.data.result.title}
-                        </p>
-                        <small className="text-default-500">
-                          {formatEquation(
-                            regression.data.result.dependentVariable,
-                            regression.data.result.independentVariables
-                          )}
-                        </small>
-                      </CardHeader>
-                      <CardBody>
-                        <ScrollShadow className="h-[400px] w-[800px] text-small">
-                          <div className="flex w-full flex-col gap-2 rounded-none text-small">
-                            <Table className="w-full rounded-none" shadow="none">
-                              <TableHeader>
-                                <TableColumn>Variable</TableColumn>
-                                <TableColumn>Coefficient</TableColumn>
-                                <TableColumn>Probability</TableColumn>
-                                <TableColumn>Std. Error</TableColumn>
-                                <TableColumn>t-Statistics</TableColumn>
-                              </TableHeader>
-                              <TableBody className="text-small">
-                                {regression.data.result['Variable Coefficients'].map(stats => (
-                                  <TableRow key={stats.Variable} className="text-small">
-                                    <TableCell className="text-small">{stats.Variable}</TableCell>
-                                    <TableCell>{formatNumber(stats.Coefficient)}</TableCell>
-                                    <TableCell>{formatNumber(stats.Probability)}</TableCell>
-                                    <TableCell>{formatNumber(stats['Std Error'])}</TableCell>
-                                    <TableCell>{formatNumber(stats['t-Statistic'])}</TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
-                            <div className="p-4 font-mono text-tiny">
-                              <Markdown remarkPlugins={[remarkGfm]}>
-                                {printLinearRegressionResultUsingMarkdown(regression.data.result)}
-                              </Markdown>
+                  {regressions.toReversed().map((regression: RegressionProps) => {
+                    const regReport = regression.data.result;
+                    return (
+                      <Card key={regression.id} className="p-0">
+                        <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+                          <p className="text-xs font-bold uppercase">{regReport.title}</p>
+                          <small className="text-default-500">
+                            {formatEquation(
+                              regReport.dependentVariable,
+                              regReport.independentVariables
+                            )}
+                          </small>
+                        </CardHeader>
+                        <CardBody>
+                          <ScrollShadow className="h-[400px] w-[500px]">
+                            <div className="flex w-full flex-col gap-2 rounded-none">
+                              <div className="p-4 font-mono text-tiny">
+                                <Markdown remarkPlugins={[remarkGfm]}>
+                                  {printLinearRegressionResultUsingMarkdown(regression.data.result)}
+                                </Markdown>
+                              </div>
                             </div>
-                          </div>
-                        </ScrollShadow>
-                      </CardBody>
-                    </Card>
-                  ))}
+                          </ScrollShadow>
+                        </CardBody>
+                      </Card>
+                    );
+                  })}
                 </div>
               </div>
             </Tab>
