@@ -27,6 +27,7 @@ import {HistogramDataProps, createHistogram} from './histogram-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
 import {CustomFunctions} from '@/ai/openai-utils';
+import {linearRegressionCallbackFunc} from './regression-utils';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
@@ -203,16 +204,18 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       isQueen: contiguityType === 'queen',
       useCentroids: binaryGeometryType.point || binaryGeometryType.line,
       precisionThreshold,
-      orderOfContiguity,
+      orderOfContiguity: orderOfContiguity || 1,
       includeLowerOrder
     });
 
     const weightsMeta: WeightsMeta = {
       ...getMetaFromWeights(weights),
-      id: `w-${contiguityType}-contiguity-${orderOfContiguity}${includeLowerOrder ? '-lower' : ''}`,
+      id: `w-${contiguityType}-contiguity-${orderOfContiguity || 1}${
+        includeLowerOrder ? '-lower' : ''
+      }`,
       type: contiguityType === 'queen' ? 'queen' : 'rook',
       symmetry: 'symmetric',
-      order: orderOfContiguity,
+      order: orderOfContiguity || 1,
       includeLowerOrder,
       threshold: precisionThreshold
     };
@@ -318,7 +321,9 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     };
   },
 
-  boxplot: boxplotFunction
+  boxplot: boxplotFunction,
+
+  linearRegression: linearRegressionCallbackFunc
 };
 
 export type BoxplotOutput = {

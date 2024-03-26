@@ -13,6 +13,7 @@ import {LisaPanel} from '../lisa/lisa-panel';
 import {HistogramPanel} from '../plots/histogram-panel';
 import {BoxplotPanel} from '../plots/boxplot-panel';
 import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel';
+import {SpregPanel} from '../spreg/spreg-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 
@@ -25,6 +26,7 @@ export enum PanelName {
   LISA = 'Lisa',
   HISTOGRAM = 'Histogram',
   BOXPLOT = 'Boxplot',
+  SPREG = 'Spatial Regression',
   PARALLEL_COORDINATE = 'Parallel Coordinate'
 }
 
@@ -64,6 +66,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.HISTOGRAM && <HistogramPanel />}
         {propertyPanelName === PanelName.BOXPLOT && <BoxplotPanel />}
         {propertyPanelName === PanelName.PARALLEL_COORDINATE && <ParallelCoordinatePanel />}
+        {propertyPanelName === PanelName.SPREG && <SpregPanel />}
       </div>
     </div>
   ) : null;
