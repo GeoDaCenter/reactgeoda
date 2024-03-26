@@ -2,7 +2,6 @@ import {useIntl} from 'react-intl';
 import {
   Select,
   SelectItem,
-  Spacer,
   Button,
   Tabs,
   Tab,

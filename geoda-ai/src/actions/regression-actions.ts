@@ -9,8 +9,8 @@ export type RegressionDataProps = {
   dependentVariable: string;
   independentVariables: string[];
   weights?: string;
-  dependentVariableData: number[];
-  independentVariablesData: number[][];
+  dependentVariableData?: number[];
+  independentVariablesData?: number[][];
   result: LinearRegressionResult;
 };
 
