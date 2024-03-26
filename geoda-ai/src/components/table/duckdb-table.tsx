@@ -66,7 +66,7 @@ export function DuckDBTableComponent() {
   const rawFileData = useSelector((state: GeoDaState) => state.root.file.rawFileData);
 
   // use current file name as the name of the table
-  const tableName = rawFileData.name;
+  const tableName = rawFileData.fileName;
 
   // get Kepler state from redux store
   const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);

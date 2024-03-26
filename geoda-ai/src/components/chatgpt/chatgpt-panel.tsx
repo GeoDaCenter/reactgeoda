@@ -17,7 +17,7 @@ export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 const ChatGPTPanel = () => {
   const intl = useIntl();
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   // get api key from state.root
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);

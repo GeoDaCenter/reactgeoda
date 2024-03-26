@@ -1,5 +1,6 @@
 import {FileCacheItem} from '@kepler.gl/processors';
 import {ProcessorResult} from '@kepler.gl/types';
+import {Table as ArrowTable} from 'apache-arrow';
 
 export enum FILE_ACTIONS {
   SET_FILE_DATA = 'SET_FILE_DATA',
@@ -27,8 +28,16 @@ export const setFileData = (data: ProcessorResult) => ({
   payload: data
 });
 
-export const setRawFileData = (data: any) => ({
-  // for jsgeoda
+export type RawFileDataProps = {
+  // the file name
+  fileName: string;
+  // the raw arrow table for duckdb
+  arrowTable: ArrowTable;
+  // the processed data for kepler.gl
+  arrowFormatData?: FileCacheItem;
+};
+export const setRawFileData = (data: RawFileDataProps) => ({
+  // arrow data
   type: FILE_ACTIONS.SET_RAW_FILE_DATA,
   payload: data
 });

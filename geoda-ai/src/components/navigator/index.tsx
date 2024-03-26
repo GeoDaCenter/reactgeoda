@@ -29,7 +29,7 @@ export function Navigator() {
 
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
 
-  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.name);
+  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
 
   const [isFileLoaded, setIsFileLoaded] = useState(Boolean(fileName));
 
