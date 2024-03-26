@@ -15,7 +15,8 @@ import {
   TableBody,
   TableColumn,
   TableRow,
-  TableCell
+  TableCell,
+  CardHeader
 } from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Key, useMemo, useState} from 'react';
@@ -32,6 +33,25 @@ import {runRegression} from '@/utils/regression-utils';
 const NO_WEIGHTS_MESSAGE =
   'Please create a spatial weights matrix before running regression analysis.';
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
+
+// format the number to display 4 decimal places
+const formatNumber = (num: number) => num.toFixed(4);
+
+// format dependent variable and independent variables as y ~ x1 + x2 + x3
+const formatEquation = (y: string, x: string[]) => `${y} ~ ${x.join(' + ')}`;
+
+// function to print out the REGRESSION DIAGNOSTICS as string, if there is object, it will be printed as key: value and new line
+const printRegressionDiagnostics = (diagnostics: any) => {
+  return Object.entries(diagnostics)
+    .map(([key, value]) => {
+      if (typeof value === 'object') {
+        // if it is an object, print it as key: value one by one in new line
+        return `${key}: ${JSON.stringify(value)}`;
+      }
+      return `${key}: ${value}`;
+    })
+    .join('\n');
+};
 
 export function SpregPanel() {
   const intl = useIntl();
@@ -206,38 +226,53 @@ export function SpregPanel() {
                 </div>
               }
             >
-              <ScrollShadow className="h-[400px] w-[300px]">
-                <div className="p-4">
-                  <div className="flex flex-col gap-4">
-                    {regressions.map((regression: RegressionProps) => (
-                      <Card key={regression.id} className="p-4">
-                        <CardBody>
-                          <div className="flex flex-col gap-2">
-                            <Table>
+              <div className="p-1">
+                <div className="flex flex-col gap-4">
+                  {regressions.map((regression: RegressionProps) => (
+                    <Card key={regression.id} className="p-0">
+                      <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+                        <p className="text-tiny font-bold uppercase">
+                          {regression.data.result.title}
+                        </p>
+                        <small className="text-default-500">
+                          {formatEquation(
+                            regression.data.result.dependentVariable,
+                            regression.data.result.independentVariables
+                          )}
+                        </small>
+                      </CardHeader>
+                      <CardBody>
+                        <ScrollShadow className="h-[400px] w-full text-small">
+                          <div className="flex w-full flex-col gap-2 rounded-none text-small">
+                            <Table className="w-full rounded-none" shadow="none">
                               <TableHeader>
                                 <TableColumn>Variable</TableColumn>
                                 <TableColumn>Coefficient</TableColumn>
                                 <TableColumn>Probability</TableColumn>
                               </TableHeader>
-                              <TableBody>
-                                {Object.entries(
-                                  regression.data.result['Variable Coefficients']
-                                ).map(([variable, stats]) => (
-                                  <TableRow key={variable}>
-                                    <TableCell>{variable}</TableCell>
-                                    <TableCell>{stats.coefficient}</TableCell>
-                                    <TableCell>{stats.prob}</TableCell>
+                              <TableBody className="text-small">
+                                {regression.data.result['Variable Coefficients'].map(stats => (
+                                  <TableRow key={stats.Variable} className="text-small">
+                                    <TableCell className="text-small">{stats.Variable}</TableCell>
+                                    <TableCell>{formatNumber(stats.Coefficient)}</TableCell>
+                                    <TableCell>{formatNumber(stats.Probability)}</TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
                             </Table>
+                            <p className="text-small font-bold uppercase">Regression Diagnostics</p>
+                            <pre className="text-small">
+                              {printRegressionDiagnostics(
+                                regression.data.result['REGRESSION DIAGNOSTICS']
+                              )}
+                            </pre>
                           </div>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </div>
+                        </ScrollShadow>
+                      </CardBody>
+                    </Card>
+                  ))}
                 </div>
-              </ScrollShadow>
+              </div>
             </Tab>
           </Tabs>
         </div>
