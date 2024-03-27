@@ -38,6 +38,7 @@
     "out/",
     "build/",
     "storybook-static/",
-    "storybook-static-build/"
+    "storybook-static-build/",
+    "package.json"
   ]
 }

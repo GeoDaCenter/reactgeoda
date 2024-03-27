@@ -36,6 +36,7 @@ jobs:
         with:
           path: |
             /home/runner/work/reactgeoda/csds_kepler
+            /home/runner/work/reactgeoda/loaders.gl
           key: ${{ runner.os }}-csds_kepler-${{ hashFiles('deps.txt') }}
       - name: Install Kepler.gl 
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
@@ -53,6 +54,14 @@ jobs:
         run: |
           cd ..
           git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
+      - name: Install loaders.gl
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
+        run: |
+          cd ..
+          git clone https://github.com/visgl/loaders.gl.git --branch=xli/geoarrow-fix-in-mem-table loaders.gl
+          cd loaders.gl
+          yarn
+          cd ..
       - name: Run Lint
         run: |
           cd geoda-ai
@@ -65,9 +74,6 @@ jobs:
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
           cd geoda-ai
           yarn build-local
-          echo ${{ github.event.head_commit.message }}
-          echo ${{ contains(github.event.head_commit.message, '[Preview]') }}
-     
       - name: Get Head Commit Message
         id: get_head_commit_message
         run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> $GITHUB_ENV
@@ -90,7 +96,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           cd geoda-ai
-          netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --alias draft-${{ github.event.number }}
+          netlify deploy --prod --dir=out --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }}
       # - name: Build Library
       #   run: |
       #     cd library

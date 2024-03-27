@@ -15,7 +15,8 @@ import {
   IconParallel,
   IconScatterplot,
   IconTable,
-  IconWeights
+  IconWeights,
+  IconSpreg
 } from './icons';
 import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
@@ -28,7 +29,7 @@ export function Navigator() {
 
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
 
-  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.name);
+  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
 
   const [isFileLoaded, setIsFileLoaded] = useState(Boolean(fileName));
 
@@ -50,6 +51,11 @@ export function Navigator() {
   const newHistogramCount = useSelector(
     (state: GeoDaState) =>
       state.root.plots.filter(plot => plot.isNew && plot.type === 'histogram').length
+  );
+
+  // get number of newly added regressions from state.root.regressions
+  const newRegressionCount = useSelector(
+    (state: GeoDaState) => state.root.regressions.filter(reg => reg.isNew).length
   );
 
    // get number of newly added plots from state.root.plots
@@ -103,6 +109,14 @@ export function Navigator() {
         case 'icon-scatterplot':
           dispatch(setPropertyPanel(PanelName.SCATTERPLOT));
           break;
+        case 'icon-boxplot':
+          dispatch(setPropertyPanel(PanelName.BOXPLOT));
+          break;
+        case 'icon-spreg':
+          dispatch(setPropertyPanel(PanelName.SPREG));
+          break;
+        case 'icon-pcp':
+          dispatch(setPropertyPanel(PanelName.PARALLEL_COORDINATE));
       }
       event.stopPropagation();
     },
@@ -114,7 +128,13 @@ export function Navigator() {
       <GeoDaLogo />
       <div className="justify-top mt-4 flex w-full grow flex-col items-center">
         <Tooltip key="openFileTooltip" placement="right" content="Open File">
-          <Button isIconOnly size="sm" className="bg-transparent" onClick={onOpenCallback}>
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            onClick={onOpenCallback}
+            isDisabled={isFileLoaded}
+          >
             <IconOpen />
           </Button>
         </Tooltip>
@@ -148,7 +168,6 @@ export function Navigator() {
           size="sm"
           placement="bottom-right"
           isOneChar
-          className="absolute left-0"
         >
           <Tooltip key="weightsTooltip" placement="right" content="Spatial Weights">
             <Button
@@ -182,7 +201,6 @@ export function Navigator() {
           size="sm"
           placement="bottom-right"
           isOneChar
-          className="absolute left-0"
         >
           <Tooltip key="histogramTooltip" placement="right" content="Histogram">
             <Button
@@ -271,6 +289,27 @@ export function Navigator() {
             <IconLisa />
           </Button>
         </Tooltip>
+        <Badge
+          color="danger"
+          content={newRegressionCount}
+          isInvisible={newRegressionCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+        >
+          <Tooltip key="spregTooltip" placement="right" content="Spatial Regression">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-spreg"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconSpreg />
+            </Button>
+          </Tooltip>
+        </Badge>
         <Tooltip key="chatgptTooltip" placement="right" content="GeoDa.AI ChatBot">
           <Button
             isIconOnly

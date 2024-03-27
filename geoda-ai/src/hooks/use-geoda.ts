@@ -6,12 +6,15 @@ import {
   naturalBreaks
 } from 'geoda-wasm';
 
+// @ts-ignore we import geoda.wasm explicitly so it can be bundled by webpack
+import geodawasm from 'geoda-wasm/dist/geoda.wasm';
+
 import {useCallback} from 'react';
 
-// initial the global geoda instance, delay 500ms to avoid blocking loading default page
+// initial the global geoda instance, delay 1000ms to avoid blocking loading default page
 setTimeout(async () => {
   await initGeoDa();
-}, 600);
+}, 1000);
 
 export function useGeoDa() {
   const runLocalMoran = useCallback(async (): Promise<LocalMoranResultType> => {
@@ -20,7 +23,7 @@ export function useGeoDa() {
     const perm = 99;
 
     const result = await localMoran(data, neighbors, perm);
-    console.log('local moran result:', result);
+    console.log('local moran result:', result, geodawasm);
     return result;
   }, []);
 

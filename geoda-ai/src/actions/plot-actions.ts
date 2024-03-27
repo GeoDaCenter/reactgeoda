@@ -1,5 +1,6 @@
 import {HistogramDataProps} from '@/utils/histogram-utils';
 import {ScatPlotDataProps} from '@/utils/scatterplot-utils';
+import {BoxplotDataProps} from '@/utils/boxplot-utils';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
@@ -25,7 +26,23 @@ export type ScatterPlotProps = BasePlotProps & {
   data: ScatPlotDataProps[];
 };
 
-export type PlotProps = HistogramPlotProps | ScatterPlotProps;
+
+export type BoxPlotProps = BasePlotProps & {
+  type: 'boxplot';
+  variables: string[];
+  data: BoxplotDataProps;
+};
+
+export type ParallelCoordinateProps = BasePlotProps & {
+  type: 'parallel-coordinate';
+  variables: string[];
+};
+
+export type PlotProps =
+  | HistogramPlotProps
+  | ScatterPlotProps
+  | BoxPlotProps
+  | ParallelCoordinateProps;
 
 export type RemovePlotProps = {
   id: string;

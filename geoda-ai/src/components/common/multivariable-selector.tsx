@@ -7,6 +7,7 @@ import {useSelector} from 'react-redux';
 type MultiVariableSelectorProps = {
   variables?: string[];
   setVariables: (variables: string[]) => void;
+  label?: string;
 };
 
 export function MultiVariableSelector(props: MultiVariableSelectorProps) {
@@ -26,7 +27,7 @@ export function MultiVariableSelector(props: MultiVariableSelectorProps) {
 
   return (
     <Select
-      label="Select a variable"
+      label={props.label || 'Select variables'}
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
       selectionMode="multiple"

@@ -6,7 +6,8 @@ import {
   getNearestNeighborsFromBinaryGeometries,
   WeightsMeta,
   getMetaFromWeights,
-  localMoran
+  localMoran,
+  getContiguityNeighborsFromBinaryGeometries
 } from 'geoda-wasm';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
@@ -24,11 +25,23 @@ import {
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './histogram-utils';
 import {ScatPlotDataProps, createScatterplotData} from './scatterplot-utils';
+import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
+import {DataContainerInterface} from '@kepler.gl/utils';
+import {CustomFunctions} from '@/ai/openai-utils';
+import {linearRegressionCallbackFunc} from './regression-utils';
 
-// key is the name of the function, value is the function itself
-type CustomFunctions = {
-  [key: string]: (...args: any[]) => any;
-};
+// define enum for custom function names, the value of each enum is
+// the name of the function that is defined in OpenAI assistant model
+export enum CustomFunctionNames {
+  SUMMARIZE_DATA = 'summarizeData',
+  QUANTILE_BREAKS = 'quantileBreaks',
+  NATURAL_BREAKS = 'naturalBreaks',
+  KNN_WEIGHT = 'knnWeight',
+  LOCAL_MORAN = 'univariateLocalMoran',
+  HISTOGRAM = 'histogram',
+  BOXPLOT = 'boxplot',
+  CONTIGUITY_WEIGHT = 'contiguityWeight'
+}
 
 type SummarizeDataProps = {
   tableName?: string;
@@ -99,17 +112,6 @@ export type ScatterplotOutput = {
 };
 
 
-// define enum for custom function names, the value of each enum is
-// the name of the function that is defined in OpenAI assistant model
-export enum CustomFunctionNames {
-  SUMMARIZE_DATA = 'summarizeData',
-  QUANTILE_BREAKS = 'quantileBreaks',
-  NATURAL_BREAKS = 'naturalBreaks',
-  KNN_WEIGHT = 'knnWeight',
-  LOCAL_MORAN = 'univariateLocalMoran',
-  HISTOGRAM = 'histogram',
-  SCATTERPLOT = 'scatter'
-}
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
   summarizeData: async function ({tableName}: SummarizeDataProps) {
@@ -186,6 +188,55 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     return {
       type: 'weights',
       name: 'KNN',
+      result: weightsMeta,
+      data: weights
+    };
+  },
+
+  contiguityWeight: async function (
+    {contiguityType, orderOfContiguity, includeLowerOrder, precisionThreshold},
+    {tableName, visState}
+  ): Promise<WeightsOutput | ErrorOutput> {
+    if (!tableName) {
+      return {result: 'Error: table name is empty'};
+    }
+    // get kepler.gl layer using tableName
+    const keplerLayer = getKeplerLayer(tableName, visState);
+    if (!keplerLayer) {
+      return {result: 'Error: layer is empty'};
+    }
+
+    const binaryGeometryType = keplerLayer.meta.featureTypes;
+    const binaryGeometries = keplerLayer.dataToFeature;
+    if (!binaryGeometries || !binaryGeometryType) {
+      return {result: 'Error: geometries in layer is empty'};
+    }
+    const weights = await getContiguityNeighborsFromBinaryGeometries({
+      binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries,
+      isQueen: contiguityType === 'queen',
+      useCentroids: binaryGeometryType.point || binaryGeometryType.line,
+      precisionThreshold,
+      orderOfContiguity: orderOfContiguity || 1,
+      includeLowerOrder
+    });
+
+    const weightsMeta: WeightsMeta = {
+      ...getMetaFromWeights(weights),
+      id: `w-${contiguityType}-contiguity-${orderOfContiguity || 1}${
+        includeLowerOrder ? '-lower' : ''
+      }`,
+      type: contiguityType === 'queen' ? 'queen' : 'rook',
+      symmetry: 'symmetric',
+      order: orderOfContiguity || 1,
+      includeLowerOrder,
+      threshold: precisionThreshold
+    };
+
+    return {
+      type: 'weights',
+      name: 'Contiguity',
       result: weightsMeta,
       data: weights
     };
@@ -311,5 +362,61 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       // if xData and yData arrays lengths do not match
       return {result: error.message};
     }
-  }
+  },
+
+  boxplot: boxplotFunction,
+
+  linearRegression: linearRegressionCallbackFunc
 };
+
+export type BoxplotOutput = {
+  type: 'boxplot';
+  name: string;
+  result: {
+    id: string;
+    variables: string[];
+    boundIQR: number;
+    boxplot: BoxplotDataProps['boxData'];
+  };
+  data: BoxplotDataProps;
+};
+
+type BoxplotFunctionProps = {
+  variableNames: string[];
+  boundIQR: number;
+};
+
+function boxplotFunction(
+  {variableNames, boundIQR}: BoxplotFunctionProps,
+  {dataContainer}: {dataContainer: DataContainerInterface}
+): BoxplotOutput | ErrorOutput {
+  // get data from variable
+  const data: CreateBoxplotProps['data'] = variableNames.reduce(
+    (prev: CreateBoxplotProps['data'], cur: string) => {
+      const values = getColumnData(cur, dataContainer);
+      prev[cur] = values;
+      return prev;
+    },
+    {}
+  );
+
+  // check column data is empty
+  if (!data || Object.keys(data).length === 0) {
+    return {type: 'boxplot', result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+  }
+
+  // call boxplot function
+  const boxplot = createBoxplot({data, boundIQR: boundIQR || 1.5});
+
+  return {
+    type: 'boxplot',
+    name: 'Boxplot',
+    result: {
+      id: Math.random().toString(36).substring(7),
+      variables: variableNames,
+      boundIQR,
+      boxplot: boxplot.boxData
+    },
+    data: boxplot
+  };
+}

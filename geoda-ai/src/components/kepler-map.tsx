@@ -2,18 +2,31 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
 import {themeLT, theme as themeDK} from '@kepler.gl/styles';
 
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {getTableSummary, useDuckDB} from '@/hooks/use-duckdb';
 import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
 import {useSelector} from 'react-redux';
+import {useEffect} from 'react';
+import {GeoDaState} from '@/store';
 
 const KeplerMap = () => {
   // use selector to get theme
-  const theme = useSelector((state: any) => state.root.uiState.theme);
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
+
+  // use selector to get table name
+  const rawFileData = useSelector((state: GeoDaState) => state.root.file?.rawFileData);
 
   // trigger use hooks to load wasm files
-  useDuckDB();
+  const {importArrowFile} = useDuckDB();
   useGeoDa();
+
+  // try to create a summary of the data
+  useEffect(() => {
+    if (rawFileData?.fileName) {
+      importArrowFile(rawFileData);
+      getTableSummary(rawFileData.fileName);
+    }
+  }, [importArrowFile, rawFileData]);
 
   return (
     <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>

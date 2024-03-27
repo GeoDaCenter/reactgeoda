@@ -1,5 +1,6 @@
 export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 export const MAP_ID = 'kepler_map';
+export const PREVIEW_MAP_ID = 'preview_map';
 
 // create mapping types enum from mappingTypes values
 export enum MappingTypes {

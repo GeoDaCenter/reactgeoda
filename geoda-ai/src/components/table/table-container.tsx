@@ -14,7 +14,7 @@ export const TableContainer = () => {
   const showTable = useSelector((state: GeoDaState) => state.root.uiState.showKeplerTableModal);
 
   // get table name
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   return showTable && tableName ? (
     <div className="main-table">

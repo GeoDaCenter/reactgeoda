@@ -1,5 +1,5 @@
 const {resolve} = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
+// const CopyPlugin = require('copy-webpack-plugin');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -13,8 +13,12 @@ const nextConfig = {
     // !! WARN !! This is to ignore build errors from Kepler.gl
     ignoreBuildErrors: true
   },
+  compiler: {
+    // remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production'
+  },
   webpack: config => {
-    // This following line is to support WASM modules
+    // Support WASM modules for duckdb and geoda
     config.experiments = {
       ...config.experiments,
       asyncWebAssembly: true,
@@ -24,15 +28,19 @@ const nextConfig = {
     config.output.publicPath = '/_next/';
     config.module.rules.push({
       test: /\.wasm/,
-      type: 'asset/resource'
+      type: 'asset/resource',
       // type: 'webassembly/async'
+      generator: {
+        // specify the output location of the wasm files
+        filename: 'static/chunks/app/mapland/[name][ext]'
+      }
     });
 
     // Configure to use local version of Kepler.gl
     config.resolve.alias = {
       ...config.resolve.alias,
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
-      'geoda-wasm': resolve(__dirname, '../../geoda-lib/js'),
+      'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,
@@ -59,19 +67,19 @@ const nextConfig = {
         __dirname,
         '../../csds_kepler/src/cloud-providers/src/index'
       ),
-      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index')
+      '@kepler.gl/processors': resolve(__dirname, '../../csds_kepler/src/processors/src/index'),
       // '@deck.gl/layers': resolve(__dirname, '../../csds_kepler/node_modules/@deck.gl/layers'),
-      // '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
-      // '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
-      // '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
-      // '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
-      // '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
-      // '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
-      // '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
-      // '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
-      // '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
-      // '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
-      // '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
+      '@loaders.gl/arrow': resolve(__dirname, '../../loaders.gl/modules/arrow/src'),
+      '@loaders.gl/core': resolve(__dirname, '../../loaders.gl/modules/core/src'),
+      '@loaders.gl/gis': resolve(__dirname, '../../loaders.gl/modules/gis/src'),
+      '@loaders.gl/gltf': resolve(__dirname, '../../loaders.gl/modules/gltf/src'),
+      '@loaders.gl/json': resolve(__dirname, '../../loaders.gl/modules/json/src'),
+      '@loaders.gl/loader-utils': resolve(__dirname, '../../loaders.gl/modules/loader-utils/src'),
+      '@loaders.gl/schema': resolve(__dirname, '../../loaders.gl/modules/schema/src'),
+      '@loaders.gl/shapefile': resolve(__dirname, '../../loaders.gl/modules/shapefile/src'),
+      '@loaders.gl/wkt': resolve(__dirname, '../../loaders.gl/modules/wkt/src'),
+      '@loaders.gl/parquet': resolve(__dirname, '../../loaders.gl/modules/parquet/src'),
+      '@loaders.gl/polyfill': resolve(__dirname, '../../loaders.gl/modules/polyfill/src')
     };
 
     // This is to fix warnings about missing critical dependencies reported by loaders.gl using require()
@@ -90,17 +98,17 @@ const nextConfig = {
     // This is to avoid error when using GeoDaWASM
     config.resolve.fallback = {fs: false};
 
-    // Use copyPlugin to copy static file to public folder
-    config.plugins.push(
-      new CopyPlugin({
-        patterns: [
-          {
-            from: resolve(__dirname, '../../geoda-lib/js/dist/geoda.wasm'),
-            to: 'public/geoda.wasm'
-          }
-        ]
-      })
-    );
+    // discard: Use copyPlugin to copy static file to public folder
+    // config.plugins.push(
+    //   new CopyPlugin({
+    //     patterns: [
+    //       {
+    //         from: resolve(__dirname, '../../geoda-lib/src/js/dist/geoda.wasm'),
+    //         to: 'public/geoda.wasm'
+    //       }
+    //     ]
+    //   })
+    // );
 
     return config;
   }

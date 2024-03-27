@@ -1,161 +1,60 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import {
-  MainContainer,
-  ChatContainer,
-  MessageList,
-  Message,
-  MessageInput,
-  MessageModel,
-  TypingIndicator
-} from '@chatscope/chat-ui-kit-react';
+
 import {useIntl} from 'react-intl';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {CustomMessage} from './custom-messages';
+import {ChatGPTComponent} from './chatgpt-component';
+import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import {setMessages} from '@/actions';
+
+export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
+
+export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
 
-const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
-
-const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
-
-const ChatGPTComponent = ({openAIKey}: {openAIKey: string}) => {
-  const intl = useIntl();
-  const {initOpenAI, processMessage} = useChatGPT();
-  const [messages, setMessages] = useState<Array<MessageModel>>([]);
-
-  useEffect(() => {
-    setMessages([
-      {
-        message: intl.formatMessage({
-          id: 'GeoDa.AI.initialMessage',
-          defaultMessage: DEFAULT_WELCOME_MESSAGE
-        }),
-        sentTime: 'just now',
-        sender: 'ChatGPT',
-        direction: 'incoming',
-        position: 'first'
-      }
-      // {
-      //   type: 'custom',
-      //   message: '',
-      //   sender: 'ChatGPT',
-      //   direction: 'incoming',
-      //   position: 'normal',
-      //   payload: {
-      //     type: 'custom',
-      //     functionName: CustomFunctionNames.QUANTILE_BREAKS,
-      //     functionArgs: {
-      //       variable: 'HR60',
-      //       k: 5
-      //     },
-      //     output: {
-      //       quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
-      //     }
-      //   }
-      // }
-    ]);
-    if (openAIKey) {
-      initOpenAI(openAIKey);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const [isTyping, setIsTyping] = useState(false);
-
-  const handleSend = async (message: string) => {
-    // display input message in dialog
-    const newMessage: MessageModel = {
-      message,
-      direction: 'outgoing',
-      sender: 'user',
-      position: 'normal'
-    };
-
-    const newMessages: Array<MessageModel> = [...messages, newMessage];
-    setMessages(newMessages);
-    setIsTyping(true);
-
-    // process input message to chatgpt
-    const returnMessage = await processMessage(message);
-
-    // display return message in dialog
-    if (returnMessage) {
-      setMessages([...newMessages, ...returnMessage]);
-    }
-    setIsTyping(false);
-  };
-
-  // scroll to bottom when new message is added
-  useEffect(() => {
-    // hack to scroll to bottom
-    const element = document.getElementById('chat-message-list');
-    if (element?.firstElementChild) {
-      element.firstElementChild.scrollTop = element.firstElementChild.scrollHeight;
-    }
-  }, [messages]);
-
-  return (
-    <MainContainer className="pl-4">
-      <ChatContainer>
-        <MessageList
-          id="chat-message-list"
-          autoScrollToBottom={true}
-          autoScrollToBottomOnMount={false}
-          scrollBehavior="smooth"
-          typingIndicator={
-            isTyping ? (
-              <TypingIndicator
-                content={intl.formatMessage({
-                  id: 'GeoDa.AI.isTyping',
-                  defaultMessage: 'GeoDa.AI is typing'
-                })}
-              />
-            ) : null
-          }
-        >
-          {messages.map((message, i) => {
-            return message.type === 'custom' ? (
-              <Message
-                key={i}
-                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
-                style={{backgroundColor: 'transparent!important'}}
-              >
-                <Message.CustomContent className="w-[270px]">
-                  <CustomMessage props={message.payload ?? {}} />
-                </Message.CustomContent>
-              </Message>
-            ) : (
-              <Message key={i} model={message} />
-            );
-          })}
-        </MessageList>
-        <MessageInput
-          placeholder={intl.formatMessage({
-            id: 'chatGpt.inputPlaceholder',
-            defaultMessage: 'Type message here'
-          })}
-          onSend={handleSend}
-          className="fill-current text-black dark:text-white"
-        />
-      </ChatContainer>
-    </MainContainer>
-  );
-};
-
 const ChatGPTPanel = () => {
   const intl = useIntl();
+  const dispatch = useDispatch();
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const welcomeMessage: MessageModel = {
+    message: intl.formatMessage({
+      id: 'GeoDa.AI.initialMessage',
+      defaultMessage: DEFAULT_WELCOME_MESSAGE
+    }),
+    sentTime: 'just now',
+    sender: 'ChatGPT',
+    direction: 'incoming',
+    position: 'first'
+  };
+
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   // get api key from state.root
   //const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
   const openAIKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+
+  // get messages from state.root
+  const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
+
+  // update message callback function
+  const updateMessages = (messages: MessageModel[]) => {
+    dispatch(setMessages(messages));
+  };
+
+  // or use local state
+  // const [messages, setMessages] = useState<Array<MessageModel>>(
+  //   initialMessages ?? [welcomeMessage]
+  // );
+
+  // useChatGPT hook
+  const {initOpenAI, processChatGPTMessage} = useChatGPT();
 
   return (
     <RightPanelContainer
@@ -173,7 +72,14 @@ const ChatGPTPanel = () => {
       ) : !tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <ChatGPTComponent openAIKey={openAIKey} />
+        <ChatGPTComponent
+          openAIKey={openAIKey}
+          initOpenAI={initOpenAI}
+          processMessage={processChatGPTMessage}
+          getCustomMessageComponent={() => CustomMessage}
+          messages={messages.length > 0 ? messages : [welcomeMessage]}
+          setMessages={updateMessages}
+        />
       )}
     </RightPanelContainer>
   );

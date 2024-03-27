@@ -1,11 +1,11 @@
 import {useCallback} from 'react';
 
-import {tableFromIPC, row as ArrowRow} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
 // @ts-expect-error
 import duckdb_wasm_next from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm';
+import {RawFileDataProps} from '@/actions';
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
@@ -73,8 +73,8 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
         const conn = await db.connect();
         // Query
         const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
-        // Convert arrow table to json
-        const result = arrowResult.toArray().map((row: ArrowRow) => row.toJSON());
+        // Convert arrow table to json FIXME
+        const result = arrowResult.toArray().map((row: any) => row.toJSON());
         // close the connection
         await conn.close();
         // convert array of objects to a string with format of csv table
@@ -88,8 +88,9 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
         return 'error: can not get summary of the table because table name is not found';
       }
     }
+    return tableSummary;
   }
-  return '';
+  return 'Error: can not get summary of the table because the duckdb is not working properly.';
 }
 
 export function getTableNameSync(): string | null {
@@ -106,7 +107,7 @@ export async function getColumnData(columnName: string): Promise<number[]> {
     // Query
     const arrowResult = await conn.query(`SELECT "${columnName}" FROM "${tableName}"`);
     // Convert arrow table to json
-    const result = arrowResult.toArray().map((row: ArrowRow) => row.toArray()[0]);
+    const result = arrowResult.toArray().map((row: any) => row.toArray()[0]);
     // close the connection
     await conn.close();
     return result;
@@ -147,42 +148,44 @@ export function useDuckDB() {
     return selectedIndexes || [];
   }, []);
 
-  const importArrowFile = useCallback(async (file: File) => {
-    if (db) {
-      const conn = await db.connect();
-      tableName = file.name;
+  const importArrowFile = useCallback(
+    async ({fileName: tableName, arrowTable}: RawFileDataProps) => {
+      if (db) {
+        const conn = await db.connect();
 
-      const arrowResult = await conn.query('select * from information_schema.tables');
-      const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
+        const arrowResult = await conn.query('select * from information_schema.tables');
+        const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
 
-      // check if tableName is already in the database
-      if (!allTables.some((table: any) => table.table_name === tableName)) {
-        try {
-          // file to ArrayBuffer
-          const buffer = await file.arrayBuffer();
-          // create a arrow table from File object
-          const arrowTable = tableFromIPC(buffer);
-          // create a table in the database from arrowTable
-          await conn.insertArrowTable(arrowTable, {name: tableName});
+        // check if tableName is already in the database
+        if (!allTables.some((table: any) => table.table_name === tableName)) {
+          try {
+            // file to ArrayBuffer
+            // const buffer = await file.arrayBuffer();
+            // create a arrow table from File object
+            // const arrowTable = tableFromIPC(buffer);
+            // create a table in the database from arrowTable
+            await conn.insertArrowTable(arrowTable, {name: tableName});
 
-          // add a new column to the table for the row index
-          await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
-          // generate an ascending sequence starting from 1
-          await conn.query('CREATE SEQUENCE serial');
-          // Use nextval to update the row_index column
-          await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
+            // add a new column to the table for the row index
+            await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
+            // generate an ascending sequence starting from 1
+            await conn.query('CREATE SEQUENCE serial');
+            // Use nextval to update the row_index column
+            await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
 
-          // test summary table
-          const summary = await getTableSummary();
-          console.log('summary', summary);
-        } catch (error) {
-          console.error(error);
+            // test summary table
+            const summary = await getTableSummary();
+            console.log('summary', summary);
+          } catch (error) {
+            console.error(error);
+          }
         }
+        // close the connection
+        await conn.close();
       }
-      // close the connection
-      await conn.close();
-    }
-  }, []);
+    },
+    []
+  );
 
   return {query, importArrowFile};
 }
