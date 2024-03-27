@@ -52,7 +52,6 @@ function isGeojsonLayer(layer: Layer): layer is GeojsonLayer {
   return layer.type === 'geojson';
 }
 
-
 /**
  * Get the names of the numeric fields from the kepler.gl layer
  * @param tableName the name of the table

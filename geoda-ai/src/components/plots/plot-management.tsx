@@ -8,8 +8,9 @@ import {
   HistogramPlotProps,
   BoxPlotProps,
   ParallelCoordinateProps,
-  PlotProps
-, ScatterPlotProps} from '@/actions/plot-actions';
+  PlotProps,
+  ScatterPlotProps
+} from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
 
@@ -32,7 +33,6 @@ function isParallelCoordinate(plot: PlotProps): plot is ParallelCoordinateProps 
 function isScatterPlot(plot: PlotProps): plot is ScatterPlotProps {
   return plot.type === 'scatter';
 }
-
 
 export const PlotManagementPanel = () => {
   // use selector to get plots
@@ -82,7 +82,11 @@ export const PlotManagementPanel = () => {
         </Tab>
         <Tab
           key="scatter"
-          title={<div className="flex items-center space-x-2"><span>Scatter Plot</span></div>}
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Scatter Plot</span>
+            </div>
+          }
           className="p-2"
         >
           {plots
@@ -90,7 +94,7 @@ export const PlotManagementPanel = () => {
             .toReversed()
             .map(plot => {
               if (isScatterPlot(plot)) {
-                return <Scatterplot key={plot.id} data={plot.data[0]} />
+                return <Scatterplot key={plot.id} data={plot.data[0]} />;
               }
             })}
         </Tab>

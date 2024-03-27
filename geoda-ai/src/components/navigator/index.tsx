@@ -58,13 +58,11 @@ export function Navigator() {
     (state: GeoDaState) => state.root.regressions.filter(reg => reg.isNew).length
   );
 
-   // get number of newly added plots from state.root.plots
-   const newScatterplotCount = useSelector(
+  // get number of newly added plots from state.root.plots
+  const newScatterplotCount = useSelector(
     (state: GeoDaState) =>
       state.root.plots.filter(plot => plot.isNew && plot.type === 'scatter').length
   );
-  
-  
 
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {

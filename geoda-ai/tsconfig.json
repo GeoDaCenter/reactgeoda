@@ -25,7 +25,7 @@
       "geoda-wasm": ["../../geoda-lib/src/js/src"],
       "@kepler.gl/*": ["../../csds_kepler/src/*/src"],
       "@kepler.gl/types": ["../../csds_kepler/src/types"],
-      "@loaders.gl/*": ["../../loaders.gl/modules/*/src"],
+      "@loaders.gl/*": ["../../loaders.gl/modules/*/src"]
     }
   },
   "include": [

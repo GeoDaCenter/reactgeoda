@@ -8,8 +8,6 @@ import {HeartIcon} from '../icons/heart';
 import {ScatterplotOutput} from '@/utils/custom-functions';
 import {Scatterplot} from '../plots/scat-plot';
 import {useDispatch} from 'react-redux';
-import { ScatterplotDataItemProps } from '@/utils/scatterplot-utils';
-
 
 /**
  * Custom Scatter Message
@@ -25,14 +23,12 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   }
 
   const scatterplotData = output.data[0] as ScatterplotOutput['data'][0]; // Assuming data is an array with a single ScatPlotDataProps object
-  console.log(output.data)
-
 
   if (!scatterplotData) {
     console.error('Scatterplot data is unavailable or invalid.');
     return null;
   }
-  const {variableX, variableY, points} = output.result as ScatterplotOutput['result'];
+  const {variableX, variableY} = output.result as ScatterplotOutput['result'];
 
   const scatterPlotProps: ScatterPlotProps = {
     id: Math.random().toString(36).substring(7),
@@ -45,16 +41,14 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   // handle click event
   const onClick = () => {
     // dispatch action to update redux state with the new scatterplot
-    dispatch(
-      addPlot({...scatterPlotProps, isNew: true})
-    );
+    dispatch(addPlot({...scatterPlotProps, isNew: true}));
     // hide the button once clicked
     setHide(true);
   };
 
   return (
     <div className="w-full">
-      {<Scatterplot data={scatterplotData} />}
+      {<Scatterplot data={scatterPlotProps} />}
       {!hide && (
         <Button
           radius="full"

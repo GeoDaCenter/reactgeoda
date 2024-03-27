@@ -1,6 +1,6 @@
-import React, { useRef, RefObject, useMemo, useEffect } from 'react';
-import { ScatterplotDataItemProps, ScatPlotDataProps } from '@/utils/scatterplot-utils';
-import { ScatterChart } from 'echarts/charts';
+import React, {useRef, RefObject, useMemo, useEffect} from 'react';
+//import {ScatterplotDataItemProps, ScatPlotDataProps} from '@/utils/scatterplot-utils';
+import {ScatterChart} from 'echarts/charts';
 import * as echarts from 'echarts/core';
 //import { transform } from 'echarts-stat';
 import {useDispatch, useSelector} from 'react-redux';
@@ -16,10 +16,8 @@ import {
 import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import {MAP_ID} from '@/constants';
-import { Card, CardHeader, CardBody } from '@nextui-org/react';
-import {
-    CanvasRenderer
-  } from 'echarts/renderers';
+import {Card, CardHeader, CardBody} from '@nextui-org/react';
+import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
 // Register the required ECharts components
 echarts.use([
@@ -33,26 +31,21 @@ echarts.use([
 ]);
 //echarts.registerTransform(transform.regression);
 
-
-
-
-
 function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterPlotProps) {
   const hasHighlighted = filteredIndex ? Array.from(filteredIndex).some(idx => idx === 0) : true;
-
 
   const allPoints = props.data.flatMap(dataItem => dataItem.points);
 
   const seriesData = allPoints.map((point, i) => {
-    const isHighlighted = filteredIndex ? (filteredIndex[i] === 0) : hasHighlighted;
+    const isHighlighted = filteredIndex ? filteredIndex[i] === 0 : hasHighlighted;
     return {
-        value: [point.x, point.y],
-        itemStyle: {
-            color: isHighlighted ? 'rgb(255, 70, 131)' : 'rgb(255, 70, 200)', // Highlight color vs default
-            opacity: isHighlighted ? 0.5 : 1, // Highlighted points are fully opaque
-        }
+      value: [point.x, point.y],
+      itemStyle: {
+        color: isHighlighted ? 'rgb(255, 70, 131)' : 'rgb(255, 70, 200)', // Highlight color vs default
+        opacity: isHighlighted ? 0.5 : 1 // Highlighted points are fully opaque
+      }
     };
-});
+  });
 
   const option = {
     xAxis: {
@@ -61,11 +54,13 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterP
     yAxis: {
       type: 'value'
     },
-    series: [{
-      data: seriesData,
-      type: 'scatter',
-      symbolSize: 10,
-    }],
+    series: [
+      {
+        data: seriesData,
+        type: 'scatter',
+        symbolSize: 10
+      }
+    ],
     tooltip: {
       trigger: 'item',
       formatter: function (params: any) {
@@ -87,11 +82,6 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterP
 
   return option;
 }
-
-
-
-
-
 
 type EChartsUpdaterProps = {
   filteredIndex: Uint8ClampedArray | null;
@@ -139,16 +129,6 @@ const EChartsUpdater = ({
   return null;
 };
 
-
-
-
-
-
-
-
-
-
-
 export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
@@ -190,7 +170,6 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
       //     ? brushed.map((idx: number) => data.data[idx].points.map(item => item.index)).flat()
       //     : [];
 
-
       if (validPlot && brushed.length === 0) {
         // reset options
         const chart = eChartsRef.current;
@@ -212,7 +191,9 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
     <Card className="my-4">
       <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
         <p className="text-tiny font-bold uppercase">Scatter Plot</p>
-        <small className="text-default-500">{data.variableX} vs {data.variableY}</small>
+        <small className="text-default-500">
+          {data.variableX} vs {data.variableY}
+        </small>
       </CardHeader>
       <CardBody className="w-full py-2">
         <ReactEChartsCore

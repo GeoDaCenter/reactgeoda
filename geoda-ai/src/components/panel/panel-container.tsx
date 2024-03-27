@@ -14,7 +14,7 @@ import {HistogramPanel} from '../plots/histogram-panel';
 import {BoxplotPanel} from '../plots/boxplot-panel';
 import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel';
 import {SpregPanel} from '../spreg/spreg-panel';
-import { ScatterplotPanel } from '../plots/scatterplot-panel';
+import {ScatterplotPanel} from '../plots/scatterplot-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 

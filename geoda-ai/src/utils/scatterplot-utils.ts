@@ -9,25 +9,24 @@ export type ScatPlotDataProps = {
   points: ScatterplotDataItemProps[];
 };
 
-
-export function createScatterplotData(variableX: string, variableY: string, xData: number[], yData: number[]): ScatPlotDataProps {
+export function createScatterplotData(
+  variableX: string,
+  variableY: string,
+  xData: number[],
+  yData: number[]
+): ScatPlotDataProps {
   if (xData.length !== yData.length) {
-    throw new Error("xData and yData arrays must have the same length.");
+    throw new Error('xData and yData arrays must have the same length.');
   }
 
-  const points = xData.map((x, index) => ({ x, y: yData[index] }));
+  const points = xData.map((x, index) => ({x, y: yData[index]}));
 
   return {
     variableX,
     variableY,
-    points,
+    points
   };
 }
-
-
-
-
-
 
 // const ChartSettings = {
 //   defaultOptions: {
@@ -47,7 +46,6 @@ export function createScatterplotData(variableX: string, variableY: string, xDat
 //     }
 //   }
 // };
-
 
 // const createScatterplotOption = (data: ScatPlotDataProps) => {
 // const seriesData = data.points.map((item: ScatterplotDataItemProps) => [item.x, item.y]);
@@ -101,7 +99,7 @@ export function createScatterplotData(variableX: string, variableY: string, xDat
 //         },
 //       },
 //     },
-//   grid: { 
+//   grid: {
 //       left: '4%',
 //       containLabel: true
 //     }
@@ -110,4 +108,3 @@ export function createScatterplotData(variableX: string, variableY: string, xDat
 
 // return option;
 // };
-
