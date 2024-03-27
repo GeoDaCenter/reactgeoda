@@ -1,11 +1,11 @@
 import {useCallback} from 'react';
 
-import {Table as ArrowTable} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
 // @ts-expect-error
 import duckdb_wasm_next from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm';
+import {RawFileDataProps} from '@/actions';
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
@@ -149,7 +149,7 @@ export function useDuckDB() {
   }, []);
 
   const importArrowFile = useCallback(
-    async ({name: tableName, arrowTable}: {name: string; arrowTable: ArrowTable}) => {
+    async ({fileName: tableName, arrowTable}: RawFileDataProps) => {
       if (db) {
         const conn = await db.connect();
 

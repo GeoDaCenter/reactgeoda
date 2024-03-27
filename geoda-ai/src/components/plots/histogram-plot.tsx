@@ -306,7 +306,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
 
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   // use selector to get layer using tableName as layer.label
   const filteredIndex = useSelector((state: GeoDaState) => {

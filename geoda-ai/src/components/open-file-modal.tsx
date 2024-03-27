@@ -25,7 +25,7 @@ import {addDataToMap, wrapTo} from '@kepler.gl/actions';
 import {GeoDaState} from '../store';
 import {setOpenFileModal} from '../actions';
 import {IconUpload} from './icons/upload';
-import {setRawFileData} from '../actions/file-actions';
+import {setRawFileData, RawFileDataProps} from '../actions/file-actions';
 import {
   FileCacheItem,
   ProcessFileDataContent,
@@ -55,7 +55,7 @@ const JSON_LOADER_OPTIONS = {
   ]
 };
 
-async function processDropFiles(files: File[]) {
+async function processDropFiles(files: File[]): Promise<RawFileDataProps> {
   const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
   const fileCache: FileCacheItem[] = [];
   const droppedFilesFS = new BrowserFileSystem(files);
@@ -118,25 +118,27 @@ const OpenFileComponent = () => {
       // show loading bar
       setLoading(true);
 
-      // process dropped files
+      // process dropped files, and return the file name, arrowTable and arrowFormatData
       const {fileName, arrowTable, arrowFormatData} = await processDropFiles(acceptedFiles);
 
       // dispatch addDataToMap action to default kepler.gl instance
-      dispatch(
-        wrapTo(
-          MAP_ID,
-          addDataToMap({
-            datasets: arrowFormatData,
-            options: {centerMap: true}
-          })
-        )
-      );
+      if (arrowFormatData) {
+        dispatch(
+          wrapTo(
+            MAP_ID,
+            addDataToMap({
+              datasets: arrowFormatData,
+              options: {centerMap: true}
+            })
+          )
+        );
+      }
 
       // dispatch action to close modal, update redux state state.root.uiState.showOpenFileModal
       dispatch(setOpenFileModal(false));
 
       // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData({name: fileName, arrowTable}));
+      dispatch(setRawFileData({fileName, arrowTable}));
 
       // set loading to true to show loading bar
       setLoading(false);

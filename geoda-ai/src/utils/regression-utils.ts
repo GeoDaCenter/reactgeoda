@@ -18,8 +18,6 @@ export async function runRegression({
     dependentVariable: yName,
     independentVariables: xNames,
     weights: weightsId,
-    dependentVariableData: y,
-    independentVariablesData: x,
     result
   };
 }

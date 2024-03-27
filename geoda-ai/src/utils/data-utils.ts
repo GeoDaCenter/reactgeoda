@@ -211,14 +211,14 @@ export function getDataContainer(
 }
 
 export function getLayer(state: GeoDaState) {
-  const tableName = state.root.file?.rawFileData?.name;
+  const tableName = state.root.file?.rawFileData?.fileName;
   return state.keplerGl[MAP_ID]?.visState?.layers.find((layer: Layer) =>
     tableName.startsWith(layer.config.label)
   );
 }
 
 export function getDataset(state: GeoDaState) {
-  const tableName = state.root.file?.rawFileData?.name;
+  const tableName = state.root.file?.rawFileData?.fileName;
   const datasets: KeplerTable[] = Object.values(state.keplerGl[MAP_ID]?.visState?.datasets);
   const dataset = datasets.find((dataset: KeplerTable) => dataset.label === tableName);
   return dataset;

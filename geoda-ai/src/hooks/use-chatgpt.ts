@@ -49,7 +49,7 @@ function createMessageFromCustomFunctionCall({
  * custom hook to use ChatGPT
  */
 export function useChatGPT() {
-  const tableName = useSelector((state: GeoDaState) => state.root.file.rawFileData.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file.rawFileData.fileName);
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // use selector to get dataContainer

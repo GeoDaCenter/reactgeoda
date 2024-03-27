@@ -43,7 +43,7 @@ export function SpregPanel() {
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
   const newRegressionCount = regressions?.filter((reg: any) => reg.isNew).length || 0;
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );

@@ -32,7 +32,7 @@ export const accordionItemClasses = {
 export function LocalMoranPanel() {
   const dispatch = useDispatch();
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
