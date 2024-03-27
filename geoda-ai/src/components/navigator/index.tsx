@@ -17,7 +17,7 @@ import {
   IconTable,
   IconWeights,
   IconSpreg
-} from './icons';
+} from './navitagor-icons';
 import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';

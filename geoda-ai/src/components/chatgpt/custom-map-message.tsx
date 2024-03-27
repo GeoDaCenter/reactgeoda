@@ -61,10 +61,8 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   };
 
   return (
-    <div className="w-60">
-      {updateLayer && (
-        <KeplerMapContainer layerId={updateLayer} mapIndex={1} mapWidth={280} mapHeight={180} />
-      )}
+    <div className="h-[180px] w-[280px]">
+      {updateLayer && <KeplerMapContainer layerId={updateLayer} mapIndex={1} />}
       <Button
         radius="full"
         className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"

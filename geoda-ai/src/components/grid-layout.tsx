@@ -6,6 +6,14 @@ import {GeoDaState} from '../store';
 import {Layer} from '@kepler.gl/layers';
 import {MAP_ID} from '@/constants';
 import {KeplerMapContainer} from './common/kepler-map-container';
+import {GridCell} from './common/grid-cell';
+import {PlotProps} from '@/actions';
+import {isBoxPlot, isHistogramPlot, isParallelCoordinate} from './plots/plot-management';
+import {HistogramPlot} from './plots/histogram-plot';
+import {BoxPlot} from './plots/box-plot';
+import {ParallelCoordinatePlot} from './plots/parallel-coordinate-plot';
+import {RegressionProps} from '@/actions/regression-actions';
+import {RegressionReport} from './spreg/spreg-report';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
@@ -62,7 +70,7 @@ const layout = [
 
 const styles = {
   gridItem: {
-    borderRadius: '5px',
+    // borderRadius: '5px',
     border: '1px dashed #ddd',
     overflow: 'auto'
   }
@@ -77,16 +85,52 @@ const GridLayout = () => {
   // get layer ids from kepler.gl visstate
   const layerIds = layers?.map((layer: Layer) => layer.id);
 
+  // get all plots from redux state
+  const plots = useSelector((state: GeoDaState) => state.root.plots);
+  // get plot ids from redux state
+  const plotIds = plots?.map((plot: any) => plot.id);
+
+  // get all regressions from redux state
+  const regressions = useSelector((state: GeoDaState) => state.root.regressions);
+
   // for each layer, create a react grid layout with w: 6 and h: 6
-  const layout = layerIds?.map((layerId: string, index: number) => ({
-    w: 6,
-    h: 6,
-    x: 0,
-    y: 6 * index,
-    i: layerId,
-    moved: false,
-    static: false
-  }));
+  const layout =
+    layerIds?.map((layerId: string, index: number) => ({
+      w: 6,
+      h: 6,
+      x: 0,
+      y: 6 * index,
+      i: layerId,
+      moved: false,
+      static: false
+    })) || [];
+
+  // for each plot, create a react grid layout with w: 6 and h: 6
+  const plotLayout =
+    plotIds?.map((plotId: string, index: number) => ({
+      w: 6,
+      h: 6,
+      x: 6,
+      y: 6 * index,
+      i: plotId,
+      moved: false,
+      static: false
+    })) || [];
+
+  // for each regression, create a react grid layout with w: 6 and h: 6
+  const regressionLayout =
+    regressions?.map((regression: any, index: number) => ({
+      w: 6,
+      h: 6,
+      x: 12,
+      y: 6 * index,
+      i: regression.id,
+      moved: false,
+      static: false
+    })) || [];
+
+  // combine layout and plotLayout and regressionLayout
+  const combinedLayout = [...layout, ...plotLayout, ...regressionLayout];
 
   // eslint-disable-next-line no-unused-vars
   const onLayoutChange = (layout: Layout[]) => {
@@ -116,31 +160,40 @@ const GridLayout = () => {
   return (
     <ReactGridLayout
       className="layout"
-      layout={layout}
+      layout={combinedLayout}
       rowHeight={30}
       width={1200}
       margin={[20, 20]}
       allowOverlap={false}
       onLayoutChange={onLayoutChange}
+      draggableHandle=".react-grid-dragHandle"
     >
       {layerIds &&
-        layerIds.map((layerId: string, i: number) => (
-          <div key={layerId} className="overflow-auto rounded-sm border-dashed border-gray-500 p-4">
-            <KeplerMapContainer layerId={layerId} mapIndex={i + 1} mapWidth={280} mapHeight={180} />
+        layerIds.map((layerId: string) => (
+          <div key={layerId} style={styles.gridItem}>
+            <GridCell key={layerId}>
+              <KeplerMapContainer layerId={layerId} mapIndex={1} />
+            </GridCell>
           </div>
         ))}
-      {/*<div key="toolbar" style={styles.gridItem}>
-        <ToolBar />
-      </div>
-      <div key="table" style={styles.gridItem}>
-        <AgGrid />
-      </div>
-      <div key="nivoplot" style={styles.gridItem}>
-        <NivoPlot />
-      </div>
-      <div key="chatgpt" style={styles.gridItem}>
-        <ChatGpt />
-      </div> */}
+      {plotIds &&
+        plots.map((plot: PlotProps) => (
+          <div key={plot.id} style={styles.gridItem}>
+            <GridCell key={plot.id}>
+              {isHistogramPlot(plot) && <HistogramPlot key={plot.id} props={plot} />}
+              {isBoxPlot(plot) && <BoxPlot key={plot.id} props={plot} />}
+              {isParallelCoordinate(plot) && <ParallelCoordinatePlot key={plot.id} props={plot} />}
+            </GridCell>
+          </div>
+        ))}
+      {regressions &&
+        regressions.map((regression: RegressionProps) => (
+          <div key={regression.id} style={styles.gridItem}>
+            <GridCell key={regression.id}>
+              <RegressionReport key={regression.id} regression={regression} />
+            </GridCell>
+          </div>
+        ))}
     </ReactGridLayout>
   );
 };

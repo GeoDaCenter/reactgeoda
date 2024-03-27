@@ -39,6 +39,8 @@ const KeplerMap = () => {
               height={height}
               width={width}
               theme={theme === 'light' ? themeLT : themeDK}
+              // when a `KeplerGl` component is unmounted, don't remove the map from the DOM
+              mint={false}
             />
           );
         }}

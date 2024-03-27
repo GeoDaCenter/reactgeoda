@@ -88,7 +88,7 @@ export function KeplerMapContainer({
     const visibleLayers = updatedLayers
       .filter((l: Layer) => l.id === layerId)
       .map((l: Layer) => l.id);
-    // array to object {[layer.id]: true}
+    // convert array to object {[layer.id]: true}
     const layers = visibleLayers?.reduce(
       (accu: {}, layerId: string) => ({
         ...accu,
@@ -154,10 +154,7 @@ export function KeplerMapContainer({
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
 
   return (
-    <div
-      style={{height: mapHeight ?? 280, width: mapWidth ?? 300}}
-      className="rounded bg-white dark:bg-black"
-    >
+    <div className="h-full w-full rounded bg-white dark:bg-black">
       <AutoSizer defaultHeight={280} defaultWidth={300}>
         {({height, width}) => {
           // get center and zoom from bounds for preview map

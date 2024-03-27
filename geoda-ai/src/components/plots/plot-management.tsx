@@ -15,17 +15,17 @@ import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
 
 // type guard function to check if the plot is a histogram plot
-function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
+export function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
   return plot.type === 'histogram';
 }
 
 // type guard function to check if the plot is a boxplot
-function isBoxPlot(plot: PlotProps): plot is BoxPlotProps {
+export function isBoxPlot(plot: PlotProps): plot is BoxPlotProps {
   return plot.type === 'boxplot';
 }
 
 // type guard function to check if the plot is a boxplot
-function isParallelCoordinate(plot: PlotProps): plot is ParallelCoordinateProps {
+export function isParallelCoordinate(plot: PlotProps): plot is ParallelCoordinateProps {
   return plot.type === 'parallel-coordinate';
 }
 

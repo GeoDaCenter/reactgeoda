@@ -1,12 +1,12 @@
 import React from 'react';
 
-export const IconXClose = () => {
+export const IconXClose = ({width = 18, height = 18}) => {
   return (
     <svg
       className="fill-none stroke-current text-black dark:text-white"
-      height="18"
+      height={height}
       viewBox="0 0 24 24"
-      width="18"
+      width={width}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
