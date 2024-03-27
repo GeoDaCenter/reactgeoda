@@ -28,7 +28,7 @@ export const IconMove = ({width = 18, height = 18}) => {
 export const GridCell: FC<GridCellProps> = ({key, children}) => {
   return (
     <div className="h-full w-full">
-      <div className="absolute right-0 top-0 z-10 m-1 flex cursor-pointer flex-row gap-1">
+      <div className="absolute right-0 top-0 z-50 m-1 flex cursor-pointer flex-row gap-1">
         <div className="react-grid-dragHandle">
           <IconMove width={12} height={12} />
         </div>

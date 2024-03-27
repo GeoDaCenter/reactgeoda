@@ -17,56 +17,8 @@ import {RegressionReport} from './spreg/spreg-report';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
-// const DuckDBTable = dynamic(() => import('./table/duckdb-table'), {ssr: false});
+const DuckDBTable = dynamic(() => import('./table/duckdb-table'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
-
-const layout = [
-  {
-    w: 7,
-    h: 9,
-    x: 0,
-    y: 0,
-    i: 'kepler',
-    moved: true,
-    static: true
-  },
-  // {
-  //   w: 12,
-  //   h: 6,
-  //   x: 0,
-  //   y: 9,
-  //   i: 'toolbar',
-  //   moved: false,
-  //   static: false
-  // },
-  {
-    w: 5,
-    h: 9,
-    x: 7,
-    y: 0,
-    i: 'table',
-    moved: false,
-    static: false
-  }
-  // {
-  //   w: 7,
-  //   h: 10,
-  //   x: 0,
-  //   y: 15,
-  //   i: 'nivoplot',
-  //   moved: false,
-  //   static: false
-  // },
-  // {
-  //   w: 4,
-  //   h: 8,
-  //   x: 8,
-  //   y: 15,
-  //   i: 'chatgpt',
-  //   moved: false,
-  //   static: false
-  // }
-];
 
 const styles = {
   gridItem: {
@@ -132,6 +84,17 @@ const GridLayout = () => {
   // combine layout and plotLayout and regressionLayout
   const combinedLayout = [...layout, ...plotLayout, ...regressionLayout];
 
+  // add table to combinedLayout
+  combinedLayout.push({
+    w: 6,
+    h: 6,
+    x: 0,
+    y: 6 * (layerIds?.length || 0),
+    i: 'table',
+    moved: false,
+    static: false
+  });
+
   // eslint-disable-next-line no-unused-vars
   const onLayoutChange = (layout: Layout[]) => {
     // ToDo save layout to state
@@ -165,6 +128,7 @@ const GridLayout = () => {
       width={1200}
       margin={[20, 20]}
       allowOverlap={false}
+      cols={18}
       onLayoutChange={onLayoutChange}
       draggableHandle=".react-grid-dragHandle"
     >
@@ -176,6 +140,11 @@ const GridLayout = () => {
             </GridCell>
           </div>
         ))}
+      <div key="table" style={styles.gridItem}>
+        <GridCell key="table">
+          <DuckDBTable />
+        </GridCell>
+      </div>
       {plotIds &&
         plots.map((plot: PlotProps) => (
           <div key={plot.id} style={styles.gridItem}>

@@ -7,7 +7,15 @@ import remarkGfm from 'remark-gfm';
 // format dependent variable and independent variables as y ~ x1 + x2 + x3
 const formatEquation = (y: string, x: string[]) => `${y} ~ ${x.join(' + ')}`;
 
-export const RegressionReport = ({regression}: {regression: RegressionProps}) => {
+export const RegressionReport = ({
+  regression,
+  height,
+  width
+}: {
+  regression: RegressionProps;
+  height?: number;
+  width?: number;
+}) => {
   const regReport = regression.data.result;
   return (
     <Card key={regression.id} className="p-0">
@@ -18,7 +26,7 @@ export const RegressionReport = ({regression}: {regression: RegressionProps}) =>
         </small>
       </CardHeader>
       <CardBody>
-        <ScrollShadow className="h-[400px] w-[500px]">
+        <ScrollShadow className={height && width ? `h-[${height}px] w-[${width}px]` : ''}>
           <div className="flex w-full flex-col gap-2 rounded-none">
             <div className="p-4 font-mono text-tiny">
               <Markdown remarkPlugins={[remarkGfm]}>

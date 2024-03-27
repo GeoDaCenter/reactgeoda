@@ -226,7 +226,12 @@ export function SpregPanel() {
               <div className="p-1">
                 <div className="flex flex-col gap-4">
                   {regressions.toReversed().map((regression: RegressionProps) => (
-                    <RegressionReport key={regression.id} regression={regression} />
+                    <RegressionReport
+                      key={regression.id}
+                      regression={regression}
+                      height={400}
+                      width={500}
+                    />
                   ))}
                 </div>
               </div>
