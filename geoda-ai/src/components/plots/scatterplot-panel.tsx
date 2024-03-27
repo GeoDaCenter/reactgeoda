@@ -22,7 +22,7 @@ export function ScatterplotPanel() {
   // State for x and y variables
   const [selectedVariables, setSelectedVariables] = useState<string[]>([]);
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );
