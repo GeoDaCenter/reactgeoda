@@ -1,12 +1,11 @@
 import React from 'react';
 import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
-// import ChatGpt from './chatgpt-wrapper';
-// import NivoPlot from './nivo-plot';
-// import ToolBar from './tool-bar';
-// import AgGrid from './ag-grid-wrapper';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../store';
+import {Layer} from '@kepler.gl/layers';
+import {MAP_ID} from '@/constants';
+import {KeplerMapContainer} from './common/kepler-map-container';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
@@ -73,6 +72,22 @@ const GridLayout = () => {
   // get showGridView from redux state
   const showGridView = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
+  // get all layers from kepler.gl visstate
+  const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
+  // get layer ids from kepler.gl visstate
+  const layerIds = layers?.map((layer: Layer) => layer.id);
+
+  // for each layer, create a react grid layout with w: 6 and h: 6
+  const layout = layerIds?.map((layerId: string, index: number) => ({
+    w: 6,
+    h: 6,
+    x: 0,
+    y: 6 * index,
+    i: layerId,
+    moved: false,
+    static: false
+  }));
+
   // eslint-disable-next-line no-unused-vars
   const onLayoutChange = (layout: Layout[]) => {
     // ToDo save layout to state
@@ -108,12 +123,12 @@ const GridLayout = () => {
       allowOverlap={false}
       onLayoutChange={onLayoutChange}
     >
-      <div key="kepler" style={styles.gridItem}>
-        <KeplerMap />
-      </div>
-      <div key="table" style={styles.gridItem}>
-        {/* <DuckDBTable /> */}
-      </div>
+      {layerIds &&
+        layerIds.map((layerId: string, i: number) => (
+          <div key={layerId} className="overflow-auto rounded-sm border-dashed border-gray-500 p-4">
+            <KeplerMapContainer layerId={layerId} mapIndex={i + 1} mapWidth={280} mapHeight={180} />
+          </div>
+        ))}
       {/*<div key="toolbar" style={styles.gridItem}>
         <ToolBar />
       </div>
