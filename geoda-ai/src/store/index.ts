@@ -1,5 +1,6 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
+import {Layout} from 'react-grid-layout';
 
 import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
@@ -38,6 +39,12 @@ export type GeoDaState = {
     regressions: Array<RegressionProps>;
     ai: {
       messages: Array<MessageModel>;
+    };
+    dashboard: {
+      mode: 'edit' | 'view';
+      gridLayout?: Layout[];
+      gridItems?: Array<{id: string; show: boolean}>;
+      textItems?: Array<{id: string; content: string}>;
     };
   };
 };

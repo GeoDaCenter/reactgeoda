@@ -52,10 +52,15 @@ export async function initDuckDB() {
   return null;
 }
 
-// initial the global duckdb instance, delay 500ms to avoid blocking loading default page
-setTimeout(async () => {
+// initial the global duckdb instance, delay 100ms to avoid blocking loading default page
+// setTimeout(async () => {
+//   db = await initDuckDB();
+// }, 100);
+
+// wait until the page is loaded
+window.onload = async () => {
   db = await initDuckDB();
-}, 200);
+};
 
 /**
  * Get the summary of a table by passing the table name

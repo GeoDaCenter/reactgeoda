@@ -1,7 +1,7 @@
 import React from 'react';
 import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../store';
 import {Layer} from '@kepler.gl/layers';
 import {MAP_ID} from '@/constants';
@@ -14,6 +14,7 @@ import {BoxPlot} from './plots/box-plot';
 import {ParallelCoordinatePlot} from './plots/parallel-coordinate-plot';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from './spreg/spreg-report';
+import {updateLayout} from '@/actions/dashboard-actions';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
@@ -28,7 +29,84 @@ const styles = {
   }
 };
 
+function updateGridLayout(
+  gridLayout: Layout[] | undefined,
+  layers: Layer[],
+  plots: PlotProps[],
+  regressions: RegressionProps[]
+) {
+  const newGridLayout = [...(gridLayout || [])];
+
+  // filter layers that are not in the newGridLayout
+  const layersNotInLayout = layers?.filter(
+    (layer: Layer) => !newGridLayout.find(l => l.i === layer.id)
+  );
+  // for each layer, create a react grid layout with w: 6 and h: 6
+  const layout =
+    layersNotInLayout?.map((layer: Layer, index: number) => ({
+      w: 6,
+      h: 6,
+      x: 0,
+      y: 6 * index,
+      i: layer.id,
+      moved: false,
+      static: false
+    })) || [];
+
+  // filter plots that are not in the newGridLayout
+  const plotsNotInLayout = plots?.filter(
+    (plot: PlotProps) => !newGridLayout.find(l => l.i === plot.id)
+  );
+  // for each plot, create a react grid layout with w: 6 and h: 6
+  const plotLayout =
+    plotsNotInLayout?.map((plot: PlotProps, index: number) => ({
+      w: 6,
+      h: 6,
+      x: 6,
+      y: 6 * index,
+      i: plot.id,
+      moved: false,
+      static: false
+    })) || [];
+
+  // filter regressions that are not in the newGridLayout
+  const regressionsNotInLayout = regressions?.filter(
+    (regression: RegressionProps) => !newGridLayout.find(l => l.i === regression.id)
+  );
+  // for each regression, create a react grid layout with w: 6 and h: 6
+  const regressionLayout =
+    regressionsNotInLayout?.map((regression: RegressionProps, index: number) => ({
+      w: 6,
+      h: 6,
+      x: 12,
+      y: 6 * index,
+      i: regression.id,
+      moved: false,
+      static: false
+    })) || [];
+
+  // append layout and plotLayout and regressionLayout to newGridLayout
+  const combinedLayout = [...newGridLayout, ...layout, ...plotLayout, ...regressionLayout];
+
+  // add table to combinedLayout if it is not in the newGridLayout
+  if (!newGridLayout.find(l => l.i === 'table')) {
+    combinedLayout.push({
+      w: 6,
+      h: 6,
+      x: 0,
+      y: 6 * (layers?.length || 0),
+      i: 'table',
+      moved: false,
+      static: false
+    });
+  }
+
+  return combinedLayout;
+}
+
 const GridLayout = () => {
+  const dispatch = useDispatch();
+
   // get showGridView from redux state
   const showGridView = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
@@ -45,60 +123,17 @@ const GridLayout = () => {
   // get all regressions from redux state
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
 
-  // for each layer, create a react grid layout with w: 6 and h: 6
-  const layout =
-    layerIds?.map((layerId: string, index: number) => ({
-      w: 6,
-      h: 6,
-      x: 0,
-      y: 6 * index,
-      i: layerId,
-      moved: false,
-      static: false
-    })) || [];
+  // get grid layout from redux state
+  const gridLayout = useSelector((state: GeoDaState) => state.root.dashboard.gridLayout);
 
-  // for each plot, create a react grid layout with w: 6 and h: 6
-  const plotLayout =
-    plotIds?.map((plotId: string, index: number) => ({
-      w: 6,
-      h: 6,
-      x: 6,
-      y: 6 * index,
-      i: plotId,
-      moved: false,
-      static: false
-    })) || [];
+  const layout = updateGridLayout(gridLayout, layers, plots, regressions);
 
-  // for each regression, create a react grid layout with w: 6 and h: 6
-  const regressionLayout =
-    regressions?.map((regression: any, index: number) => ({
-      w: 6,
-      h: 6,
-      x: 12,
-      y: 6 * index,
-      i: regression.id,
-      moved: false,
-      static: false
-    })) || [];
-
-  // combine layout and plotLayout and regressionLayout
-  const combinedLayout = [...layout, ...plotLayout, ...regressionLayout];
-
-  // add table to combinedLayout
-  combinedLayout.push({
-    w: 6,
-    h: 6,
-    x: 0,
-    y: 6 * (layerIds?.length || 0),
-    i: 'table',
-    moved: false,
-    static: false
-  });
-
-  // eslint-disable-next-line no-unused-vars
+  // when layout changes, update redux state
   const onLayoutChange = (layout: Layout[]) => {
-    // ToDo save layout to state
-    console.log(layout);
+    // only update layout if showGridView is true
+    if (showGridView) {
+      dispatch(updateLayout({layout}));
+    }
   };
 
   if (!showGridView) {
@@ -123,7 +158,7 @@ const GridLayout = () => {
   return (
     <ReactGridLayout
       className="layout"
-      layout={combinedLayout}
+      layout={layout}
       rowHeight={30}
       width={1200}
       margin={[20, 20]}
