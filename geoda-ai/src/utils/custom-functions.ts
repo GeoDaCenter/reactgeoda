@@ -381,8 +381,8 @@ function boxplotFunction(
 }
 
 function parallelCoordinateFunction(
-  {variableNames},
-  {dataContainer}
+  {variableNames}: {variableNames: string[]},
+  {dataContainer}: {dataContainer: DataContainerInterface}
 ): ParallelCoordinateOutput | ErrorOutput {
   // get data from variable
   const data: CreateParallelCoordinateProps['data'] = variableNames.reduce(

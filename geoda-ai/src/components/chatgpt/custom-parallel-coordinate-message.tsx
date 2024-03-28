@@ -27,7 +27,7 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
 
   // handle click event
   const onClick = () => {
-    // dispatch action to update redux state state.root.weights
+    // dispatch action to update redux state
     dispatch(addPlot({id, type: 'parallel-coordinate', variables, isNew: true}));
     // hide the button once clicked
     setHide(true);
