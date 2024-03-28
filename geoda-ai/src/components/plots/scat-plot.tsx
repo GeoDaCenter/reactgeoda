@@ -63,6 +63,9 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterP
       trigger: 'item',
       formatter: function (params: any) {
         return `${xVariableName}: ${params.value[0]}<br/>${yVariableName}: ${params.value[1]}`;
+      },
+      axisPointer: {
+        type: 'cross'
       }
     },
     brush: {
