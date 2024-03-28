@@ -92,7 +92,7 @@ export function MappingPanel() {
   const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
 
   // use selector to get tableName from redux store
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 

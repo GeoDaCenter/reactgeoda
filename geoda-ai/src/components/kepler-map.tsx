@@ -7,13 +7,14 @@ import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
 import {useSelector} from 'react-redux';
 import {useEffect} from 'react';
+import {GeoDaState} from '@/store';
 
 const KeplerMap = () => {
   // use selector to get theme
-  const theme = useSelector((state: any) => state.root.uiState.theme);
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
 
   // use selector to get table name
-  const rawFileData = useSelector((state: any) => state.root.file?.rawFileData);
+  const rawFileData = useSelector((state: GeoDaState) => state.root.file?.rawFileData);
 
   // trigger use hooks to load wasm files
   const {importArrowFile} = useDuckDB();
@@ -21,9 +22,9 @@ const KeplerMap = () => {
 
   // try to create a summary of the data
   useEffect(() => {
-    if (rawFileData?.name) {
+    if (rawFileData?.fileName) {
       importArrowFile(rawFileData);
-      getTableSummary(rawFileData.name);
+      getTableSummary(rawFileData.fileName);
     }
   }, [importArrowFile, rawFileData]);
 

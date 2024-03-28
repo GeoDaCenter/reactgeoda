@@ -9,27 +9,20 @@ import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
 import {WeightsProps} from '@/actions/weights-actions';
 import {PlotProps} from '@/actions/plot-actions';
+import {RegressionProps} from '@/actions/regression-actions';
+import {RawFileDataProps} from '@/actions';
+import {MessageModel} from '@chatscope/chat-ui-kit-react';
 
+/**
+ * Define the State of the Redux store
+ */
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
   root: {
-    choroplethMethod: string;
-    numberOfBreaks: number;
-    selectedChoroplethVariable: string;
-    selectedGraphVariables: string[];
-    selectedLocalMoranVariable: string;
-    localMoranWeights: string;
-    localMoranSignificance: number;
-    univariateAutocorrelationType: string;
-    plotType: string;
     file: {
-      rawFileData: any;
+      rawFileData: RawFileDataProps;
       fileData: any;
     };
-    choroplethLayer: any;
-    choroplethData: any;
-    localMoranLayer: any;
-    localMoranData: any;
     language: string;
     uiState: {
       theme: 'light' | 'dark';
@@ -42,6 +35,10 @@ export type GeoDaState = {
     };
     weights: Array<WeightsProps>;
     plots: Array<PlotProps>;
+    regressions: Array<RegressionProps>;
+    ai: {
+      messages: Array<MessageModel>;
+    };
   };
 };
 

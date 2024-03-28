@@ -22,7 +22,7 @@ export function ParallelCoordinatePanel() {
   const [variables, setVariables] = useState<string[]>([]);
 
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);

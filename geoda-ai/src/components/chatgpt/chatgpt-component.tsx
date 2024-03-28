@@ -11,9 +11,6 @@ import {
 } from '@chatscope/chat-ui-kit-react';
 import {useIntl} from 'react-intl';
 
-const DEFAULT_WELCOME_MESSAGE =
-  "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
-
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
@@ -26,51 +23,47 @@ export type ChatGPTComponentProps = {
   processMessage: (message: string) => Promise<Array<MessageModel>>;
   // the function to return a component to render custom message
   getCustomMessageComponent?: () => React.FC<{props: any}>;
+  // initial messages
+  messages: Array<MessageModel>;
+  // update message callback function
+  setMessages: (messages: MessageModel[]) => void;
 };
 
 export const ChatGPTComponent = ({
   openAIKey,
   initOpenAI,
   processMessage,
-  getCustomMessageComponent
+  getCustomMessageComponent,
+  messages,
+  setMessages
 }: ChatGPTComponentProps) => {
   const intl = useIntl();
-  const [messages, setMessages] = useState<Array<MessageModel>>([]);
+
   const CustomMessageComponent = getCustomMessageComponent && getCustomMessageComponent();
 
   useEffect(() => {
     // set initial message
-    setMessages([
-      {
-        message: intl.formatMessage({
-          id: 'GeoDa.AI.initialMessage',
-          defaultMessage: DEFAULT_WELCOME_MESSAGE
-        }),
-        sentTime: 'just now',
-        sender: 'ChatGPT',
-        direction: 'incoming',
-        position: 'first'
-      }
-      // test any custom message
-      // {
-      //   type: 'custom',
-      //   message: '',
-      //   sender: 'ChatGPT',
-      //   direction: 'incoming',
-      //   position: 'normal',
-      //   payload: {
-      //     type: 'custom',
-      //     functionName: CustomFunctionNames.QUANTILE_BREAKS,
-      //     functionArgs: {
-      //       variable: 'HR60',
-      //       k: 5
-      //     },
-      //     output: {
-      //       quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
-      //     }
-      //   }
-      // }
-    ]);
+    // setMessages([
+    //   // test any custom message
+    //   {
+    //     type: 'custom',
+    //     message: '',
+    //     sender: 'ChatGPT',
+    //     direction: 'incoming',
+    //     position: 'normal',
+    //     payload: {
+    //       type: 'custom',
+    //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
+    //       functionArgs: {
+    //         variable: 'HR60',
+    //         k: 5
+    //       },
+    //       output: {
+    //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
+    //       }
+    //     }
+    //   }
+    // ]);
     if (openAIKey) {
       initOpenAI(openAIKey);
     }

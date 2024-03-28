@@ -6,7 +6,8 @@ import {
   getNearestNeighborsFromBinaryGeometries,
   WeightsMeta,
   getMetaFromWeights,
-  localMoran
+  localMoran,
+  getContiguityNeighborsFromBinaryGeometries
 } from 'geoda-wasm';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
@@ -26,11 +27,22 @@ import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './histogram-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
 import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
+import {DataContainerInterface} from '@kepler.gl/utils';
+import {CustomFunctions} from '@/ai/openai-utils';
+import {linearRegressionCallbackFunc} from './regression-utils';
 
-// key is the name of the function, value is the function itself
-export type CustomFunctions = {
-  [key: string]: (...args: any[]) => any;
-};
+// define enum for custom function names, the value of each enum is
+// the name of the function that is defined in OpenAI assistant model
+export enum CustomFunctionNames {
+  SUMMARIZE_DATA = 'summarizeData',
+  QUANTILE_BREAKS = 'quantileBreaks',
+  NATURAL_BREAKS = 'naturalBreaks',
+  KNN_WEIGHT = 'knnWeight',
+  LOCAL_MORAN = 'univariateLocalMoran',
+  HISTOGRAM = 'histogram',
+  BOXPLOT = 'boxplot',
+  CONTIGUITY_WEIGHT = 'contiguityWeight'
+}
 
 type SummarizeDataProps = {
   tableName?: string;
@@ -88,19 +100,6 @@ export type HistogramOutput = {
   };
   data: HistogramDataProps[];
 };
-
-// define enum for custom function names, the value of each enum is
-// the name of the function that is defined in OpenAI assistant model
-export enum CustomFunctionNames {
-  SUMMARIZE_DATA = 'summarizeData',
-  QUANTILE_BREAKS = 'quantileBreaks',
-  NATURAL_BREAKS = 'naturalBreaks',
-  KNN_WEIGHT = 'knnWeight',
-  LOCAL_MORAN = 'univariateLocalMoran',
-  HISTOGRAM = 'histogram',
-  BOXPLOT = 'boxplot',
-  PARALLEL_COORDINATE = 'parallelCoordinate'
-}
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
   summarizeData: async function ({tableName}: SummarizeDataProps) {
@@ -177,6 +176,55 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     return {
       type: 'weights',
       name: 'KNN',
+      result: weightsMeta,
+      data: weights
+    };
+  },
+
+  contiguityWeight: async function (
+    {contiguityType, orderOfContiguity, includeLowerOrder, precisionThreshold},
+    {tableName, visState}
+  ): Promise<WeightsOutput | ErrorOutput> {
+    if (!tableName) {
+      return {result: 'Error: table name is empty'};
+    }
+    // get kepler.gl layer using tableName
+    const keplerLayer = getKeplerLayer(tableName, visState);
+    if (!keplerLayer) {
+      return {result: 'Error: layer is empty'};
+    }
+
+    const binaryGeometryType = keplerLayer.meta.featureTypes;
+    const binaryGeometries = keplerLayer.dataToFeature;
+    if (!binaryGeometries || !binaryGeometryType) {
+      return {result: 'Error: geometries in layer is empty'};
+    }
+    const weights = await getContiguityNeighborsFromBinaryGeometries({
+      binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries,
+      isQueen: contiguityType === 'queen',
+      useCentroids: binaryGeometryType.point || binaryGeometryType.line,
+      precisionThreshold,
+      orderOfContiguity: orderOfContiguity || 1,
+      includeLowerOrder
+    });
+
+    const weightsMeta: WeightsMeta = {
+      ...getMetaFromWeights(weights),
+      id: `w-${contiguityType}-contiguity-${orderOfContiguity || 1}${
+        includeLowerOrder ? '-lower' : ''
+      }`,
+      type: contiguityType === 'queen' ? 'queen' : 'rook',
+      symmetry: 'symmetric',
+      order: orderOfContiguity || 1,
+      includeLowerOrder,
+      threshold: precisionThreshold
+    };
+
+    return {
+      type: 'weights',
+      name: 'Contiguity',
       result: weightsMeta,
       data: weights
     };
@@ -277,6 +325,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
   boxplot: boxplotFunction,
   parallelCoordinate: parallelCoordinateFunction
+  linearRegression: linearRegressionCallbackFunc
 };
 
 export type BoxplotOutput = {
@@ -291,7 +340,15 @@ export type BoxplotOutput = {
   data: BoxplotDataProps;
 };
 
-function boxplotFunction({variableNames, boundIQR}, {dataContainer}): BoxplotOutput | ErrorOutput {
+type BoxplotFunctionProps = {
+  variableNames: string[];
+  boundIQR: number;
+};
+
+function boxplotFunction(
+  {variableNames, boundIQR}: BoxplotFunctionProps,
+  {dataContainer}: {dataContainer: DataContainerInterface}
+): BoxplotOutput | ErrorOutput {
   // get data from variable
   const data: CreateBoxplotProps['data'] = variableNames.reduce(
     (prev: CreateBoxplotProps['data'], cur: string) => {

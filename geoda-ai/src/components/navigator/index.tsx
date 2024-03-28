@@ -15,7 +15,8 @@ import {
   IconParallel,
   IconScatterplot,
   IconTable,
-  IconWeights
+  IconWeights,
+  IconSpreg
 } from './icons';
 import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
@@ -28,7 +29,7 @@ export function Navigator() {
 
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
 
-  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.name);
+  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
 
   const [isFileLoaded, setIsFileLoaded] = useState(Boolean(fileName));
 
@@ -50,6 +51,11 @@ export function Navigator() {
   const newHistogramCount = useSelector(
     (state: GeoDaState) =>
       state.root.plots.filter(plot => plot.isNew && plot.type === 'histogram').length
+  );
+
+  // get number of newly added regressions from state.root.regressions
+  const newRegressionCount = useSelector(
+    (state: GeoDaState) => state.root.regressions.filter(reg => reg.isNew).length
   );
 
   const onOpenCallback = useCallback(
@@ -94,6 +100,9 @@ export function Navigator() {
           break;
         case 'icon-boxplot':
           dispatch(setPropertyPanel(PanelName.BOXPLOT));
+          break;
+        case 'icon-spreg':
+          dispatch(setPropertyPanel(PanelName.SPREG));
           break;
         case 'icon-pcp':
           dispatch(setPropertyPanel(PanelName.PARALLEL_COORDINATE));
@@ -259,6 +268,27 @@ export function Navigator() {
             <IconLisa />
           </Button>
         </Tooltip>
+        <Badge
+          color="danger"
+          content={newRegressionCount}
+          isInvisible={newRegressionCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+        >
+          <Tooltip key="spregTooltip" placement="right" content="Spatial Regression">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-spreg"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconSpreg />
+            </Button>
+          </Tooltip>
+        </Badge>
         <Tooltip key="chatgptTooltip" placement="right" content="GeoDa.AI ChatBot">
           <Button
             isIconOnly

@@ -55,7 +55,7 @@ export function KeplerMapContainer({
   const dispatchKepler = (action: any) => dispatch(wrapTo(NO_MAP_ID, action));
 
   // get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.name);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   // keplerStateSelector
   const keplerState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]);
