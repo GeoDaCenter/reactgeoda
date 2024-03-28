@@ -32,20 +32,9 @@ echarts.use([
 //echarts.registerTransform(transform.regression);
 
 function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterPlotProps) {
-  const hasHighlighted = filteredIndex ? Array.from(filteredIndex).some(idx => idx === 0) : true;
-
-  const allPoints = props.data.flatMap(dataItem => dataItem.points);
-
-  const seriesData = allPoints.map((point, i) => {
-    const isHighlighted = filteredIndex ? filteredIndex[i] === 0 : hasHighlighted;
-    return {
-      value: [point.x, point.y],
-      itemStyle: {
-        color: isHighlighted ? 'rgb(255, 70, 131)' : 'rgb(255, 70, 200)', // Highlight color vs default
-        opacity: isHighlighted ? 0.5 : 1 // Highlighted points are fully opaque
-      }
-    };
-  });
+  const seriesData = props.data[0].points.map(point => [point.x, point.y]);
+  const xVariableName = props.data[0].variableX;
+  const yVariableName = props.data[0].variableY;
 
   const option = {
     xAxis: {
@@ -58,13 +47,22 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterP
       {
         data: seriesData,
         type: 'scatter',
-        symbolSize: 10
+        symbolSize: 6,
+        itemStyle: {
+          color: 'lightblue',
+          borderColor: '#555',
+          opacity: 0.8
+        },
+        emphasis: {
+          focus: 'series'
+        },
+        animationDelay: 0
       }
     ],
     tooltip: {
       trigger: 'item',
       formatter: function (params: any) {
-        return `X: ${params.value[0]}<br/>Y: ${params.value[1]}`;
+        return `${xVariableName}: ${params.value[0]}<br/>${yVariableName}: ${params.value[1]}`;
       }
     },
     brush: {
@@ -77,7 +75,10 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterP
       right: '5%',
       bottom: '3%',
       containLabel: true
-    }
+    },
+    // avoid flickering when brushing
+    animation: false,
+    progressive: 0
   };
 
   return option;
@@ -164,21 +165,19 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
         brushed.push(...rawIndices);
       }
 
-      // get selected ids from brushed bars
-      // const filteredIndex =
-      //   brushed.length > 0
-      //     ? brushed.map((idx: number) => data.data[idx].points.map(item => item.index)).flat()
-      //     : [];
-
-      if (validPlot && brushed.length === 0) {
-        // reset options
-        const chart = eChartsRef.current;
-        if (chart) {
-          const chartInstance = chart.getEchartsInstance();
-          const updatedOption = getChartOption(null, data);
-          chartInstance.setOption(updatedOption);
+      // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
+      setTimeout(() => {
+        if (validPlot && brushed.length === 0) {
+          // reset options
+          const chart = eChartsRef.current;
+          if (chart) {
+            const chartInstance = chart.getEchartsInstance();
+            const updatedOption = getChartOption(null, data);
+            chartInstance.setOption(updatedOption);
+          }
         }
-      }
+      }, 100);
+
       // Dispatch action to highlight selected indices
       dispatch({
         type: 'SET_FILTER_INDEXES',
@@ -200,10 +199,10 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
           echarts={echarts}
           option={option}
           notMerge={true}
-          lazyUpdate={true}
+          lazyUpdate={false}
           theme={theme}
           onEvents={bindEvents}
-          style={{height: '400px', width: '100%'}}
+          style={{height: '300px', width: '100%'}}
           ref={eChartsRef}
         />
         {validPlot && (
