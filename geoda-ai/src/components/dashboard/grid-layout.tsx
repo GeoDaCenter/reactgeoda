@@ -2,23 +2,24 @@ import React from 'react';
 import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
 import {useDispatch, useSelector} from 'react-redux';
-import {GeoDaState} from '../store';
+import {GeoDaState} from '../../store';
 import {Layer} from '@kepler.gl/layers';
 import {MAP_ID} from '@/constants';
-import {KeplerMapContainer} from './common/kepler-map-container';
-import {GridCell} from './common/grid-cell';
+import {KeplerMapContainer} from '../common/kepler-map-container';
+import {GridCell} from './grid-cell';
 import {PlotProps} from '@/actions';
-import {isBoxPlot, isHistogramPlot, isParallelCoordinate} from './plots/plot-management';
-import {HistogramPlot} from './plots/histogram-plot';
-import {BoxPlot} from './plots/box-plot';
-import {ParallelCoordinatePlot} from './plots/parallel-coordinate-plot';
+import {isBoxPlot, isHistogramPlot, isParallelCoordinate} from '../plots/plot-management';
+import {HistogramPlot} from '../plots/histogram-plot';
+import {BoxPlot} from '../plots/box-plot';
+import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {RegressionProps} from '@/actions/regression-actions';
-import {RegressionReport} from './spreg/spreg-report';
-import {updateGridItems, updateLayout} from '@/actions/dashboard-actions';
+import {RegressionReport} from '../spreg/spreg-report';
+import {hideGridItem, updateLayout} from '@/actions/dashboard-actions';
+import { exportAsImage } from '@/utils/ui-utils';
 
 // import KeplerMap from './kepler-map';
-const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
-const DuckDBTable = dynamic(() => import('./table/duckdb-table'), {ssr: false});
+const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
+const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});
 const ReactGridLayout = WidthProvider(RGL);
 
 const styles = {
@@ -31,13 +32,15 @@ const styles = {
 
 function updateGridLayout(
   gridLayout: Layout[] | undefined,
+  gridItems: Array<{id: string; show: boolean}>,
   layers: Layer[],
   plots: PlotProps[],
   regressions: RegressionProps[]
 ) {
+  // remove items from newGridLayout that are not shwon in gridItem (show: false)
   const newGridLayout = [...(gridLayout || [])];
 
-  // filter layers that are not in the newGridLayout
+  // filter layers that are not in the newGridLayout and are not hidden in gridItems
   const layersNotInLayout = layers?.filter(
     (layer: Layer) => !newGridLayout.find(l => l.i === layer.id)
   );
@@ -101,7 +104,14 @@ function updateGridLayout(
     });
   }
 
-  return combinedLayout;
+  // remove items from combinedLayout that are not shwon in gridItem (show: false)
+  const combinedLayoutFiltered = combinedLayout.filter(
+    (layout: Layout) =>
+      !gridItems.find(item => item.id === layout.i) ||
+      gridItems.find(item => item.id === layout.i)?.show === true
+  );
+
+  return combinedLayoutFiltered;
 }
 
 const GridLayout = () => {
@@ -120,13 +130,16 @@ const GridLayout = () => {
   // get plot ids from redux state
   const plotIds = plots?.map((plot: any) => plot.id);
 
-  // get all regressions from redux state
+  // get all regressions from redux store
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
 
-  // get grid layout from redux state
+  // get grid layout from redux store
   const gridLayout = useSelector((state: GeoDaState) => state.root.dashboard.gridLayout);
 
-  const layout = updateGridLayout(gridLayout, layers, plots, regressions);
+  // get grid items from redux store
+  const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems) || [];
+
+  const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions);
 
   // when layout changes, update redux state
   const onLayoutChange = (layout: Layout[]) => {
@@ -136,9 +149,9 @@ const GridLayout = () => {
     }
   };
 
-  const onCloseGridItem = (id: string) => {
+  const onCloseGridItem = async (id: string) => {
     // dispatch action to add the grid item in gridItems with show set to false
-    // dispatch(updateGridItems(
+    dispatch(hideGridItem({id}));
   };
 
   if (!showGridView) {
@@ -173,36 +186,47 @@ const GridLayout = () => {
       draggableHandle=".react-grid-dragHandle"
     >
       {layerIds &&
-        layerIds.map((layerId: string) => (
-          <div key={layerId} style={styles.gridItem}>
-            <GridCell key={layerId} onCloseGridItem={onCloseGridItem}>
-              <KeplerMapContainer layerId={layerId} mapIndex={1} />
-            </GridCell>
-          </div>
-        ))}
+        layerIds.map(
+          (layerId: string) =>
+            layout.find(l => l.i === layerId) && (
+              <div key={layerId} style={styles.gridItem} className={layerId}>
+                <GridCell id={layerId} onCloseGridItem={onCloseGridItem}>
+                  <KeplerMapContainer layerId={layerId} mapIndex={1} />
+                </GridCell>
+              </div>
+            )
+        )}
       <div key="table" style={styles.gridItem}>
-        <GridCell key="table" onCloseGridItem={onCloseGridItem}>
+        <GridCell id="table" onCloseGridItem={onCloseGridItem}>
           <DuckDBTable />
         </GridCell>
       </div>
       {plotIds &&
-        plots.map((plot: PlotProps) => (
-          <div key={plot.id} style={styles.gridItem}>
-            <GridCell key={plot.id} onCloseGridItem={onCloseGridItem}>
-              {isHistogramPlot(plot) && <HistogramPlot key={plot.id} props={plot} />}
-              {isBoxPlot(plot) && <BoxPlot key={plot.id} props={plot} />}
-              {isParallelCoordinate(plot) && <ParallelCoordinatePlot key={plot.id} props={plot} />}
-            </GridCell>
-          </div>
-        ))}
+        plots.map(
+          (plot: PlotProps) =>
+            layout.find(l => l.i === plot.id) && (
+              <div key={plot.id} style={styles.gridItem}>
+                <GridCell id={plot.id} onCloseGridItem={onCloseGridItem}>
+                  {isHistogramPlot(plot) && <HistogramPlot key={plot.id} props={plot} />}
+                  {isBoxPlot(plot) && <BoxPlot key={plot.id} props={plot} />}
+                  {isParallelCoordinate(plot) && (
+                    <ParallelCoordinatePlot key={plot.id} props={plot} />
+                  )}
+                </GridCell>
+              </div>
+            )
+        )}
       {regressions &&
-        regressions.map((regression: RegressionProps) => (
-          <div key={regression.id} style={styles.gridItem}>
-            <GridCell key={regression.id} onCloseGridItem={onCloseGridItem}>
-              <RegressionReport key={regression.id} regression={regression} />
-            </GridCell>
-          </div>
-        ))}
+        regressions.map(
+          (regression: RegressionProps) =>
+            layout.find(l => l.i === regression.id) && (
+              <div key={regression.id} style={styles.gridItem}>
+                <GridCell id={regression.id} onCloseGridItem={onCloseGridItem}>
+                  <RegressionReport key={regression.id} regression={regression} />
+                </GridCell>
+              </div>
+            )
+        )}
     </ReactGridLayout>
   );
 };

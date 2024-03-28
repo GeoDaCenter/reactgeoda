@@ -2,7 +2,8 @@ import {Layout} from 'react-grid-layout';
 
 export enum DASHBOARD_ACTIONS {
   UPDATE_LAYOUT = 'UPDATE_LAYOUT',
-  UPDATE_GRID_ITEMS = 'UPDATE_GRID_ITEMS'
+  UPDATE_GRID_ITEMS = 'UPDATE_GRID_ITEMS',
+  HIDE_GRID_ITEM = 'HIDE_GRID_ITEM'
 }
 
 export type UpdateLayoutActionPayload = {
@@ -11,9 +12,9 @@ export type UpdateLayoutActionPayload = {
   textItems?: Array<{id: string; content: string}>;
 };
 
-export const updateLayout = (payload: UpdateLayoutActionPayload) => ({
+export const updateLayout = (layout: UpdateLayoutActionPayload) => ({
   type: DASHBOARD_ACTIONS.UPDATE_LAYOUT,
-  payload
+  payload: layout
 });
 
 export type UpdateGridItemsActionPayload = Array<{id: string; show: boolean}>;
@@ -22,7 +23,8 @@ export const updateGridItems = (gridItems: UpdateGridItemsActionPayload) => ({
   payload: gridItems
 });
 
-// export type hideGridItem = (id: string) => {
-//   type: DASHBOARD_ACTIONS.HIDE_GRID_ITEM;
-//   payload: {id; show: false};
-// };
+export type HideGridItemActionPayload = {id: string};
+export const hideGridItem = (item: HideGridItemActionPayload) => ({
+  type: DASHBOARD_ACTIONS.HIDE_GRID_ITEM,
+  payload: item
+});

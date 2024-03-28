@@ -2,7 +2,7 @@ import React, {FC, ReactNode} from 'react';
 import {IconXClose} from '../icons/xclose';
 
 interface GridCellProps {
-  key: string;
+  id: string;
   onCloseGridItem: (key: string) => void;
   children: ReactNode;
 }
@@ -26,9 +26,9 @@ export const IconMove = ({width = 18, height = 18}) => {
   );
 };
 
-export const GridCell: FC<GridCellProps> = ({key, onCloseGridItem, children}) => {
+export const GridCell: FC<GridCellProps> = ({id, onCloseGridItem, children}) => {
   const onClickClose = () => {
-    onCloseGridItem(key);
+    onCloseGridItem(id);
   };
 
   return (
