@@ -14,7 +14,7 @@ import {BoxPlot} from './plots/box-plot';
 import {ParallelCoordinatePlot} from './plots/parallel-coordinate-plot';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from './spreg/spreg-report';
-import {updateLayout} from '@/actions/dashboard-actions';
+import {updateGridItems, updateLayout} from '@/actions/dashboard-actions';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('./kepler-map'), {ssr: false});
@@ -136,6 +136,11 @@ const GridLayout = () => {
     }
   };
 
+  const onCloseGridItem = (id: string) => {
+    // dispatch action to add the grid item in gridItems with show set to false
+    // dispatch(updateGridItems(
+  };
+
   if (!showGridView) {
     // only show map
     return (
@@ -170,20 +175,20 @@ const GridLayout = () => {
       {layerIds &&
         layerIds.map((layerId: string) => (
           <div key={layerId} style={styles.gridItem}>
-            <GridCell key={layerId}>
+            <GridCell key={layerId} onCloseGridItem={onCloseGridItem}>
               <KeplerMapContainer layerId={layerId} mapIndex={1} />
             </GridCell>
           </div>
         ))}
       <div key="table" style={styles.gridItem}>
-        <GridCell key="table">
+        <GridCell key="table" onCloseGridItem={onCloseGridItem}>
           <DuckDBTable />
         </GridCell>
       </div>
       {plotIds &&
         plots.map((plot: PlotProps) => (
           <div key={plot.id} style={styles.gridItem}>
-            <GridCell key={plot.id}>
+            <GridCell key={plot.id} onCloseGridItem={onCloseGridItem}>
               {isHistogramPlot(plot) && <HistogramPlot key={plot.id} props={plot} />}
               {isBoxPlot(plot) && <BoxPlot key={plot.id} props={plot} />}
               {isParallelCoordinate(plot) && <ParallelCoordinatePlot key={plot.id} props={plot} />}
@@ -193,7 +198,7 @@ const GridLayout = () => {
       {regressions &&
         regressions.map((regression: RegressionProps) => (
           <div key={regression.id} style={styles.gridItem}>
-            <GridCell key={regression.id}>
+            <GridCell key={regression.id} onCloseGridItem={onCloseGridItem}>
               <RegressionReport key={regression.id} regression={regression} />
             </GridCell>
           </div>

@@ -3,6 +3,7 @@ import {IconXClose} from '../icons/xclose';
 
 interface GridCellProps {
   key: string;
+  onCloseGridItem: (key: string) => void;
   children: ReactNode;
 }
 
@@ -25,14 +26,20 @@ export const IconMove = ({width = 18, height = 18}) => {
   );
 };
 
-export const GridCell: FC<GridCellProps> = ({key, children}) => {
+export const GridCell: FC<GridCellProps> = ({key, onCloseGridItem, children}) => {
+  const onClickClose = () => {
+    onCloseGridItem(key);
+  };
+
   return (
     <div className="h-full w-full">
       <div className="absolute right-0 top-0 z-50 m-1 flex cursor-pointer flex-row gap-1">
         <div className="react-grid-dragHandle">
           <IconMove width={12} height={12} />
         </div>
-        <IconXClose width={12} height={12} />
+        <div onClick={onClickClose}>
+          <IconXClose width={12} height={12} />
+        </div>
       </div>
       {children}
     </div>
