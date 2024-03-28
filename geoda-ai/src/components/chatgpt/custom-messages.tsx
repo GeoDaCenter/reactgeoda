@@ -5,6 +5,7 @@ import {CustomWeightsMessage} from './custom-weights-message';
 import {CustomLocalMoranMessage} from './custom-lisa-message';
 import {CustomHistogramMessage} from './custom-histogram-message';
 import {CustomBoxplotMessage} from './custom-boxplot-message';
+import {CustomParallelCoordinateMessage} from './custom-parallel-coordinate-message';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
 import {CustomMapMessage} from './custom-map-message';
 
@@ -40,6 +41,9 @@ export function CustomMessage({props}: {props: MessagePayload}) {
         {props.output.type === 'lisa' && <CustomLocalMoranMessage props={props} />}
         {props.output.type === 'histogram' && <CustomHistogramMessage props={props} />}
         {props.output.type === 'boxplot' && <CustomBoxplotMessage props={props} />}
+        {props.output.type === 'parallel-coordinate' && (
+          <CustomParallelCoordinateMessage props={props} />
+        )}
       </>
     )
   );

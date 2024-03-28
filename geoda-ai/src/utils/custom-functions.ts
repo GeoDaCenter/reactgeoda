@@ -19,11 +19,13 @@ import {
 import {
   CHAT_FIELD_NAME_NOT_FOUND,
   CHAT_COLUMN_DATA_NOT_FOUND,
-  CHAT_WEIGHTS_NOT_FOUND
+  CHAT_WEIGHTS_NOT_FOUND,
+  CHAT_NOT_ENOUGH_COLUMNS
 } from '@/constants';
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './histogram-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
+import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
 
 // key is the name of the function, value is the function itself
 export type CustomFunctions = {
@@ -96,7 +98,8 @@ export enum CustomFunctionNames {
   KNN_WEIGHT = 'knnWeight',
   LOCAL_MORAN = 'univariateLocalMoran',
   HISTOGRAM = 'histogram',
-  BOXPLOT = 'boxplot'
+  BOXPLOT = 'boxplot',
+  PARALLEL_COORDINATE = 'parallelCoordinate'
 }
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -272,7 +275,8 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     };
   },
 
-  boxplot: boxplotFunction
+  boxplot: boxplotFunction,
+  parallelCoordinate: parallelCoordinateFunction
 };
 
 export type BoxplotOutput = {
@@ -318,3 +322,46 @@ function boxplotFunction({variableNames, boundIQR}, {dataContainer}): BoxplotOut
     data: boxplot
   };
 }
+
+function parallelCoordinateFunction(
+  {variableNames},
+  {dataContainer}
+): ParallelCoordinateOutput | ErrorOutput {
+  // get data from variable
+  const data: CreateParallelCoordinateProps['data'] = variableNames.reduce(
+    (prev: CreateParallelCoordinateProps['data'], cur: string) => {
+      const values = getColumnData(cur, dataContainer);
+      prev[cur] = values;
+      return prev;
+    },
+    {}
+  );
+
+  // check column data is empty
+  if (!data || Object.keys(data).length === 0) {
+    return {result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+  }
+
+  // check if there are at least 2 columns
+  if (Object.keys(data).length === 1) {
+    return {type: 'parallel-coordinate', result: `${CHAT_NOT_ENOUGH_COLUMNS}`};
+  }
+
+  return {
+    type: 'parallel-coordinate',
+    name: 'ParallelCoordinate',
+    result: {
+      id: Math.random().toString(36).substring(7),
+      variables: variableNames
+    }
+  };
+}
+
+export type ParallelCoordinateOutput = {
+  type: 'parallel-coordinate';
+  name: string;
+  result: {
+    id: string;
+    variables: string[];
+  };
+};

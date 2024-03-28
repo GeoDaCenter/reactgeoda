@@ -41,3 +41,6 @@ export const CHAT_COLUMN_DATA_NOT_FOUND =
 
 export const CHAT_WEIGHTS_NOT_FOUND =
   'Error: spatial weights is not found. User may forget to create a spatial weights. User can create a spatial weights using "create spatial weights" command.';
+
+export const CHAT_NOT_ENOUGH_COLUMNS =
+  'Error: there was an incorrect field name or plot requires more field names than were listed. User may need to add one or more field names';

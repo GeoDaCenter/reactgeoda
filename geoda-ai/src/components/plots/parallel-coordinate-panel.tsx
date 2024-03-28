@@ -102,7 +102,7 @@ export function ParallelCoordinatePanel() {
               key="parallel-coordinate-creation"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Create Parallel Coordinate Plot</span>
+                  <span>Create PCP</span>
                 </div>
               }
             >
