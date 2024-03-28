@@ -324,7 +324,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   },
 
   boxplot: boxplotFunction,
-  parallelCoordinate: parallelCoordinateFunction
+  parallelCoordinate: parallelCoordinateFunction,
   linearRegression: linearRegressionCallbackFunc
 };
 
