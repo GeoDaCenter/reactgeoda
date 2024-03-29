@@ -30,7 +30,6 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   }
   const {variableX, variableY} = output.result as ScatterplotOutput['result'];
 
-
   const scatterPlotProps: ScatterPlotProps = {
     id: Math.random().toString(36).substring(7),
     type: 'scatter',

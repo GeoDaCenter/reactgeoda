@@ -1,3 +1,5 @@
+import {ScatterPlotProps} from '@/actions/plot-actions';
+
 export type ScatterplotDataItemProps = {
   x: number;
   y: number;
@@ -28,83 +30,61 @@ export function createScatterplotData(
   };
 }
 
-// const ChartSettings = {
-//   defaultOptions: {
-//     toolbox: {
-//       show: true,
-//       feature: {
-//         mark: { show: true },
-//         dataView: { show: true, readOnly: false },
-//         restore: { show: true },
-//         saveAsImage: { show: true }
-//       }
-//     }
-//   },
-//   theme: {
-//     textStyle: {
-//       fontFamily: 'Helvetica Neue, Arial, Verdana, sans-serif'
-//     }
-//   }
-// };
+export function getScatterChartOption(
+  filteredIndex: Uint8ClampedArray | null,
+  props: ScatterPlotProps
+) {
+  const seriesData = props.data.points.map(point => [point.x, point.y]);
+  const xVariableName = props.data.variableX;
+  const yVariableName = props.data.variableY;
 
-// const createScatterplotOption = (data: ScatPlotDataProps) => {
-// const seriesData = data.points.map((item: ScatterplotDataItemProps) => [item.x, item.y]);
+  const option = {
+    xAxis: {
+      type: 'value'
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: seriesData,
+        type: 'scatter',
+        symbolSize: 6,
+        itemStyle: {
+          color: 'lightblue',
+          borderColor: '#555',
+          opacity: 0.8
+        },
+        emphasis: {
+          focus: 'series'
+        },
+        animationDelay: 0
+      }
+    ],
+    tooltip: {
+      trigger: 'item',
+      formatter: function (params: any) {
+        return `${xVariableName}: ${params.value[0]}<br/>${yVariableName}: ${params.value[1]}`;
+      },
+      axisPointer: {
+        type: 'cross'
+      }
+    },
+    brush: {
+      toolbox: ['rect', 'polygon', 'clear'],
+      xAxisIndex: 0,
+      yAxisIndex: 0
+    },
+    grid: {
+      left: '3%',
+      right: '5%',
+      bottom: '3%',
+      containLabel: true
+    },
+    // avoid flickering when brushing
+    animation: false,
+    progressive: 0
+  };
 
-// let option = {
-//   tooltip: {
-//     trigger: 'item',
-//     axisPointer: {
-//       type: 'cross'
-//     },
-//     formatter: function (params: {value: any}) {
-//       return `X: ${params.value[0]}<br/>Y: ${params.value[1]}`;
-//     }
-//   },
-//   xAxis: {
-//     type: 'value',
-//     name: data.variableX,
-//     nameLocation: 'middle',
-//     nameGap: 30
-//   },
-//   yAxis: {
-//     type: 'value',
-//     name: data.variableY,
-//     nameLocation: 'middle',
-//     nameGap: 30
-//   },
-//   series: [{
-//     type: 'scatter',
-//     symbolSize: 10,
-//     data: seriesData,
-//   }],
-//   brush: {
-//       toolbox: ['rect', 'polygon', 'clear', 'lineX', 'lineY', 'keep'],
-//       xAxisIndex: 'all',
-//       yAxisIndex: 'all',
-//       brushLink: 'all',
-//       outOfBrush: {
-//         colorAlpha: 0.1,
-//       },
-//     },
-//     toolbox: {
-//       feature: {
-//         brush: {
-//           type: ['rect', 'polygon', 'clear', 'lineX', 'lineY', 'keep'],
-//           xAxisIndex: 0,
-//           title: {
-//             rect: 'Rectangle selection',
-//             polygon: 'Lasso selection',
-//             clear: 'Clear selection',
-//           },
-//         },
-//       },
-//     },
-//   grid: {
-//       left: '4%',
-//       containLabel: true
-//     }
-//   };
-// option = { ...ChartSettings.defaultOptions, ...option };
-
-// return option;
-// };
+  return option;
+}
