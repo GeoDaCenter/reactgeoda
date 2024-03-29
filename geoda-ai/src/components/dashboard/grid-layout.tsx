@@ -15,7 +15,6 @@ import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from '../spreg/spreg-report';
 import {hideGridItem, updateLayout} from '@/actions/dashboard-actions';
-import { exportAsImage } from '@/utils/ui-utils';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -196,11 +195,13 @@ const GridLayout = () => {
               </div>
             )
         )}
-      <div key="table" style={styles.gridItem}>
-        <GridCell id="table" onCloseGridItem={onCloseGridItem}>
-          <DuckDBTable />
-        </GridCell>
-      </div>
+      {layout.find(l => l.i === 'table') && (
+        <div key="table" style={styles.gridItem}>
+          <GridCell id="table" onCloseGridItem={onCloseGridItem}>
+            <DuckDBTable />
+          </GridCell>
+        </div>
+      )}
       {plotIds &&
         plots.map(
           (plot: PlotProps) =>
