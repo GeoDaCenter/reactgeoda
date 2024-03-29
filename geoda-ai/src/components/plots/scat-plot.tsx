@@ -32,7 +32,6 @@ echarts.use([
 //echarts.registerTransform(transform.regression);
 
 function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterPlotProps) {
-  console.log(props)
   const seriesData = props.data.points.map(point => [point.x, point.y]);
   const xVariableName = props.data.variableX;
   const yVariableName = props.data.variableY;

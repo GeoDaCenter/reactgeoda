@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {Key, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
-import {MultiVariableSelector} from '../common/multivariable-selector';
+import {VariableSelector} from '../common/variable-selector';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {createScatterplotData} from '@/utils/scatterplot-utils';
@@ -19,7 +19,8 @@ export function ScatterplotPanel() {
   const dispatch = useDispatch();
 
   // State for x and y variables
-  const [selectedVariables, setSelectedVariables] = useState<string[]>([]);
+  const [variableX, setVariableX] = useState<string | undefined>(undefined);
+  const [variableY, setVariableY] = useState<string | undefined>(undefined);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   const dataContainer = useSelector((state: GeoDaState) =>
@@ -27,23 +28,16 @@ export function ScatterplotPanel() {
   );
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
-  useEffect(() => {
-    if (selectedVariables.length > 2) {
-      setSelectedVariables(selectedVariables.slice(0, 2));
-    }
-  }, [selectedVariables]);
-
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
-    if (selectedVariables.length === 2) {
-      const [variableX, variableY] = selectedVariables;
+    if (variableX && variableY) {
       const xData = getColumnData(variableX, dataContainer);
       const yData = getColumnData(variableY, dataContainer);
       const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
       const id = Math.random().toString(36).substring(7);
       dispatch(addPlot({id, type: 'scatter', variableX, variableY, data: scatterplotData}));
     } else {
-      console.error('Two variables must be selected for a scatter plot');
+      console.error('X and Y variables must be selected for a scatter plot');
     }
   };
 
@@ -96,9 +90,10 @@ export function ScatterplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <MultiVariableSelector setVariables={setSelectedVariables} />
+                    <VariableSelector variable={variableX} setVariable={setVariableX} />
+                    <VariableSelector variable={variableY} setVariable={setVariableY} />
                     <Spacer y={1} />
-                    <Button onClick={onCreateScatterplot} disabled={selectedVariables.length !== 2}>
+                    <Button onClick={onCreateScatterplot} disabled={!variableX || !variableY}>
                       Create Scatterplot
                     </Button>
                   </div>
