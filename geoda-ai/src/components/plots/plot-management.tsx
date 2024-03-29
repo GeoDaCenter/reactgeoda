@@ -3,11 +3,13 @@ import {Tab, Tabs} from '@nextui-org/react';
 
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
+import {Scatterplot} from './scat-plot';
 import {
   HistogramPlotProps,
   BoxPlotProps,
   ParallelCoordinateProps,
-  PlotProps
+  PlotProps,
+  ScatterPlotProps
 } from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
@@ -25,6 +27,11 @@ function isBoxPlot(plot: PlotProps): plot is BoxPlotProps {
 // type guard function to check if the plot is a boxplot
 function isParallelCoordinate(plot: PlotProps): plot is ParallelCoordinateProps {
   return plot.type === 'parallel-coordinate';
+}
+
+// type guard function to check if the plot is a scatter plot
+function isScatterPlot(plot: PlotProps): plot is ScatterPlotProps {
+  return plot.type === 'scatter';
 }
 
 export const PlotManagementPanel = () => {
@@ -50,6 +57,8 @@ export const PlotManagementPanel = () => {
               return <BoxPlot key={plot.id} props={plot} />;
             } else if (isParallelCoordinate(plot)) {
               return <ParallelCoordinatePlot key={plot.id} props={plot} />;
+            } else if (isScatterPlot(plot)) {
+              return <Scatterplot key={plot.id} props={plot} />;
             }
           })}
         </Tab>
@@ -68,6 +77,24 @@ export const PlotManagementPanel = () => {
             .map(plot => {
               if (isHistogramPlot(plot)) {
                 return <HistogramPlot key={plot.id} props={plot} />;
+              }
+            })}
+        </Tab>
+        <Tab
+          key="scatter"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Scatter Plot</span>
+            </div>
+          }
+          className="p-2"
+        >
+          {plots
+            .filter(plot => plot.type === 'scatter')
+            .toReversed()
+            .map(plot => {
+              if (isScatterPlot(plot)) {
+                return <Scatterplot key={plot.id} props={plot} />;
               }
             })}
         </Tab>

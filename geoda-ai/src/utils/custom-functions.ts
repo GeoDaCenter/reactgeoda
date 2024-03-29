@@ -25,6 +25,7 @@ import {
 } from '@/constants';
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './histogram-utils';
+import {ScatPlotDataProps, createScatterplotData} from './scatterplot-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
 import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
@@ -99,6 +100,17 @@ export type HistogramOutput = {
     histogram: Array<Omit<HistogramDataProps, 'items'>>;
   };
   data: HistogramDataProps[];
+};
+
+export type ScatterplotOutput = {
+  type: 'scatter';
+  name: string;
+  result: {
+    variableX: string;
+    variableY: string;
+    points: Array<{x: number; y: number}>;
+  };
+  data: ScatPlotDataProps;
 };
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -321,6 +333,35 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       },
       data: hist
     };
+  },
+
+  scatter: function ({variableX, variableY}, {dataContainer}): ScatterplotOutput | ErrorOutput {
+    const columnDataX = getColumnData(variableX, dataContainer);
+    const columnDataY = getColumnData(variableY, dataContainer);
+
+    // Check if both variables' data are successfully accessed
+    if (!columnDataX || columnDataX.length === 0 || !columnDataY || columnDataY.length === 0) {
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+    }
+
+    try {
+      // Create scatterplot data
+      const data = createScatterplotData(variableX, variableY, columnDataX, columnDataY);
+
+      return {
+        type: 'scatter',
+        name: 'Scatterplot Data',
+        result: {
+          variableX,
+          variableY,
+          points: data.points
+        },
+        data: data // Right now, wrapping data in array to match the expected output, but maybe should change the expected props
+      };
+    } catch (error: any) {
+      // if xData and yData arrays lengths do not match
+      return {result: error.message};
+    }
   },
 
   boxplot: boxplotFunction,

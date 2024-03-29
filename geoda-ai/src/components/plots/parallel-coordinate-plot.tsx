@@ -67,7 +67,9 @@ function getChartOption(
         containLabel: true,
         height: 'auto'
       }
-    ]
+    ],
+    // avoid flickering when brushing
+    progressive: 0
   };
   return option;
 }

@@ -109,7 +109,6 @@ function getChartOption(
       axisTick: {show: false},
       axisLabel: {
         formatter: function (d: any, i) {
-          console.log(d, i);
           return `${plotData.boxData[i].name}`;
         }
       }
@@ -166,9 +165,10 @@ function getChartOption(
         containLabel: true,
         height: 'auto'
       }
-    ]
+    ],
+    // avoid flickering when brushing
+    progressive: 0
   };
-  console.log('getChartOption', option);
   return option;
 }
 
@@ -196,7 +196,6 @@ const EChartsUpdater = ({
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
     if (eChartsRef.current && polygonFilter) {
-      console.log('EChartsUpdater setOption');
       const updatedOption = getChartOption(filteredIndex, props);
       const chart = eChartsRef.current;
       if (chart) {
@@ -269,18 +268,20 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
         // merge rawIndices to brushed
         brushed.push(...rawIndices);
       }
-      console.log('brushSelected', brushed);
 
-      // check if this plot is in state.plots
-      if (validPlot && brushed.length === 0) {
-        // reset options
-        const chart = eChartsRef.current;
-        if (chart) {
-          const chartInstance = chart.getEchartsInstance();
-          const updatedOption = getChartOption(null, props, rawDataArray);
-          chartInstance.setOption(updatedOption);
+      // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
+      setTimeout(() => {
+        if (validPlot && brushed.length === 0) {
+          // reset options
+          const chart = eChartsRef.current;
+          if (chart) {
+            const chartInstance = chart.getEchartsInstance();
+            const updatedOption = getChartOption(null, props, rawDataArray);
+            chartInstance.setOption(updatedOption);
+          }
         }
-      }
+      }, 100);
+
       // dispatch action to highlight the selected ids
       dispatch({
         type: 'SET_FILTER_INDEXES',

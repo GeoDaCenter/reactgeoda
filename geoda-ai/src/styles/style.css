@@ -63,7 +63,7 @@ div[mapboxgl-children] {
   background-color: #eeeeee !important;
 }
 .ps__thumb-y {
-  background-color: #999999!important;
+  background-color: #999999 !important;
 }
 .cs-message--outgoing .cs-message__content {
   color: #ffffff !important;
@@ -79,7 +79,7 @@ div[mapboxgl-children] {
   color: #999999 !important;
 }
 .cs-button--attachment {
-  color: #999999 !important; 
+  color: #999999 !important;
 }
 .cs-typing-indicator {
   background-color: transparent !important;

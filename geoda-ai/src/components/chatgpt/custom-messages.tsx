@@ -4,6 +4,7 @@ import {CustomFunctionNames} from '@/utils/custom-functions';
 import {CustomWeightsMessage} from './custom-weights-message';
 import {CustomLocalMoranMessage} from './custom-lisa-message';
 import {CustomHistogramMessage} from './custom-histogram-message';
+import {CustomScatterplotMessage} from './custom-scatter-message';
 import {CustomBoxplotMessage} from './custom-boxplot-message';
 import {CustomParallelCoordinateMessage} from './custom-parallel-coordinate-message';
 import {CustomSpregMessage} from './custom-spreg-message';
@@ -41,6 +42,7 @@ export function CustomMessage({props}: {props: MessagePayload}) {
         {props.output.type === 'weights' && <CustomWeightsMessage props={props} />}
         {props.output.type === 'lisa' && <CustomLocalMoranMessage props={props} />}
         {props.output.type === 'histogram' && <CustomHistogramMessage props={props} />}
+        {props.output.type === 'scatter' && <CustomScatterplotMessage props={props} />}
         {props.output.type === 'boxplot' && <CustomBoxplotMessage props={props} />}
         {props.output.type === 'parallel-coordinate' && (
           <CustomParallelCoordinateMessage props={props} />

@@ -58,6 +58,12 @@ export function Navigator() {
     (state: GeoDaState) => state.root.regressions.filter(reg => reg.isNew).length
   );
 
+  // get number of newly added plots from state.root.plots
+  const newScatterplotCount = useSelector(
+    (state: GeoDaState) =>
+      state.root.plots.filter(plot => plot.isNew && plot.type === 'scatter').length
+  );
+
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
       // dispatch action to open modal, update redux state state.root.uiState.showOpenFileModal
@@ -97,6 +103,9 @@ export function Navigator() {
           break;
         case 'icon-histogram':
           dispatch(setPropertyPanel(PanelName.HISTOGRAM));
+          break;
+        case 'icon-scatterplot':
+          dispatch(setPropertyPanel(PanelName.SCATTERPLOT));
           break;
         case 'icon-boxplot':
           dispatch(setPropertyPanel(PanelName.BOXPLOT));
@@ -204,6 +213,28 @@ export function Navigator() {
             </Button>
           </Tooltip>
         </Badge>
+        <Badge
+          color="danger"
+          content={newScatterplotCount}
+          isInvisible={newScatterplotCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+          className="absolute left-0"
+        >
+          <Tooltip key="scatterplotTooltip" placement="right" content="Scatter Plot">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-scatterplot"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconScatterplot />
+            </Button>
+          </Tooltip>
+        </Badge>
         <Tooltip key="boxplotTooltip" placement="right" content="Box Plot">
           <Button
             isIconOnly
@@ -214,18 +245,6 @@ export function Navigator() {
             isDisabled={!isFileLoaded}
           >
             <IconBoxplot />
-          </Button>
-        </Tooltip>
-        <Tooltip key="scatterTooltip" placement="right" content="Scatter Plot">
-          <Button
-            isIconOnly
-            size="sm"
-            className="bg-transparent"
-            id="icon-scatterplot"
-            onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
-          >
-            <IconScatterplot />
           </Button>
         </Tooltip>
         <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
