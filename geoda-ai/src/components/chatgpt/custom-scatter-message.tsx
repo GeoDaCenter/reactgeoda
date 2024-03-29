@@ -17,12 +17,12 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   const [hide, setHide] = useState(false);
   const {output} = props;
 
-  if (!output.data || !Array.isArray(output.data) || output.data.length === 0) {
+  if (!output || !output.result || typeof output.result !== 'object') {
     console.error('Scatterplot data is unavailable or invalid.');
     return null;
   }
 
-  const scatterplotData = output.data[0] as ScatterplotOutput['data'][0]; // Assuming data is an array with a single ScatPlotDataProps object
+  const scatterplotData = output.result;
 
   if (!scatterplotData) {
     console.error('Scatterplot data is unavailable or invalid.');
@@ -30,12 +30,13 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   }
   const {variableX, variableY} = output.result as ScatterplotOutput['result'];
 
+
   const scatterPlotProps: ScatterPlotProps = {
     id: Math.random().toString(36).substring(7),
     type: 'scatter',
     variableX: variableX,
     variableY: variableY,
-    data: [scatterplotData]
+    data: output.result as ScatterplotOutput['result']
   };
 
   // handle click event
@@ -48,7 +49,7 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
 
   return (
     <div className="w-full">
-      {<Scatterplot data={scatterPlotProps} />}
+      {<Scatterplot props={scatterPlotProps} />}
       {!hide && (
         <Button
           radius="full"

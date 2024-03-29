@@ -41,7 +41,7 @@ export function ScatterplotPanel() {
       const yData = getColumnData(variableY, dataContainer);
       const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
       const id = Math.random().toString(36).substring(7);
-      dispatch(addPlot({id, type: 'scatter', variableX, variableY, data: [scatterplotData]}));
+      dispatch(addPlot({id, type: 'scatter', variableX, variableY, data: scatterplotData}));
     } else {
       console.error('Two variables must be selected for a scatter plot');
     }

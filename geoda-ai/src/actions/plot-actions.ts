@@ -23,7 +23,7 @@ export type ScatterPlotProps = BasePlotProps & {
   type: 'scatter';
   variableX: string;
   variableY: string;
-  data: ScatPlotDataProps[];
+  data: ScatPlotDataProps;
 };
 
 export type BoxPlotProps = BasePlotProps & {

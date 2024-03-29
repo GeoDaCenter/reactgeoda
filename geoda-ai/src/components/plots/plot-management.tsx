@@ -58,7 +58,7 @@ export const PlotManagementPanel = () => {
             } else if (isParallelCoordinate(plot)) {
               return <ParallelCoordinatePlot key={plot.id} props={plot} />;
             } else if (isScatterPlot(plot)) {
-              return <Scatterplot key={plot.id} data={plot} />;
+              return <Scatterplot key={plot.id} props={plot} />;
             }
           })}
         </Tab>
@@ -94,7 +94,7 @@ export const PlotManagementPanel = () => {
             .toReversed()
             .map(plot => {
               if (isScatterPlot(plot)) {
-                return <Scatterplot key={plot.id} data={plot.data[0]} />;
+                return <Scatterplot key={plot.id} props={plot} />;
               }
             })}
         </Tab>

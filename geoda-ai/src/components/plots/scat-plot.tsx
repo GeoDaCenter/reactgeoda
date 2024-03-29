@@ -32,9 +32,10 @@ echarts.use([
 //echarts.registerTransform(transform.regression);
 
 function getChartOption(filteredIndex: Uint8ClampedArray | null, props: ScatterPlotProps) {
-  const seriesData = props.data[0].points.map(point => [point.x, point.y]);
-  const xVariableName = props.data[0].variableX;
-  const yVariableName = props.data[0].variableY;
+  console.log(props)
+  const seriesData = props.data.points.map(point => [point.x, point.y]);
+  const xVariableName = props.data.variableX;
+  const yVariableName = props.data.variableY;
 
   const option = {
     xAxis: {
@@ -133,7 +134,7 @@ const EChartsUpdater = ({
   return null;
 };
 
-export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
+export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
@@ -151,13 +152,13 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
 
   // use selector to check if plot is in state
   const validPlot = useSelector((state: GeoDaState) =>
-    state.root.plots.find(p => p.id === data.id)
+    state.root.plots.find(p => p.id === props.id)
   );
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getChartOption(filteredIndex, data);
-  }, [filteredIndex, data]);
+    return getChartOption(filteredIndex, props);
+  }, [filteredIndex, props]);
 
   const bindEvents = {
     brushSelected: function (params: any) {
@@ -175,7 +176,7 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
           const chart = eChartsRef.current;
           if (chart) {
             const chartInstance = chart.getEchartsInstance();
-            const updatedOption = getChartOption(null, data);
+            const updatedOption = getChartOption(null, props);
             chartInstance.setOption(updatedOption);
           }
         }
@@ -194,7 +195,7 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
       <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
         <p className="text-tiny font-bold uppercase">Scatter Plot</p>
         <small className="text-default-500">
-          {data.variableX} vs {data.variableY}
+          {props.variableX} vs {props.variableY}
         </small>
       </CardHeader>
       <CardBody className="w-full py-2">
@@ -212,7 +213,7 @@ export const Scatterplot = ({data}: {data: ScatterPlotProps}) => {
           <EChartsUpdater
             filteredIndex={filteredIndex}
             eChartsRef={eChartsRef}
-            props={data}
+            props={props}
             getChartOption={getChartOption}
           />
         )}

@@ -108,7 +108,7 @@ export type ScatterplotOutput = {
     variableY: string;
     points: Array<{x: number; y: number}>;
   };
-  data: ScatPlotDataProps[];
+  data: ScatPlotDataProps;
 };
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -354,7 +354,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
           variableY,
           points: data.points
         },
-        data: [data] // Right now, wrapping data in array to match the expected output, but maybe should change the expected props
+        data: data // Right now, wrapping data in array to match the expected output, but maybe should change the expected props
       };
     } catch (error: any) {
       // if xData and yData arrays lengths do not match
