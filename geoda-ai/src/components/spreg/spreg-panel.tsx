@@ -8,8 +8,6 @@ import {
   Card,
   CardBody,
   Chip,
-  ScrollShadow,
-  CardHeader,
   RadioGroup,
   Radio
 } from '@nextui-org/react';
@@ -24,9 +22,6 @@ import {WarningBox} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {addRegression, RegressionProps} from '@/actions/regression-actions';
 import {runRegression} from '@/utils/regression-utils';
-import {printLinearRegressionResultUsingMarkdown} from 'geoda-wasm';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import {RegressionReport} from './spreg-report';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';

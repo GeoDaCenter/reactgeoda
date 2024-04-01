@@ -34,10 +34,25 @@ function updateGridLayout(
   gridItems: Array<{id: string; show: boolean}>,
   layers: Layer[],
   plots: PlotProps[],
-  regressions: RegressionProps[]
+  regressions: RegressionProps[],
+  textItems: Array<{id: string; content: string}>
 ) {
   // remove items from newGridLayout that are not shwon in gridItem (show: false)
   const newGridLayout = [...(gridLayout || [])];
+
+  // add textItems to newGridLayout if they are not in the newGridLayout
+  textItems.forEach(textItem => {
+    if (!newGridLayout.find(l => l.i === textItem.id)) {
+      newGridLayout.push({
+        w: 6,
+        h: 2,
+        x: 0,
+        y: 6 * newGridLayout.length,
+        i: textItem.id,
+        static: false
+      });
+    }
+  });
 
   // filter layers that are not in the newGridLayout and are not hidden in gridItems
   const layersNotInLayout = layers?.filter(
@@ -51,7 +66,6 @@ function updateGridLayout(
       x: 0,
       y: 6 * index,
       i: layer.id,
-      moved: false,
       static: false
     })) || [];
 
@@ -67,7 +81,6 @@ function updateGridLayout(
       x: 6,
       y: 6 * index,
       i: plot.id,
-      moved: false,
       static: false
     })) || [];
 
@@ -83,7 +96,6 @@ function updateGridLayout(
       x: 12,
       y: 6 * index,
       i: regression.id,
-      moved: false,
       static: false
     })) || [];
 
@@ -98,12 +110,11 @@ function updateGridLayout(
       x: 0,
       y: 6 * (layers?.length || 0),
       i: 'table',
-      moved: false,
       static: false
     });
   }
 
-  // remove items from combinedLayout that are not shwon in gridItem (show: false)
+  // remove items from combinedLayout that are not shown in gridItem (show: false)
   const combinedLayoutFiltered = combinedLayout.filter(
     (layout: Layout) =>
       !gridItems.find(item => item.id === layout.i) ||
@@ -138,7 +149,10 @@ const GridLayout = () => {
   // get grid items from redux store
   const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems) || [];
 
-  const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions);
+  // get text items from redux store
+  const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems) || [];
+
+  const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
 
   // when layout changes, update redux state
   const onLayoutChange = (layout: Layout[]) => {
@@ -224,6 +238,17 @@ const GridLayout = () => {
               <div key={regression.id} style={styles.gridItem}>
                 <GridCell id={regression.id} onCloseGridItem={onCloseGridItem}>
                   <RegressionReport key={regression.id} regression={regression} />
+                </GridCell>
+              </div>
+            )
+        )}
+      {textItems &&
+        textItems.map(
+          (textItem: {id: string; content: string}) =>
+            layout.find(l => l.i === textItem.id) && (
+              <div key={textItem.id} style={styles.gridItem}>
+                <GridCell id={textItem.id} onCloseGridItem={onCloseGridItem}>
+                  <div>{textItem.content}</div>
                 </GridCell>
               </div>
             )

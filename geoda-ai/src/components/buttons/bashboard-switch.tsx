@@ -1,7 +1,8 @@
-import {setGridView} from '@/actions';
-import {Tooltip} from '@nextui-org/react';
+import {setGridView, setPropertyPanel} from '@/actions';
+import {Button, Tooltip} from '@nextui-org/react';
 import {useCallback, useState} from 'react';
 import {useDispatch} from 'react-redux';
+import {PanelName} from '../panel/panel-container';
 
 // An svg icon of dashboard composed by 4 squares
 export function DashboardIcon() {
@@ -45,20 +46,29 @@ export function MapIcon() {
 }
 
 // A dashboard Switcher component that allows the user to switch between dashboard and map
-export function DashboardSwitcher() {
+export function DashboardSwitcher({isDisabled}: {isDisabled?: boolean}) {
   const dispatch = useDispatch();
   const [useDashboard, setUseDashboard] = useState(false);
 
   const onToggleGridCallback = useCallback(() => {
     setUseDashboard(!useDashboard);
     dispatch(setGridView(!useDashboard));
+    // show dashboard panel
+    dispatch(setPropertyPanel(PanelName.DASHBOARD));
   }, [dispatch, useDashboard]);
 
   return (
     <Tooltip content={useDashboard ? 'Switch to Map' : 'Switch to Dashboard'} placement="right">
-      <div className="cursor-pointer" onClick={onToggleGridCallback}>
+      <Button
+        isIconOnly
+        size="sm"
+        className="bg-transparent"
+        id="icon-dashboard"
+        onClick={onToggleGridCallback}
+        isDisabled={isDisabled}
+      >
         {useDashboard ? <MapIcon /> : <DashboardIcon />}
-      </div>
+      </Button>
     </Tooltip>
   );
 }

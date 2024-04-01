@@ -322,7 +322,7 @@ export function Navigator() {
         </Tooltip>
       </div>
       <div className="justify-top mb-4 mt-4 flex w-full flex-none flex-col items-center gap-2">
-        <DashboardSwitcher />
+        <DashboardSwitcher isDisabled={!isFileLoaded} />
         <ThemeSwitcher />
         <Button
           isIconOnly
