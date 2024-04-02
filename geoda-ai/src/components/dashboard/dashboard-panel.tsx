@@ -1,5 +1,15 @@
 import {Key, useState} from 'react';
-import {Accordion, AccordionItem, Button, Select, SelectItem, Tab, Tabs} from '@nextui-org/react';
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Select,
+  SelectItem,
+  Tab,
+  Tabs,
+  Radio,
+  RadioGroup
+} from '@nextui-org/react';
 
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
@@ -26,8 +36,8 @@ export function DashboardPanel() {
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 
-  const onModeChange = (key: any) => {
-    const mode = key.currentKey === 'edit' ? 'edit' : 'display';
+  const onModeChange = (key: string) => {
+    const mode = key === 'edit' ? 'edit' : 'display';
     dispatch(updateMode(mode));
   };
 
@@ -53,7 +63,21 @@ export function DashboardPanel() {
       {!layer ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <div className="h-full overflow-y-auto p-4">
+        <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
+          <div className="flex flex-row gap-4 text-sm">
+            <p className="text-small text-default-600 ">Select mode</p>
+            <RadioGroup
+              label=""
+              defaultValue="edit"
+              defaultChecked={true}
+              size="sm"
+              orientation="horizontal"
+              onValueChange={onModeChange}
+            >
+              <Radio value="edit">Edit</Radio>
+              <Radio value="display">Display</Radio>
+            </RadioGroup>
+          </div>
           <Tabs
             aria-label="Options"
             variant="solid"
@@ -67,31 +91,15 @@ export function DashboardPanel() {
               key="dashboard-settings"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Settings</span>
+                  <span>Widget Setting</span>
                 </div>
               }
-            >
-              <Select
-                label="Select dashboard mode"
-                selectionMode="single"
-                className="max-w-xs"
-                defaultSelectedKeys={[dashboardMode]}
-                onSelectionChange={onModeChange}
-                size="sm"
-              >
-                <SelectItem key="edit" value="edit">
-                  Edit
-                </SelectItem>
-                <SelectItem key="display" value="display">
-                  Display
-                </SelectItem>
-              </Select>
-            </Tab>
+            ></Tab>
             <Tab
               key="dashboard-widgets"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Widgets</span>
+                  <span>Widgets Management</span>
                 </div>
               }
             >
