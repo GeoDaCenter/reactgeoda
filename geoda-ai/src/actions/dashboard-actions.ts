@@ -41,7 +41,7 @@ export const addTextGridItem = (item: AddTextGridItemActionPayload) => ({
   payload: item
 });
 
-export type UpdateTextGridContentPayload = {id: string; content: EditorState};
+export type UpdateTextGridContentPayload = {id: string; newContent: EditorState};
 export const updateTextGridContent = (item: UpdateTextGridContentPayload) => ({
   type: DASHBOARD_ACTIONS.UPDATE_TEXT_GRID_ITEM_CONTENT,
   payload: item

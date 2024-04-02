@@ -44,12 +44,7 @@ type KeplerMapContainerProps = {
   layerId?: string;
 };
 
-export function KeplerMapContainer({
-  mapIndex,
-  mapHeight,
-  mapWidth,
-  layerId
-}: KeplerMapContainerProps) {
+export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps) {
   const dispatch = useDispatch();
 
   const dispatchKepler = (action: any) => dispatch(wrapTo(NO_MAP_ID, action));

@@ -16,6 +16,7 @@ import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from '../spreg/spreg-report';
 import {hideGridItem, updateLayout} from '@/actions/dashboard-actions';
 import {TextCell} from './text-cell';
+import {EditorState} from 'lexical/LexicalEditorState';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -245,11 +246,11 @@ const GridLayout = () => {
         )}
       {textItems &&
         textItems.map(
-          (textItem: {id: string; content: string}) =>
+          (textItem: {id: string; content: EditorState}) =>
             layout.find(l => l.i === textItem.id) && (
               <div key={textItem.id} style={styles.gridItem}>
                 <GridCell id={textItem.id} onCloseGridItem={onCloseGridItem}>
-                  <TextCell></TextCell>
+                  <TextCell id={textItem.id} initialState={textItem.content}></TextCell>
                 </GridCell>
               </div>
             )

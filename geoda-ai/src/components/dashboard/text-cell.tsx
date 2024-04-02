@@ -10,9 +10,12 @@ import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {EditorState} from 'lexical/LexicalEditorState';
 
 import ToolbarPlugin from './text-toobar-plugin';
 import {useEffect} from 'react';
+import {useDispatch} from 'react-redux';
+import {updateTextGridContent} from '@/actions/dashboard-actions';
 
 const theme = {
   ltr: 'ltr',
@@ -111,20 +114,30 @@ function Placeholder() {
   return <div className="editor-placeholder">Enter text here...</div>;
 }
 
-const OnChangePlugin = () => {
+const OnChangePlugin = ({id}: {id: string}) => {
+  const dispatch = useDispatch();
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     return editor.registerUpdateListener(listener => {
-      console.log('DATA', listener.editorState.toJSON());
+      console.log('DATA', listener.editorState);
+      // dispatch action to update redux state
+      dispatch(updateTextGridContent({id, newContent: listener.editorState}));
     });
-  }, [editor]);
+  }, [dispatch, editor, id]);
 
   return null;
 };
 
-export function TextCell() {
+export type TextCellProps = {
+  id: string;
+  initialState: EditorState | null;
+};
+
+export function TextCell({id, initialState}: TextCellProps) {
   return (
-    <LexicalComposer initialConfig={editorConfig}>
+    <LexicalComposer
+      initialConfig={{...editorConfig, ...(initialState ? {editorState: initialState} : {})}}
+    >
       <div className="editor-container">
         <ToolbarPlugin />
         <div className="editor-inner">
@@ -135,7 +148,7 @@ export function TextCell() {
           />
           <HistoryPlugin />
           <AutoFocusPlugin />
-          <OnChangePlugin />
+          <OnChangePlugin id={id} />
         </div>
       </div>
     </LexicalComposer>

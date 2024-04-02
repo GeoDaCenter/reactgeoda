@@ -3,7 +3,8 @@ import {
   HideGridItemActionPayload,
   UpdateGridItemsActionPayload,
   UpdateLayoutActionPayload,
-  AddTextGridItemActionPayload
+  AddTextGridItemActionPayload,
+  UpdateTextGridContentPayload
 } from '@/actions/dashboard-actions';
 import {EditorState} from 'lexical';
 import {Layout} from 'react-grid-layout';
@@ -23,7 +24,8 @@ type LayoutPayload =
   | UpdateLayoutActionPayload
   | UpdateGridItemsActionPayload
   | HideGridItemActionPayload
-  | AddTextGridItemActionPayload;
+  | AddTextGridItemActionPayload
+  | UpdateTextGridContentPayload;
 
 export type DashboardAction = {
   type: string;
@@ -50,6 +52,12 @@ const isAddTextGridItemActionPayload = (
   return 'content' in payload;
 };
 
+const isUpdateTextGridItemContentActionPayload = (
+  payload: LayoutPayload
+): payload is UpdateTextGridContentPayload => {
+  return 'newContent' in payload;
+};
+
 export const dashboardReducer = (state = initialState, action: DashboardAction) => {
   switch (action.type) {
     case DASHBOARD_ACTIONS.UPDATE_LAYOUT:
@@ -67,27 +75,39 @@ export const dashboardReducer = (state = initialState, action: DashboardAction) 
         ...state,
         gridItems: action.payload
       };
+    case DASHBOARD_ACTIONS.UPDATE_TEXT_GRID_ITEM_CONTENT:
+      if (isUpdateTextGridItemContentActionPayload(action.payload)) {
+        const id = action.payload.id;
+        const content = action.payload.newContent;
+        return {
+          ...state,
+          textItems: state.textItems
+            ? state.textItems.map(item => (item.id === id ? {...item, content: content} : item))
+            : []
+        };
+      }
+      return state;
     case DASHBOARD_ACTIONS.ADD_TEXT_GRID_ITEM:
       if (isAddTextGridItemActionPayload(action.payload)) {
+        const id = action.payload.id;
+        const content = action.payload.content;
         return {
           ...state,
           layout: state.gridLayout
-            ? [...state.gridLayout, {i: action.payload.id, x: 0, y: 0, w: 6, h: 2}]
-            : [{i: action.payload.id, x: 0, y: 0, w: 6, h: 2}],
-          textItems: state.textItems
-            ? [...state.textItems, {id: action.payload.id, content: action.payload.content}]
-            : [{id: action.payload.id, content: action.payload.content}],
+            ? [...state.gridLayout, {i: id, x: 0, y: 0, w: 6, h: 2}]
+            : [{i: id, x: 0, y: 0, w: 6, h: 2}],
+          textItems: state.textItems ? [...state.textItems, {id, content}] : [{id, content}],
           gridItems: state.gridItems
             ? [
                 ...state.gridItems,
                 {
-                  id: action.payload.id,
+                  id,
                   show: true
                 }
               ]
             : [
                 {
-                  id: action.payload.id,
+                  id,
                   show: true
                 }
               ]
