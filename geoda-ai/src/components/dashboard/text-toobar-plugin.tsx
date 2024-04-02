@@ -1,5 +1,5 @@
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
@@ -11,7 +11,8 @@ import {
   $getSelection,
   $isRangeSelection,
   $createParagraphNode,
-  $getNodeByKey
+  $getNodeByKey,
+  BaseSelection
 } from 'lexical';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {$isParentElementRTL, $wrapNodes, $isAtNodeEnd} from '@lexical/selection';
@@ -69,11 +70,11 @@ function positionEditorElement(editor, rect) {
 
 function FloatingLinkEditor({editor}) {
   const editorRef = useRef(null);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mouseDownRef = useRef(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [isEditMode, setEditMode] = useState(false);
-  const [lastSelection, setLastSelection] = useState(null);
+  const [lastSelection, setLastSelection] = useState<BaseSelection | null>(null);
 
   const updateLinkEditor = useCallback(() => {
     const selection = $getSelection();
@@ -98,10 +99,11 @@ function FloatingLinkEditor({editor}) {
 
     const rootElement = editor.getRootElement();
     if (
+      nativeSelection !== null &&
       selection !== null &&
-      !nativeSelection.isCollapsed &&
+      !nativeSelection?.isCollapsed &&
       rootElement !== null &&
-      rootElement.contains(nativeSelection.anchorNode)
+      rootElement.contains(nativeSelection?.anchorNode)
     ) {
       const domRange = nativeSelection.getRangeAt(0);
       let rect;
@@ -237,7 +239,7 @@ function getSelectedNode(selection) {
 }
 
 function BlockOptionsDropdownList({editor, blockType, toolbarRef, setShowBlockOptionsDropDown}) {
-  const dropDownRef = useRef(null);
+  const dropDownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const toolbar = toolbarRef.current;
@@ -400,9 +402,10 @@ export default function ToolbarPlugin() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [blockType, setBlockType] = useState('paragraph');
-  const [selectedElementKey, setSelectedElementKey] = useState(null);
+  const [selectedElementKey, setSelectedElementKey] = useState<string | null>(null);
   const [showBlockOptionsDropDown, setShowBlockOptionsDropDown] = useState(false);
   const [codeLanguage, setCodeLanguage] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isRTL, setIsRTL] = useState(false);
   const [isLink, setIsLink] = useState(false);
   const [isBold, setIsBold] = useState(false);
@@ -461,6 +464,7 @@ export default function ToolbarPlugin() {
       }),
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (_payload, newEditor) => {
           updateToolbar();
           return false;
@@ -514,6 +518,7 @@ export default function ToolbarPlugin() {
       <button
         disabled={!canUndo}
         onClick={() => {
+          // @ts-ignore - undo command is not typed
           editor.dispatchCommand(UNDO_COMMAND);
         }}
         className="toolbar-item spaced"
@@ -524,6 +529,7 @@ export default function ToolbarPlugin() {
       <button
         disabled={!canRedo}
         onClick={() => {
+          // @ts-ignore - redo command is not typed
           editor.dispatchCommand(REDO_COMMAND);
         }}
         className="toolbar-item"
