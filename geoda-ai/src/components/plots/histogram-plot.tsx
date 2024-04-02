@@ -1,3 +1,4 @@
+import AutoSizer from 'react-virtualized-auto-sizer';
 import {HistogramPlotProps} from '@/actions/plot-actions';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
@@ -378,33 +379,39 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
   return (
-    <Card className="my-4" shadow="none">
-      <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-        <p className="text-tiny font-bold uppercase">{props.type}</p>
-        <small className="text-default-500">{props.variable}</small>
-      </CardHeader>
-      <CardBody className="w-full py-2">
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          notMerge={true}
-          lazyUpdate={true}
-          theme={theme}
-          // onChartReady={this.onChartReadyCallback}
-          onEvents={bindEvents}
-          // opts={}
-          style={{height: '200px', width: '100%'}}
-          ref={eChartsRef}
-        />
-        {validPlot && (
-          <EChartsUpdater
-            filteredIndex={filteredIndex}
-            eChartsRef={eChartsRef}
-            props={props}
-            getChartOption={getChartOption}
-          />
-        )}
-      </CardBody>
-    </Card>
+    <AutoSizer>
+      {({height, width}) => (
+        <div style={{height, width}}>
+          <Card className="h-full w-full" shadow="sm">
+            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+              <p className="text-tiny font-bold uppercase">{props.type}</p>
+              <small className="text-default-500">{props.variable}</small>
+            </CardHeader>
+            <CardBody className="py-2">
+              <ReactEChartsCore
+                echarts={echarts}
+                option={option}
+                notMerge={true}
+                lazyUpdate={true}
+                theme={theme}
+                // onChartReady={this.onChartReadyCallback}
+                onEvents={bindEvents}
+                // opts={}
+                style={{height: '100%', width: '100%'}}
+                ref={eChartsRef}
+              />
+              {validPlot && (
+                <EChartsUpdater
+                  filteredIndex={filteredIndex}
+                  eChartsRef={eChartsRef}
+                  props={props}
+                  getChartOption={getChartOption}
+                />
+              )}
+            </CardBody>
+          </Card>
+        </div>
+      )}
+    </AutoSizer>
   );
 };

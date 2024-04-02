@@ -1,4 +1,5 @@
 import React, {useRef, RefObject, useMemo, useEffect} from 'react';
+import AutoSizer from 'react-virtualized-auto-sizer';
 //import {ScatterplotDataItemProps, ScatPlotDataProps} from '@/utils/scatterplot-utils';
 import {ScatterChart} from 'echarts/charts';
 import * as echarts from 'echarts/core';
@@ -136,33 +137,39 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
   };
 
   return (
-    <Card className="my-4">
-      <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-        <p className="text-tiny font-bold uppercase">Scatter Plot</p>
-        <small className="text-default-500">
-          {props.variableX} vs {props.variableY}
-        </small>
-      </CardHeader>
-      <CardBody className="w-full py-2">
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          notMerge={true}
-          lazyUpdate={false}
-          theme={theme}
-          onEvents={bindEvents}
-          style={{height: '300px', width: '100%'}}
-          ref={eChartsRef}
-        />
-        {validPlot && (
-          <EChartsUpdater
-            filteredIndex={filteredIndex}
-            eChartsRef={eChartsRef}
-            props={props}
-            getChartOption={getScatterChartOption}
-          />
-        )}
-      </CardBody>
-    </Card>
+    <AutoSizer>
+      {({height, width}) => (
+        <div style={{height, width}}>
+          <Card className="h-full w-full" shadow="sm">
+            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+              <p className="text-tiny font-bold uppercase">Scatter Plot</p>
+              <small className="text-default-500">
+                x: {props.variableX}, y: {props.variableY}
+              </small>
+            </CardHeader>
+            <CardBody className="py-2">
+              <ReactEChartsCore
+                echarts={echarts}
+                option={option}
+                notMerge={true}
+                lazyUpdate={false}
+                theme={theme}
+                onEvents={bindEvents}
+                style={{height: '100%', width: '100%'}}
+                ref={eChartsRef}
+              />
+              {validPlot && (
+                <EChartsUpdater
+                  filteredIndex={filteredIndex}
+                  eChartsRef={eChartsRef}
+                  props={props}
+                  getChartOption={getScatterChartOption}
+                />
+              )}
+            </CardBody>
+          </Card>
+        </div>
+      )}
+    </AutoSizer>
   );
 };

@@ -149,7 +149,7 @@ export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps)
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
 
   return (
-    <div className="h-full w-full rounded bg-white dark:bg-black">
+    <div className="m-2 h-full w-full rounded-xl border-1 bg-white dark:bg-black">
       <AutoSizer defaultHeight={280} defaultWidth={300}>
         {({height, width}) => {
           // get center and zoom from bounds for preview map
@@ -166,7 +166,7 @@ export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps)
               : {})
           };
           return (
-            <div style={{height: height, width: width}} className="rounded p-2">
+            <div style={{height: height, width: width}} className="">
               <MapViewStateContextProvider mapState={newMapState}>
                 <MapContainer
                   width={width}

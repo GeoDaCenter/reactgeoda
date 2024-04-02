@@ -130,16 +130,18 @@ const OnChangePlugin = ({id}: {id: string}) => {
 
 export type TextCellProps = {
   id: string;
+  mode: 'edit' | 'display';
   initialState: EditorState | null;
 };
 
-export function TextCell({id, initialState}: TextCellProps) {
+export function TextCell({id, mode, initialState}: TextCellProps) {
   return (
     <LexicalComposer
       initialConfig={{...editorConfig, ...(initialState ? {editorState: initialState} : {})}}
     >
       <div className="editor-container">
-        <ToolbarPlugin />
+        {/* hide ToolbarPlugin in display mode */}
+        {mode === 'edit' && <ToolbarPlugin />}
         <div className="editor-inner">
           <RichTextPlugin
             contentEditable={<ContentEditable className="editor-input" />}

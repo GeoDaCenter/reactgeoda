@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
 import {useDispatch, useSelector} from 'react-redux';
@@ -8,15 +8,13 @@ import {MAP_ID} from '@/constants';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {GridCell} from './grid-cell';
 import {PlotProps} from '@/actions';
-import {isBoxPlot, isHistogramPlot, isParallelCoordinate} from '../plots/plot-management';
-import {HistogramPlot} from '../plots/histogram-plot';
-import {BoxPlot} from '../plots/box-plot';
-import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
+import {PlotWrapper} from '../plots/plot-management';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from '../spreg/spreg-report';
-import {hideGridItem, updateLayout} from '@/actions/dashboard-actions';
+import {hideGridItem, updateGridItems, updateLayout} from '@/actions/dashboard-actions';
 import {TextCell} from './text-cell';
 import {EditorState} from 'lexical/LexicalEditorState';
+import {createGridItems, initGridLayout, initGridItems, createGridLayout} from '@/utils/grid-utils';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -31,104 +29,10 @@ const styles = {
   },
   displayGridItem: {
     // borderRadius: '5px',
+    // border: '1px solid#ddd',
     overflow: 'auto'
   }
 };
-
-function updateGridLayout(
-  gridLayout: Layout[] | undefined,
-  gridItems: Array<{id: string; show: boolean}>,
-  layers: Layer[],
-  plots: PlotProps[],
-  regressions: RegressionProps[],
-  textItems: Array<{id: string; content: EditorState}>
-) {
-  // remove items from newGridLayout that are not shwon in gridItem (show: false)
-  const newGridLayout = [...(gridLayout || [])];
-
-  // add textItems to newGridLayout if they are not in the newGridLayout
-  textItems.forEach(textItem => {
-    if (!newGridLayout.find(l => l.i === textItem.id)) {
-      newGridLayout.push({
-        w: 6,
-        h: 2,
-        x: 0,
-        y: 6 * newGridLayout.length,
-        i: textItem.id,
-        static: false
-      });
-    }
-  });
-
-  // filter layers that are not in the newGridLayout and are not hidden in gridItems
-  const layersNotInLayout = layers?.filter(
-    (layer: Layer) => !newGridLayout.find(l => l.i === layer.id)
-  );
-  // for each layer, create a react grid layout with w: 6 and h: 6
-  const layout =
-    layersNotInLayout?.map((layer: Layer, index: number) => ({
-      w: 6,
-      h: 6,
-      x: 0,
-      y: 6 * index,
-      i: layer.id,
-      static: false
-    })) || [];
-
-  // filter plots that are not in the newGridLayout
-  const plotsNotInLayout = plots?.filter(
-    (plot: PlotProps) => !newGridLayout.find(l => l.i === plot.id)
-  );
-  // for each plot, create a react grid layout with w: 6 and h: 6
-  const plotLayout =
-    plotsNotInLayout?.map((plot: PlotProps, index: number) => ({
-      w: 6,
-      h: 6,
-      x: 6,
-      y: 6 * index,
-      i: plot.id,
-      static: false
-    })) || [];
-
-  // filter regressions that are not in the newGridLayout
-  const regressionsNotInLayout = regressions?.filter(
-    (regression: RegressionProps) => !newGridLayout.find(l => l.i === regression.id)
-  );
-  // for each regression, create a react grid layout with w: 6 and h: 6
-  const regressionLayout =
-    regressionsNotInLayout?.map((regression: RegressionProps, index: number) => ({
-      w: 6,
-      h: 6,
-      x: 12,
-      y: 6 * index,
-      i: regression.id,
-      static: false
-    })) || [];
-
-  // append layout and plotLayout and regressionLayout to newGridLayout
-  const combinedLayout = [...newGridLayout, ...layout, ...plotLayout, ...regressionLayout];
-
-  // add table to combinedLayout if it is not in the newGridLayout
-  if (!newGridLayout.find(l => l.i === 'table')) {
-    combinedLayout.push({
-      w: 6,
-      h: 6,
-      x: 0,
-      y: 6 * (layers?.length || 0),
-      i: 'table',
-      static: false
-    });
-  }
-
-  // remove items from combinedLayout that are not shown in gridItem (show: false)
-  const combinedLayoutFiltered = combinedLayout.filter(
-    (layout: Layout) =>
-      !gridItems.find(item => item.id === layout.i) ||
-      gridItems.find(item => item.id === layout.i)?.show === true
-  );
-
-  return combinedLayoutFiltered;
-}
 
 const GridLayout = () => {
   const dispatch = useDispatch();
@@ -138,12 +42,10 @@ const GridLayout = () => {
 
   // get all layers from kepler.gl visstate
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
-  // get layer ids from kepler.gl visstate
   const layerIds = layers?.map((layer: Layer) => layer.id);
 
   // get all plots from redux state
   const plots = useSelector((state: GeoDaState) => state.root.plots);
-  // get plot ids from redux state
   const plotIds = plots?.map((plot: any) => plot.id);
 
   // get all regressions from redux store
@@ -151,33 +53,66 @@ const GridLayout = () => {
 
   // get mode from redux store
   const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
+  // get cell style based on mode
+  const cellStyle = mode === 'edit' ? styles.gridItem : styles.displayGridItem;
 
   // get grid layout from redux store
   const gridLayout = useSelector((state: GeoDaState) => state.root.dashboard.gridLayout);
 
   // get grid items from redux store
-  const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems) || [];
+  const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems);
 
   // get text items from redux store
-  const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems) || [];
+  const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems);
 
   // update grid layout with grid items
-  const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
+  // const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
+  const items = useMemo(() => {
+    return gridItems
+      ? createGridItems({gridLayout, gridItems, layers, plots, regressions, textItems})
+      : initGridItems({layers, plots, regressions, textItems});
+  }, [gridItems, gridLayout, layers, plots, regressions, textItems]);
 
-  // get cell style based on mode
-  const cellStyle = mode === 'edit' ? styles.gridItem : styles.displayGridItem;
+  const layout = useMemo(() => {
+    return gridItems ? createGridLayout(items, gridLayout) : initGridLayout(items);
+  }, [gridItems, gridLayout, items]);
 
   // when layout changes, update redux state
   const onLayoutChange = (layout: Layout[]) => {
     // only update layout if showGridView is true
     if (showGridView) {
       dispatch(updateLayout({layout}));
+      dispatch(updateGridItems(items));
     }
   };
 
   const onCloseGridItem = async (id: string) => {
     // dispatch action to add the grid item in gridItems with show set to false
     dispatch(hideGridItem({id}));
+  };
+
+  const onDrop = (layout: Layout[], layoutItem: Layout, _event: Event) => {
+    // only update layout if showGridView is true
+    if (showGridView) {
+      // @ts-ignore event does not have dataTransfer by react-grid-layout
+      const itemId = _event.dataTransfer.getData('text/plain');
+      // set the gridItem flag 'show' to true in gridItems
+      const newItems = items?.map(item => (item.id === itemId ? {...item, show: true} : item));
+      // add the new layoutItem to layout
+      const newLayout = [
+        ...layout,
+        {
+          ...layoutItem,
+          i: itemId,
+          w: 6,
+          h: 6,
+          static: false
+        }
+      ];
+      // update redux state
+      dispatch(updateLayout({layout: newLayout}));
+      dispatch(updateGridItems(newItems));
+    }
   };
 
   if (!showGridView) {
@@ -201,16 +136,18 @@ const GridLayout = () => {
 
   return (
     <ReactGridLayout
-      className="layout"
+      className="layout min-h-[800px]"
       layout={layout}
       rowHeight={30}
       width={1200}
       margin={[20, 20]}
-      allowOverlap={false}
+      allowOverlap={true}
       cols={18}
       onLayoutChange={onLayoutChange}
       draggableHandle=".react-grid-dragHandle"
       isResizable={mode === 'edit'}
+      isDroppable={mode === 'edit'}
+      onDrop={onDrop}
     >
       {layerIds &&
         layerIds.map(
@@ -236,11 +173,7 @@ const GridLayout = () => {
             layout.find(l => l.i === plot.id) && (
               <div key={plot.id} style={cellStyle}>
                 <GridCell id={plot.id} mode={mode} onCloseGridItem={onCloseGridItem}>
-                  {isHistogramPlot(plot) && <HistogramPlot key={plot.id} props={plot} />}
-                  {isBoxPlot(plot) && <BoxPlot key={plot.id} props={plot} />}
-                  {isParallelCoordinate(plot) && (
-                    <ParallelCoordinatePlot key={plot.id} props={plot} />
-                  )}
+                  {PlotWrapper(plot, false)}
                 </GridCell>
               </div>
             )
@@ -262,7 +195,7 @@ const GridLayout = () => {
             layout.find(l => l.i === textItem.id) && (
               <div key={textItem.id} style={cellStyle}>
                 <GridCell id={textItem.id} mode={mode} onCloseGridItem={onCloseGridItem}>
-                  <TextCell id={textItem.id} initialState={textItem.content}></TextCell>
+                  <TextCell id={textItem.id} mode={mode} initialState={textItem.content}></TextCell>
                 </GridCell>
               </div>
             )

@@ -122,21 +122,16 @@ export const dashboardReducer = (state = initialState, action: DashboardAction) 
     case DASHBOARD_ACTIONS.HIDE_GRID_ITEM:
       if (isHideGridItemActionPayload(action.payload)) {
         const gridItemId = action.payload.id;
-        const gridItem = state.gridItems || [];
+        const gridItems = state.gridItems || [];
         // add {id, show: false} to gridItems if it doesn't exist, otherwise update show to false
-        if (gridItem.find(item => item.id === gridItemId)) {
-          return {
-            ...state,
-            gridItems: gridItem.map(item =>
-              item.id === gridItemId ? {...item, show: false} : item
-            )
-          };
-        } else {
-          return {
-            ...state,
-            gridItems: [...gridItem, {id: gridItemId, show: false}]
-          };
-        }
+        return {
+          ...state,
+          gridItems: gridItems.map(item =>
+            item.id === gridItemId ? {...item, show: false} : item
+          ),
+          // update gridLayout to remove the gridItem
+          gridLayout: state.gridLayout?.filter(l => l.i !== gridItemId)
+        };
       }
       return state;
     default:

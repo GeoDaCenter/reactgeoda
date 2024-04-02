@@ -37,7 +37,7 @@ export const GridCell: FC<GridCellProps> = ({id, mode, onCloseGridItem, children
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full p-2">
       <div className="absolute right-0 top-0 z-50 m-1 flex cursor-pointer flex-row gap-1">
         <div className="react-grid-dragHandle">
           <IconMove width={12} height={12} />

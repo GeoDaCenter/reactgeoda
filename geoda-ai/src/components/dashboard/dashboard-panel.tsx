@@ -1,15 +1,5 @@
-import {Key, useState} from 'react';
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  Select,
-  SelectItem,
-  Tab,
-  Tabs,
-  Radio,
-  RadioGroup
-} from '@nextui-org/react';
+import {Key, useState, ReactNode} from 'react';
+import {Accordion, AccordionItem, Button, Tab, Tabs, Radio, RadioGroup} from '@nextui-org/react';
 
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
@@ -20,6 +10,33 @@ import {NO_MAP_LOADED_MESSAGE} from '../chatgpt/chatgpt-component';
 import {accordionItemClasses} from '../lisa/local-moran-panel';
 import {generateRandomId} from '@/utils/ui-utils';
 import {addTextGridItem, updateMode} from '@/actions/dashboard-actions';
+import {MAP_ID} from '@/constants';
+import {Layer} from '@kepler.gl/layers';
+import {PlotProps} from '@/actions';
+import {PlotWrapper} from '../plots/plot-management';
+import {KeplerMapContainer} from '../common/kepler-map-container';
+
+type DraggableElementProps = {
+  id: string;
+  children: ReactNode;
+};
+
+const DraggableElement = ({id, children}: DraggableElementProps) => {
+  return (
+    <div
+      className="h-[280px] w-full"
+      draggable={true}
+      unselectable="on"
+      // this is a hack for firefox
+      // Firefox requires some kind of initialization
+      // which we can do by adding this attribute
+      // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
+      onDragStart={e => e.dataTransfer.setData('text/plain', id)}
+    >
+      <div className="pointer-events-none h-full w-full">{children}</div>
+    </div>
+  );
+};
 
 // React function component DashboardPanel, returns a JSX element, which includes the following:
 //   - RightPanelContainer
@@ -29,10 +46,18 @@ import {addTextGridItem, updateMode} from '@/actions/dashboard-actions';
 export function DashboardPanel() {
   const dispatch = useDispatch();
 
+  // get grid items from redux store
+  const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems); // get all layers from kepler.gl visstate
+  const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
+  const layerIds = layers?.map((layer: Layer) => layer.id);
+  // get all plots from redux state
+  const plots = useSelector((state: GeoDaState) => state.root.plots);
+  const plotIds = plots?.map((plot: any) => plot.id);
+
   // get dashboard mode from redux store
   const dashboardMode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
 
-  const [showSettings, setShowSettings] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 
@@ -108,6 +133,7 @@ export function DashboardPanel() {
                   defaultExpandedKeys={['1', '2']}
                   itemClasses={accordionItemClasses}
                   selectionMode="multiple"
+                  variant="splitted"
                 >
                   <AccordionItem
                     key="1"
@@ -131,7 +157,24 @@ export function DashboardPanel() {
                     subtitle="Drag and drop a widget to dashboard"
                     title="Available Widgets"
                   >
-                    {}
+                    {layerIds &&
+                      layerIds.map(
+                        (layerId: string) =>
+                          gridItems?.find(l => l.id === layerId && l.show === false) && (
+                            <DraggableElement key={layerId} id={layerId}>
+                              <KeplerMapContainer layerId={layerId} mapIndex={1} />
+                            </DraggableElement>
+                          )
+                      )}
+                    {plotIds &&
+                      plots.map(
+                        (plot: PlotProps) =>
+                          gridItems?.find(l => l.id === plot.id && l.show === false) && (
+                            <DraggableElement key={plot.id} id={plot.id}>
+                              {PlotWrapper(plot)}
+                            </DraggableElement>
+                          )
+                      )}
                   </AccordionItem>
                 </Accordion>
               </div>
