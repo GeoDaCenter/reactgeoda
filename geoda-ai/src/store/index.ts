@@ -13,6 +13,7 @@ import {PlotProps} from '@/actions/plot-actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RawFileDataProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import {EditorState} from 'lexical/LexicalEditorState';
 
 /**
  * Define the State of the Redux store
@@ -44,7 +45,7 @@ export type GeoDaState = {
       mode: 'edit' | 'view';
       gridLayout?: Layout[];
       gridItems?: Array<{id: string; show: boolean}>;
-      textItems?: Array<{id: string; content: string}>;
+      textItems?: Array<{id: string; content: EditorState}>;
     };
   };
 };

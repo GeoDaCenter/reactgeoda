@@ -15,6 +15,7 @@ import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from '../spreg/spreg-report';
 import {hideGridItem, updateLayout} from '@/actions/dashboard-actions';
+import {TextCell} from './text-cell';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -248,7 +249,7 @@ const GridLayout = () => {
             layout.find(l => l.i === textItem.id) && (
               <div key={textItem.id} style={styles.gridItem}>
                 <GridCell id={textItem.id} onCloseGridItem={onCloseGridItem}>
-                  <div>{textItem.content}</div>
+                  <TextCell></TextCell>
                 </GridCell>
               </div>
             )

@@ -5,13 +5,14 @@ import {
   UpdateLayoutActionPayload,
   AddTextGridItemActionPayload
 } from '@/actions/dashboard-actions';
+import {EditorState} from 'lexical';
 import {Layout} from 'react-grid-layout';
 
 export type DashboardStateProps = {
   mode: 'edit' | 'view';
   gridLayout?: Layout[];
   gridItems?: Array<{id: string; show: boolean}>;
-  textItems?: Array<{id: string; content: string}>;
+  textItems?: Array<{id: string; content: EditorState}>;
 };
 
 const initialState: DashboardStateProps = {

@@ -31,7 +31,7 @@ export function DashboardPanel() {
 
   const onAddTextClick = () => {
     const id = generateRandomId();
-    dispatch(addTextGridItem({id, w: 6, h: 2, x: 0, y: 0, content: ''}));
+    dispatch(addTextGridItem({id, content: ''}));
   };
 
   const onTabChange = (key: Key) => {

@@ -1,4 +1,5 @@
 import {Layout} from 'react-grid-layout';
+import {EditorState} from 'lexical/LexicalEditorState';
 
 export enum DASHBOARD_ACTIONS {
   UPDATE_LAYOUT = 'UPDATE_LAYOUT',
@@ -11,7 +12,7 @@ export enum DASHBOARD_ACTIONS {
 export type UpdateLayoutActionPayload = {
   layout?: Layout[];
   gridItems?: Array<{id: string; show: boolean}>;
-  textItems?: Array<{id: string; content: string}>;
+  textItems?: Array<{id: string; content: EditorState}>;
 };
 
 export const updateLayout = (layout: UpdateLayoutActionPayload) => ({
@@ -33,14 +34,14 @@ export const hideGridItem = (item: HideGridItemActionPayload) => ({
 
 export type AddTextGridItemActionPayload = {
   id: string;
-  content: string;
+  content: EditorState;
 };
 export const addTextGridItem = (item: AddTextGridItemActionPayload) => ({
   type: DASHBOARD_ACTIONS.ADD_TEXT_GRID_ITEM,
   payload: item
 });
 
-export type UpdateTextGridContentPayload = {id: string; content: string};
+export type UpdateTextGridContentPayload = {id: string; content: EditorState};
 export const updateTextGridContent = (item: UpdateTextGridContentPayload) => ({
   type: DASHBOARD_ACTIONS.UPDATE_TEXT_GRID_ITEM_CONTENT,
   payload: item
