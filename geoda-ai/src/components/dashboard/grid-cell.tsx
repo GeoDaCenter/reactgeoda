@@ -3,6 +3,7 @@ import {IconXClose} from '../icons/xclose';
 
 interface GridCellProps {
   id: string;
+  mode?: 'edit' | 'display';
   onCloseGridItem: (key: string) => void;
   children: ReactNode;
 }
@@ -26,10 +27,14 @@ export const IconMove = ({width = 18, height = 18}) => {
   );
 };
 
-export const GridCell: FC<GridCellProps> = ({id, onCloseGridItem, children}) => {
+export const GridCell: FC<GridCellProps> = ({id, mode, onCloseGridItem, children}) => {
   const onClickClose = () => {
     onCloseGridItem(id);
   };
+
+  if (mode === 'display') {
+    return <div className="h-full w-full">{children}</div>;
+  }
 
   return (
     <div className="h-full w-full">

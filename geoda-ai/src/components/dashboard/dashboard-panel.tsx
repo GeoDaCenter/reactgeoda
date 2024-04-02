@@ -9,7 +9,7 @@ import {GeoDaState} from '@/store';
 import {NO_MAP_LOADED_MESSAGE} from '../chatgpt/chatgpt-component';
 import {accordionItemClasses} from '../lisa/local-moran-panel';
 import {generateRandomId} from '@/utils/ui-utils';
-import {addTextGridItem} from '@/actions/dashboard-actions';
+import {addTextGridItem, updateMode} from '@/actions/dashboard-actions';
 
 // React function component DashboardPanel, returns a JSX element, which includes the following:
 //   - RightPanelContainer
@@ -19,19 +19,21 @@ import {addTextGridItem} from '@/actions/dashboard-actions';
 export function DashboardPanel() {
   const dispatch = useDispatch();
 
-  const [mode, setMode] = useState('edit');
+  // get dashboard mode from redux store
+  const dashboardMode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
+
   const [showSettings, setShowSettings] = useState(true);
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   const onModeChange = (key: any) => {
-    console.log(key);
-    setMode(key.currentKey as string);
+    const mode = key.currentKey === 'edit' ? 'edit' : 'display';
+    dispatch(updateMode(mode));
   };
 
   const onAddTextClick = () => {
     const id = generateRandomId();
-    dispatch(addTextGridItem({id, content: ''}));
+    dispatch(addTextGridItem({id, content: null}));
   };
 
   const onTabChange = (key: Key) => {
@@ -73,7 +75,7 @@ export function DashboardPanel() {
                 label="Select dashboard mode"
                 selectionMode="single"
                 className="max-w-xs"
-                defaultSelectedKeys={[mode]}
+                defaultSelectedKeys={[dashboardMode]}
                 onSelectionChange={onModeChange}
                 size="sm"
               >

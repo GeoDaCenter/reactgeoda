@@ -60,6 +60,11 @@ const isUpdateTextGridItemContentActionPayload = (
 
 export const dashboardReducer = (state = initialState, action: DashboardAction) => {
   switch (action.type) {
+    case DASHBOARD_ACTIONS.UPDATE_MODE:
+      return {
+        ...state,
+        mode: action.payload
+      };
     case DASHBOARD_ACTIONS.UPDATE_LAYOUT:
       if (isUpdateLayoutActionPayload(action.payload)) {
         return {

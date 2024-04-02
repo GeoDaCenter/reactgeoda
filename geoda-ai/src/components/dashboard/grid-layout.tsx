@@ -28,6 +28,10 @@ const styles = {
     // borderRadius: '5px',
     border: '1px dashed #ddd',
     overflow: 'auto'
+  },
+  displayGridItem: {
+    // borderRadius: '5px',
+    overflow: 'auto'
   }
 };
 
@@ -37,7 +41,7 @@ function updateGridLayout(
   layers: Layer[],
   plots: PlotProps[],
   regressions: RegressionProps[],
-  textItems: Array<{id: string; content: string}>
+  textItems: Array<{id: string; content: EditorState}>
 ) {
   // remove items from newGridLayout that are not shwon in gridItem (show: false)
   const newGridLayout = [...(gridLayout || [])];
@@ -145,6 +149,9 @@ const GridLayout = () => {
   // get all regressions from redux store
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
 
+  // get mode from redux store
+  const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
+
   // get grid layout from redux store
   const gridLayout = useSelector((state: GeoDaState) => state.root.dashboard.gridLayout);
 
@@ -154,7 +161,11 @@ const GridLayout = () => {
   // get text items from redux store
   const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems) || [];
 
+  // update grid layout with grid items
   const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
+
+  // get cell style based on mode
+  const cellStyle = mode === 'edit' ? styles.gridItem : styles.displayGridItem;
 
   // when layout changes, update redux state
   const onLayoutChange = (layout: Layout[]) => {
@@ -199,21 +210,22 @@ const GridLayout = () => {
       cols={18}
       onLayoutChange={onLayoutChange}
       draggableHandle=".react-grid-dragHandle"
+      isResizable={mode === 'edit'}
     >
       {layerIds &&
         layerIds.map(
           (layerId: string) =>
             layout.find(l => l.i === layerId) && (
-              <div key={layerId} style={styles.gridItem} className={layerId}>
-                <GridCell id={layerId} onCloseGridItem={onCloseGridItem}>
+              <div key={layerId} style={cellStyle} className={layerId}>
+                <GridCell id={layerId} mode={mode} onCloseGridItem={onCloseGridItem}>
                   <KeplerMapContainer layerId={layerId} mapIndex={1} />
                 </GridCell>
               </div>
             )
         )}
       {layout.find(l => l.i === 'table') && (
-        <div key="table" style={styles.gridItem}>
-          <GridCell id="table" onCloseGridItem={onCloseGridItem}>
+        <div key="table" style={cellStyle}>
+          <GridCell id="table" mode={mode} onCloseGridItem={onCloseGridItem}>
             <DuckDBTable />
           </GridCell>
         </div>
@@ -222,8 +234,8 @@ const GridLayout = () => {
         plots.map(
           (plot: PlotProps) =>
             layout.find(l => l.i === plot.id) && (
-              <div key={plot.id} style={styles.gridItem}>
-                <GridCell id={plot.id} onCloseGridItem={onCloseGridItem}>
+              <div key={plot.id} style={cellStyle}>
+                <GridCell id={plot.id} mode={mode} onCloseGridItem={onCloseGridItem}>
                   {isHistogramPlot(plot) && <HistogramPlot key={plot.id} props={plot} />}
                   {isBoxPlot(plot) && <BoxPlot key={plot.id} props={plot} />}
                   {isParallelCoordinate(plot) && (
@@ -237,8 +249,8 @@ const GridLayout = () => {
         regressions.map(
           (regression: RegressionProps) =>
             layout.find(l => l.i === regression.id) && (
-              <div key={regression.id} style={styles.gridItem}>
-                <GridCell id={regression.id} onCloseGridItem={onCloseGridItem}>
+              <div key={regression.id} style={cellStyle}>
+                <GridCell id={regression.id} mode={mode} onCloseGridItem={onCloseGridItem}>
                   <RegressionReport key={regression.id} regression={regression} />
                 </GridCell>
               </div>
@@ -248,8 +260,8 @@ const GridLayout = () => {
         textItems.map(
           (textItem: {id: string; content: EditorState}) =>
             layout.find(l => l.i === textItem.id) && (
-              <div key={textItem.id} style={styles.gridItem}>
-                <GridCell id={textItem.id} onCloseGridItem={onCloseGridItem}>
+              <div key={textItem.id} style={cellStyle}>
+                <GridCell id={textItem.id} mode={mode} onCloseGridItem={onCloseGridItem}>
                   <TextCell id={textItem.id} initialState={textItem.content}></TextCell>
                 </GridCell>
               </div>

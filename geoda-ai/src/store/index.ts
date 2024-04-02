@@ -42,7 +42,7 @@ export type GeoDaState = {
       messages: Array<MessageModel>;
     };
     dashboard: {
-      mode: 'edit' | 'view';
+      mode: 'edit' | 'display';
       gridLayout?: Layout[];
       gridItems?: Array<{id: string; show: boolean}>;
       textItems?: Array<{id: string; content: EditorState}>;
