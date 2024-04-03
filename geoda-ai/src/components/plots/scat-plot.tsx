@@ -47,14 +47,6 @@ const EChartsUpdater = ({
   props,
   getChartOption
 }: EChartsUpdaterProps) => {
-  // use selector to get filteredIndexTrigger
-  // const filteredIndexTrigger = useSelector((state: GeoDaState) => {
-  //   const layer: GeojsonLayer = state.keplerGl[MAP_ID].visState.layers.find((layer: Layer) =>
-  //     tableName.startsWith(layer.config.label)
-  //   );
-  //   return layer.filteredIndexTrigger;
-  // });
-
   // use selector to get filters with type === 'polygon'
   const polygonFilter = useSelector((state: GeoDaState) => {
     const polyFilter = state.keplerGl[MAP_ID].visState.filters.find(
@@ -106,70 +98,75 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
     return getScatterChartOption(filteredIndex, props);
   }, [filteredIndex, props]);
 
-  const bindEvents = {
-    brushSelected: function (params: any) {
-      const brushed = [];
-      const brushComponent = params.batch[0];
-      for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-        const rawIndices = brushComponent.selected[sIdx].dataIndex;
-        brushed.push(...rawIndices);
-      }
-
-      // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
-      setTimeout(() => {
-        if (validPlot && brushed.length === 0) {
-          // reset options
-          const chart = eChartsRef.current;
-          if (chart) {
-            const chartInstance = chart.getEchartsInstance();
-            const updatedOption = getScatterChartOption(null, props);
-            chartInstance.setOption(updatedOption);
-          }
+  const bindEvents = useMemo(() => {
+    return {
+      brushSelected: function (params: any) {
+        const brushed = [];
+        const brushComponent = params.batch[0];
+        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+          const rawIndices = brushComponent.selected[sIdx].dataIndex;
+          brushed.push(...rawIndices);
         }
-      }, 100);
 
-      // Dispatch action to highlight selected indices
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: brushed}
-      });
-    }
-  };
+        // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
+        setTimeout(() => {
+          if (validPlot && brushed.length === 0) {
+            // reset options
+            const chart = eChartsRef.current;
+            if (chart) {
+              const chartInstance = chart.getEchartsInstance();
+              const updatedOption = getScatterChartOption(null, props);
+              chartInstance.setOption(updatedOption);
+            }
+          }
+        }, 100);
 
-  return (
-    <AutoSizer>
-      {({height, width}) => (
-        <div style={{height, width}}>
-          <Card className="h-full w-full" shadow="sm">
-            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-              <p className="text-tiny font-bold uppercase">Scatter Plot</p>
-              <small className="text-default-500">
-                x: {props.variableX}, y: {props.variableY}
-              </small>
-            </CardHeader>
-            <CardBody className="py-2">
-              <ReactEChartsCore
-                echarts={echarts}
-                option={option}
-                notMerge={true}
-                lazyUpdate={false}
-                theme={theme}
-                onEvents={bindEvents}
-                style={{height: '100%', width: '100%'}}
-                ref={eChartsRef}
-              />
-              {validPlot && (
-                <EChartsUpdater
-                  filteredIndex={filteredIndex}
-                  eChartsRef={eChartsRef}
-                  props={props}
-                  getChartOption={getScatterChartOption}
+        // Dispatch action to highlight selected indices
+        dispatch({
+          type: 'SET_FILTER_INDEXES',
+          payload: {dataLabel: tableName, filteredIndex: brushed}
+        });
+      }
+    };
+  }, [dispatch, validPlot, props, tableName]);
+
+  return useMemo(
+    () => (
+      <AutoSizer>
+        {({height, width}) => (
+          <div style={{height, width}}>
+            <Card className="h-full w-full" shadow="none">
+              <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+                <p className="text-tiny font-bold uppercase">Scatter Plot</p>
+                <small className="text-default-500">
+                  x: {props.variableX}, y: {props.variableY}
+                </small>
+              </CardHeader>
+              <CardBody className="py-2">
+                <ReactEChartsCore
+                  echarts={echarts}
+                  option={option}
+                  notMerge={true}
+                  lazyUpdate={false}
+                  theme={theme}
+                  onEvents={bindEvents}
+                  style={{height: '100%', width: '100%'}}
+                  ref={eChartsRef}
                 />
-              )}
-            </CardBody>
-          </Card>
-        </div>
-      )}
-    </AutoSizer>
+                {validPlot && (
+                  <EChartsUpdater
+                    filteredIndex={filteredIndex}
+                    eChartsRef={eChartsRef}
+                    props={props}
+                    getChartOption={getScatterChartOption}
+                  />
+                )}
+              </CardBody>
+            </Card>
+          </div>
+        )}
+      </AutoSizer>
+    ),
+    [filteredIndex, option, theme, validPlot, props, bindEvents]
   );
 };

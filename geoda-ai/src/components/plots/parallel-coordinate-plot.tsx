@@ -98,7 +98,6 @@ const EChartsUpdater = ({
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
     if (eChartsRef.current && polygonFilter) {
-      console.log('EChartsUpdater setOption');
       const updatedOption = getChartOption(filteredIndex, props);
       const chart = eChartsRef.current;
       if (chart) {
@@ -200,31 +199,34 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
   const height =
     DEFAULT_PCP_HEIGHT + Math.min(props.variables.length - 2, 3) * PCP_HEIGHT_PER_VARIABLE;
 
-  return (
-    <Card className="my-4" shadow="none">
-      <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-        <p className="text-tiny font-bold uppercase">{props.type}</p>
-        <small className="text-default-500">{props.variables.join(',')}</small>
-      </CardHeader>
-      <CardBody className="w-full py-2">
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          notMerge={true}
-          lazyUpdate={true}
-          theme={theme}
-          style={{height: height + 'px', width: '100%'}}
-          ref={eChartsRef}
-        />
-        {validPlot && (
-          <EChartsUpdater
-            filteredIndex={filteredIndex}
-            eChartsRef={eChartsRef}
-            props={props}
-            getChartOption={getChartOption}
+  return useMemo(
+    () => (
+      <Card className="my-4" shadow="none">
+        <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+          <p className="text-tiny font-bold uppercase">{props.type}</p>
+          <small className="text-default-500">{props.variables.join(',')}</small>
+        </CardHeader>
+        <CardBody className="w-full py-2">
+          <ReactEChartsCore
+            echarts={echarts}
+            option={option}
+            notMerge={true}
+            lazyUpdate={true}
+            theme={theme}
+            style={{height: height + 'px', width: '100%'}}
+            ref={eChartsRef}
           />
-        )}
-      </CardBody>
-    </Card>
+          {validPlot && (
+            <EChartsUpdater
+              filteredIndex={filteredIndex}
+              eChartsRef={eChartsRef}
+              props={props}
+              getChartOption={getChartOption}
+            />
+          )}
+        </CardBody>
+      </Card>
+    ),
+    [filteredIndex, option, theme, validPlot, props, height]
   );
 };

@@ -129,7 +129,6 @@ export function SignUpButton() {
   const [showSignUpForm, setShowSignUpForm] = useState(false);
 
   const onSignUpClick = () => {
-    console.log('click');
     setShowSignUpForm(true);
   };
 

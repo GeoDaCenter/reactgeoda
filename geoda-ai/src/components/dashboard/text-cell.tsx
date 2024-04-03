@@ -122,7 +122,6 @@ const OnChangePlugin = ({id}: {id: string}) => {
   const [editor] = useLexicalComposerContext();
   useEffect(() => {
     return editor.registerUpdateListener(listener => {
-      console.log('DATA', listener.editorState);
       // dispatch action to update redux state
       dispatch(updateTextGridContent({id, newContent: listener.editorState}));
     });

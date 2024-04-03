@@ -3,23 +3,20 @@ import RGL, {Layout, WidthProvider} from 'react-grid-layout';
 import dynamic from 'next/dynamic';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
-import {Layer} from '@kepler.gl/layers';
 import {MAP_ID} from '@/constants';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {GridCell} from './grid-cell';
-import {PlotProps} from '@/actions';
 import {PlotWrapper} from '../plots/plot-management';
-import {RegressionProps} from '@/actions/regression-actions';
 import {RegressionReport} from '../spreg/spreg-report';
-import {
-  addTextGridItem,
-  hideGridItem,
-  updateGridItems,
-  updateLayout
-} from '@/actions/dashboard-actions';
+import {addTextGridItem, updateGridItems, updateLayout} from '@/actions/dashboard-actions';
 import {getEditorState, TextCell} from './text-cell';
-import {EditorState} from 'lexical/LexicalEditorState';
-import {createGridItems, initGridLayout, initGridItems, createGridLayout} from '@/utils/grid-utils';
+import {
+  createGridItems,
+  initGridLayout,
+  initGridItems,
+  createGridLayout,
+  GRID_ITEM_TYPES
+} from '@/utils/grid-utils';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -47,28 +44,21 @@ const GridLayout = () => {
 
   // get all layers from kepler.gl visstate
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
-  const layerIds = layers?.map((layer: Layer) => layer.id);
-
   // get all plots from redux state
   const plots = useSelector((state: GeoDaState) => state.root.plots);
-  const plotIds = plots?.map((plot: any) => plot.id);
-
   // get all regressions from redux store
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
-
   // get mode from redux store
   const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
-  // get cell style based on mode
-  const cellStyle = mode === 'edit' ? styles.gridItem : styles.displayGridItem;
-
   // get grid layout from redux store
   const gridLayout = useSelector((state: GeoDaState) => state.root.dashboard.gridLayout);
-
   // get grid items from redux store
   const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems);
-
   // get text items from redux store
   const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems);
+
+  // get cell style based on mode
+  const cellStyle = mode === 'edit' ? styles.gridItem : styles.displayGridItem;
 
   // update grid layout with grid items
   // const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
@@ -89,11 +79,6 @@ const GridLayout = () => {
       dispatch(updateLayout({layout}));
       dispatch(updateGridItems(items));
     }
-  };
-
-  const onCloseGridItem = async (id: string) => {
-    // dispatch action to add the grid item in gridItems with show set to false
-    dispatch(hideGridItem({id}));
   };
 
   const enableGridItem = (id: string, layoutItem: Layout) => {
@@ -144,6 +129,14 @@ const GridLayout = () => {
     }
   };
 
+  // create a dictionary {id: type} from gridItems and useMemo to avoid re-render
+  const gridItemsDict = useMemo(() => {
+    return items?.reduce((acc: {[key: string]: GRID_ITEM_TYPES}, item) => {
+      acc[item.id] = item.type;
+      return acc;
+    }, {});
+  }, [items]);
+
   if (!showGridView) {
     // only show map
     return (
@@ -179,57 +172,53 @@ const GridLayout = () => {
       onDrop={onDrop}
       droppingItem={{w: 6, h: 6, i: 'dropping-item'}}
     >
-      {layerIds &&
-        layerIds.map(
-          (layerId: string) =>
-            layout.find(l => l.i === layerId) && (
-              <div key={layerId} style={cellStyle} className={layerId}>
-                <GridCell id={layerId} mode={mode} onCloseGridItem={onCloseGridItem}>
-                  <KeplerMapContainer layerId={layerId} mapIndex={1} />
-                </GridCell>
-              </div>
-            )
-        )}
-      {layout.find(l => l.i === 'table') && (
-        <div key="table" style={cellStyle}>
-          <GridCell id="table" mode={mode} onCloseGridItem={onCloseGridItem}>
-            <DuckDBTable />
-          </GridCell>
-        </div>
-      )}
-      {plotIds &&
-        plots.map(
-          (plot: PlotProps) =>
-            layout.find(l => l.i === plot.id) && (
-              <div key={plot.id} style={cellStyle}>
-                <GridCell id={plot.id} mode={mode} onCloseGridItem={onCloseGridItem}>
-                  {PlotWrapper(plot, false)}
-                </GridCell>
-              </div>
-            )
-        )}
-      {regressions &&
-        regressions.map(
-          (regression: RegressionProps) =>
-            layout.find(l => l.i === regression.id) && (
-              <div key={regression.id} style={cellStyle}>
-                <GridCell id={regression.id} mode={mode} onCloseGridItem={onCloseGridItem}>
-                  <RegressionReport key={regression.id} regression={regression} />
-                </GridCell>
-              </div>
-            )
-        )}
-      {textItems &&
-        textItems.map(
-          (textItem: {id: string; content: EditorState}) =>
-            layout.find(l => l.i === textItem.id) && (
-              <div key={textItem.id} style={cellStyle}>
-                <GridCell id={textItem.id} mode={mode} onCloseGridItem={onCloseGridItem}>
-                  <TextCell id={textItem.id} mode={mode} initialState={textItem.content}></TextCell>
-                </GridCell>
-              </div>
-            )
-        )}
+      {layout.map((l: Layout) => {
+        const gridItemType = gridItemsDict?.[l.i];
+        if (gridItemType === GRID_ITEM_TYPES.TEXT) {
+          const textItem = textItems?.find(t => t.id === l.i);
+          return textItem ? (
+            <div key={l.i} style={cellStyle} className={l.i}>
+              <GridCell id={l.i} mode={mode}>
+                <TextCell id={l.i} mode={mode} initialState={textItem.content} />
+              </GridCell>
+            </div>
+          ) : null;
+        } else if (gridItemType === GRID_ITEM_TYPES.LAYER) {
+          return (
+            <div key={l.i} style={cellStyle} className={l.i}>
+              <GridCell id={l.i} mode={mode}>
+                <KeplerMapContainer layerId={l.i} mapIndex={1} />
+              </GridCell>
+            </div>
+          );
+        } else if (gridItemType === GRID_ITEM_TYPES.PLOT) {
+          const plot = plots.find(p => p.id === l.i);
+          return plot ? (
+            <div key={l.i} style={cellStyle} className={l.i}>
+              <GridCell id={l.i} mode={mode}>
+                {PlotWrapper(plot, false)}
+              </GridCell>
+            </div>
+          ) : null;
+        } else if (gridItemType === GRID_ITEM_TYPES.REGRESSION) {
+          const regression = regressions.find(r => r.id === l.i);
+          return regression ? (
+            <div key={l.i} style={cellStyle} className={l.i}>
+              <GridCell id={l.i} mode={mode}>
+                <RegressionReport key={l.i} regression={regression} />
+              </GridCell>
+            </div>
+          ) : null;
+        } else if (l.i === 'table') {
+          return (
+            <div key={l.i} style={cellStyle}>
+              <GridCell id={l.i} mode={mode}>
+                <DuckDBTable />
+              </GridCell>
+            </div>
+          );
+        }
+      })}
     </ReactGridLayout>
   );
 };

@@ -247,7 +247,6 @@ function getChartOption(filteredIndex: Uint8ClampedArray | null, props: Histogra
       }
     ]
   };
-  console.log('getChartOption', option);
   return option;
 }
 
@@ -283,7 +282,6 @@ const EChartsUpdater = ({
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
     if (eChartsRef.current && polygonFilter) {
-      console.log('EChartsUpdater setOption');
       const updatedOption = getChartOption(filteredIndex, props);
       const chart = eChartsRef.current;
       if (chart) {
@@ -327,91 +325,95 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
     return getChartOption(filteredIndex, props);
   }, [filteredIndex, props]);
 
-  const bindEvents = {
-    // click: function (params: any) {
-    //   console.log('click', params);
-    //   const ids = params.data.ids;
-    //   // dispatch action to highlight the selected ids
-    //   dispatch({
-    //     type: 'SET_FILTER_INDEXES',
-    //     payload: {dataLabel: tableName, filteredIndex: ids}
-    //   });
-    // },
-    brushSelected: function (params: any) {
-      const brushed = [];
-      const brushComponent = params.batch[0];
+  const bindEvents = useMemo(() => {
+    return {
+      // click: function (params: any) {
+      //   console.log('click', params);
+      //   const ids = params.data.ids;
+      //   // dispatch action to highlight the selected ids
+      //   dispatch({
+      //     type: 'SET_FILTER_INDEXES',
+      //     payload: {dataLabel: tableName, filteredIndex: ids}
+      //   });
+      // },
+      brushSelected: function (params: any) {
+        const brushed = [];
+        const brushComponent = params.batch[0];
 
-      for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-        const rawIndices = brushComponent.selected[sIdx].dataIndex;
-        // merge rawIndices to brushed
-        brushed.push(...rawIndices);
-      }
-
-      // get selected ids from brushed bars
-      const filteredIndex =
-        brushed.length > 0
-          ? brushed.map((idx: number) => props.data[idx].items.map(item => item.index)).flat()
-          : [];
-
-      console.log('brushSelected', brushed);
-      // check if this plot is in state.plots
-      if (validPlot && brushed.length === 0) {
-        // reset options
-        const chart = eChartsRef.current;
-        if (chart) {
-          const chartInstance = chart.getEchartsInstance();
-          const updatedOption = getChartOption(null, props);
-          chartInstance.setOption(updatedOption);
+        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+          const rawIndices = brushComponent.selected[sIdx].dataIndex;
+          // merge rawIndices to brushed
+          brushed.push(...rawIndices);
         }
+
+        // get selected ids from brushed bars
+        const filteredIndex =
+          brushed.length > 0
+            ? brushed.map((idx: number) => props.data[idx].items.map(item => item.index)).flat()
+            : [];
+
+        // check if this plot is in state.plots
+        if (validPlot && brushed.length === 0) {
+          // reset options
+          const chart = eChartsRef.current;
+          if (chart) {
+            const chartInstance = chart.getEchartsInstance();
+            const updatedOption = getChartOption(null, props);
+            chartInstance.setOption(updatedOption);
+          }
+        }
+        // dispatch action to highlight the selected ids
+        dispatch({
+          type: 'SET_FILTER_INDEXES',
+          payload: {dataLabel: tableName, filteredIndex: filteredIndex}
+        });
       }
-      // dispatch action to highlight the selected ids
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: filteredIndex}
-      });
-    }
-    // brushEnd: function (params: any) {
-    //   console.log('brushEnd');
-    // }
-  };
+      // brushEnd: function (params: any) {
+      //   console.log('brushEnd');
+      // }
+    };
+  }, [dispatch, props, tableName, validPlot]);
 
   // get reference of echarts
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
-  return (
-    <AutoSizer>
-      {({height, width}) => (
-        <div style={{height, width}}>
-          <Card className="h-full w-full" shadow="sm">
-            <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-              <p className="text-tiny font-bold uppercase">{props.type}</p>
-              <small className="text-default-500">{props.variable}</small>
-            </CardHeader>
-            <CardBody className="py-2">
-              <ReactEChartsCore
-                echarts={echarts}
-                option={option}
-                notMerge={true}
-                lazyUpdate={true}
-                theme={theme}
-                // onChartReady={this.onChartReadyCallback}
-                onEvents={bindEvents}
-                // opts={}
-                style={{height: '100%', width: '100%'}}
-                ref={eChartsRef}
-              />
-              {validPlot && (
-                <EChartsUpdater
-                  filteredIndex={filteredIndex}
-                  eChartsRef={eChartsRef}
-                  props={props}
-                  getChartOption={getChartOption}
+  return useMemo(
+    () => (
+      <AutoSizer>
+        {({height, width}) => (
+          <div style={{height, width}}>
+            <Card className="h-full w-full" shadow="none">
+              <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+                <p className="text-tiny font-bold uppercase">{props.type}</p>
+                <small className="text-default-500">{props.variable}</small>
+              </CardHeader>
+              <CardBody className="py-2">
+                <ReactEChartsCore
+                  echarts={echarts}
+                  option={option}
+                  notMerge={true}
+                  lazyUpdate={true}
+                  theme={theme}
+                  // onChartReady={this.onChartReadyCallback}
+                  onEvents={bindEvents}
+                  // opts={}
+                  style={{height: '100%', width: '100%'}}
+                  ref={eChartsRef}
                 />
-              )}
-            </CardBody>
-          </Card>
-        </div>
-      )}
-    </AutoSizer>
+                {validPlot && (
+                  <EChartsUpdater
+                    filteredIndex={filteredIndex}
+                    eChartsRef={eChartsRef}
+                    props={props}
+                    getChartOption={getChartOption}
+                  />
+                )}
+              </CardBody>
+            </Card>
+          </div>
+        )}
+      </AutoSizer>
+    ),
+    [bindEvents, filteredIndex, option, props, theme, validPlot]
   );
 };

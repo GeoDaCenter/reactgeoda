@@ -179,8 +179,7 @@ export function useDuckDB() {
             await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
 
             // test summary table
-            const summary = await getTableSummary();
-            console.log('summary', summary);
+            await getTableSummary();
           } catch (error) {
             console.error(error);
           }

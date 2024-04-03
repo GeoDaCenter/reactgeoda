@@ -160,21 +160,31 @@ export function initGridLayout(gridItems: GridItemProps[]): Layout[] {
 export function createGridLayout(gridItems: GridItemProps[], originalLayout?: Layout[]): Layout[] {
   // update the original layout with the new gridItems by adding new layout and removing layout that are not in gridItems or hidden
   const newLayout: Layout[] = [];
+
+  // create a dict {id: type} for gridItems
+  const gridItemsDict: Record<string, boolean> = {};
+  gridItems.forEach(item => {
+    gridItemsDict[item.id] = item.show;
+  });
+  originalLayout?.forEach((l: Layout) => {
+    const isShow = gridItemsDict[l.i];
+    if (isShow) {
+      newLayout.push(l);
+    }
+  });
+
+  // add new gridItems in newLayout if needed
   gridItems.forEach(item => {
     const layout = originalLayout?.find(l => l.i === item.id);
-    if (item.show) {
-      if (layout) {
-        newLayout.push(layout);
-      } else {
-        newLayout.push({
-          w: 6,
-          h: 6,
-          x: 0,
-          y: Infinity, // puts it at the bottom,
-          i: item.id,
-          static: false
-        });
-      }
+    if (!layout && item.show) {
+      newLayout.push({
+        w: 6,
+        h: 6,
+        x: 0,
+        y: Infinity, // puts it at the bottom,
+        i: item.id,
+        static: false
+      });
     }
   });
   return newLayout;

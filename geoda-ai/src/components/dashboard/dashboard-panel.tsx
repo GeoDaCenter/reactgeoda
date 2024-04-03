@@ -29,7 +29,7 @@ type DraggableElementProps = {
 const DraggableElement = ({id, children}: DraggableElementProps) => {
   return (
     <div
-      className="h-max-[280px] w-full scale-90"
+      className="h-[200px] w-5/6 overflow-clip rounded-md border-1 border-dashed border-gray-300"
       draggable={true}
       unselectable="on"
       // this is a hack for firefox
@@ -165,51 +165,53 @@ export function DashboardPanel() {
                     subtitle="Drag and drop a widget to dashboard"
                     title="Available Widgets"
                   >
-                    {layerIds &&
-                      layerIds.map(
-                        (layerId: string) =>
-                          gridItems?.find(l => l.id === layerId && l.show === false) && (
-                            <DraggableElement key={layerId} id={layerId}>
-                              <KeplerMapContainer layerId={layerId} mapIndex={1} />
-                            </DraggableElement>
-                          )
+                    <div className="flex flex-col items-center space-y-4 align-middle">
+                      {layerIds &&
+                        layerIds.map(
+                          (layerId: string) =>
+                            gridItems?.find(l => l.id === layerId && l.show === false) && (
+                              <DraggableElement key={layerId} id={layerId}>
+                                <KeplerMapContainer layerId={layerId} mapIndex={1} />
+                              </DraggableElement>
+                            )
+                        )}
+                      {plotIds &&
+                        plots.map(
+                          (plot: PlotProps) =>
+                            gridItems?.find(l => l.id === plot.id && l.show === false) && (
+                              <DraggableElement key={plot.id} id={plot.id}>
+                                {PlotWrapper(plot, false)}
+                              </DraggableElement>
+                            )
+                        )}
+                      {regressions &&
+                        regressions.map(
+                          (regression: any) =>
+                            gridItems?.find(l => l.id === regression.id && l.show === false) && (
+                              <DraggableElement key={regression.id} id={regression.id}>
+                                <RegressionReport key={regression.id} regression={regression} />
+                              </DraggableElement>
+                            )
+                        )}
+                      {textItems &&
+                        textItems.map(
+                          (textItem: {id: string; content: any}) =>
+                            gridItems?.find(l => l.id === textItem.id && l.show === false) && (
+                              <DraggableElement key={textItem.id} id={textItem.id}>
+                                <TextCell
+                                  id={textItem.id}
+                                  mode={'display'}
+                                  initialState={textItem.content}
+                                />
+                              </DraggableElement>
+                            )
+                        )}
+                      {gridItems?.find(l => l.id === 'table' && l.show === false) && (
+                        <DraggableElement key="table" id="table">
+                          <DuckDBTable />
+                        </DraggableElement>
                       )}
-                    {plotIds &&
-                      plots.map(
-                        (plot: PlotProps) =>
-                          gridItems?.find(l => l.id === plot.id && l.show === false) && (
-                            <DraggableElement key={plot.id} id={plot.id}>
-                              {PlotWrapper(plot)}
-                            </DraggableElement>
-                          )
-                      )}
-                    {regressions &&
-                      regressions.map(
-                        (regression: any) =>
-                          gridItems?.find(l => l.id === regression.id && l.show === false) && (
-                            <DraggableElement key={regression.id} id={regression.id}>
-                              <RegressionReport key={regression.id} regression={regression} />
-                            </DraggableElement>
-                          )
-                      )}
-                    {textItems &&
-                      textItems.map(
-                        (textItem: {id: string; content: any}) =>
-                          gridItems?.find(l => l.id === textItem.id && l.show === false) && (
-                            <DraggableElement key={textItem.id} id={textItem.id}>
-                              <TextCell
-                                id={textItem.id}
-                                mode={'display'}
-                                initialState={textItem.content}
-                              />
-                            </DraggableElement>
-                          )
-                      )}
-                    {gridItems?.find(l => l.id === 'table' && l.show === false) && (
-                      <DraggableElement key="table" id="table">
-                        <DuckDBTable />
-                      </DraggableElement>
-                    )}
+                    </div>
                   </AccordionItem>
                 </Accordion>
               </div>

@@ -250,80 +250,74 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     return getChartOption(filteredIndex, props, rawDataArray);
   }, [filteredIndex, props, rawDataArray]);
 
-  const bindEvents = {
-    // click: function (params: any) {
-    //   console.log('click', params);
-    //   const ids = params.data.ids;
-    //   // dispatch action to highlight the selected ids
-    //   dispatch({
-    //     type: 'SET_FILTER_INDEXES',
-    //     payload: {dataLabel: tableName, filteredIndex: ids}
-    //   });
-    // },
-    brushSelected: function (params: any) {
-      const brushed = [];
-      const brushComponent = params.batch[0];
-      for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-        const rawIndices = brushComponent.selected[sIdx].dataIndex;
-        // merge rawIndices to brushed
-        brushed.push(...rawIndices);
-      }
-
-      // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
-      setTimeout(() => {
-        if (validPlot && brushed.length === 0) {
-          // reset options
-          const chart = eChartsRef.current;
-          if (chart) {
-            const chartInstance = chart.getEchartsInstance();
-            const updatedOption = getChartOption(null, props, rawDataArray);
-            chartInstance.setOption(updatedOption);
-          }
+  const bindEvents = useMemo(
+    () => ({
+      brushSelected: function (params: any) {
+        const brushed = [];
+        const brushComponent = params.batch[0];
+        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+          const rawIndices = brushComponent.selected[sIdx].dataIndex;
+          // merge rawIndices to brushed
+          brushed.push(...rawIndices);
         }
-      }, 100);
 
-      // dispatch action to highlight the selected ids
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: brushed}
-      });
-    }
-    // brushEnd: function (params: any) {
-    //   console.log('brushEnd');
-    // }
-  };
+        // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
+        setTimeout(() => {
+          if (validPlot && brushed.length === 0) {
+            // reset options
+            const chart = eChartsRef.current;
+            if (chart) {
+              const chartInstance = chart.getEchartsInstance();
+              const updatedOption = getChartOption(null, props, rawDataArray);
+              chartInstance.setOption(updatedOption);
+            }
+          }
+        }, 100);
+
+        // dispatch action to highlight the selected ids
+        dispatch({
+          type: 'SET_FILTER_INDEXES',
+          payload: {dataLabel: tableName, filteredIndex: brushed}
+        });
+      }
+    }),
+    [dispatch, validPlot, props, tableName, rawDataArray]
+  );
 
   // get reference of echarts
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
-  return (
-    <Card className="my-4" shadow="none">
-      <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-        <p className="text-tiny font-bold uppercase">{props.type}</p>
-        <small className="text-default-500">{props.variables.join(',')}</small>
-      </CardHeader>
-      <CardBody className="w-full py-2">
-        <ReactEChartsCore
-          echarts={echarts}
-          option={option}
-          notMerge={true}
-          lazyUpdate={true}
-          theme={theme}
-          // onChartReady={this.onChartReadyCallback}
-          onEvents={bindEvents}
-          // opts={}
-          style={{height: '200px', width: '100%'}}
-          ref={eChartsRef}
-        />
-        {validPlot && (
-          <EChartsUpdater
-            filteredIndex={filteredIndex}
-            eChartsRef={eChartsRef}
-            props={props}
-            getChartOption={getChartOption}
+  return useMemo(
+    () => (
+      <Card className="my-4" shadow="none">
+        <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+          <p className="text-tiny font-bold uppercase">{props.type}</p>
+          <small className="text-default-500">{props.variables.join(',')}</small>
+        </CardHeader>
+        <CardBody className="w-full py-2">
+          <ReactEChartsCore
+            echarts={echarts}
+            option={option}
+            notMerge={true}
+            lazyUpdate={true}
+            theme={theme}
+            // onChartReady={this.onChartReadyCallback}
+            onEvents={bindEvents}
+            // opts={}
+            style={{height: '200px', width: '100%'}}
+            ref={eChartsRef}
           />
-        )}
-      </CardBody>
-    </Card>
+          {validPlot && (
+            <EChartsUpdater
+              filteredIndex={filteredIndex}
+              eChartsRef={eChartsRef}
+              props={props}
+              getChartOption={getChartOption}
+            />
+          )}
+        </CardBody>
+      </Card>
+    ),
+    [filteredIndex, props, validPlot, theme, option, bindEvents]
   );
 };

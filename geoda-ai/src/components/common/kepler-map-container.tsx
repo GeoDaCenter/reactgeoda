@@ -148,69 +148,44 @@ export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps)
 
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
 
-  return (
-    <div className="m-1 h-full w-full rounded-xl border-1 bg-white p-1 dark:bg-black">
-      <AutoSizer defaultHeight={280} defaultWidth={300}>
-        {({height, width}) => {
-          // get center and zoom from bounds for preview map
-          const bounds = findMapBounds(mapFields.visState.layers);
-          const centerAndZoom = getCenterAndZoomFromBounds(bounds, {width, height});
-          const newMapState = {
-            ...mapFields.mapState,
-            ...(centerAndZoom
-              ? {
-                  latitude: centerAndZoom.center[1],
-                  longitude: centerAndZoom.center[0],
-                  ...(Number.isFinite(centerAndZoom.zoom) ? {zoom: centerAndZoom.zoom} : {})
-                }
-              : {})
-          };
-          return (
-            <div style={{height: height, width: width}} className="">
-              <MapViewStateContextProvider mapState={newMapState}>
-                <MapContainer
-                  width={width}
-                  height={height}
-                  primary={false}
-                  key={mapIndex}
-                  index={mapIndex}
-                  containerId={mapIndex}
-                  theme={selectedTheme}
-                  {...mapFields}
-                />
-              </MapViewStateContextProvider>
-            </div>
-          );
-        }}
-      </AutoSizer>
-    </div>
-    // <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>
-    //   <AutoSizer defaultHeight={400} defaultWidth={500}>
-    //     {({height, width}) => {
-    //       return (
-    //         <KeplerGl
-    //           id={PREVIEW_MAP_ID}
-    //           mapboxApiAccessToken=""
-    //           height={height}
-    //           width={width}
-    //           theme={selectedTheme}
-    //           initialUiState={initialMapUiState}
-    //           mapOnly={true}
-    //           mapStyles={[
-    //             {
-    //               id: 'no_map',
-    //               label: 'No Basemap',
-    //               url: '',
-    //               icon: '',
-    //               colorMode: 'NONE',
-    //               backgroundColor: 'white',
-    //             }
-    //           ]}
-    //           mapStylesReplaceDefault={true}
-    //         />
-    //       );
-    //     }}
-    //   </AutoSizer>
-    // </div>
+  return useMemo(
+    () => (
+      <div className="h-full w-full rounded-xl  bg-white  dark:bg-black">
+        <AutoSizer defaultHeight={280} defaultWidth={300}>
+          {({height, width}) => {
+            // get center and zoom from bounds for preview map
+            const bounds = findMapBounds(mapFields.visState.layers);
+            const centerAndZoom = getCenterAndZoomFromBounds(bounds, {width, height});
+            const newMapState = {
+              ...mapFields.mapState,
+              ...(centerAndZoom
+                ? {
+                    latitude: centerAndZoom.center[1],
+                    longitude: centerAndZoom.center[0],
+                    ...(Number.isFinite(centerAndZoom.zoom) ? {zoom: centerAndZoom.zoom} : {})
+                  }
+                : {})
+            };
+            return (
+              <div style={{height: height, width: width}} className="">
+                <MapViewStateContextProvider mapState={newMapState}>
+                  <MapContainer
+                    width={width}
+                    height={height}
+                    primary={false}
+                    key={mapIndex}
+                    index={mapIndex}
+                    containerId={mapIndex}
+                    theme={selectedTheme}
+                    {...mapFields}
+                  />
+                </MapViewStateContextProvider>
+              </div>
+            );
+          }}
+        </AutoSizer>
+      </div>
+    ),
+    [mapFields, mapIndex, selectedTheme]
   );
 }

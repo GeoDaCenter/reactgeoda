@@ -143,7 +143,6 @@ export function DuckDBTableComponent() {
   // write callback function onQueryClick
   const onQueryClick = async () => {
     const selectedIndexes = await query(code);
-    console.log('query result', selectedIndexes);
 
     if (selectedIndexes) {
       // dispatch action SET_FILTER_INDEXES to update filtered indexes in kepler
@@ -177,7 +176,6 @@ export function DuckDBTableComponent() {
   };
 
   useEffect(() => {
-    console.log('useEffect importArrowFile');
     importArrowFile(rawFileData);
     setCode(`select * from "${tableName}"`);
   }, [rawFileData, importArrowFile, tableName]);
