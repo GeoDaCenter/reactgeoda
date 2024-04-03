@@ -1,3 +1,5 @@
+import {EditorState} from 'lexical';
+
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import {ContentEditable} from '@lexical/react/LexicalContentEditable';
@@ -10,7 +12,6 @@ import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {EditorState} from 'lexical/LexicalEditorState';
 
 import ToolbarPlugin from './text-toobar-plugin';
 import {useEffect} from 'react';
@@ -155,4 +156,42 @@ export function TextCell({id, mode, initialState}: TextCellProps) {
       </div>
     </LexicalComposer>
   );
+}
+
+export function getEditorState(content: string) {
+  // 'empty' editor
+  const value =
+    '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+
+  const initState = {
+    root: {
+      children: [
+        {
+          children: [
+            {
+              children: [],
+              direction: null,
+              format: '',
+              indent: 0,
+              type: 'text',
+              version: 1,
+              text: content
+            }
+          ],
+          direction: null,
+          format: '',
+          indent: 0,
+          type: 'paragraph',
+          version: 1
+        }
+      ],
+      direction: null,
+      format: '',
+      indent: 0,
+      type: 'root',
+      version: 1
+    }
+  };
+
+  return JSON.stringify(initState);
 }

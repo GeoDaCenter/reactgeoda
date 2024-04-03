@@ -31,7 +31,7 @@ const DraggableElement = ({id, children}: DraggableElementProps) => {
       // Firefox requires some kind of initialization
       // which we can do by adding this attribute
       // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
-      onDragStart={e => e.dataTransfer.setData('text/plain', id)}
+      onDragStart={e => e.dataTransfer.setData('text/plain', JSON.stringify({id}))}
     >
       <div className="pointer-events-none h-full w-full">{children}</div>
     </div>

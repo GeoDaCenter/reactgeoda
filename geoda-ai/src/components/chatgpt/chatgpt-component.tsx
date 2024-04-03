@@ -131,7 +131,18 @@ export const ChatGPTComponent = ({
                 </Message.CustomContent>
               </Message>
             ) : (
-              <Message key={i} model={message} />
+              <Message
+                key={i}
+                model={message}
+                draggable={true}
+                unselectable="on"
+                onDragStart={e =>
+                  e.dataTransfer.setData(
+                    'text/plain',
+                    JSON.stringify({id: `message-${i}`, message: message.message || ''})
+                  )
+                }
+              />
             );
           })}
         </MessageList>
