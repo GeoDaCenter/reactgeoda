@@ -130,8 +130,9 @@ const GridLayout = () => {
         const {id, message} = droppedItem;
         // add message in textItems if id doesn not exist
         if (!textItems?.find(textItem => textItem.id === id)) {
+          const {x, y} = layoutItem;
           // @ts-ignore getEditorState returns a string here
-          dispatch(addTextGridItem({id, content: getEditorState(message)}));
+          dispatch(addTextGridItem({id, x, y, content: getEditorState(message)}));
         } else {
           // set the gridItem flag 'show' to true in gridItems
           enableGridItem(id, layoutItem);

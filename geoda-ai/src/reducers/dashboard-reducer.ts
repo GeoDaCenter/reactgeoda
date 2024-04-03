@@ -96,26 +96,15 @@ export const dashboardReducer = (state = initialState, action: DashboardAction) 
       if (isAddTextGridItemActionPayload(action.payload)) {
         const id = action.payload.id;
         const content = action.payload.content;
+        const x = action.payload.x || 0;
+        const y = action.payload.y || Infinity;
         return {
           ...state,
-          layout: state.gridLayout
-            ? [...state.gridLayout, {i: id, x: 0, y: 0, w: 6, h: 2}]
-            : [{i: id, x: 0, y: 0, w: 6, h: 2}],
+          gridLayout: state.gridLayout
+            ? [...state.gridLayout, {i: id, x, y, w: 6, h: 2}]
+            : [{i: id, x, y, w: 6, h: 2}],
           textItems: state.textItems ? [...state.textItems, {id, content}] : [{id, content}],
-          gridItems: state.gridItems
-            ? [
-                ...state.gridItems,
-                {
-                  id,
-                  show: true
-                }
-              ]
-            : [
-                {
-                  id,
-                  show: true
-                }
-              ]
+          gridItems: state.gridItems ? [...state.gridItems, {id, show: true}] : [{id, show: true}]
         };
       }
       return state;

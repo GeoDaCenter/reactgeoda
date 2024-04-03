@@ -12,7 +12,9 @@ import {
   $isRangeSelection,
   $createParagraphNode,
   $getNodeByKey,
-  BaseSelection
+  BaseSelection,
+  EditorState,
+  LexicalEditor
 } from 'lexical';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {$isParentElementRTL, $wrapNodes, $isAtNodeEnd} from '@lexical/selection';
@@ -54,7 +56,7 @@ function Divider() {
   return <div className="divider" />;
 }
 
-function positionEditorElement(editor, rect) {
+function positionEditorElement(editor: HTMLDivElement, rect: DOMRect | null) {
   if (rect === null) {
     editor.style.opacity = '0';
     editor.style.top = '-1000px';
@@ -68,8 +70,8 @@ function positionEditorElement(editor, rect) {
   }
 }
 
-function FloatingLinkEditor({editor}) {
-  const editorRef = useRef(null);
+function FloatingLinkEditor({editor}: {editor: LexicalEditor}) {
+  const editorRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const mouseDownRef = useRef(false);
   const [linkUrl, setLinkUrl] = useState('');
@@ -106,9 +108,9 @@ function FloatingLinkEditor({editor}) {
       rootElement.contains(nativeSelection?.anchorNode)
     ) {
       const domRange = nativeSelection.getRangeAt(0);
-      let rect;
+      let rect: DOMRect;
       if (nativeSelection.anchorNode === rootElement) {
-        let inner = rootElement;
+        let inner = rootElement as Element;
         while (inner.firstElementChild != null) {
           inner = inner.firstElementChild;
         }
@@ -133,7 +135,7 @@ function FloatingLinkEditor({editor}) {
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({editorState}) => {
+      editor.registerUpdateListener(({editorState}: {editorState: EditorState}) => {
         editorState.read(() => {
           updateLinkEditor();
         });
@@ -209,7 +211,17 @@ function FloatingLinkEditor({editor}) {
   );
 }
 
-function Select({onChange, className, options, value}) {
+function Select({
+  onChange,
+  className,
+  options,
+  value
+}: {
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  className: string;
+  options: string[];
+  value: string;
+}) {
   return (
     <select className={className} onChange={onChange} value={value}>
       <option hidden={true} value="" />
@@ -222,7 +234,7 @@ function Select({onChange, className, options, value}) {
   );
 }
 
-function getSelectedNode(selection) {
+function getSelectedNode(selection: any) {
   const anchor = selection.anchor;
   const focus = selection.focus;
   const anchorNode = selection.anchor.getNode();
@@ -238,7 +250,17 @@ function getSelectedNode(selection) {
   }
 }
 
-function BlockOptionsDropdownList({editor, blockType, toolbarRef, setShowBlockOptionsDropDown}) {
+function BlockOptionsDropdownList({
+  editor,
+  blockType,
+  toolbarRef,
+  setShowBlockOptionsDropDown
+}: {
+  editor: LexicalEditor;
+  blockType: string;
+  toolbarRef: any;
+  setShowBlockOptionsDropDown: any;
+}) {
   const dropDownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -257,7 +279,7 @@ function BlockOptionsDropdownList({editor, blockType, toolbarRef, setShowBlockOp
     const toolbar = toolbarRef.current;
 
     if (dropDown !== null && toolbar !== null) {
-      const handle = event => {
+      const handle = (event: {target: any}) => {
         const target = event.target;
 
         if (!dropDown.contains(target) && !toolbar.contains(target)) {
@@ -313,18 +335,18 @@ function BlockOptionsDropdownList({editor, blockType, toolbarRef, setShowBlockOp
 
   const formatBulletList = () => {
     if (blockType !== 'ul') {
-      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND);
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
     } else {
-      editor.dispatchCommand(REMOVE_LIST_COMMAND);
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
     }
     setShowBlockOptionsDropDown(false);
   };
 
   const formatNumberedList = () => {
     if (blockType !== 'ol') {
-      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND);
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
     } else {
-      editor.dispatchCommand(REMOVE_LIST_COMMAND);
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
     }
     setShowBlockOptionsDropDown(false);
   };
@@ -492,7 +514,7 @@ export default function ToolbarPlugin() {
 
   const codeLanguges = useMemo(() => getCodeLanguages(), []);
   const onCodeLanguageSelect = useCallback(
-    e => {
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
       editor.update(() => {
         if (selectedElementKey !== null) {
           const node = $getNodeByKey(selectedElementKey);
@@ -518,8 +540,7 @@ export default function ToolbarPlugin() {
       <button
         disabled={!canUndo}
         onClick={() => {
-          // @ts-ignore - undo command is not typed
-          editor.dispatchCommand(UNDO_COMMAND);
+          editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
         className="toolbar-item spaced"
         aria-label="Undo"
@@ -529,8 +550,7 @@ export default function ToolbarPlugin() {
       <button
         disabled={!canRedo}
         onClick={() => {
-          // @ts-ignore - redo command is not typed
-          editor.dispatchCommand(REDO_COMMAND);
+          editor.dispatchCommand(REDO_COMMAND, undefined);
         }}
         className="toolbar-item"
         aria-label="Redo"
@@ -546,7 +566,9 @@ export default function ToolbarPlugin() {
             aria-label="Formatting Options"
           >
             <span className={'icon block-type ' + blockType} />
-            <span className="text">{blockTypeToBlockName[blockType]}</span>
+            <span className="text">
+              {blockTypeToBlockName[blockType as keyof typeof blockTypeToBlockName]}
+            </span>
             <i className="chevron-down" />
           </button>
           {showBlockOptionsDropDown &&

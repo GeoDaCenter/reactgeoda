@@ -1,5 +1,6 @@
 import {Key, useState, ReactNode} from 'react';
 import {Accordion, AccordionItem, Button, Tab, Tabs, Radio, RadioGroup} from '@nextui-org/react';
+import dynamic from 'next/dynamic';
 
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
@@ -15,6 +16,10 @@ import {Layer} from '@kepler.gl/layers';
 import {PlotProps} from '@/actions';
 import {PlotWrapper} from '../plots/plot-management';
 import {KeplerMapContainer} from '../common/kepler-map-container';
+import {RegressionReport} from '../spreg/spreg-report';
+import {TextCell} from './text-cell';
+
+const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});
 
 type DraggableElementProps = {
   id: string;
@@ -24,7 +29,7 @@ type DraggableElementProps = {
 const DraggableElement = ({id, children}: DraggableElementProps) => {
   return (
     <div
-      className="h-[280px] w-full"
+      className="h-max-[280px] w-full scale-90"
       draggable={true}
       unselectable="on"
       // this is a hack for firefox
@@ -33,7 +38,7 @@ const DraggableElement = ({id, children}: DraggableElementProps) => {
       // @see https://bugzilla.mozilla.org/show_bug.cgi?id=568313
       onDragStart={e => e.dataTransfer.setData('text/plain', JSON.stringify({id}))}
     >
-      <div className="pointer-events-none h-full w-full">{children}</div>
+      <div className="pointer-events-none h-full w-full ">{children}</div>
     </div>
   );
 };
@@ -53,9 +58,12 @@ export function DashboardPanel() {
   // get all plots from redux state
   const plots = useSelector((state: GeoDaState) => state.root.plots);
   const plotIds = plots?.map((plot: any) => plot.id);
-
+  // get all regressions from redux store
+  const regressions = useSelector((state: GeoDaState) => state.root.regressions);
+  // get text items from redux store
+  const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems);
   // get dashboard mode from redux store
-  // const dashboardMode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
+  // const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
 
   const [showSettings, setShowSettings] = useState(false);
 
@@ -175,6 +183,33 @@ export function DashboardPanel() {
                             </DraggableElement>
                           )
                       )}
+                    {regressions &&
+                      regressions.map(
+                        (regression: any) =>
+                          gridItems?.find(l => l.id === regression.id && l.show === false) && (
+                            <DraggableElement key={regression.id} id={regression.id}>
+                              <RegressionReport key={regression.id} regression={regression} />
+                            </DraggableElement>
+                          )
+                      )}
+                    {textItems &&
+                      textItems.map(
+                        (textItem: {id: string; content: any}) =>
+                          gridItems?.find(l => l.id === textItem.id && l.show === false) && (
+                            <DraggableElement key={textItem.id} id={textItem.id}>
+                              <TextCell
+                                id={textItem.id}
+                                mode={'display'}
+                                initialState={textItem.content}
+                              />
+                            </DraggableElement>
+                          )
+                      )}
+                    {gridItems?.find(l => l.id === 'table' && l.show === false) && (
+                      <DraggableElement key="table" id="table">
+                        <DuckDBTable />
+                      </DraggableElement>
+                    )}
                   </AccordionItem>
                 </Accordion>
               </div>

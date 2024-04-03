@@ -6,6 +6,8 @@ import {ContentEditable} from '@lexical/react/LexicalContentEditable';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
+import {ListPlugin} from '@lexical/react/LexicalListPlugin';
+
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {ListItemNode, ListNode} from '@lexical/list';
 import {CodeHighlightNode, CodeNode} from '@lexical/code';
@@ -151,6 +153,7 @@ export function TextCell({id, mode, initialState}: TextCellProps) {
           />
           <HistoryPlugin />
           <AutoFocusPlugin />
+          <ListPlugin />
           <OnChangePlugin id={id} />
         </div>
       </div>

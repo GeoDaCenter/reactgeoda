@@ -41,6 +41,8 @@ export const hideGridItem = (item: HideGridItemActionPayload) => ({
 export type AddTextGridItemActionPayload = {
   id: string;
   content: EditorState | null;
+  x?: number;
+  y?: number;
 };
 export const addTextGridItem = (item: AddTextGridItemActionPayload) => ({
   type: DASHBOARD_ACTIONS.ADD_TEXT_GRID_ITEM,

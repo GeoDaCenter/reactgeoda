@@ -4,15 +4,80 @@ import {Layer} from '@kepler.gl/layers';
 import {EditorState} from 'lexical/LexicalEditorState';
 import {Layout} from 'react-grid-layout';
 
+// create enum GRID_ITEM_TYPES
+export enum GRID_ITEM_TYPES {
+  LAYER = 'layer',
+  PLOT = 'plot',
+  REGRESSION = 'regression',
+  TEXT = 'text',
+  TABLE = 'table',
+  WEIGHTS = 'weights'
+}
+
 export type GridItemProps = {
   id: string;
   show: boolean;
+  type: GRID_ITEM_TYPES;
 };
 
 export type GridTextItemProps = {
   id: string;
   content: EditorState;
 };
+
+export type InitGridItemsProps = Pick<
+  CreateGridItemsProps,
+  'layers' | 'plots' | 'regressions' | 'textItems'
+>;
+export function initGridItems({
+  layers,
+  plots,
+  regressions,
+  textItems
+}: InitGridItemsProps): GridItemProps[] {
+  const newGridItems: GridItemProps[] = [];
+
+  textItems?.map(textItem => {
+    newGridItems.push({
+      id: textItem.id,
+      show: true,
+      type: GRID_ITEM_TYPES.TEXT
+    });
+  });
+
+  layers?.map((layer: Layer) => {
+    newGridItems.push({
+      id: layer.id,
+      show: true,
+      type: GRID_ITEM_TYPES.LAYER
+    });
+  });
+
+  plots?.map((plot: PlotProps) => {
+    newGridItems.push({
+      id: plot.id,
+      show: true,
+      type: GRID_ITEM_TYPES.PLOT
+    });
+  });
+
+  regressions?.map((regression: RegressionProps) => {
+    newGridItems.push({
+      id: regression.id,
+      show: true,
+      type: GRID_ITEM_TYPES.REGRESSION
+    });
+  });
+
+  // add table
+  newGridItems.push({
+    id: 'table',
+    show: false,
+    type: GRID_ITEM_TYPES.TABLE
+  });
+
+  return newGridItems;
+}
 
 export type CreateGridItemsProps = {
   gridLayout?: Layout[];
@@ -39,7 +104,8 @@ export function createGridItems({
     if (!newGridItems.find(l => l.id === textItem.id)) {
       newGridItems.push({
         id: textItem.id,
-        show: true
+        show: true,
+        type: GRID_ITEM_TYPES.TEXT
       });
     }
   });
@@ -48,7 +114,8 @@ export function createGridItems({
     if (!newGridItems.find(l => l.id === layer.id)) {
       newGridItems.push({
         id: layer.id,
-        show: true
+        show: true,
+        type: GRID_ITEM_TYPES.LAYER
       });
     }
   });
@@ -57,7 +124,8 @@ export function createGridItems({
     if (!newGridItems.find(l => l.id === plot.id)) {
       newGridItems.push({
         id: plot.id,
-        show: true
+        show: true,
+        type: GRID_ITEM_TYPES.PLOT
       });
     }
   });
@@ -66,52 +134,10 @@ export function createGridItems({
     if (!newGridItems.find(l => l.id === regression.id)) {
       newGridItems.push({
         id: regression.id,
-        show: true
+        show: true,
+        type: GRID_ITEM_TYPES.REGRESSION
       });
     }
-  });
-
-  return newGridItems;
-}
-
-export type InitGridItemsProps = Pick<
-  CreateGridItemsProps,
-  'layers' | 'plots' | 'regressions' | 'textItems'
->;
-export function initGridItems({
-  layers,
-  plots,
-  regressions,
-  textItems
-}: InitGridItemsProps): GridItemProps[] {
-  const newGridItems: GridItemProps[] = [];
-
-  textItems?.map(textItem => {
-    newGridItems.push({
-      id: textItem.id,
-      show: true
-    });
-  });
-
-  layers?.map((layer: Layer) => {
-    newGridItems.push({
-      id: layer.id,
-      show: true
-    });
-  });
-
-  plots?.map((plot: PlotProps) => {
-    newGridItems.push({
-      id: plot.id,
-      show: true
-    });
-  });
-
-  regressions?.map((regression: RegressionProps) => {
-    newGridItems.push({
-      id: regression.id,
-      show: true
-    });
   });
 
   return newGridItems;
