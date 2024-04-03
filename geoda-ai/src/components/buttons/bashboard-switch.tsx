@@ -1,8 +1,9 @@
-import {setGridView, setPropertyPanel} from '@/actions';
+import {setGridView, setPropertyPanel, setShowPropertyPanel} from '@/actions';
 import {Button, Tooltip} from '@nextui-org/react';
 import {useCallback, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {PanelName} from '../panel/panel-container';
+import {GeoDaState} from '@/store';
 
 // An svg icon of dashboard composed by 4 squares
 export function DashboardIcon() {
@@ -50,12 +51,31 @@ export function DashboardSwitcher({isDisabled}: {isDisabled?: boolean}) {
   const dispatch = useDispatch();
   const [useDashboard, setUseDashboard] = useState(false);
 
+  // get property panel from redux store
+  const showPropertyPanel = useSelector(
+    (state: GeoDaState) => state.root.uiState.showPropertyPanel
+  );
+  const propertyPanel = useSelector((state: GeoDaState) => state.root.uiState.propertyPanelName);
+
   const onToggleGridCallback = useCallback(() => {
-    setUseDashboard(!useDashboard);
-    dispatch(setGridView(!useDashboard));
-    // show dashboard panel
-    dispatch(setPropertyPanel(PanelName.DASHBOARD));
-  }, [dispatch, useDashboard]);
+    if (!useDashboard) {
+      // switch to dashboard
+      setUseDashboard(!useDashboard);
+      dispatch(setGridView(!useDashboard));
+      // show dashboard panel
+      dispatch(setPropertyPanel(PanelName.DASHBOARD));
+    } else {
+      // when dashboard panel is not shown, show dashboard panel
+      if (propertyPanel !== PanelName.DASHBOARD || !showPropertyPanel) {
+        dispatch(setPropertyPanel(PanelName.DASHBOARD));
+      } else {
+        // switch to map
+        setUseDashboard(!useDashboard);
+        dispatch(setGridView(!useDashboard));
+        dispatch(setShowPropertyPanel(false));
+      }
+    }
+  }, [dispatch, propertyPanel, showPropertyPanel, useDashboard]);
 
   return (
     <Tooltip content={useDashboard ? 'Switch to Map' : 'Switch to Dashboard'} placement="right">

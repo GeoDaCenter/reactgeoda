@@ -160,8 +160,8 @@ export function TextCell({id, mode, initialState}: TextCellProps) {
 
 export function getEditorState(content: string) {
   // 'empty' editor
-  const value =
-    '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+  // const value =
+  //   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
 
   const initState = {
     root: {

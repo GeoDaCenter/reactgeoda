@@ -55,7 +55,7 @@ export function DashboardPanel() {
   const plotIds = plots?.map((plot: any) => plot.id);
 
   // get dashboard mode from redux store
-  const dashboardMode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
+  // const dashboardMode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
 
   const [showSettings, setShowSettings] = useState(false);
 

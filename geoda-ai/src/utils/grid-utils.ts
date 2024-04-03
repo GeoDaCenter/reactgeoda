@@ -27,7 +27,6 @@ export type CreateGridItemsProps = {
  * Update the grid items if any new layers, plots, regressions, or text items are added
  */
 export function createGridItems({
-  gridLayout,
   gridItems,
   layers,
   plots,
