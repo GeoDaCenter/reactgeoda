@@ -7,15 +7,15 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
 import {ListPlugin} from '@lexical/react/LexicalListPlugin';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {ListItemNode, ListNode} from '@lexical/list';
 import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 
-// import ToolbarPlugin from './text-toobar-plugin';
+import ToolbarPlugin from './text-toobar-plugin';
 import {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 import {updateTextGridContent} from '@/actions/dashboard-actions';
@@ -136,7 +136,6 @@ export type TextCellProps = {
   initialState: EditorState | null;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextCell = ({id, mode, initialState}: TextCellProps) => {
   return (
     <LexicalComposer
@@ -144,7 +143,7 @@ export const TextCell = ({id, mode, initialState}: TextCellProps) => {
     >
       <div className="editor-container">
         {/* hide ToolbarPlugin in display mode */}
-        {/* {mode === 'edit' && <ToolbarPlugin />} */}
+        {mode === 'edit' && <ToolbarPlugin />}
         <div className="editor-inner">
           <RichTextPlugin
             contentEditable={<ContentEditable className="editor-input" />}
