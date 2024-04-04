@@ -8,8 +8,9 @@ import {KeplerMapContainer} from '../common/kepler-map-container';
 import {GridCell} from './grid-cell';
 import {PlotWrapper} from '../plots/plot-management';
 import {RegressionReport} from '../spreg/spreg-report';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {addTextGridItem, updateGridItems, updateLayout} from '@/actions/dashboard-actions';
-import {getEditorState, TextCell} from './text-cell';
+// import {getEditorState, TextCell} from './text-cell';
 import {
   createGridItems,
   initGridLayout,
@@ -81,6 +82,7 @@ const GridLayout = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const enableGridItem = (id: string, layoutItem: Layout) => {
     // set the gridItem flag 'show' to true in gridItems
     const newItems = items?.map(item => (item.id === id ? {...item, show: true} : item));
@@ -100,34 +102,34 @@ const GridLayout = () => {
     dispatch(updateGridItems(newItems));
   };
 
-  const onDrop = (layout: Layout[], layoutItem: Layout, _event: Event) => {
-    // only update layout if showGridView is true
-    if (showGridView) {
-      let droppedItem = null;
-      try {
-        // @ts-ignore event does not have dataTransfer by react-grid-layout
-        droppedItem = JSON.parse(_event.dataTransfer.getData('text/plain'));
-      } catch (e) {
-        console.error('Error parsing dropped item', e);
-      }
-      if (droppedItem?.message) {
-        // add chat message as a new text item
-        const {id, message} = droppedItem;
-        // add message in textItems if id doesn not exist
-        if (!textItems?.find(textItem => textItem.id === id)) {
-          const {x, y} = layoutItem;
-          // @ts-ignore getEditorState returns a string here
-          dispatch(addTextGridItem({id, x, y, content: getEditorState(message)}));
-        } else {
-          // set the gridItem flag 'show' to true in gridItems
-          enableGridItem(id, layoutItem);
-        }
-      } else if (droppedItem?.id) {
-        const itemId = droppedItem.id;
-        enableGridItem(itemId, layoutItem);
-      }
-    }
-  };
+  // const onDrop = (layout: Layout[], layoutItem: Layout, _event: Event) => {
+  //   // only update layout if showGridView is true
+  //   if (showGridView) {
+  //     let droppedItem = null;
+  //     try {
+  //       // @ts-ignore event does not have dataTransfer by react-grid-layout
+  //       droppedItem = JSON.parse(_event.dataTransfer.getData('text/plain'));
+  //     } catch (e) {
+  //       console.error('Error parsing dropped item', e);
+  //     }
+  //     if (droppedItem?.message) {
+  //       // add chat message as a new text item
+  //       const {id, message} = droppedItem;
+  //       // add message in textItems if id doesn not exist
+  //       if (!textItems?.find(textItem => textItem.id === id)) {
+  //         const {x, y} = layoutItem;
+  //         // @ts-ignore getEditorState returns a string here
+  //         dispatch(addTextGridItem({id, x, y, content: getEditorState(message)}));
+  //       } else {
+  //         // set the gridItem flag 'show' to true in gridItems
+  //         enableGridItem(id, layoutItem);
+  //       }
+  //     } else if (droppedItem?.id) {
+  //       const itemId = droppedItem.id;
+  //       enableGridItem(itemId, layoutItem);
+  //     }
+  //   }
+  // };
 
   // create a dictionary {id: type} from gridItems and useMemo to avoid re-render
   const gridItemsDict = useMemo(() => {
@@ -169,7 +171,7 @@ const GridLayout = () => {
       draggableHandle=".react-grid-dragHandle"
       isResizable={mode === 'edit'}
       isDroppable={mode === 'edit'}
-      onDrop={onDrop}
+      // onDrop={onDrop}
       droppingItem={{w: 6, h: 6, i: 'dropping-item'}}
     >
       {layout.map((l: Layout) => {
@@ -179,7 +181,8 @@ const GridLayout = () => {
           return textItem ? (
             <div key={l.i} style={cellStyle} className={l.i}>
               <GridCell id={l.i} mode={mode}>
-                <TextCell id={l.i} mode={mode} initialState={textItem.content} />
+                null
+                {/* <TextCell id={l.i} mode={mode} initialState={textItem.content} /> */}
               </GridCell>
             </div>
           ) : null;
