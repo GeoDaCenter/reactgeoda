@@ -110,8 +110,9 @@ function FloatingLinkEditor({editor}: {editor: LexicalEditor}) {
       const domRange = nativeSelection.getRangeAt(0);
       let rect: DOMRect;
       if (nativeSelection.anchorNode === rootElement) {
-        let inner = rootElement as Element;
+        let inner = rootElement;
         while (inner.firstElementChild != null) {
+          // @ts-ignore FIXME: firstElementChild is Element
           inner = inner.firstElementChild;
         }
         rect = inner.getBoundingClientRect();
