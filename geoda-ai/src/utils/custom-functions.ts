@@ -116,7 +116,6 @@ export type ScatterplotOutput = {
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
   summarizeData: async function ({tableName}: SummarizeDataProps) {
     // dispatch summarize data action
-    console.log('calling summarizeData() with arguments:', tableName);
     const result = await getTableSummary();
     return {tableName, result};
   },

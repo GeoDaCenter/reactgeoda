@@ -12,7 +12,7 @@ import {Provider as ReduxProvider} from 'react-redux';
 import {RootContext} from '@kepler.gl/components';
 
 import store from '@/store';
-import GridLayout from '@/components/grid-layout';
+import GridLayout from '@/components/dashboard/grid-layout';
 // import FileHandler from '../components/file-handler';
 // import LanguageSelector from '../components/language-selector';
 import IntlProviderWrapper from '@/components/intl-provider-wrapper';

@@ -44,12 +44,7 @@ type KeplerMapContainerProps = {
   layerId?: string;
 };
 
-export function KeplerMapContainer({
-  mapIndex,
-  mapHeight,
-  mapWidth,
-  layerId
-}: KeplerMapContainerProps) {
+export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps) {
   const dispatch = useDispatch();
 
   const dispatchKepler = (action: any) => dispatch(wrapTo(NO_MAP_ID, action));
@@ -88,7 +83,7 @@ export function KeplerMapContainer({
     const visibleLayers = updatedLayers
       .filter((l: Layer) => l.id === layerId)
       .map((l: Layer) => l.id);
-    // array to object {[layer.id]: true}
+    // convert array to object {[layer.id]: true}
     const layers = visibleLayers?.reduce(
       (accu: {}, layerId: string) => ({
         ...accu,
@@ -153,72 +148,44 @@ export function KeplerMapContainer({
 
   const mapFields = mapFieldsSelector(connectedProps, mapIndex);
 
-  return (
-    <div
-      style={{height: mapHeight ?? 280, width: mapWidth ?? 300}}
-      className="rounded bg-white dark:bg-black"
-    >
-      <AutoSizer defaultHeight={280} defaultWidth={300}>
-        {({height, width}) => {
-          // get center and zoom from bounds for preview map
-          const bounds = findMapBounds(mapFields.visState.layers);
-          const centerAndZoom = getCenterAndZoomFromBounds(bounds, {width, height});
-          const newMapState = {
-            ...mapFields.mapState,
-            ...(centerAndZoom
-              ? {
-                  latitude: centerAndZoom.center[1],
-                  longitude: centerAndZoom.center[0],
-                  ...(Number.isFinite(centerAndZoom.zoom) ? {zoom: centerAndZoom.zoom} : {})
-                }
-              : {})
-          };
-          return (
-            <div style={{height: height, width: width}} className="rounded p-2">
-              <MapViewStateContextProvider mapState={newMapState}>
-                <MapContainer
-                  width={width}
-                  height={height}
-                  primary={false}
-                  key={mapIndex}
-                  index={mapIndex}
-                  containerId={mapIndex}
-                  theme={selectedTheme}
-                  {...mapFields}
-                />
-              </MapViewStateContextProvider>
-            </div>
-          );
-        }}
-      </AutoSizer>
-    </div>
-    // <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>
-    //   <AutoSizer defaultHeight={400} defaultWidth={500}>
-    //     {({height, width}) => {
-    //       return (
-    //         <KeplerGl
-    //           id={PREVIEW_MAP_ID}
-    //           mapboxApiAccessToken=""
-    //           height={height}
-    //           width={width}
-    //           theme={selectedTheme}
-    //           initialUiState={initialMapUiState}
-    //           mapOnly={true}
-    //           mapStyles={[
-    //             {
-    //               id: 'no_map',
-    //               label: 'No Basemap',
-    //               url: '',
-    //               icon: '',
-    //               colorMode: 'NONE',
-    //               backgroundColor: 'white',
-    //             }
-    //           ]}
-    //           mapStylesReplaceDefault={true}
-    //         />
-    //       );
-    //     }}
-    //   </AutoSizer>
-    // </div>
+  return useMemo(
+    () => (
+      <div className="h-full w-full rounded-xl  bg-white  dark:bg-black">
+        <AutoSizer defaultHeight={280} defaultWidth={300}>
+          {({height, width}) => {
+            // get center and zoom from bounds for preview map
+            const bounds = findMapBounds(mapFields.visState.layers);
+            const centerAndZoom = getCenterAndZoomFromBounds(bounds, {width, height});
+            const newMapState = {
+              ...mapFields.mapState,
+              ...(centerAndZoom
+                ? {
+                    latitude: centerAndZoom.center[1],
+                    longitude: centerAndZoom.center[0],
+                    ...(Number.isFinite(centerAndZoom.zoom) ? {zoom: centerAndZoom.zoom} : {})
+                  }
+                : {})
+            };
+            return (
+              <div style={{height: height, width: width}} className="">
+                <MapViewStateContextProvider mapState={newMapState}>
+                  <MapContainer
+                    width={width}
+                    height={height}
+                    primary={false}
+                    key={mapIndex}
+                    index={mapIndex}
+                    containerId={mapIndex}
+                    theme={selectedTheme}
+                    {...mapFields}
+                  />
+                </MapViewStateContextProvider>
+              </div>
+            );
+          }}
+        </AutoSizer>
+      </div>
+    ),
+    [mapFields, mapIndex, selectedTheme]
   );
 }

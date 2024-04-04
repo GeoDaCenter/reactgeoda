@@ -34,8 +34,6 @@ export function ParallelCoordinatePanel() {
       return;
     }
 
-    // Updated function name
-
     // generate random id for pcp
     const id = Math.random().toString(36).substring(7);
     // dispatch action to create pcp and add to store
@@ -54,6 +52,7 @@ export function ParallelCoordinatePanel() {
           plot.isNew = false;
         }
       });
+      // dispatch action to update isNew flag of plots
     }
   }, [newPlotsCount, plots]);
 

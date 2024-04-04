@@ -7,6 +7,7 @@ import {weightsReducer} from './weights-reducer';
 import {plotReducer} from './plot-reducer';
 import {regressionReducer} from './regression-reducer';
 import {aiReducer} from './ai-reducer';
+import {dashboardReducer} from './dashboard-reducer';
 
 /**
  * Combine all reducers into a single root reducer
@@ -18,7 +19,8 @@ const rootReducer = combineReducers({
   weights: weightsReducer,
   plots: plotReducer,
   regressions: regressionReducer,
-  ai: aiReducer
+  ai: aiReducer,
+  dashboard: dashboardReducer
 });
 
 export default rootReducer;

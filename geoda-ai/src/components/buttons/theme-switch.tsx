@@ -1,6 +1,7 @@
 import {Tooltip} from '@nextui-org/react';
 import {useTheme} from 'next-themes';
 import {useEffect, useState} from 'react';
+import {useDispatch} from 'react-redux';
 
 // An svg icon of sun that represents the light theme in the UI
 export function SunIcon() {
@@ -44,6 +45,14 @@ export function MoonIcon() {
 export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
   const {theme, setTheme} = useTheme();
+  const dispatch = useDispatch();
+
+  // handle button click event
+  const onClick = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+    // dispatch to update the theme in the store
+    dispatch({type: 'SET_THEME', payload: theme === 'light' ? 'dark' : 'light'});
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -54,10 +63,7 @@ export function ThemeSwitcher() {
   // if light theme return the moon icon, else return the sun icon
   return (
     <Tooltip content={theme === 'light' ? 'Switch to Dark' : 'Switch to Light'} placement="right">
-      <div
-        className="cursor-pointer"
-        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      >
+      <div className="cursor-pointer" onClick={onClick}>
         {theme === 'light' ? <SunIcon /> : <MoonIcon />}
       </div>
     </Tooltip>

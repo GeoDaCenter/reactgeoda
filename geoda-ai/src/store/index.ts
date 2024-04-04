@@ -1,5 +1,6 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
+import {Layout} from 'react-grid-layout';
 
 import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
@@ -12,6 +13,7 @@ import {PlotProps} from '@/actions/plot-actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {RawFileDataProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 
 /**
  * Define the State of the Redux store
@@ -38,6 +40,12 @@ export type GeoDaState = {
     regressions: Array<RegressionProps>;
     ai: {
       messages: Array<MessageModel>;
+    };
+    dashboard: {
+      mode: 'edit' | 'display';
+      gridLayout?: Layout[];
+      gridItems?: GridItemProps[];
+      textItems?: GridTextItemProps[];
     };
   };
 };

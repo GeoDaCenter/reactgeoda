@@ -1,9 +1,5 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-// import ChatGpt from './chatgpt-wrapper';
-// import NivoPlot from './nivo-plot';
-// import ToolBar from './tool-bar';
-// import AgGrid from './ag-grid-wrapper';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
 

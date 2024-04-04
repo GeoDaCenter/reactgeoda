@@ -1,14 +1,20 @@
 import {useIntl} from 'react-intl';
-import {Select, SelectItem, Button, Spacer} from '@nextui-org/react';
+import {Select, SelectItem, Button} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
+import {appInjector, LayerListFactory, makeGetActionCreators} from '@kepler.gl/components';
+import {LayerClasses} from '@kepler.gl/layers';
 import {GeoDaState} from '@/store';
-import {MappingTypes} from '@/constants';
+import {MAP_ID, MappingTypes} from '@/constants';
 import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnData, getLayer, getNumericFieldNames} from '@/utils/data-utils';
+import {wrapTo} from '@kepler.gl/actions';
+
+// get LayerManager component from appInjector
+const LayerList = appInjector.get(LayerListFactory);
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -82,6 +88,12 @@ export function MappingPanel() {
 
   const dispatch = useDispatch();
 
+  // get kepler actions
+  const dispatchKepler = (action: any) => dispatch(wrapTo(MAP_ID, action));
+  const keplerActionSelector = makeGetActionCreators();
+  const keplerOwnProps = {};
+  const {visStateActions, uiStateActions} = keplerActionSelector(dispatchKepler, keplerOwnProps);
+
   // useState for number of bins
   const [k, setK] = useState(5);
 
@@ -95,6 +107,13 @@ export function MappingPanel() {
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
+
+  // get datasets from redux store
+  const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
+  const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
+  const layerOrder = useSelector(
+    (state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layerOrder
+  );
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
@@ -202,11 +221,18 @@ export function MappingPanel() {
                 ))}
               </Select>
             </div>
+            <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateMap}>
+              Create Map
+            </Button>
+            <LayerList
+              datasets={datasets}
+              layers={layers}
+              layerOrder={layerOrder}
+              layerClasses={LayerClasses}
+              uiStateActions={uiStateActions}
+              visStateActions={visStateActions}
+            />
           </div>
-          <Spacer y={8} />
-          <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateMap}>
-            Create Map
-          </Button>
         </div>
       )}
     </RightPanelContainer>

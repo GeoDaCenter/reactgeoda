@@ -48,7 +48,6 @@ export function BoxplotPanel() {
   // on create boxplot // Updated function name
   const onCreateBoxplot = () => {
     // Updated function name
-    console.log('Create boxplot'); // Updated log message
     // get data from variable
     const data: CreateBoxplotProps['data'] = variables.reduce(
       (prev: CreateBoxplotProps['data'], cur: string) => {
