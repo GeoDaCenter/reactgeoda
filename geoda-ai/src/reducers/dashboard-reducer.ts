@@ -6,6 +6,7 @@ import {
   AddTextGridItemActionPayload,
   UpdateTextGridContentPayload
 } from '@/actions/dashboard-actions';
+import {GRID_ITEM_TYPES} from '@/utils/grid-utils';
 import {EditorState} from 'lexical';
 import {Layout} from 'react-grid-layout';
 
@@ -104,7 +105,9 @@ export const dashboardReducer = (state = initialState, action: DashboardAction) 
             ? [...state.gridLayout, {i: id, x, y, w: 6, h: 2}]
             : [{i: id, x, y, w: 6, h: 2}],
           textItems: state.textItems ? [...state.textItems, {id, content}] : [{id, content}],
-          gridItems: state.gridItems ? [...state.gridItems, {id, show: true}] : [{id, show: true}]
+          gridItems: state.gridItems
+            ? [...state.gridItems, {id, show: true, type: GRID_ITEM_TYPES.TEXT}]
+            : [{id, show: true, type: GRID_ITEM_TYPES.TEXT}]
         };
       }
       return state;

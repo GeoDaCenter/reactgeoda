@@ -1,3 +1,5 @@
+'use client';
+
 import {EditorState} from 'lexical';
 
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
@@ -15,8 +17,8 @@ import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
 
-import ToolbarPlugin from './text-toobar-plugin';
-import {useEffect} from 'react';
+import {ToolbarPlugin} from './text-toobar-plugin';
+import React, {FC, useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 import {updateTextGridContent} from '@/actions/dashboard-actions';
 
@@ -113,9 +115,9 @@ const editorConfig = {
   theme
 };
 
-function Placeholder() {
+const Placeholder = () => {
   return <div className="editor-placeholder">Enter text here...</div>;
-}
+};
 
 const OnChangePlugin = ({id}: {id: string}) => {
   const dispatch = useDispatch();
@@ -130,13 +132,13 @@ const OnChangePlugin = ({id}: {id: string}) => {
   return null;
 };
 
-export type TextCellProps = {
+type TextCellProps = {
   id: string;
   mode: 'edit' | 'display';
   initialState: EditorState | null;
 };
 
-export const TextCell = ({id, mode, initialState}: TextCellProps) => {
+export const TextCell: FC<TextCellProps> = ({id, mode, initialState}) => {
   return (
     <LexicalComposer
       initialConfig={{...editorConfig, ...(initialState ? {editorState: initialState} : {})}}
@@ -161,10 +163,6 @@ export const TextCell = ({id, mode, initialState}: TextCellProps) => {
 };
 
 export function getEditorState(content: string) {
-  // 'empty' editor
-  // const value =
-  //   '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
-
   const initState = {
     root: {
       children: [

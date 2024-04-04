@@ -1,3 +1,4 @@
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   CAN_REDO_COMMAND,
@@ -15,7 +16,6 @@ import {
   EditorState,
   LexicalEditor
 } from 'lexical';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {$isParentElementRTL, $wrapNodes, $isAtNodeEnd} from '@lexical/selection';
 import {$getNearestNodeOfType, mergeRegister} from '@lexical/utils';
@@ -56,7 +56,7 @@ function Divider() {
   return <div className="divider" />;
 }
 
-function positionEditorElement(editor: any, rect: any) {
+function positionEditorElement(editor: HTMLDivElement, rect: DOMRect | null) {
   if (rect === null) {
     editor.style.opacity = '0';
     editor.style.top = '-1000px';
@@ -218,7 +218,7 @@ function Select({
   options,
   value
 }: {
-  onChange: (event: any) => void;
+  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   className: string;
   options: string[];
   value: string;
@@ -419,7 +419,7 @@ function BlockOptionsDropdownList({
   );
 }
 
-export default function ToolbarPlugin() {
+export function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
   const [canUndo, setCanUndo] = useState(false);
@@ -515,7 +515,7 @@ export default function ToolbarPlugin() {
 
   const codeLanguges = useMemo(() => getCodeLanguages(), []);
   const onCodeLanguageSelect = useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
       editor.update(() => {
         if (selectedElementKey !== null) {
           const node = $getNodeByKey(selectedElementKey);
