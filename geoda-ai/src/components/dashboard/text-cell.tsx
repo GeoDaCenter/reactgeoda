@@ -15,7 +15,7 @@ import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 
-import ToolbarPlugin from './text-toobar-plugin';
+// import ToolbarPlugin from './text-toobar-plugin';
 import {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 import {updateTextGridContent} from '@/actions/dashboard-actions';
@@ -136,14 +136,14 @@ export type TextCellProps = {
   initialState: EditorState | null;
 };
 
-export function TextCell({id, mode, initialState}: TextCellProps) {
+export function TextCell({id, initialState}: TextCellProps) {
   return (
     <LexicalComposer
       initialConfig={{...editorConfig, ...(initialState ? {editorState: initialState} : {})}}
     >
       <div className="editor-container">
         {/* hide ToolbarPlugin in display mode */}
-        {mode === 'edit' && <ToolbarPlugin />}
+        {/* {mode === 'edit' && <ToolbarPlugin />} */}
         <div className="editor-inner">
           <RichTextPlugin
             contentEditable={<ContentEditable className="editor-input" />}
