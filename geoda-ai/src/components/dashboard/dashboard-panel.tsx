@@ -17,7 +17,7 @@ import {PlotProps} from '@/actions';
 import {PlotWrapper} from '../plots/plot-management';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {RegressionReport} from '../spreg/spreg-report';
-// import {TextCell} from './text-cell';
+import {TextCell} from './text-cell';
 
 const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});
 
@@ -198,12 +198,11 @@ export function DashboardPanel() {
                           (textItem: {id: string; content: any}) =>
                             gridItems?.find(l => l.id === textItem.id && l.show === false) && (
                               <DraggableElement key={textItem.id} id={textItem.id}>
-                                null
-                                {/* <TextCell
+                                <TextCell
                                   id={textItem.id}
                                   mode={'display'}
                                   initialState={textItem.content}
-                                /> */}
+                                />
                               </DraggableElement>
                             )
                         )}
