@@ -56,7 +56,7 @@ function Divider() {
   return <div className="divider" />;
 }
 
-function positionEditorElement(editor: HTMLDivElement, rect: DOMRect | null) {
+function positionEditorElement(editor: any, rect: any) {
   if (rect === null) {
     editor.style.opacity = '0';
     editor.style.top = '-1000px';
@@ -218,7 +218,7 @@ function Select({
   options,
   value
 }: {
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange: (event: any) => void;
   className: string;
   options: string[];
   value: string;
@@ -515,7 +515,7 @@ export default function ToolbarPlugin() {
 
   const codeLanguges = useMemo(() => getCodeLanguages(), []);
   const onCodeLanguageSelect = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
+    (e: any) => {
       editor.update(() => {
         if (selectedElementKey !== null) {
           const node = $getNodeByKey(selectedElementKey);
