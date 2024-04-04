@@ -35,7 +35,7 @@ const WeightsMetaLables: Record<string, string> = {
   pctNoneZero: '% Non-Zero'
 };
 
-export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}) {
+export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}): React.ReactElement {
   const rows = useMemo(() => {
     const rows = Object.keys(WeightsMetaLables)
       .filter(key => key in weightsMeta)

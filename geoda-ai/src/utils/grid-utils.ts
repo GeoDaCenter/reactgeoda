@@ -1,4 +1,4 @@
-import {PlotProps} from '@/actions';
+import {PlotProps, WeightsProps} from '@/actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {Layer} from '@kepler.gl/layers';
 import {EditorState} from 'lexical';
@@ -27,17 +27,18 @@ export type GridTextItemProps = {
 
 export type InitGridItemsProps = Pick<
   CreateGridItemsProps,
-  'layers' | 'plots' | 'regressions' | 'textItems'
+  'layers' | 'plots' | 'regressions' | 'textItems' | 'weights'
 >;
 export function initGridItems({
   layers,
   plots,
   regressions,
-  textItems
+  textItems,
+  weights
 }: InitGridItemsProps): GridItemProps[] {
   const newGridItems: GridItemProps[] = [];
 
-  textItems?.map(textItem => {
+  textItems?.forEach(textItem => {
     newGridItems.push({
       id: textItem.id,
       show: true,
@@ -45,7 +46,7 @@ export function initGridItems({
     });
   });
 
-  layers?.map((layer: Layer) => {
+  layers?.forEach((layer: Layer) => {
     newGridItems.push({
       id: layer.id,
       show: true,
@@ -53,7 +54,7 @@ export function initGridItems({
     });
   });
 
-  plots?.map((plot: PlotProps) => {
+  plots?.forEach((plot: PlotProps) => {
     newGridItems.push({
       id: plot.id,
       show: true,
@@ -61,12 +62,22 @@ export function initGridItems({
     });
   });
 
-  regressions?.map((regression: RegressionProps) => {
+  regressions?.forEach((regression: RegressionProps) => {
     newGridItems.push({
       id: regression.id,
       show: true,
       type: GRID_ITEM_TYPES.REGRESSION
     });
+  });
+
+  weights?.forEach((weight: WeightsProps) => {
+    if (weight.weightsMeta.id) {
+      newGridItems.push({
+        id: weight.weightsMeta.id,
+        show: true,
+        type: GRID_ITEM_TYPES.WEIGHTS
+      });
+    }
   });
 
   // add table
@@ -86,6 +97,7 @@ export type CreateGridItemsProps = {
   plots: PlotProps[];
   regressions: RegressionProps[];
   textItems?: GridTextItemProps[];
+  weights?: WeightsProps[];
 };
 
 /**
@@ -96,7 +108,8 @@ export function createGridItems({
   layers,
   plots,
   regressions,
-  textItems
+  textItems,
+  weights
 }: CreateGridItemsProps): GridItemProps[] {
   const newGridItems = [...(gridItems || [])];
 
@@ -136,6 +149,16 @@ export function createGridItems({
         id: regression.id,
         show: true,
         type: GRID_ITEM_TYPES.REGRESSION
+      });
+    }
+  });
+
+  weights?.forEach((weight: WeightsProps) => {
+    if (!newGridItems.find(l => l.id === weight.weightsMeta.id) && weight.weightsMeta.id) {
+      newGridItems.push({
+        id: weight.weightsMeta.id,
+        show: true,
+        type: GRID_ITEM_TYPES.WEIGHTS
       });
     }
   });

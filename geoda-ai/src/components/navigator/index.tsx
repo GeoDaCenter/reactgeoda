@@ -22,7 +22,7 @@ import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../act
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 import {ThemeSwitcher} from '../buttons/theme-switch';
-import {DashboardSwitcher} from '../buttons/bashboard-switch';
+import {DashboardSwitcher} from '../buttons/dashboard-switch';
 
 export function Navigator() {
   const dispatch = useDispatch();

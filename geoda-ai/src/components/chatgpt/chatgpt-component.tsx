@@ -139,7 +139,11 @@ export const ChatGPTComponent = ({
                 onDragStart={e =>
                   e.dataTransfer.setData(
                     'text/plain',
-                    JSON.stringify({id: `message-${i}`, message: message.message || ''})
+                    JSON.stringify({
+                      id: `message-${i}`,
+                      type: 'text',
+                      message: message.message || ''
+                    })
                   )
                 }
               />

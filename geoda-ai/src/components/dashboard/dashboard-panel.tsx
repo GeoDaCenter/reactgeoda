@@ -18,6 +18,7 @@ import {PlotWrapper} from '../plots/plot-management';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {RegressionReport} from '../spreg/spreg-report';
 import {TextCell} from './text-cell';
+import {WeightsMetaTable} from '../weights/weights-management';
 
 const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});
 
@@ -29,7 +30,7 @@ type DraggableElementProps = {
 const DraggableElement = ({id, children}: DraggableElementProps) => {
   return (
     <div
-      className="h-[200px] w-5/6 overflow-clip rounded-md border-1 border-dashed border-gray-300"
+      className="relative h-[200px] w-5/6 overflow-clip rounded-md border-1 border-dashed border-gray-300"
       draggable={true}
       unselectable="on"
       // this is a hack for firefox
@@ -39,6 +40,7 @@ const DraggableElement = ({id, children}: DraggableElementProps) => {
       onDragStart={e => e.dataTransfer.setData('text/plain', JSON.stringify({id}))}
     >
       <div className="pointer-events-none h-full w-full ">{children}</div>
+      <div className="absolute left-0 top-0 h-full w-full bg-gray-200 bg-opacity-50" />
     </div>
   );
 };
@@ -62,6 +64,8 @@ export function DashboardPanel() {
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
   // get text items from redux store
   const textItems = useSelector((state: GeoDaState) => state.root.dashboard.textItems);
+  // get weights from redux store
+  const weights = useSelector((state: GeoDaState) => state.root.weights);
   // get dashboard mode from redux store
   // const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
 
@@ -203,6 +207,20 @@ export function DashboardPanel() {
                                   mode={'display'}
                                   initialState={textItem.content}
                                 />
+                              </DraggableElement>
+                            )
+                        )}
+                      {weights &&
+                        weights.map(
+                          (weight: any) =>
+                            gridItems?.find(
+                              l => l.id === weight.weightsMeta.id && l.show === false
+                            ) && (
+                              <DraggableElement
+                                key={weight.weightsMeta.id}
+                                id={weight.weightsMeta.id}
+                              >
+                                <WeightsMetaTable weightsMeta={weight.weightsMeta} />
                               </DraggableElement>
                             )
                         )}

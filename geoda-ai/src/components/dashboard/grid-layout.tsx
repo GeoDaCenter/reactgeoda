@@ -17,6 +17,7 @@ import {
   createGridLayout,
   GRID_ITEM_TYPES
 } from '@/utils/grid-utils';
+import {WeightsMetaTable} from '../weights/weights-management';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -48,6 +49,8 @@ const GridLayout = () => {
   const plots = useSelector((state: GeoDaState) => state.root.plots);
   // get all regressions from redux store
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
+  // get all weights from redux store
+  const weights = useSelector((state: GeoDaState) => state.root.weights);
   // get mode from redux store
   const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
   // get grid layout from redux store
@@ -64,9 +67,9 @@ const GridLayout = () => {
   // const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
   const items = useMemo(() => {
     return gridItems
-      ? createGridItems({gridLayout, gridItems, layers, plots, regressions, textItems})
-      : initGridItems({layers, plots, regressions, textItems});
-  }, [gridItems, gridLayout, layers, plots, regressions, textItems]);
+      ? createGridItems({gridLayout, gridItems, layers, plots, regressions, textItems, weights})
+      : initGridItems({layers, plots, regressions, textItems, weights});
+  }, [gridItems, gridLayout, layers, plots, regressions, textItems, weights]);
 
   const layout = useMemo(() => {
     return gridItems ? createGridLayout(items, gridLayout) : initGridLayout(items);
@@ -110,7 +113,7 @@ const GridLayout = () => {
       } catch (e) {
         console.error('Error parsing dropped item', e);
       }
-      if (droppedItem?.message) {
+      if (droppedItem?.type === 'text') {
         // add chat message as a new text item
         const {id, message} = droppedItem;
         // add message in textItems if id doesn not exist
@@ -206,6 +209,15 @@ const GridLayout = () => {
             <div key={l.i} style={cellStyle} className={l.i}>
               <GridCell id={l.i} mode={mode}>
                 <RegressionReport key={l.i} regression={regression} />
+              </GridCell>
+            </div>
+          ) : null;
+        } else if (gridItemType === GRID_ITEM_TYPES.WEIGHTS) {
+          const weight = weights.find(w => w.weightsMeta.id === l.i);
+          return weight ? (
+            <div key={l.i} style={cellStyle} className={l.i}>
+              <GridCell id={l.i} mode={mode}>
+                <WeightsMetaTable weightsMeta={weight.weightsMeta} />
               </GridCell>
             </div>
           ) : null;

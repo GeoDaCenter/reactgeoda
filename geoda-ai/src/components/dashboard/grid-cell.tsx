@@ -114,6 +114,7 @@ export const GridCell: FC<GridCellProps> = ({id, mode, children}) => {
         </div>
       </div>
       <div className="w-full flex-grow overflow-auto p-2">{children}</div>
+      <div className="h-2 w-full flex-none"></div>
     </div>
   );
 };
