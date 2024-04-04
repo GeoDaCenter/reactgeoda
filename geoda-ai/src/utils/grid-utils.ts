@@ -1,7 +1,7 @@
 import {PlotProps} from '@/actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {Layer} from '@kepler.gl/layers';
-import {EditorState} from 'lexical/LexicalEditorState';
+import {EditorState} from 'lexical';
 import {Layout} from 'react-grid-layout';
 
 // create enum GRID_ITEM_TYPES

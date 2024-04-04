@@ -1,5 +1,5 @@
 import {Layout} from 'react-grid-layout';
-import {EditorState} from 'lexical/LexicalEditorState';
+import {EditorState} from 'lexical';
 
 export enum DASHBOARD_ACTIONS {
   UPDATE_MODE = 'UPDATE_MODE',

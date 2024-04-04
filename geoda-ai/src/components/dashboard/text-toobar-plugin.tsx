@@ -1,4 +1,3 @@
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   CAN_REDO_COMMAND,
@@ -16,6 +15,7 @@ import {
   EditorState,
   LexicalEditor
 } from 'lexical';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {$isParentElementRTL, $wrapNodes, $isAtNodeEnd} from '@lexical/selection';
 import {$getNearestNodeOfType, mergeRegister} from '@lexical/utils';
