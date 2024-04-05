@@ -8,6 +8,7 @@ import {HeartIcon} from '../icons/heart';
 import {HistogramOutput} from '@/utils/custom-functions';
 import {HistogramPlot} from '../plots/histogram-plot';
 import {useDispatch} from 'react-redux';
+import {GreenCheckIcon} from '../icons/green-check';
 
 /**
  * Custom Histogram Message
@@ -38,25 +39,26 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   };
 
   return (
-    <div className="w-full">
-      {<HistogramPlot props={histogramPlotProps} />}
-      {!hide && (
-        <Button
-          radius="full"
-          className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          onClick={onClick}
-          startContent={<HeartIcon />}
-        >
-          <Typewriter
-            options={{
-              strings: `Click to Add This Histogram`,
-              autoStart: true,
-              loop: false,
-              delay: 10
-            }}
-          />
-        </Button>
-      )}
+    <div className="h-[330px] w-full">
+      <div className="h-[280px] w-full">
+        <HistogramPlot props={histogramPlotProps} />
+      </div>
+      <Button
+        radius="full"
+        className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        onClick={onClick}
+        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
+        isDisabled={hide}
+      >
+        <Typewriter
+          options={{
+            strings: `Click to Add This Histogram`,
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
     </div>
   );
 };

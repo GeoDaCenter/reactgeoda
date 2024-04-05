@@ -2,8 +2,12 @@ import {useIntl} from 'react-intl';
 import {Select, SelectItem, Button, Tabs, Tab, Card, CardBody} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {themeLT, theme} from '@kepler.gl/styles';
-import {appInjector, LayerListFactory, makeGetActionCreators} from '@kepler.gl/components';
+import {
+  appInjector,
+  LayerListFactory,
+  makeGetActionCreators,
+  MapManagerFactory
+} from '@kepler.gl/components';
 import {LayerClasses} from '@kepler.gl/layers';
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
@@ -12,6 +16,11 @@ import {WarningBox} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnData, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {wrapTo} from '@kepler.gl/actions';
+import {SIDEBAR_PANELS} from '@kepler.gl/constants';
+
+// const MapContainer = KeplerInjector.get(MapContainerFactory);
+const LayerList = appInjector.get(LayerListFactory);
+const MapManager = appInjector.get(MapManagerFactory);
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -84,14 +93,14 @@ export function MappingPanel() {
   const intl = useIntl();
   const dispatch = useDispatch();
 
-  // get LayerManager component from appInjector
-  const LayerList = appInjector.get(LayerListFactory);
-
   // get kepler actions
   const dispatchKepler = (action: any) => dispatch(wrapTo(MAP_ID, action));
   const keplerActionSelector = makeGetActionCreators();
   const keplerOwnProps = {};
-  const {visStateActions, uiStateActions} = keplerActionSelector(dispatchKepler, keplerOwnProps);
+  const {visStateActions, uiStateActions, mapStyleActions} = keplerActionSelector(
+    dispatchKepler,
+    keplerOwnProps
+  );
 
   // useState for number of bins
   const [k, setK] = useState(5);
@@ -107,14 +116,15 @@ export function MappingPanel() {
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 
-  const uiTheme = useSelector((state: any) => state.root.uiState.theme);
-
   // get datasets from redux store
   const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
   const layerOrder = useSelector(
     (state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layerOrder
   );
+
+  // get mapStyle from redux store
+  const mapStyle = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.mapStyle);
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
@@ -236,7 +246,7 @@ export function MappingPanel() {
                       className="bg-rose-900"
                       onClick={onCreateMap}
                     >
-                      Add Map Layer
+                      Add Layer
                     </Button>
                   </div>
                 </CardBody>
@@ -246,7 +256,7 @@ export function MappingPanel() {
               key="map-management"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Manage Map Layers</span>
+                  <span>Map Layers</span>
                 </div>
               }
             >
@@ -259,7 +269,6 @@ export function MappingPanel() {
                     layerClasses={LayerClasses}
                     uiStateActions={uiStateActions}
                     visStateActions={visStateActions}
-                    theme={uiTheme === 'light' ? themeLT : theme}
                   />
                 </CardBody>
               </Card>
@@ -271,7 +280,17 @@ export function MappingPanel() {
                   <span>Basemap</span>
                 </div>
               }
-            ></Tab>
+            >
+              <Card>
+                <CardBody>
+                  <MapManager
+                    mapStyle={mapStyle}
+                    mapStyleActions={mapStyleActions}
+                    panelMetadata={SIDEBAR_PANELS[3]}
+                  />
+                </CardBody>
+              </Card>
+            </Tab>
           </Tabs>
         </div>
       )}

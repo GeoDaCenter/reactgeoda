@@ -20,6 +20,7 @@ import {Navigator} from '@/components/navigator';
 import {OpenFileModal} from '@/components/open-file-modal';
 import {PanelContainer} from '@/components/panel/panel-container';
 import {TableContainer} from '@/components/table/table-container';
+import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);
@@ -27,20 +28,22 @@ export default function Home() {
   return (
     <RootContext.Provider value={rootNode}>
       <ReduxProvider store={store}>
-        <IntlProviderWrapper>
-          <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
-            <Navigator />
-            <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
-              <div className="flex-1 flex-grow p-0">
-                <GridLayout />
+        <ThemeProviderWrapper>
+          <IntlProviderWrapper>
+            <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
+              <Navigator />
+              <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
+                <div className="flex-1 flex-grow p-0">
+                  <GridLayout />
+                </div>
+                <TableContainer />
               </div>
-              <TableContainer />
+              <PanelContainer />
+              <OpenFileModal />
+              {/* <DuckDBTableModal /> */}
             </div>
-            <PanelContainer />
-            <OpenFileModal />
-            {/* <DuckDBTableModal /> */}
-          </div>
-        </IntlProviderWrapper>
+          </IntlProviderWrapper>
+        </ThemeProviderWrapper>
       </ReduxProvider>
     </RootContext.Provider>
   );

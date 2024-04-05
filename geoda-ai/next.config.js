@@ -40,6 +40,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
+      'styled-components': resolve(__dirname, './node_modules/styled-components'),
       'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(

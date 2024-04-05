@@ -7,6 +7,9 @@
   flex-grow: 0;
   height: 40%;
 }
+.layer-manager-header {
+  display: none !important;
+}
 
 /* readjust the size of the close button in modal dialog */
 .react-responsive-modal-closeButton {
