@@ -8,6 +8,7 @@ import {HeartIcon} from '../icons/heart';
 import {BoxplotOutput} from '@/utils/custom-functions';
 import {BoxPlot} from '../plots/box-plot';
 import {useDispatch} from 'react-redux';
+import {GreenCheckIcon} from '../icons/green-check';
 
 /**
  * Custom BoxPlot Message
@@ -36,25 +37,26 @@ export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => 
   };
 
   return (
-    <div className="w-full">
-      {<BoxPlot props={boxPlotProps} />}
-      {!hide && (
-        <Button
-          radius="full"
-          className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          onClick={onClick}
-          startContent={<HeartIcon />}
-        >
-          <Typewriter
-            options={{
-              strings: `Click to Add This Box Plot`,
-              autoStart: true,
-              loop: false,
-              delay: 10
-            }}
-          />
-        </Button>
-      )}
+    <div className="h-[330px] w-full">
+      <div className="h-[280px] w-full">
+        <BoxPlot props={boxPlotProps} />
+      </div>
+      <Button
+        radius="full"
+        className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        onClick={onClick}
+        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
+        isDisabled={hide}
+      >
+        <Typewriter
+          options={{
+            strings: `Click to Add This Box Plot`,
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
     </div>
   );
 };

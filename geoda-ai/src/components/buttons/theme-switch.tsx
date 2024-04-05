@@ -1,5 +1,5 @@
 import {Tooltip} from '@nextui-org/react';
-import {useTheme} from 'next-themes';
+import {useTheme as useNextTheme} from 'next-themes';
 import {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
@@ -44,7 +44,7 @@ export function MoonIcon() {
 // A theme Switcher component that allows the user to switch between light and dark themes
 export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
-  const {theme, setTheme} = useTheme();
+  const {theme, setTheme} = useNextTheme();
   const dispatch = useDispatch();
 
   // handle button click event

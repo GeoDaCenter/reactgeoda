@@ -27,7 +27,7 @@ export const RegressionReport = ({
       </CardHeader>
       <CardBody>
         <ScrollShadow className={height && width ? `h-[${height}px] w-[${width}px]` : ''}>
-          <div className="flex w-full flex-col gap-2 rounded-none">
+          <div className="flex w-[800px] flex-col gap-2 rounded-none">
             <div className="p-4 font-mono text-tiny">
               <Markdown remarkPlugins={[remarkGfm]}>
                 {printLinearRegressionResultUsingMarkdown(regression.data.result)}

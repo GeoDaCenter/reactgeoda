@@ -13,7 +13,7 @@ import {
 import {findMapBounds, uiStateUpdaters} from '@kepler.gl/reducers';
 import {NO_MAP_ID} from '@kepler.gl/constants';
 import {Layer} from '@kepler.gl/layers';
-import {themeLT} from '@kepler.gl/styles';
+import {themeLT, theme} from '@kepler.gl/styles';
 import {wrapTo} from '@kepler.gl/actions';
 import {getCenterAndZoomFromBounds, hexToRgb} from '@kepler.gl/utils';
 
@@ -58,7 +58,7 @@ export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps)
   // // use selector to get theme
   const uiTheme = useSelector((state: any) => state.root.uiState.theme);
 
-  const selectedTheme = uiTheme === 'light' ? themeLT : themeLT;
+  const selectedTheme = uiTheme === 'light' ? themeLT : theme;
 
   // get kepler actions
   const keplerActionSelector = makeGetActionCreators();

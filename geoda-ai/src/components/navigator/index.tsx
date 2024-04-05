@@ -220,7 +220,6 @@ export function Navigator() {
           size="sm"
           placement="bottom-right"
           isOneChar
-          className="absolute left-0"
         >
           <Tooltip key="scatterplotTooltip" placement="right" content="Scatter Plot">
             <Button

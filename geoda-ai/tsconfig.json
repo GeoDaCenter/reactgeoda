@@ -22,6 +22,7 @@
       "@/*": ["./src/*"],
       "react": ["./node_modules/@types/react"],
       "apache-arrow": ["./node_modules/apache-arrow"],
+      "styled-components": ["./node_modules/styled-components"],
       "geoda-wasm": ["../../geoda-lib/src/js/src"],
       "@kepler.gl/*": ["../../csds_kepler/src/*/src"],
       "@kepler.gl/types": ["../../csds_kepler/src/types"],

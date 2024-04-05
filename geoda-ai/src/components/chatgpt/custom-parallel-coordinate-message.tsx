@@ -8,6 +8,7 @@ import {HeartIcon} from '../icons/heart';
 import {ParallelCoordinateOutput} from '@/utils/custom-functions';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {useDispatch} from 'react-redux';
+import {GreenCheckIcon} from '../icons/green-check';
 
 /**
  * Custom PCP plot Message
@@ -34,25 +35,26 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
   };
 
   return (
-    <div className="w-full">
-      {<ParallelCoordinatePlot props={parallelCoordinateProps} />}
-      {!hide && (
-        <Button
-          radius="full"
-          className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-          onClick={onClick}
-          startContent={<HeartIcon />}
-        >
-          <Typewriter
-            options={{
-              strings: `Click to Add This PCP Plot`,
-              autoStart: true,
-              loop: false,
-              delay: 10
-            }}
-          />
-        </Button>
-      )}
+    <div className="h-[330px] w-full">
+      <div className="h-[280px] w-full">
+        <ParallelCoordinatePlot props={parallelCoordinateProps} />
+      </div>
+      <Button
+        radius="full"
+        className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        onClick={onClick}
+        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
+        isDisabled={hide}
+      >
+        <Typewriter
+          options={{
+            strings: `Click to Add This PCP Plot`,
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
     </div>
   );
 };

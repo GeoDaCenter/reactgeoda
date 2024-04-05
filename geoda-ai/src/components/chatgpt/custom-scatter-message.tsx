@@ -8,6 +8,7 @@ import {HeartIcon} from '../icons/heart';
 import {ScatterplotOutput} from '@/utils/custom-functions';
 import {Scatterplot} from '../plots/scat-plot';
 import {useDispatch} from 'react-redux';
+import {GreenCheckIcon} from '../icons/green-check';
 
 /**
  * Custom Scatter Message
@@ -47,25 +48,26 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   };
 
   return (
-    <div className="w-full">
-      {<Scatterplot props={scatterPlotProps} />}
-      {!hide && (
-        <Button
-          radius="full"
-          className="mt-2 w-full bg-gradient-to-tr from-blue-500 to-green-500 text-white shadow-none"
-          onClick={onClick}
-          startContent={<HeartIcon />}
-        >
-          <Typewriter
-            options={{
-              strings: 'Click to Add This Scatterplot',
-              autoStart: true,
-              loop: false,
-              delay: 10
-            }}
-          />
-        </Button>
-      )}
+    <div className="h-[330px] w-full">
+      <div className="h-[280px] w-full">
+        <Scatterplot props={scatterPlotProps} />
+      </div>
+      <Button
+        radius="full"
+        className="mt-2 w-full bg-gradient-to-tr from-blue-500 to-green-500 text-white shadow-none"
+        onClick={onClick}
+        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
+        isDisabled={hide}
+      >
+        <Typewriter
+          options={{
+            strings: 'Click to Add This Scatterplot',
+            autoStart: true,
+            loop: false,
+            delay: 10
+          }}
+        />
+      </Button>
     </div>
   );
 };
