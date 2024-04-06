@@ -135,20 +135,25 @@ const OnChangePlugin = ({id}: {id: string}) => {
 type TextCellProps = {
   id: string;
   mode: 'edit' | 'display';
+  theme: string;
   initialState: EditorState | null;
 };
 
-export const TextCell: FC<TextCellProps> = ({id, mode, initialState}) => {
+export const TextCell: FC<TextCellProps> = ({id, mode, theme, initialState}) => {
   return (
     <LexicalComposer
       initialConfig={{...editorConfig, ...(initialState ? {editorState: initialState} : {})}}
     >
-      <div className="editor-container">
+      <div className={theme === 'light' ? 'editor-container' : 'editor-container-dark'}>
         {/* hide ToolbarPlugin in display mode */}
         {mode === 'edit' && <ToolbarPlugin />}
-        <div className="editor-inner">
+        <div className={theme === 'light' ? 'editor-inner' : 'editor-inner-dark'}>
           <RichTextPlugin
-            contentEditable={<ContentEditable className="editor-input" />}
+            contentEditable={
+              <ContentEditable
+                className={theme === 'light' ? 'editor-input' : 'editor-input-dark'}
+              />
+            }
             placeholder={<Placeholder />}
             ErrorBoundary={LexicalErrorBoundary}
           />

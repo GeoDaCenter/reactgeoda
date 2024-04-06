@@ -62,6 +62,8 @@ const GridLayout = () => {
 
   // get cell style based on mode
   const cellStyle = mode === 'edit' ? styles.gridItem : styles.displayGridItem;
+  // get theme from redux store
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
 
   // update grid layout with grid items
   // const layout = updateGridLayout(gridLayout, gridItems, layers, plots, regressions, textItems);
@@ -182,7 +184,7 @@ const GridLayout = () => {
           return textItem ? (
             <div key={l.i} style={cellStyle} className={l.i}>
               <GridCell id={l.i} mode={mode}>
-                <TextCell id={l.i} mode={mode} initialState={textItem.content} />
+                <TextCell id={l.i} mode={mode} theme={theme} initialState={textItem.content} />
               </GridCell>
             </div>
           ) : null;
