@@ -21,6 +21,7 @@ import {OpenFileModal} from '@/components/open-file-modal';
 import {PanelContainer} from '@/components/panel/panel-container';
 import {TableContainer} from '@/components/table/table-container';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
+import {SaveProjectModal} from '@/components/save-project-modal';
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);
@@ -40,6 +41,7 @@ export default function Home() {
               </div>
               <PanelContainer />
               <OpenFileModal />
+              <SaveProjectModal />
               {/* <DuckDBTableModal /> */}
             </div>
           </IntlProviderWrapper>

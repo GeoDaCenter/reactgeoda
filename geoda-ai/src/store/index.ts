@@ -31,6 +31,7 @@ export type GeoDaState = {
       showPropertyPanel: boolean;
       propertyPanelName: string;
       showOpenFileModal: boolean;
+      showSaveProjectModal: boolean;
       showKeplerTableModal: boolean;
       showGridView: boolean;
       openAIKey: string;

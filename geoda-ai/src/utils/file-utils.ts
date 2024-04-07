@@ -103,6 +103,7 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     const arrowVector = vectorFromArray(values);
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.geojson) {
+    // convert geojson column to arrow vector
     const {field, geometry} = geojsonFeaturesToArrow(name, values as Feature[]);
     return {arrowField: field, arrowVector: geometry};
   } else {
@@ -114,4 +115,15 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     const arrowVector = utf8Builder.finish().toVector();
     return {arrowField, arrowVector};
   }
+}
+
+// function to convert arraybuffer to base64 string
+export function arrayBufferToBase64(buffer: ArrayBuffer) {
+  var binary = '';
+  var bytes = new Uint8Array(buffer);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
 }
