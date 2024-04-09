@@ -11,54 +11,22 @@ import {
   CardFooter,
   Progress
 } from '@nextui-org/react';
-import {Table as ArrowTable, RecordBatch as ArrowRecordBatch} from 'apache-arrow';
 import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
-
-import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
-import {ShapefileLoader} from '@loaders.gl/shapefile';
-import {CSVLoader} from '@loaders.gl/csv';
-import {ArrowLoader} from '@loaders.gl/arrow';
-import {_GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
 import {addDataToMap, wrapTo} from '@kepler.gl/actions';
 
 import {GeoDaState} from '../store';
 import {setOpenFileModal} from '../actions';
 import {IconUpload} from './icons/upload';
 import {setRawFileData, RawFileDataProps} from '../actions/file-actions';
-import {
-  FileCacheItem,
-  ProcessFileDataContent,
-  isArrowData,
-  processFileData,
-  readFileInBatches
-} from '@kepler.gl/processors';
 import {MAP_ID} from '@/constants';
-import {convertFileCacheItemToArrowTable, loadDroppedFile} from '@/utils/file-utils';
-import {GeoDaProject, loadGeoDaProject} from '@/utils/project-utils';
-
-const CSV_LOADER_OPTIONS = {
-  shape: 'object-row-table',
-  dynamicTyping: false // not working for now
-};
-
-const ARROW_LOADER_OPTIONS = {
-  shape: 'arrow-table'
-};
-
-const JSON_LOADER_OPTIONS = {
-  shape: 'object-row-table',
-  // instruct loaders.gl on what json paths to stream
-  jsonpaths: [
-    '$', // JSON Row array
-    '$.features', // GeoJSON
-    '$.datasets' // KeplerGL JSON
-  ]
-};
+import {loadDroppedFile} from '@/utils/file-utils';
+import {LoadedGeoDaConfig, loadGeoDaProject} from '@/utils/project-utils';
+import {SavedConfigV1} from '@kepler.gl/schemas';
 
 type ProcessDropFilesOutput = RawFileDataProps & {
-  keplerConfig?: GeoDaProject['keplerConfig'];
-  geodaConfig?: GeoDaProject['geodaConfig'];
+  keplerConfig?: SavedConfigV1['config'];
+  geodaConfig?: LoadedGeoDaConfig;
 };
 
 async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> {

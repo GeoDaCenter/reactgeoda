@@ -1,15 +1,39 @@
-import {vectorFromArray} from 'apache-arrow';
-
-import {arrayBufferToBase64, loadArrowFile} from './file-utils';
+import {arrayBufferToBase64, base64ToArrayBuffer, loadArrowFile} from './file-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
 import {GeoDaState} from '@/store';
 import {WeightsProps} from '@/actions';
+import {WeightsMeta} from 'geoda-wasm';
+
+type SavedWeightsProps = {
+  weightsMeta: WeightsMeta;
+  weights: string;
+  offsets: string;
+  isNew?: boolean;
+};
+
+export type LoadedGeoDaConfig = {
+  ai: GeoDaState['root']['ai'];
+  uiState: GeoDaState['root']['uiState'];
+  weights: WeightsProps[];
+  plots: GeoDaState['root']['plots'];
+  regressions: GeoDaState['root']['regressions'];
+  dashboard: GeoDaState['root']['dashboard'];
+};
+
+export type SavedGeoDaConfig = {
+  ai: GeoDaState['root']['ai'];
+  uiState: GeoDaState['root']['uiState'];
+  weights: Array<SavedWeightsProps>;
+  plots: GeoDaState['root']['plots'];
+  regressions: GeoDaState['root']['regressions'];
+  dashboard: GeoDaState['root']['dashboard'];
+};
 
 export type GeoDaProject = {
   fileName: string;
   arrowTable: string;
   keplerConfig: SavedConfigV1['config'];
-  geodaConfig: GeoDaState['root'];
+  geodaConfig: SavedGeoDaConfig;
 };
 
 export async function loadGeoDaProject(geodaFile: File) {
@@ -23,16 +47,19 @@ export async function loadGeoDaProject(geodaFile: File) {
   // load arrow file
   const {fileName, arrowTable, arrowFormatData} = await loadArrowFile(arrowFile);
 
+  // load geodaConfig
+  const geodaConfig = loadGeoDaConfig(geodaFileData.geodaConfig);
+
   return {
     fileName,
     arrowTable,
     arrowFormatData,
     keplerConfig: geodaFileData.keplerConfig,
-    geodaConfig: geodaFileData.geodaConfig
+    geodaConfig 
   };
 }
 
-function saveWeights(weights: WeightsProps[]) {
+function saveWeights(weights: WeightsProps[]): SavedWeightsProps[] {
   // save the weights.data as base64 string
   const savedWeights = weights.map((w: WeightsProps) => {
     const values = w.weights;
@@ -49,18 +76,43 @@ function saveWeights(weights: WeightsProps[]) {
       ...w,
       weights: arrayBufferToBase64(new Uint32Array(flatValues).buffer),
       offsets: arrayBufferToBase64(new Uint32Array(offsets).buffer)
-    }
+    };
   });
 
   return savedWeights;
 }
 
-export function saveGeoDaConfig(state: GeoDaState) {
+function loadWeights(savedWeights: SavedWeightsProps[]): WeightsProps[] {
+  const weights: WeightsProps[] = savedWeights.map((w: SavedWeightsProps) => {
+    const valuesString = w.weights;
+    const offsetsString = w.offsets;
+    const values = new Uint32Array(base64ToArrayBuffer(valuesString));
+    const offsets = new Uint32Array(base64ToArrayBuffer(offsetsString));
+    const neighbors = [];
+
+    for (let i = 0; i < offsets.length; i++) {
+      const start = offsets[i];
+      const end = i + 1 < offsets.length ? offsets[i + 1] : values.length;
+      const neighborIds = values.slice(start, end);
+      neighbors.push(Array.from(neighborIds));
+    }
+
+    return {
+      weightsMeta: w.weightsMeta,
+      weights: neighbors,
+      ...(w.isNew ? {isNew: w.isNew} : {})
+    };
+  });
+
+  return weights;
+}
+
+export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
   // remove the file from the geodaConfig, since it will be reconstructed in open-file-modal
-  const {file, ...geodaConfig} = state.root;
+  const {file, ...geodaConfig} = root;
 
   // save the weights as ArrayBuffer in format of base64 string
-  const savedWeights = saveWeights(geodaConfig.weights); 
+  const savedWeights = saveWeights(geodaConfig.weights);
 
   const outputConfig = {
     ...geodaConfig,
@@ -71,24 +123,24 @@ export function saveGeoDaConfig(state: GeoDaState) {
     weights: savedWeights
   };
 
-
   return outputConfig;
 }
 
-export function loadGeoDaConfig(state: SavedGeoDaConfig) {
+/**
+ * Load the GeoDa config from the saved GeoDa config 
+ * @param geodaConfig The saved GeoDa config
+ * @returns LoadedGeoDaConfig
+ */
+export function loadGeoDaConfig(geodaConfig: SavedGeoDaConfig): LoadedGeoDaConfig {
   // load the weights from base64 string to ArrayBuffer
-  const weights = state.weights.map((w: WeightsProps) => {
-    const values = vectorFromArray(w.weights);
-    const offsets = vectorFromArray(w.offsets);
-    const weights = offsets.map((offset, i) => values.slice(offset, offsets[i + 1]));
-    return {
-      ...w,
-      weights
-    };
-  });
+  const weights = loadWeights(geodaConfig.weights);
 
   return {
-    ...state,
-    weights
+    ai: geodaConfig.ai,
+    uiState: geodaConfig.uiState,
+    weights,
+    plots: geodaConfig.plots,
+    regressions: geodaConfig.regressions,
+    dashboard: geodaConfig.dashboard
   };
 }

@@ -247,6 +247,17 @@ export function arrayBufferToBase64(buffer: ArrayBuffer) {
   return window.btoa(binary);
 }
 
+// function to convert base64 string to arraybuffer
+export function base64ToArrayBuffer(base64: string) {
+  var binary_string = window.atob(base64);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
 // download string to file in browser using anchor tag
 export function downloadStringToFile(content: string, fileName: string, contentType: string) {
   const a = document.createElement('a');
