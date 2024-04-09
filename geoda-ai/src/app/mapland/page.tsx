@@ -22,9 +22,14 @@ import {PanelContainer} from '@/components/panel/panel-container';
 import {TableContainer} from '@/components/table/table-container';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {SaveProjectModal} from '@/components/save-project-modal';
+import {useSearchParams} from 'next/navigation';
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);
+
+  const searchParams = useSearchParams();
+
+  const projectUrl = searchParams.get('project');
 
   return (
     <RootContext.Provider value={rootNode}>
@@ -40,7 +45,7 @@ export default function Home() {
                 <TableContainer />
               </div>
               <PanelContainer />
-              <OpenFileModal />
+              <OpenFileModal projectUrl={projectUrl} />
               <SaveProjectModal />
               {/* <DuckDBTableModal /> */}
             </div>

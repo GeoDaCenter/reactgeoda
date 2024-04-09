@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   Modal,
@@ -41,53 +41,69 @@ async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> 
   return await loadDroppedFile(files);
 }
 
-const OpenFileComponent = () => {
+const OpenFileComponent = ({projectUrl}: {projectUrl: string | null}) => {
   const dispatch = useDispatch();
 
   // create a useState to store the status of loading file
   const [loading, setLoading] = useState(false);
 
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      // show loading bar
-      setLoading(true);
+  const processFiles = async (acceptedFiles: File[]) => {
+    // show loading bar
+    setLoading(true);
 
-      // process dropped files, and return the file name, arrowTable and arrowFormatData
-      const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
-        await processDropFiles(acceptedFiles);
+    // process dropped files, and return the file name, arrowTable and arrowFormatData
+    const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
+      await processDropFiles(acceptedFiles);
 
-      // dispatch addDataToMap action to default kepler.gl instance
-      if (arrowFormatData) {
-        dispatch(
-          wrapTo(
-            MAP_ID,
-            addDataToMap({
-              datasets: arrowFormatData,
-              options: {centerMap: true},
-              ...(keplerConfig && {config: keplerConfig})
-            })
-          )
-        );
-      }
+    // dispatch addDataToMap action to default kepler.gl instance
+    if (arrowFormatData) {
+      dispatch(
+        wrapTo(
+          MAP_ID,
+          addDataToMap({
+            datasets: arrowFormatData,
+            options: {centerMap: true},
+            ...(keplerConfig && {config: keplerConfig})
+          })
+        )
+      );
+    }
 
-      // dispatch action to close modal, update redux state state.root.uiState.showOpenFileModal
-      dispatch(setOpenFileModal(false));
+    // dispatch action to close modal, update redux state state.root.uiState.showOpenFileModal
+    dispatch(setOpenFileModal(false));
 
-      // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData({fileName, arrowTable}));
+    // dispatch action to set file data, update redux state state.fileData
+    dispatch(setRawFileData({fileName, arrowTable}));
 
-      if (geodaConfig) {
-        // dispatch action to set geoda config, update redux state state.root
-        dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
-      }
+    if (geodaConfig) {
+      // dispatch action to set geoda config, update redux state state.root
+      dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
+    }
 
-      // set loading to true to show loading bar
-      setLoading(false);
-    },
-    [dispatch]
-  );
+    // set loading to true to show loading bar
+    setLoading(false);
+  };
+
+  const onDrop = useCallback(processFiles, [dispatch]);
 
   const {getRootProps, getInputProps} = useDropzone({onDrop});
+
+  // if projectUrl presents, load the project file using fetch when the component mounts
+  useEffect(() => {
+    if (projectUrl) {
+      setLoading(true);
+      // add &ld=1 to the projectUrl if it is a dropbox.com link
+      const url = projectUrl.includes('dropbox.com') ? `${projectUrl}&dl=1` : projectUrl;
+      fetch(url)
+        .then(response => response.blob())
+        .then(async data => {
+          // create a File object from the blob
+          const file = new File([data], 'project.geoda');
+          await processFiles([file]);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Card>
@@ -129,12 +145,13 @@ const OpenFileComponent = () => {
   );
 };
 
-export function OpenFileModal() {
+export function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
   // get the dispatch function from the redux store
   const dispatch = useDispatch();
 
   // get the state showOpenModal from the redux store
-  const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
+  const showOpenModal =
+    useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal) || Boolean(projectUrl);
 
   // create a reference to the modal for focus
   // const modalRef = useRef(null);
@@ -155,7 +172,7 @@ export function OpenFileModal() {
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">Open File</ModalHeader>
         <ModalBody>
-          <OpenFileComponent />
+          <OpenFileComponent projectUrl={projectUrl} />
         </ModalBody>
         <ModalFooter />
       </ModalContent>
