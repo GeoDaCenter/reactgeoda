@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -90,18 +92,22 @@ const OpenFileComponent = ({projectUrl}: {projectUrl: string | null}) => {
 
   // if projectUrl presents, load the project file using fetch when the component mounts
   useEffect(() => {
-    if (projectUrl) {
+    (async () => {
+      if (!projectUrl) return;
       setLoading(true);
       // add &ld=1 to the projectUrl if it is a dropbox.com link
       const url = projectUrl.includes('dropbox.com') ? `${projectUrl}&dl=1` : projectUrl;
-      fetch(url)
-        .then(response => response.blob())
-        .then(async data => {
-          // create a File object from the blob
-          const file = new File([data], 'project.geoda');
-          await processFiles([file]);
-        });
-    }
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error('Failed to fetch project file');
+      }
+      const data = res.json();
+      // create a File object from the json data
+      const file = new File([JSON.stringify(data)], 'project.geoda', {
+        type: 'application/json'
+      });
+      await processFiles([file]);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
