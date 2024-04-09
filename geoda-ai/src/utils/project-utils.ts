@@ -55,7 +55,7 @@ export async function loadGeoDaProject(geodaFile: File) {
     arrowTable,
     arrowFormatData,
     keplerConfig: geodaFileData.keplerConfig,
-    geodaConfig 
+    geodaConfig
   };
 }
 
@@ -109,6 +109,7 @@ function loadWeights(savedWeights: SavedWeightsProps[]): WeightsProps[] {
 
 export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
   // remove the file from the geodaConfig, since it will be reconstructed in open-file-modal
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {file, ...geodaConfig} = root;
 
   // save the weights as ArrayBuffer in format of base64 string
@@ -127,7 +128,7 @@ export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
 }
 
 /**
- * Load the GeoDa config from the saved GeoDa config 
+ * Load the GeoDa config from the saved GeoDa config
  * @param geodaConfig The saved GeoDa config
  * @returns LoadedGeoDaConfig
  */

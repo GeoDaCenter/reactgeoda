@@ -1,7 +1,7 @@
 import {ALL_FIELD_TYPES, DATASET_FORMATS} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {Feature} from 'geojson';
-import {geojsonFeaturesToArrow} from '@loaders.gl/arrow';
+import {geojsonFeaturesToArrow, ArrowLoader} from '@loaders.gl/arrow';
 import {
   Field as ArrowField,
   Float64 as ArrowFloat,
@@ -25,7 +25,6 @@ import {generateHashIdFromString} from '@kepler.gl/utils';
 import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
-import {ArrowLoader} from '@loaders.gl/arrow';
 import {_GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
 import {
   FileCacheItem,

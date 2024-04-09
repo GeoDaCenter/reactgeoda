@@ -28,16 +28,11 @@ const WEIGHTS_CONTENT_PLACEHOLDER = '[weights Object][]';
 const SaveProjectComponent = () => {
   const dispatch = useDispatch();
   const [isValid, setIsValid] = useState(true);
-  const [editorInstance, setEditorInstance] = useState<editor.IStandaloneCodeEditor | null>(null);
 
   // get the kepler.gl config from redux store
   const keplerState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]);
   // get the root from redux store
   const root = useSelector((state: GeoDaState) => state.root);
-  const {file, ...geodaConfig} = root;
-
-  // get id from redux store
-  const id = useSelector((state: GeoDaState) => state.root.file.id);
 
   // get raw file data from redux store
   const rawFileData = useMemo(() => root.file.rawFileData, [root.file.rawFileData]);
@@ -72,7 +67,7 @@ const SaveProjectComponent = () => {
       keplerConfig: savedKeplerConfig,
       geodaConfig: savedGeoDaConfig
     };
-  }, [rawFileData, savedKeplerConfig]);
+  }, [arrowTableString, rawFileData.fileName, savedGeoDaConfig, savedKeplerConfig]);
 
   // create a preview of the project json string
   const projectPreview = useMemo(() => {
@@ -96,7 +91,6 @@ const SaveProjectComponent = () => {
   const onEditorMount = (editor: editor.IStandaloneCodeEditor) => {
     setTimeout(() => {
       editor?.getAction('editor.action.formatDocument')?.run();
-      setEditorInstance(editor);
     }, 1000);
   };
 
