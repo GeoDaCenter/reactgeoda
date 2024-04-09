@@ -148,7 +148,6 @@ const SaveProjectComponent = () => {
       <Button
         className="text-tiny"
         color="primary"
-        radius="full"
         size="sm"
         onClick={onSaveClick}
         isDisabled={!isValid}
