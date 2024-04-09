@@ -1,5 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import MonacoEditor from '@monaco-editor/react';
+import {editor} from 'monaco-editor';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   Modal,
@@ -16,18 +17,26 @@ import {tableToIPC} from 'apache-arrow';
 
 import {GeoDaState} from '../store';
 import {setSaveProjectModal} from '../actions';
-import {arrayBufferToBase64} from '@/utils/file-utils';
+import {arrayBufferToBase64, downloadStringToFile} from '@/utils/file-utils';
+import {MAP_ID} from '@/constants';
+import KeplerGLSchemaManager from '@kepler.gl/schemas';
 
-const ARROW_TABLE_CONTENT_PLACEHOLDER = '. . .';
+const ARROW_TABLE_CONTENT_PLACEHOLDER = '[arrow Object]';
 
 const SaveProjectComponent = () => {
   const dispatch = useDispatch();
 
-  // create a useState to store the status of saving project
-  const [saving, setSaving] = useState(false);
+  // get the kepler.gl config from redux store
+  const keplerState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]);
+  // get the root from redux store
+  const root = useSelector((state: GeoDaState) => state.root);
+  const {file, ...geodaConfig } = root;
 
+  // get id from redux store
+  const id = useSelector((state: GeoDaState) => state.root.file.id);
+  
   // get raw file data from redux store
-  const rawFileData = useSelector((state: GeoDaState) => state.root.file.rawFileData);
+  const rawFileData = useMemo(() => root.file.rawFileData, [root.file.rawFileData]);
 
   // get the base64 string of the arrow table
   const arrowTableString = useMemo(() => {
@@ -39,34 +48,61 @@ const SaveProjectComponent = () => {
     return '';
   }, [rawFileData]);
 
+  // get the kepler config to save
+  const savedKeplerConfig = useMemo(() => {
+    const config = KeplerGLSchemaManager.getConfigToSave(keplerState);
+    return config.config;
+  }, [keplerState]);
+
+  // create a project json string
   const projectJson = useMemo(() => {
     return JSON.stringify({
       fileName: rawFileData.fileName,
-      arrowTable: ARROW_TABLE_CONTENT_PLACEHOLDER
+      arrowTable: ARROW_TABLE_CONTENT_PLACEHOLDER,
+      keplerConfig: savedKeplerConfig,
+      geodaConfig: {
+        ...geodaConfig,
+        uiState: {
+          ...geodaConfig.uiState,
+          showSaveProjectModal: false
+        }
+      }
     });
-  }, [rawFileData]);
+  }, [rawFileData, savedKeplerConfig]);
 
   // set state for monaco editor
   const [code, setCode] = useState(projectJson || '');
 
+  // format the code in manaco editor after the component is mounted
+  const onEditorMount = (editor: editor.IStandaloneCodeEditor) => {
+    setTimeout(() => {
+      editor?.getAction('editor.action.formatDocument')?.run();
+    }, 1000);
+  };
+
+  // handle monaco editor change
   const onMonacoEditorChange = (value: string | undefined) => {
     if (value) {
       setCode(value);
     }
   };
 
+  // handle save button click
   const onSaveClick = () => {
-    setSaving(true);
     // save the project
     // replace ARROW_TABLE_CONTENT_PLACEHOLDER with arrowTableString
     const project = code.replace(ARROW_TABLE_CONTENT_PLACEHOLDER, arrowTableString);
-    console.log(project);
+
+    // create a file name 'geoda-[current date and time].json'
+    const fileName = `project-${new Date().toISOString()}.geoda`;
+    const contentType = 'application/json';
+    // save the project to a file download in browser
+    downloadStringToFile(project, fileName, contentType);
 
     // close modal
     setTimeout(() => {
-      setSaving(false);
       dispatch(setSaveProjectModal(false));
-    }, 1000);
+    }, 100);
   };
 
   return (
@@ -79,8 +115,9 @@ const SaveProjectComponent = () => {
               value={code}
               onChange={onMonacoEditorChange}
               options={{
-                minimap: {enabled: false}
+                minimap: {enabled: true}
               }}
+              onMount={onEditorMount}
             />
           </div>
         </CardBody>

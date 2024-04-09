@@ -1,5 +1,4 @@
 import {ALL_FIELD_TYPES, DATASET_FORMATS} from '@kepler.gl/constants';
-import {FileCacheItem} from '@kepler.gl/processors';
 import {Field} from '@kepler.gl/types';
 import {Feature} from 'geojson';
 import {geojsonFeaturesToArrow} from '@loaders.gl/arrow';
@@ -19,8 +18,124 @@ import {
   Vector as ArrowVector,
   Schema as ArrowSchema,
   Table as ArrowTable,
-  makeBuilder
+  makeBuilder,
+  RecordBatch as ArrowRecordBatch
 } from 'apache-arrow';
+import {generateHashIdFromString} from '@kepler.gl/utils';
+import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
+import {ShapefileLoader} from '@loaders.gl/shapefile';
+import {CSVLoader} from '@loaders.gl/csv';
+import {ArrowLoader} from '@loaders.gl/arrow';
+import {_GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
+import {
+  FileCacheItem,
+  ProcessFileDataContent,
+  isArrowData,
+  processFileData,
+  readFileInBatches
+} from '@kepler.gl/processors';
+
+const CSV_LOADER_OPTIONS = {
+  shape: 'object-row-table',
+  dynamicTyping: false // not working for now
+};
+
+const ARROW_LOADER_OPTIONS = {
+  shape: 'arrow-table'
+};
+
+const JSON_LOADER_OPTIONS = {
+  shape: 'object-row-table',
+  // instruct loaders.gl on what json paths to stream
+  jsonpaths: [
+    '$', // JSON Row array
+    '$.features', // GeoJSON
+    '$.datasets' // KeplerGL JSON
+  ]
+};
+
+export async function loadArrowFile(file: File) {
+  const loadOptions = {
+    arrow: ARROW_LOADER_OPTIONS,
+    metadata: true,
+    gis: {reproject: true}
+  };
+
+  const fileCache: FileCacheItem[] = [];
+  const loaders = [ArrowLoader];
+
+  const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
+  let result = await batches.next();
+  let content: ProcessFileDataContent = {data: [], fileName: ''};
+  let parsedData: FileCacheItem[] = [];
+
+  while (!result.done) {
+    content = result.value as ProcessFileDataContent;
+    result = await batches.next();
+    if (result.done) {
+      parsedData = await processFileData({
+        content,
+        fileCache: []
+      });
+      break;
+    }
+  }
+
+  const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
+  return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+}
+
+export async function loadDroppedFile(files: File[]) {
+  const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
+  const fileCache: FileCacheItem[] = [];
+  const droppedFilesFS = new BrowserFileSystem(files);
+
+  // otherwise check if there is a file with extension .shp
+  const shpFile = files.find(file => file.name.endsWith('.shp'));
+  // use shpFile if it exists, otherwise use the first file
+  const file = shpFile || files[0];
+
+  const loadOptions = {
+    csv: CSV_LOADER_OPTIONS,
+    arrow: ARROW_LOADER_OPTIONS,
+    json: JSON_LOADER_OPTIONS,
+    metadata: true,
+    fetch: droppedFilesFS.fetch,
+    gis: {reproject: true},
+    shp: {_maxDimensions: Number.MAX_SAFE_INTEGER}
+  };
+
+  const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
+  let result = await batches.next();
+  let content: ProcessFileDataContent = {data: [], fileName: ''};
+  let parsedData: FileCacheItem[] = [];
+
+  // let totalRowCount = 0;
+  while (!result.done) {
+    // get progress
+    // totalRowCount += result.value.progress.rowCountInBatch;
+    content = result.value as ProcessFileDataContent;
+    result = await batches.next();
+    if (result.done) {
+      parsedData = await processFileData({
+        content,
+        fileCache: []
+      });
+      break;
+    }
+  }
+
+  if (isArrowData(content.data)) {
+    const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
+    return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+  }
+
+  // convert other spatial data format e.g. GeoJSON, Shapefile to arrow table
+  return {
+    fileName: content.fileName,
+    ...convertFileCacheItemToArrowTable(parsedData[0])
+  };
+}
 
 /**
  * Read FileCacheItem, and use the file extension info.label to get the file type,
@@ -70,6 +185,10 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   fileCacheItem.data.rows = [];
   // change fileCacheItem.info.format to arrow
   fileCacheItem.info.format = DATASET_FORMATS.arrow;
+  // generate unique id using fileName string
+  const id = generateHashIdFromString(fileCacheItem.info.label);
+  fileCacheItem.info.id = id;
+  console.log('fileCacheItem:', fileCacheItem);
   // fileCacheItem.data.fields = [fileCacheItem.data.fields[0]];
   return {arrowTable, arrowFormatData: fileCacheItem};
 }
@@ -126,4 +245,14 @@ export function arrayBufferToBase64(buffer: ArrayBuffer) {
     binary += String.fromCharCode(bytes[i]);
   }
   return window.btoa(binary);
+}
+
+// download string to file in browser using anchor tag
+export function downloadStringToFile(content: string, fileName: string, contentType: string) {
+  const a = document.createElement('a');
+  const file = new Blob([content], {type: contentType});
+  a.href = URL.createObjectURL(file);
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }

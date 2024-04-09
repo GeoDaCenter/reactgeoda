@@ -14,11 +14,6 @@ export type FileAction = {
   };
 };
 
-const initialState: FileStateProps = {
-  fileData: [],
-  rawFileData: null
-};
-
 type SetFileDataActionPayload = {
   payload: ProcessorResult[];
 };
@@ -38,6 +33,11 @@ function setFileDataUpdater(
 function saveProjectUpdater(state: FileStateProps): FileStateProps {
   return state;
 }
+
+const initialState: FileStateProps = {
+  fileData: [],
+  rawFileData: null
+};
 
 const fileReducer = (state = initialState, action: any) => {
   switch (action.type) {

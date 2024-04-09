@@ -24,6 +24,7 @@ export type GeoDaState = {
     file: {
       rawFileData: RawFileDataProps;
       fileData: any;
+      id: string;
     };
     language: string;
     uiState: {

@@ -23,4 +23,16 @@ const rootReducer = combineReducers({
   dashboard: dashboardReducer
 });
 
-export default rootReducer;
+// export default rootReducer;
+export default (state: any, action: any) => {
+  switch (action.type) {
+    case 'LOAD_PROJECT':
+      state = {
+        ...state,
+        ...action.payload
+      };
+      return state;
+    default:
+      return rootReducer(state, action);
+  }
+};

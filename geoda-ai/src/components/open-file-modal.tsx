@@ -34,7 +34,8 @@ import {
   readFileInBatches
 } from '@kepler.gl/processors';
 import {MAP_ID} from '@/constants';
-import {convertFileCacheItemToArrowTable} from '@/utils/file-utils';
+import {convertFileCacheItemToArrowTable, loadDroppedFile} from '@/utils/file-utils';
+import {GeoDaProject, loadGeoDaProject} from '@/utils/project-utils';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -55,56 +56,21 @@ const JSON_LOADER_OPTIONS = {
   ]
 };
 
-async function processDropFiles(files: File[]): Promise<RawFileDataProps> {
-  const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
-  const fileCache: FileCacheItem[] = [];
-  const droppedFilesFS = new BrowserFileSystem(files);
+type ProcessDropFilesOutput = RawFileDataProps & {
+  keplerConfig?: GeoDaProject['keplerConfig'];
+  geodaConfig?: GeoDaProject['geodaConfig'];
+};
 
-  // check if there is a file with extension .shp
-  const shpFile = files.find(file => file.name.endsWith('.shp'));
-  // use shpFile if it exists, otherwise use the first file
-  const file = shpFile || files[0];
-
-  const loadOptions = {
-    csv: CSV_LOADER_OPTIONS,
-    arrow: ARROW_LOADER_OPTIONS,
-    json: JSON_LOADER_OPTIONS,
-    metadata: true,
-    fetch: droppedFilesFS.fetch,
-    gis: {reproject: true},
-    shp: {_maxDimensions: Number.MAX_SAFE_INTEGER}
-  };
-
-  const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
-  let result = await batches.next();
-  let content: ProcessFileDataContent = {data: [], fileName: ''};
-  let parsedData: FileCacheItem[] = [];
-
-  // let totalRowCount = 0;
-  while (!result.done) {
-    // get progress
-    // totalRowCount += result.value.progress.rowCountInBatch;
-    content = result.value as ProcessFileDataContent;
-    result = await batches.next();
-    if (result.done) {
-      parsedData = await processFileData({
-        content,
-        fileCache: []
-      });
-      break;
-    }
+async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> {
+  // check if there is a file with extension .geoda
+  const geodaFile = files.find(file => file.name.endsWith('.geoda'));
+  if (geodaFile) {
+    // process project file
+    return await loadGeoDaProject(geodaFile);
   }
 
-  if (isArrowData(content.data)) {
-    const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
-    return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
-  }
-
-  // convert other spatial data format e.g. GeoJSON, Shapefile to arrow table
-  return {
-    fileName: content.fileName,
-    ...convertFileCacheItemToArrowTable(parsedData[0])
-  };
+  // otherwise check if there is a file with extension .shp
+  return await loadDroppedFile(files);
 }
 
 const OpenFileComponent = () => {
@@ -119,7 +85,8 @@ const OpenFileComponent = () => {
       setLoading(true);
 
       // process dropped files, and return the file name, arrowTable and arrowFormatData
-      const {fileName, arrowTable, arrowFormatData} = await processDropFiles(acceptedFiles);
+      const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
+        await processDropFiles(acceptedFiles);
 
       // dispatch addDataToMap action to default kepler.gl instance
       if (arrowFormatData) {
@@ -128,7 +95,8 @@ const OpenFileComponent = () => {
             MAP_ID,
             addDataToMap({
               datasets: arrowFormatData,
-              options: {centerMap: true}
+              options: {centerMap: true},
+              ...(keplerConfig && {config: keplerConfig})
             })
           )
         );
@@ -139,6 +107,11 @@ const OpenFileComponent = () => {
 
       // dispatch action to set file data, update redux state state.fileData
       dispatch(setRawFileData({fileName, arrowTable}));
+
+      if (geodaConfig) {
+        // dispatch action to set geoda config, update redux state state.root
+        dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
+      }
 
       // set loading to true to show loading bar
       setLoading(false);
