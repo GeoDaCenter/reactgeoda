@@ -4,12 +4,13 @@ const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 
 export type UiAction = {
   type: UI_ACTIONS;
-  payload: any;
+  payload: string | boolean;
 };
 
 const initialState = {
   theme: 'light',
   showOpenFileModal: false,
+  showSaveProjectModal: false,
   showKeplerTableModal: false,
   showGridView: false,
   showPropertyPanel: false,
@@ -28,6 +29,11 @@ export const uiReducer = (state = initialState, action: UiAction) => {
       return {
         ...state,
         showOpenFileModal: action.payload
+      };
+    case UI_ACTIONS.SET_SAVE_PROJECT_MODAL:
+      return {
+        ...state,
+        showSaveProjectModal: action.payload
       };
     case UI_ACTIONS.SET_KEPLER_TABLE_MODAL:
       return {

@@ -68,6 +68,8 @@ export function DashboardPanel() {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // get dashboard mode from redux store
   // const mode = useSelector((state: GeoDaState) => state.root.dashboard.mode);
+  // get theme from redux store
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
 
   const [showSettings, setShowSettings] = useState(false);
 
@@ -205,6 +207,7 @@ export function DashboardPanel() {
                                 <TextCell
                                   id={textItem.id}
                                   mode={'display'}
+                                  theme={theme}
                                   initialState={textItem.content}
                                 />
                               </DraggableElement>

@@ -16,9 +16,15 @@ import {
   IconScatterplot,
   IconTable,
   IconWeights,
-  IconSpreg
+  IconSpreg,
+  IconSave
 } from './navitagor-icons';
-import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
+import {
+  setKeplerTableModal,
+  setOpenFileModal,
+  setPropertyPanel,
+  setSaveProjectModal
+} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 import {ThemeSwitcher} from '../buttons/theme-switch';
@@ -28,7 +34,9 @@ export function Navigator() {
   const dispatch = useDispatch();
 
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
-
+  const showSaveProjectModal = useSelector(
+    (state: GeoDaState) => state.root.uiState.showSaveProjectModal
+  );
   const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
 
   const [isFileLoaded, setIsFileLoaded] = useState(Boolean(fileName));
@@ -72,6 +80,14 @@ export function Navigator() {
       event.stopPropagation();
     },
     [dispatch, showOpenModal]
+  );
+
+  const onSaveCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setSaveProjectModal(!showSaveProjectModal));
+      event.stopPropagation();
+    },
+    [dispatch, showSaveProjectModal]
   );
 
   const onTableCallback = useCallback(
@@ -134,6 +150,17 @@ export function Navigator() {
             isDisabled={isFileLoaded}
           >
             <IconOpen />
+          </Button>
+        </Tooltip>
+        <Tooltip key="saveTooltip" placement="right" content="Save">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            isDisabled={!isFileLoaded}
+            onClick={onSaveCallback}
+          >
+            <IconSave />
           </Button>
         </Tooltip>
         <Tooltip key="tableTooltip" placement="right" content="Table">
