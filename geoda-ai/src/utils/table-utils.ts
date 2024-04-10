@@ -1,8 +1,8 @@
 import KeplerTable from '@kepler.gl/table';
-import {defaultOperators} from 'react-querybuilder';
+import {defaultOperators, Field as QueryField} from 'react-querybuilder';
 
 export function getQueryBuilderFields(dataset: KeplerTable | undefined) {
-  const fields: any = [];
+  const fields: QueryField[] = [];
 
   dataset?.fields.forEach(field => {
     if (field.type === 'string') {

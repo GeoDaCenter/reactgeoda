@@ -1,17 +1,12 @@
-import React, {useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import {useIntl} from 'react-intl';
-import {useDispatch, useSelector} from 'react-redux';
-import {Tabs, Tab, Card, CardBody, Button, Checkbox, CardHeader} from '@nextui-org/react';
-import MonacoEditor from '@monaco-editor/react';
-import {formatQuery, QueryBuilder, RuleGroupType} from 'react-querybuilder';
-import 'react-querybuilder/dist/query-builder.css';
+import {useSelector} from 'react-redux';
+import {Tabs, Tab, Button} from '@nextui-org/react';
 
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {GeoDaState} from '@/store';
-import {useDuckDB} from '@/hooks/use-duckdb';
-import {getDataset} from '@/utils/data-utils';
-import {getQueryBuilderFields} from '@/utils/table-utils';
+import {TableQueryComponent} from './table-query-component';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before querying and editing data.';
 
@@ -74,79 +69,15 @@ export function AddColumn() {
   );
 }
 
-const initialQuery: RuleGroupType = {combinator: 'and', rules: []};
-
 function TablePanel() {
   const intl = useIntl();
-  const dispatch = useDispatch();
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-
-  // get fields for query builder
-  const fields = useMemo(() => getQueryBuilderFields(dataset), [dataset]);
-
-  // set state for monaco editor
-  const [code, setCode] = useState('');
-
-  const [useQueryBuilder, setUseQueryBuilder] = useState(true);
-  const [sqlQuery, setSqlQuery] = useState(initialQuery);
 
   const onTabChange = (key: React.Key) => {
     if (key === 'table-query') {
       console.log('table-query');
     }
-  };
-
-  const onMonacoEditorChange = (value: string | undefined) => {
-    if (value) {
-      setCode(value);
-    }
-  };
-
-  // get duckdb hook
-  const {query} = useDuckDB();
-
-  // write callback function onQueryClick
-  const onQueryClick = async () => {
-    const selectedIndexes = await query(tableName, code);
-
-    if (selectedIndexes) {
-      // dispatch action SET_FILTER_INDEXES to update filtered indexes in kepler
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: selectedIndexes}
-      });
-      // const newData = processArrowTable(result);
-      // const updatedDataset: ProtoDataset = {
-      //   // @ts-expect-error FIXME
-      //   data: newData,
-      //   info: {
-      //     id: generateHashIdFromString(tableName),
-      //     label: tableName,
-      //     format: 'arrow'
-      //   }
-      // };
-      // // dispatch action to update dataset in kepler
-      // dispatch(updateVisData([updatedDataset], {keepExistingConfig: true}));
-      // const keplerTable = datasets[info.id];
-      // // update the data in keplerTable
-      // keplerTable.update(validatedData);
-    }
-  };
-
-  const onResetClick = () => {
-    setCode('');
-  };
-
-  const onQueryBuilderClick = (value: boolean) => {
-    setUseQueryBuilder(value);
-  };
-
-  const onQueryChange = (queryString: RuleGroupType) => {
-    setSqlQuery(queryString);
-    setCode(formatQuery(queryString, 'sql'));
   };
 
   return (
@@ -181,55 +112,7 @@ function TablePanel() {
                 </div>
               }
             >
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-4 text-xs">
-                  <Checkbox
-                    defaultSelected
-                    size="sm"
-                    checked={useQueryBuilder}
-                    onValueChange={onQueryBuilderClick}
-                  >
-                    Use Query Builder
-                  </Checkbox>
-                  {useQueryBuilder && (
-                    <QueryBuilder
-                      query={sqlQuery}
-                      onQueryChange={onQueryChange}
-                      fields={fields}
-                      controlClassnames={{queryBuilder: 'queryBuilder-branches'}}
-                    />
-                  )}
-                </div>
-                <Card>
-                  <CardHeader>
-                    <p className="ml-2 text-xs text-blue-700 drop-shadow-sm">
-                      SELECT * FROM <br /> {tableName} <br />
-                      WHERE
-                    </p>
-                  </CardHeader>
-                  <CardBody>
-                    <div className="h-80 w-full">
-                      <MonacoEditor
-                        language="sql"
-                        value={code}
-                        onChange={onMonacoEditorChange}
-                        options={{
-                          minimap: {enabled: false}
-                        }}
-                        theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
-                      />
-                    </div>
-                    <div className="m-2 flex w-full flex-row items-start space-x-4">
-                      <Button onClick={onQueryClick} size="sm" color="primary">
-                        Query
-                      </Button>
-                      <Button onClick={onResetClick} size="sm">
-                        Reset
-                      </Button>
-                    </div>
-                  </CardBody>
-                </Card>
-              </div>
+              <TableQueryComponent />
             </Tab>
             <Tab
               key="table-edit"

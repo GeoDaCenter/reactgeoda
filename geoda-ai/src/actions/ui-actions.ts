@@ -1,3 +1,5 @@
+import {RuleGroupType} from 'react-querybuilder';
+
 export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
@@ -6,7 +8,9 @@ export enum UI_ACTIONS {
   SET_GRID_VIEW = 'SET_GRID_VIEW',
   SET_SHOW_PROPERTY_PANEL = 'SET_SHOW_PROPERTY_PANEL',
   SET_PROPERTY_PANEL = 'SET_PROPERTY_PANEL',
-  SET_OPENAI_KEY = 'SET_OPENAI_KEY'
+  SET_OPENAI_KEY = 'SET_OPENAI_KEY',
+  SET_SHOW_QUERY_BUILDER = 'SET_SHOW_QUERY_BUILDER',
+  SET_QUERY_CODE = 'SET_QUERY_CODE'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -46,5 +50,15 @@ export const setPropertyPanel = (payload: string) => ({
 
 export const setOpenAIKey = (payload: string) => ({
   type: UI_ACTIONS.SET_OPENAI_KEY,
+  payload
+});
+
+export const setShowQueryBuilder = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_SHOW_QUERY_BUILDER,
+  payload
+});
+
+export const setQueryCode = (payload: string) => ({
+  type: UI_ACTIONS.SET_QUERY_CODE,
   payload
 });
