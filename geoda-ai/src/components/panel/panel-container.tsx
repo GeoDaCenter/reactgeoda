@@ -16,9 +16,9 @@ import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel';
 import {SpregPanel} from '../spreg/spreg-panel';
 import {ScatterplotPanel} from '../plots/scatterplot-panel';
 import {DashboardPanel} from '../dashboard/dashboard-panel';
-import {TablePanel} from '../table/table-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
+const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {

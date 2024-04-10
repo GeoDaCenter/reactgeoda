@@ -53,14 +53,14 @@ export async function initDuckDB() {
 }
 
 // initial the global duckdb instance, delay 100ms to avoid blocking loading default page
-// setTimeout(async () => {
-//   db = await initDuckDB();
-// }, 100);
+setTimeout(async () => {
+  db = await initDuckDB();
+}, 100);
 
 // wait until the page is loaded
-window.onload = async () => {
-  db = await initDuckDB();
-};
+// window.onload = async () => {
+//   db = await initDuckDB();
+// };
 
 /**
  * Get the summary of a table by passing the table name
@@ -126,31 +126,28 @@ export async function getColumnData(columnName: string): Promise<number[]> {
  * @returns {query, importTable} functions to query and import data
  */
 export function useDuckDB() {
-  const query = useCallback(async (queryString: string): Promise<number[]> => {
-    // trim queryString
-    queryString = queryString.trim();
-    // compare the first 6 letters in queryString with "SELECT"
-    const select = queryString.substring(0, 6).toUpperCase();
-    if (select !== 'SELECT') {
-      throw new Error('Only SELECT queries are supported');
-    }
+  const query = useCallback(async (tableName: string, queryString: string): Promise<number[]> => {
     if (!db) {
       throw new Error('DuckDB is not initialized');
     }
-    // replace first 6 letters "select" with "select row_index AS selected_index"
-    queryString = `SELECT row_index AS selected_index, ${queryString.substring(6)}`;
+    const sql = `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${queryString.trim()}`;
 
-    // connect to the database
-    const conn = await db.connect();
-    // Query
-    const arrowResult = await conn.query<{v: any}>(queryString);
-    // Convert arrow table to json
-    // const result = arrowResult.toArray().map(row => row.toJSON());
-    // get the row_index[] from the query result
-    const selectedIndexes = arrowResult.getChildAt(0)?.toArray();
-    // close the connection
-    await conn.close();
-    return selectedIndexes || [];
+    try {
+      // connect to the database
+      const conn = await db.connect();
+      // Query
+      const arrowResult = await conn.query<{v: any}>(sql);
+      // Convert arrow table to json
+      // const result = arrowResult.toArray().map(row => row.toJSON());
+      // get the row_index[] from the query result
+      const selectedIndexes = arrowResult.getChildAt(0)?.toArray();
+      // close the connection
+      await conn.close();
+      return selectedIndexes || [];
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
   }, []);
 
   const importArrowFile = useCallback(

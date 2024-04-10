@@ -87,6 +87,7 @@
     "prettier-eslint": "^16.2.0",
     "prettier-plugin-tailwindcss": "^0.5.10",
     "react-markdown": "^9.0.1",
+    "react-querybuilder": "^7.1.0",
     "react-redux": "^9.0.4",
     "react-virtualized-auto-sizer": "^1.0.20",
     "redux": "^5.0.1",

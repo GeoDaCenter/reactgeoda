@@ -33,7 +33,7 @@ const SaveProjectComponent = () => {
   const keplerState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]);
   // get the root from redux store
   const root = useSelector((state: GeoDaState) => state.root);
-
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   // get raw file data from redux store
   const rawFileData = useMemo(() => root.file.rawFileData, [root.file.rawFileData]);
 
@@ -140,6 +140,7 @@ const SaveProjectComponent = () => {
               }}
               onMount={onEditorMount}
               onValidate={onMonacoEditorValidate}
+              theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
             />
           </div>
         </CardBody>

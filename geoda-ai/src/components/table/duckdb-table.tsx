@@ -122,7 +122,7 @@ export function DuckDBTableComponent() {
 
   return (
     <div
-      className="item-center flex w-full flex-col p-5"
+      className="item-center flex w-full flex-col bg-white p-5"
       style={{height: '100%', minWidth: '50vw', padding: '20px'}}
     >
       <DataTable
