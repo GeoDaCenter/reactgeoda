@@ -24,7 +24,6 @@ const KeplerMap = () => {
   useEffect(() => {
     if (rawFileData?.fileName) {
       importArrowFile(rawFileData);
-      getTableSummary(rawFileData.fileName);
     }
   }, [importArrowFile, rawFileData]);
 

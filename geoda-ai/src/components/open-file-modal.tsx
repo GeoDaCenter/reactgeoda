@@ -25,6 +25,8 @@ import {MAP_ID} from '@/constants';
 import {loadDroppedFile} from '@/utils/file-utils';
 import {LoadedGeoDaConfig, loadGeoDaProject} from '@/utils/project-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
+import {getDuckDB} from '@/hooks/use-duckdb';
+import {ProtoDataset} from '@kepler.gl/types';
 
 type ProcessDropFilesOutput = RawFileDataProps & {
   keplerConfig?: SavedConfigV1['config'];
@@ -54,9 +56,23 @@ const OpenFileComponent = () => {
       // show loading bar
       setLoading(true);
 
+      console.log('duckdb', getDuckDB());
+
       // process dropped files, and return the file name, arrowTable and arrowFormatData
       const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
         await processDropFiles(acceptedFiles);
+
+      // add arrowTable to duckdb
+      // append duckdb instance to arrowFormatData
+      const datasets: ProtoDataset | undefined = arrowFormatData
+        ? {
+            ...arrowFormatData,
+            data: {
+              ...arrowFormatData.data,
+              db: getDuckDB()
+            }
+          }
+        : arrowFormatData;
 
       // dispatch addDataToMap action to default kepler.gl instance
       if (arrowFormatData) {
@@ -64,7 +80,7 @@ const OpenFileComponent = () => {
           wrapTo(
             MAP_ID,
             addDataToMap({
-              datasets: arrowFormatData,
+              datasets: datasets || [],
               options: {centerMap: true},
               ...(keplerConfig && {config: keplerConfig})
             })
@@ -131,7 +147,7 @@ const OpenFileComponent = () => {
   );
 };
 
-export function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
+function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
   // get the dispatch function from the redux store
   const dispatch = useDispatch();
 
@@ -224,3 +240,5 @@ export function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
     </Modal>
   ) : null;
 }
+
+export default OpenFileModal;

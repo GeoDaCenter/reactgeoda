@@ -1,5 +1,3 @@
-import {RuleGroupType} from 'react-querybuilder';
-
 export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',

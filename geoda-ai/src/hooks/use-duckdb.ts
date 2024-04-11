@@ -52,6 +52,10 @@ export async function initDuckDB() {
   return null;
 }
 
+export function getDuckDB() {
+  return db;
+}
+
 // initial the global duckdb instance, delay 100ms to avoid blocking loading default page
 setTimeout(async () => {
   db = await initDuckDB();
@@ -174,9 +178,6 @@ export function useDuckDB() {
             await conn.query('CREATE SEQUENCE serial');
             // Use nextval to update the row_index column
             await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
-
-            // test summary table
-            await getTableSummary();
           } catch (error) {
             console.error(error);
           }
