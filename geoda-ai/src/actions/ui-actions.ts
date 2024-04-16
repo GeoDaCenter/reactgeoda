@@ -5,7 +5,8 @@ export enum UI_ACTIONS {
   SET_GRID_VIEW = 'SET_GRID_VIEW',
   SET_SHOW_PROPERTY_PANEL = 'SET_SHOW_PROPERTY_PANEL',
   SET_PROPERTY_PANEL = 'SET_PROPERTY_PANEL',
-  SET_OPENAI_KEY = 'SET_OPENAI_KEY'
+  SET_OPENAI_KEY = 'SET_OPENAI_KEY',
+  SET_SIGN_IN_MODAL = 'SET_SIGN_IN_MODAL'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -15,6 +16,11 @@ export const setTheme = (payload: 'dark' | 'light') => ({
 
 export const setOpenFileModal = (payload: boolean) => ({
   type: UI_ACTIONS.SET_OPEN_FILE_MODAL,
+  payload
+});
+
+export const setSignInModal = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_SIGN_IN_MODAL,
   payload
 });
 

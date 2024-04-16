@@ -18,13 +18,13 @@ import GridLayout from '@/components/dashboard/grid-layout';
 import IntlProviderWrapper from '@/components/intl-provider-wrapper';
 import {Navigator} from '@/components/navigator';
 import {OpenFileModal} from '@/components/open-file-modal';
+import {UserAccountModal} from '@/components/useraccount/sign-in';
 import {PanelContainer} from '@/components/panel/panel-container';
 import {TableContainer} from '@/components/table/table-container';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);
-
   return (
     <RootContext.Provider value={rootNode}>
       <ReduxProvider store={store}>
@@ -40,6 +40,7 @@ export default function Home() {
               </div>
               <PanelContainer />
               <OpenFileModal />
+              <UserAccountModal />
               {/* <DuckDBTableModal /> */}
             </div>
           </IntlProviderWrapper>

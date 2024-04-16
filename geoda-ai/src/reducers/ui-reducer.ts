@@ -29,6 +29,11 @@ export const uiReducer = (state = initialState, action: UiAction) => {
         ...state,
         showOpenFileModal: action.payload
       };
+    case UI_ACTIONS.SET_SIGN_IN_MODAL:
+      return {
+        ...state,
+        showSignInModal: action.payload
+      };
     case UI_ACTIONS.SET_KEPLER_TABLE_MODAL:
       return {
         ...state,
