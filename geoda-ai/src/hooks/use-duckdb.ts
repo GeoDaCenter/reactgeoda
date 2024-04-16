@@ -130,6 +130,18 @@ export async function getColumnData(columnName: string): Promise<number[]> {
  * @returns {query, importTable} functions to query and import data
  */
 export function useDuckDB() {
+  const addColumn = useCallback(async (sql: string) => {
+    if (db) {
+      try {
+        const conn = await db.connect();
+        await conn.query(sql);
+        await conn.close();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, []);
+
   const query = useCallback(async (tableName: string, queryString: string): Promise<number[]> => {
     if (!db) {
       throw new Error('DuckDB is not initialized');
@@ -189,5 +201,5 @@ export function useDuckDB() {
     []
   );
 
-  return {query, importArrowFile};
+  return {query, addColumn, importArrowFile};
 }

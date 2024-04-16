@@ -2,6 +2,8 @@ export const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 export const MAP_ID = 'kepler_map';
 export const PREVIEW_MAP_ID = 'preview_map';
 
+export const DEFAULT_RANDOM_SEED = 123456789;
+
 // create mapping types enum from mappingTypes values
 export enum MappingTypes {
   QUANTILE = 'quantile',
@@ -44,3 +46,12 @@ export const CHAT_WEIGHTS_NOT_FOUND =
 
 export const CHAT_NOT_ENOUGH_COLUMNS =
   'Error: there was an incorrect field name or plot requires more field names than were listed. User may need to add one or more field names';
+
+// NextUI theme
+// accordion related
+export const accordionItemClasses = {
+  base: 'py-0 w-full m-0',
+  title: 'font-normal text-small',
+  indicator: 'text-medium',
+  content: 'text-small px-0'
+};

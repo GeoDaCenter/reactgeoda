@@ -50,7 +50,7 @@ export function TableQueryComponent() {
 
   const onQueryChange = (queryString: RuleGroupType) => {
     setSqlQuery(queryString);
-    const updatedCode = formatQuery(queryString, 'sql');
+    const updatedCode = formatQuery(queryString, {format: 'sql', fallbackExpression: '()'});
     setCode(updatedCode);
   };
 
@@ -105,8 +105,7 @@ export function TableQueryComponent() {
       <Card>
         <CardHeader>
           <p className="ml-2 text-xs text-blue-700 drop-shadow-sm">
-            SELECT * FROM <br /> {tableName} <br />
-            WHERE
+            SELECT * FROM {tableName} WHERE
           </p>
         </CardHeader>
         <CardBody>

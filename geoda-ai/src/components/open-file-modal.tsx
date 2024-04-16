@@ -25,7 +25,7 @@ import {MAP_ID} from '@/constants';
 import {loadDroppedFile} from '@/utils/file-utils';
 import {LoadedGeoDaConfig, loadGeoDaProject} from '@/utils/project-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
-import {getDuckDB} from '@/hooks/use-duckdb';
+import {getDuckDB, useDuckDB} from '@/hooks/use-duckdb';
 import {ProtoDataset} from '@kepler.gl/types';
 
 type ProcessDropFilesOutput = RawFileDataProps & {
@@ -45,8 +45,13 @@ async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> 
   return await loadDroppedFile(files);
 }
 
+/**
+ * Open File Component
+ * @returns JSX.Element
+ */
 const OpenFileComponent = () => {
   const dispatch = useDispatch();
+  const {importArrowFile} = useDuckDB();
 
   // create a useState to store the status of loading file
   const [loading, setLoading] = useState(false);
@@ -56,13 +61,13 @@ const OpenFileComponent = () => {
       // show loading bar
       setLoading(true);
 
-      console.log('duckdb', getDuckDB());
-
       // process dropped files, and return the file name, arrowTable and arrowFormatData
       const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
         await processDropFiles(acceptedFiles);
 
       // add arrowTable to duckdb
+      await importArrowFile({fileName, arrowTable});
+
       // append duckdb instance to arrowFormatData
       const datasets: ProtoDataset | undefined = arrowFormatData
         ? {
@@ -102,7 +107,7 @@ const OpenFileComponent = () => {
       // set loading to true to show loading bar
       setLoading(false);
     },
-    [dispatch]
+    [dispatch, importArrowFile]
   );
 
   const {getRootProps, getInputProps} = useDropzone({onDrop});

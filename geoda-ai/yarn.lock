@@ -4492,6 +4492,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mersenne-twister@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "@types/mersenne-twister@npm:1.1.7"
+  checksum: 2d97e98287573ef6bdf3684ac3ed80bc384e5f9e214d4fa20e0449642fe0bd77347a9c4f8ef5feedd137a22ae073f51e314d52fe3aa921c1ecb7b5cc0d5e3d93
+  languageName: node
+  linkType: hard
+
 "@types/ms@npm:*":
   version: 0.7.34
   resolution: "@types/ms@npm:0.7.34"
@@ -7682,6 +7689,7 @@ __metadata:
     "@types/d3-dsv": ^3
     "@types/jest": ^29.5.11
     "@types/jsonp": ^0.2.3
+    "@types/mersenne-twister": ^1.1.7
     "@types/node": ^20
     "@types/postcss-reporter": ^7
     "@types/react": ^18.2.46
@@ -7711,6 +7719,7 @@ __metadata:
     jest-environment-jsdom: ^29.7.0
     jsonp: ^0.2.1
     lexical: 0.14.2
+    mersenne-twister: ^1.1.0
     monaco-editor: ^0.45.0
     next: 14.0.4
     next-themes: ^0.2.1
@@ -9927,6 +9936,13 @@ __metadata:
   version: 1.4.1
   resolution: "merge2@npm:1.4.1"
   checksum: 7268db63ed5169466540b6fb947aec313200bcf6d40c5ab722c22e242f651994619bcd85601602972d3c85bd2cc45a358a4c61937e9f11a061919a1da569b0c2
+  languageName: node
+  linkType: hard
+
+"mersenne-twister@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "mersenne-twister@npm:1.1.0"
+  checksum: 7de1940ded117f2aad9320ae4d21d647b0ecf0667abbadcfe6a2835c669feb674ef46cb7a72da7af69a56d8b19e50e95e2fb7ef6d780efab7a6acd4d87f4cb2d
   languageName: node
   linkType: hard
 

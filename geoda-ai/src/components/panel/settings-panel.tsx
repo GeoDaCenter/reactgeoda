@@ -6,7 +6,7 @@ import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
 import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {accordionItemClasses} from '../lisa/local-moran-panel';
+import {accordionItemClasses} from '@/constants';
 
 export function SettingsPanel() {
   const intl = useIntl();
