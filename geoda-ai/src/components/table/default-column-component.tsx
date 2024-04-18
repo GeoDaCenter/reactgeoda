@@ -26,6 +26,7 @@ export function DefaultValueComponent({
   columnType: string;
   setValues: (values: unknown | unknown[]) => void;
 }) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [defaultValue, setDefaultValue] = useState('');
   const [defaultValueOption, setDefaultValueOption] = useState('');
   const [meanValue, setMeanValue] = useState(0);
@@ -42,6 +43,7 @@ export function DefaultValueComponent({
 
   // when user types default value
   const onDefaultValueChange = (value: string) => {
+    // use continuePropagation()
     setDefaultValue(value);
     if (columnType === 'integer') {
       setValues(parseInt(value));
@@ -96,7 +98,7 @@ export function DefaultValueComponent({
   };
 
   return (
-    <>
+    <div className="flex flex-col gap-1">
       <Autocomplete
         allowsCustomValue
         label=""
@@ -135,6 +137,6 @@ export function DefaultValueComponent({
           />
         </>
       )}
-    </>
+    </div>
   );
 }

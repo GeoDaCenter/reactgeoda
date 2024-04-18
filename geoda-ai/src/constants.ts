@@ -55,3 +55,42 @@ export const accordionItemClasses = {
   indicator: 'text-medium',
   content: 'text-small px-0'
 };
+
+// SQL keywords array
+export const SQL_KEYWORDS = [
+  'SELECT',
+  'FROM',
+  'WHERE',
+  'GROUP BY',
+  'HAVING',
+  'ORDER BY',
+  'INSERT INTO',
+  'VALUES',
+  'UPDATE',
+  'SET',
+  'DELETE',
+  'JOIN',
+  'INNER JOIN',
+  'LEFT JOIN',
+  'RIGHT JOIN',
+  'FULL JOIN',
+  'ON',
+  'AND',
+  'OR',
+  'NOT',
+  'NULL',
+  'DISTINCT',
+  'COUNT',
+  'SUM',
+  'AVG',
+  'MAX',
+  'MIN',
+  'LIKE',
+  'IN',
+  'BETWEEN',
+  'CASE',
+  'WHEN',
+  'THEN',
+  'ELSE',
+  'END'
+];

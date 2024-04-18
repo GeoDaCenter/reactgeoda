@@ -19,7 +19,7 @@ import {GeoDaState} from '../../store';
 import {useTheme} from 'styled-components';
 import {getDataset} from '@/utils/data-utils';
 
-const MIN_STATS_CELL_SIZE = 122;
+export const MIN_STATS_CELL_SIZE = 122;
 
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
@@ -122,8 +122,8 @@ export function DuckDBTableComponent() {
 
   return (
     <div
-      className="item-center flex w-full flex-col bg-white p-5"
-      style={{height: '100%', minWidth: '50vw', padding: '20px'}}
+      className="item-center flex w-full flex-col bg-white"
+      style={{height: '100%', minWidth: '50vw', padding: '0px'}}
     >
       <DataTable
         key={dataId}

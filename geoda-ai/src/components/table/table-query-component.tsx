@@ -14,6 +14,14 @@ import {setQueryCode} from '@/actions';
 
 // const initialQuery: RuleGroupType = {combinator: 'and', rules: []};
 
+function getQueryBuilder(sql: string) {
+  try {
+    return parseSQL(sql);
+  } catch (e) {
+    return {combinator: 'and', rules: []};
+  }
+}
+
 export function TableQueryComponent() {
   const dispatch = useDispatch();
   // get duckdb hook
@@ -23,7 +31,9 @@ export function TableQueryComponent() {
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
   const queryCode = useSelector((state: GeoDaState) => state.root.uiState.table.queryCode);
-  const queryBuilder = parseSQL(queryCode || `select * from ${tableName}`);
+
+  // parse the query code, if runtime error occurs, use default initialQuery
+  const queryBuilder = getQueryBuilder(queryCode || `select * from ${tableName}`);
 
   // get fields for query builder
   const fields = useMemo(() => getQueryBuilderFields(dataset), [dataset]);
@@ -123,10 +133,10 @@ export function TableQueryComponent() {
         </CardBody>
       </Card>
       <div className="m-2 flex w-full flex-row items-start space-x-4">
-        <Button onClick={onQueryClick} radius="sm" color="primary" className="bg-rose-900">
+        <Button onClick={onQueryClick} size="sm" color="primary" className="bg-rose-900">
           Query
         </Button>
-        <Button onClick={onResetClick} radius="sm" color="default">
+        <Button onClick={onResetClick} size="sm" color="default">
           Reset
         </Button>
       </div>

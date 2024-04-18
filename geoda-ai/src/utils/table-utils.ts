@@ -1,7 +1,12 @@
 import KeplerTable from '@kepler.gl/table';
 import {defaultOperators, Field as QueryField} from 'react-querybuilder';
 import MerseeneTwister from 'mersenne-twister';
+// @ts-ignore
+import {DATA_TYPES} from 'type-analyzer';
 import {DEFAULT_RANDOM_SEED} from '@/constants';
+import {Field} from '@kepler.gl/types';
+import {Dispatch, UnknownAction} from 'redux';
+import {addTableColumn} from '@kepler.gl/actions';
 
 export function getQueryBuilderFields(dataset: KeplerTable | undefined) {
   const fields: QueryField[] = [];
@@ -52,6 +57,39 @@ export function validataColumnType(columnType: string) {
   // validate the column type
   // return true if valid, false if invalid
   return ['integer', 'real', 'string', 'bool'].includes(columnType);
+}
+
+/**
+ * Convert the field type used by kepler.gl to the analyzer type used by type-analyzer
+ * @param fieldType The field type kepler.gl uses
+ * @returns The analyzer type used by type-analyzer
+ */
+export function fieldTypeToAnalyzerType(fieldType: string): DATA_TYPES {
+  const analyzerType =
+    fieldType === 'integer'
+      ? DATA_TYPES.INTEGER
+      : fieldType === 'real'
+        ? DATA_TYPES.REAL
+        : DATA_TYPES.STRING;
+
+  return analyzerType;
+}
+
+/**
+ * Generate column data with the default value
+ * @param numberOfRows The number of rows to generate
+ * @param defaultValue The default value to use
+ * @returns The generated column data
+ */
+export function generateColumnData(numberOfRows: number, defaultValue: unknown | unknown[]) {
+  if (Array.isArray(defaultValue)) {
+    return defaultValue;
+  }
+  const data: unknown[] = [];
+  for (let i = 0; i < numberOfRows; ++i) {
+    data.push(defaultValue);
+  }
+  return data;
 }
 
 export type generateSQLCreateNewColumnProps = {
@@ -173,9 +211,9 @@ export function generateSQLUpdateColumn({
 }: generateSQLUpdateColumnProps) {
   const sqlColumnType = mapColumnTypeToSQL(columnType);
   // check if values is default value
-  let defaultValue;
+  let defaultValue = null;
   if (!Array.isArray(values)) {
-    defaultValue = values;
+    defaultValue = columnType === 'string' ? `"${values}"` : values;
   }
   // generate the SQL query to create a new column
   let sql = `ALTER TABLE "${tableName}" \nADD COLUMN ${columnName} ${sqlColumnType}`;
@@ -193,8 +231,67 @@ export function generateSQLUpdateColumn({
     // const updateSQL = `UPDATE "${tableName}" SET ${columnName} = arrowTable.values FROM arrowTable WHERE arrowTable.row_index = "${tableName}".row_index`;
     const valuesString = values.join(',');
     const sequenceSQL = 'CREATE SEQUENCE serial';
-    const updateSQL = `UPDATE "${tableName}" \nSET ${columnName} = tmp.values \nFROM (\n SELECT\n  nextval('serial')-1 AS row_index,\n  UNNEST([${valuesString}]) AS values\n) AS tmp\nWHERE row_index = tmp.row_index`;
-    sql = `${sql};\n\n${sequenceSQL};\n\n${updateSQL}`;
+    const updateSQL = `UPDATE "${tableName}" \nSET ${columnName} = tmp.values \nFROM (\n SELECT\n  nextval('serial')-1 AS row_index,\n  UNNEST([${valuesString}]) AS values\n) AS tmp \nWHERE "${tableName}".row_index = tmp.row_index`;
+    sql = `${sql}; \n\n${sequenceSQL}; \n\n${updateSQL}`;
   }
   return `${sql};`;
+}
+
+export type addKeplerColumnProps = {
+  dataset?: KeplerTable;
+  newFieldName: string;
+  fieldType: string;
+  columnData: unknown | unknown[];
+  dispatch: Dispatch<UnknownAction>;
+};
+
+/**
+ * Add a new column to kepler.gl
+ */
+export function addKeplerColumn({
+  dataset,
+  newFieldName,
+  fieldType,
+  columnData,
+  dispatch
+}: addKeplerColumnProps) {
+  if (dataset) {
+    // get dataset from kepler.gl if dataset.label === tableName
+    const dataContainer = dataset.dataContainer;
+    const fieldsLength = dataset.fields.length;
+    // get analyzer type from columnType
+    const analyzerType = fieldTypeToAnalyzerType(fieldType);
+    const numberOfRows = dataset.length;
+
+    // add new column to kepler.gl
+    const newField: Field = {
+      id: newFieldName,
+      name: newFieldName,
+      displayName: newFieldName,
+      format: '',
+      type: fieldType,
+      analyzerType,
+      fieldIdx: fieldsLength,
+      valueAccessor: (d: any) => {
+        return dataContainer?.valueAt(d.index, fieldsLength);
+      }
+    };
+
+    const values = generateColumnData(numberOfRows, columnData);
+    // Add a new column without data first, so it can avoid error from deduceTypeFromArray()
+    dispatch(addTableColumn(dataset.id, newField, values));
+  }
+}
+
+/**
+ * Create Monaco suggestions from table column names
+ * ref: https://codesandbox.io/p/sandbox/monaco-sql-sfot6x
+ */
+export function createMonacoSuggestions(columnNames: string[]) {
+  return columnNames.map(columnName => {
+    return {
+      label: columnName,
+      insertText: columnName
+    };
+  });
 }

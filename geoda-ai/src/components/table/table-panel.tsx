@@ -7,7 +7,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {GeoDaState} from '@/store';
 import {TableQueryComponent} from './table-query-component';
-import {TableEditComponent} from './table-edit-component';
+import {AddColumn} from './add-column';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before querying and editing data.';
 
@@ -56,19 +56,23 @@ function TablePanel() {
                 </div>
               }
             >
-              <TableQueryComponent />
+              <Card>
+                <CardBody>
+                  <TableQueryComponent />
+                </CardBody>
+              </Card>
             </Tab>
             <Tab
               key="table-edit"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Edit Column</span>
+                  <span>Add Column</span>
                 </div>
               }
             >
               <Card>
                 <CardBody>
-                  <TableEditComponent />
+                  <AddColumn />
                 </CardBody>
               </Card>
             </Tab>

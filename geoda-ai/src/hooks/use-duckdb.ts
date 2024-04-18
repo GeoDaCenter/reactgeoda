@@ -133,8 +133,11 @@ export function useDuckDB() {
   const addColumn = useCallback(async (sql: string) => {
     if (db) {
       try {
+        // remove \n from sql
+        const sqlString = sql.replace(/\n/g, '');
+
         const conn = await db.connect();
-        await conn.query(sql);
+        await conn.query(sqlString);
         await conn.close();
       } catch (error) {
         console.error(error);
@@ -146,7 +149,9 @@ export function useDuckDB() {
     if (!db) {
       throw new Error('DuckDB is not initialized');
     }
-    const sql = `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${queryString.trim()}`;
+    // remove \n from queryString
+    const query = queryString.replace(/\n/g, '');
+    const sql = `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${query.trim()}`;
 
     try {
       // connect to the database

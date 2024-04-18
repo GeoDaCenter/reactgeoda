@@ -11,6 +11,12 @@
   display: none !important;
 }
 
+/* adjust Monaco Editor */
+.monaco-editor .suggest-widget {
+  /* left: 0 !important; */
+  /* width: 10rem !important; */
+}
+
 /* readjust the size of the close button in modal dialog */
 .react-responsive-modal-closeButton {
   width: 18px;
