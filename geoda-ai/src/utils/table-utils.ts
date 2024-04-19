@@ -282,3 +282,17 @@ export function addKeplerColumn({
     dispatch(addTableColumn(dataset.id, newField, values));
   }
 }
+
+export type CreateVariableCallBackProps = {
+  name: string;
+  dataType: string;
+  defaultValue?: string;
+  expression?: string;
+};
+
+export function createVariableCallBack({
+  name,
+  dataType,
+  defaultValue,
+  expression
+}: CreateVariableCallBackProps) {}

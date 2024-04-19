@@ -22,6 +22,7 @@ import {
   DUCKDB_DATE_FUNCTIONS,
   DUCKDB_DATE_PART_FUNCTIONS,
   DUCKDB_NUMERIC_FUNCTIONS,
+  DUCKDB_STATS_FUNCTIONS,
   DuckDBFunctionProps
 } from './sql-constant';
 import {SearchIcon} from '../icons/search';
@@ -31,7 +32,8 @@ const AVAILABLE_FUNCTIONS = [
   ...DUCKDB_NUMERIC_FUNCTIONS,
   ...DUCKDB_AGGREGATE_FUNCTIONS,
   ...DUCKDB_DATE_FUNCTIONS,
-  ...DUCKDB_DATE_PART_FUNCTIONS
+  ...DUCKDB_DATE_PART_FUNCTIONS,
+  ...DUCKDB_STATS_FUNCTIONS
 ];
 
 export type TableVariableValueProps = {
@@ -51,9 +53,9 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
   const editorRef = useRef<SQLEditorRefProps>(null);
 
   const aggregateFuncNamesRegex = useMemo(() => {
-    const replace = DUCKDB_AGGREGATE_FUNCTIONS.map(func => func.name.replace(/\(.*\)/g, '')).join(
-      '|'
-    );
+    const replace = [...DUCKDB_AGGREGATE_FUNCTIONS, ...DUCKDB_STATS_FUNCTIONS]
+      .map(func => func.name.replace(/\(.*\)/g, ''))
+      .join('|');
     return new RegExp(`(${replace})\\(([^)]+)\\)`, 'g');
   }, []);
 

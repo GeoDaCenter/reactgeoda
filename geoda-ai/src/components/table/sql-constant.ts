@@ -81,6 +81,10 @@ export const DUCKDB_NUMERIC_FUNCTIONS = [
       'Alias of roundbankers(v, s). Round to s decimal places using the rounding half to even rule. Values s < 0 are allowed.'
   },
   {
+    name: 'row_index',
+    description: 'The row index starts at 0.'
+  },
+  {
     name: 'round(v NUMERIC, s INTEGER)',
     description: 'Round to s decimal places. Values s < 0 are allowed.'
   },
@@ -280,5 +284,168 @@ export const DUCKDB_AGGREGATE_FUNCTIONS = [
     name: 'sum_no_overflow',
     description:
       'Calculates the sum value for all tuples in arg without overflow checks. Unlike sum, which works on floating-point values, sum_no_overflow only accepts INTEGER and DECIMAL values.'
+  }
+];
+
+export const DUCKDB_STATS_FUNCTIONS = [
+  {
+    name: 'corr',
+    description: 'Returns the correlation coefficient for non-null pairs in a group.',
+    formula: 'covar_pop(y, x) / (stddev_pop(x) * stddev_pop(y))',
+    alias: '-'
+  },
+  {
+    name: 'covar_pop',
+    description: 'Returns the population covariance of input values.',
+    formula: '(sum(x*y) - sum(x) * sum(y) / count(*)) / count(*)',
+    alias: '-'
+  },
+  {
+    name: 'covar_samp',
+    description: 'Returns the sample covariance for non-null pairs in a group.',
+    formula: '(sum(x*y) - sum(x) * sum(y) / count(*)) / (count(*) - 1)',
+    alias: '-'
+  },
+  {
+    name: 'entropy',
+    description: 'Returns the log-2 entropy of count input-values.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'kurtosis_pop',
+    description:
+      'Returns the excess kurtosis (Fisher’s definition) of all input values. Bias correction is not applied.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'kurtosis',
+    description:
+      'Returns the excess kurtosis (Fisher’s definition) of all input values, with a bias correction according to the sample size.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'mad',
+    description:
+      'Returns the median absolute deviation for the values within x. NULL values are ignored. Temporal types return a positive INTERVAL.',
+    formula: 'median(abs(x - median(x)))',
+    alias: '-'
+  },
+  {
+    name: 'median',
+    description:
+      'Returns the middle value of the set. NULL values are ignored. For even value counts, quantitative values are averaged and ordinal values return the lower value.',
+    formula: 'quantile_cont(x, 0.5)',
+    alias: '-'
+  },
+  {
+    name: 'mode',
+    description:
+      'Returns the most frequent value for the values within x. NULL values are ignored.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'quantile_cont',
+    description:
+      'Returns the interpolated pos-quantile of x for 0 <= pos <= 1, i.e., orders the values of x and returns the pos * (n_nonnull_values - 1)th (zero-indexed) element (or an interpolation between the adjacent elements if the index is not an integer). If pos is a LIST of FLOATs, then the result is a LIST of the corresponding interpolated quantiles.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'quantile_disc',
+    description:
+      'Returns the discrete pos-quantile of x for 0 <= pos <= 1, i.e., orders the values of x and returns the floor(pos * (n_nonnull_values - 1))th (zero-indexed) element. If pos is a LIST of FLOATs, then the result is a LIST of the corresponding discrete quantiles.',
+    formula: '-',
+    alias: 'quantile'
+  },
+  {
+    name: 'regr_avgx',
+    description:
+      'Returns the average of the independent variable for non-null pairs in a group, where x is the independent variable and y is the dependent variable.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'regr_avgy',
+    description:
+      'Returns the average of the dependent variable for non-null pairs in a group, where x is the independent variable and y is the dependent variable.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'regr_count',
+    description: 'Returns the number of non-null number pairs in a group.',
+    formula: '(sum(x*y) - sum(x) * sum(y) / count(*)) / count(*)',
+    alias: '-'
+  },
+  {
+    name: 'regr_intercept',
+    description:
+      'Returns the intercept of the univariate linear regression line for non-null pairs in a group.',
+    formula: 'avg(y) - regr_slope(y, x) * avg(x)',
+    alias: '-'
+  },
+  {
+    name: 'regr_r2',
+    description: 'Returns the coefficient of determination for non-null pairs in a group.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'regr_slope',
+    description: 'Returns the slope of the linear regression line for non-null pairs in a group.',
+    formula: 'covar_pop(x, y) / var_pop(x)',
+    alias: '-'
+  },
+  {
+    name: 'regr_sxx',
+    description: '-',
+    formula: 'regr_count(y, x) * var_pop(x)',
+    alias: '-'
+  },
+  {
+    name: 'regr_sxy',
+    description: 'Returns the population covariance of input values.',
+    formula: 'regr_count(y, x) * covar_pop(y, x)',
+    alias: '-'
+  },
+  {
+    name: 'regr_syy',
+    description: '-',
+    formula: 'regr_count(y, x) * var_pop(y)',
+    alias: '-'
+  },
+  {
+    name: 'skewness',
+    description: 'Returns the skewness of all input values.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'stddev_pop',
+    description: 'Returns the population standard deviation.',
+    formula: 'sqrt(var_pop(x))',
+    alias: '-'
+  },
+  {
+    name: 'stddev_samp',
+    description: 'Returns the sample standard deviation.',
+    formula: 'sqrt(var_samp(x))',
+    alias: 'stddev(x)'
+  },
+  {
+    name: 'var_pop',
+    description: 'Returns the population variance.',
+    formula: '-',
+    alias: '-'
+  },
+  {
+    name: 'var_samp',
+    description: 'Returns the sample variance of all input values.',
+    formula: '(sum(x^2) - sum(x)^2 / count(x)) / (count(x) - 1)',
+    alias: 'variance(arg, val)'
   }
 ];
