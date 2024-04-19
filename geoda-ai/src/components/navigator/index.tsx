@@ -18,12 +18,7 @@ import {
   IconWeights,
   IconSpreg
 } from './navitagor-icons';
-import {
-  setKeplerTableModal,
-  setOpenFileModal,
-  setPropertyPanel,
-  setSignInModal
-} from '../../actions';
+import {setKeplerTableModal, setOpenFileModal, setPropertyPanel} from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 import {ThemeSwitcher} from '../buttons/theme-switch';
@@ -33,7 +28,6 @@ export function Navigator() {
   const dispatch = useDispatch();
 
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
-  const showSignInModal = useSelector((state: GeoDaState) => state.root.uiState.showSignInModal);
 
   const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
 
@@ -78,16 +72,6 @@ export function Navigator() {
       event.stopPropagation();
     },
     [dispatch, showOpenModal]
-  );
-
-  const onSignInCallback = useCallback(
-    (event: React.MouseEvent) => {
-      // dispatch action to open modal, update redux state state.root.uiState.showOpenFileModal
-      dispatch(setSignInModal(!showSignInModal));
-      event.preventDefault();
-      event.stopPropagation();
-    },
-    [dispatch, showSignInModal]
   );
 
   const onTableCallback = useCallback(
@@ -147,17 +131,6 @@ export function Navigator() {
             size="sm"
             className="bg-transparent"
             onClick={onOpenCallback}
-            isDisabled={isFileLoaded}
-          >
-            <IconOpen />
-          </Button>
-        </Tooltip>
-        <Tooltip key="openFileTooltip" placement="right" content="Open File">
-          <Button
-            isIconOnly
-            size="sm"
-            className="bg-transparent"
-            onClick={onSignInCallback}
             isDisabled={isFileLoaded}
           >
             <IconOpen />

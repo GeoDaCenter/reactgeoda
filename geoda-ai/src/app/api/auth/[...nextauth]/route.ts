@@ -6,8 +6,8 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,
   providers: [
     CognitoProvider({
-      clientId: process.env.COGNITO_CLIENT_ID,
-      clientSecret: process.env.COGNITO_CLIENT_SECRET,
+      clientId: process.env.COGNITO_CLIENT_ID || '',
+      clientSecret: process.env.COGNITO_CLIENT_SECRET || '',
       issuer: process.env.COGNITO_ISSUER,
       checks: ['nonce']
     })
@@ -21,9 +21,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({session, token}) {
       const accessToken = token.accessToken;
+      console.log(accessToken);
       return session;
     }
   }
 };
 
-export default NextAuth(authOptions);
+const handler = NextAuth(authOptions);
+export {handler as GET, handler as POST};

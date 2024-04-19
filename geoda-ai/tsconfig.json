@@ -35,7 +35,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "jest.config.ts",
-    "jest.setup.ts"
-, "src/app/pages/api/auth/[...nextauth].js"  ],
+    "jest.setup.ts"],
   "exclude": ["node_modules"]
 }
