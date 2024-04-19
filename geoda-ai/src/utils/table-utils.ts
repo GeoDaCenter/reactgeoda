@@ -282,16 +282,3 @@ export function addKeplerColumn({
     dispatch(addTableColumn(dataset.id, newField, values));
   }
 }
-
-/**
- * Create Monaco suggestions from table column names
- * ref: https://codesandbox.io/p/sandbox/monaco-sql-sfot6x
- */
-export function createMonacoSuggestions(columnNames: string[]) {
-  return columnNames.map(columnName => {
-    return {
-      label: columnName,
-      insertText: columnName
-    };
-  });
-}

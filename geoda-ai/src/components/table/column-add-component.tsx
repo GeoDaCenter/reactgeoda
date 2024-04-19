@@ -9,24 +9,18 @@ import {
   SelectItem,
   Selection
 } from '@nextui-org/react';
-import {Key, useEffect, useRef, useState} from 'react';
+import {Key, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {editor} from 'monaco-editor';
-import MonacoEditor, {Monaco} from '@monaco-editor/react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
-import {
-  addKeplerColumn,
-  createMonacoSuggestions,
-  generateSQLUpdateColumn,
-  validateColumnName
-} from '@/utils/table-utils';
+import {addKeplerColumn, generateSQLUpdateColumn, validateColumnName} from '@/utils/table-utils';
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {GeoDaState} from '@/store';
 import {getDataset} from '@/utils/data-utils';
-import {DefaultValueComponent} from './default-column-component';
+import {DefaultValueComponent} from './column-default-component';
 import {PreviewDataTable} from './preview-data-table';
-import {TableVariableValueComponent} from './variable-column-component';
+import {TableVariableValueComponent} from './column-variable-component';
 import {SQL_KEYWORDS} from '@/constants';
+import {SQLEditor} from './sql-editor';
 
 export function AddColumn() {
   const [columnName, setColumnName] = useState('');
@@ -38,50 +32,15 @@ export function AddColumn() {
 
   const {addColumn} = useDuckDB();
   const dispatch = useDispatch();
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
+
   const numberOfRows = dataset?.dataContainer.numRows() || 0;
+  const suggestKeys = [...(dataset?.fields.map(field => field.name) || []), ...SQL_KEYWORDS];
 
-  const onMonacoEditorChange = (value: string | undefined) => {
-    if (value) {
-      setCode(value);
-    }
-    editorRef.current?.getAction('editor.action.formatDocument')?.run();
-    // editorRef.current?.trigger('', 'editor.action.triggerSuggest', {});
-  };
-
-  // format the code in manaco editor after the component is mounted
-  const onEditorMount = (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-    editorRef.current = editor;
-    const columnNames = dataset?.fields.map(field => field.name) || [];
-    // concat column names with SQL_KEYWORDS
-    const suggestKeys = [...columnNames, ...SQL_KEYWORDS];
-    const customSuggestions = createMonacoSuggestions(suggestKeys);
-    monaco.languages.registerCompletionItemProvider('sql', {
-      provideCompletionItems: (model, position) => {
-        const word = model.getWordUntilPosition(position);
-        const range = {
-          startLineNumber: position.lineNumber,
-          startColumn: word.startColumn,
-          endLineNumber: position.lineNumber,
-          endColumn: position.column
-        };
-        const suggestions = customSuggestions.map(suggestion => {
-          return {
-            label: suggestion.label,
-            kind: monaco.languages.CompletionItemKind.Field,
-            insertText: suggestion.insertText,
-            range
-          };
-        });
-        return {
-          suggestions
-        };
-      }
-    });
-  };
+  // check if add column button is valid
+  const isAddColumnButtonValid = validateColumnName(columnName) && validateColumnName(columnType);
 
   // update SQL code when column name, column type or values change
   useEffect(() => {
@@ -97,8 +56,15 @@ export function AddColumn() {
     setColumnNameError(dataset?.fields.find(field => field.name === columnName) !== undefined);
   }, [columnName, columnType, dataset?.fields, tableName, values]);
 
+  // on SQL editor change
+  const onSQLEditorChange = (value: string | undefined) => {
+    if (value) {
+      setCode(value);
+    }
+  };
+
   // handle column name change
-  const handleColumnNameChange = (value: string) => {
+  const onColumnNameChange = (value: string) => {
     setColumnName(value);
   };
 
@@ -126,9 +92,6 @@ export function AddColumn() {
     setColumnName('');
   };
 
-  // check if add column button is valid
-  const isAddColumnButtonValid = validateColumnName(columnName) && validateColumnName(columnType);
-
   // handle preview selection change
   const onPreviewSelectionChange = (key: Key) => {
     setPreviewTab(key as string);
@@ -140,7 +103,7 @@ export function AddColumn() {
         type="text"
         label="Column Name"
         placeholder="Enter column name"
-        onValueChange={handleColumnNameChange}
+        onValueChange={onColumnNameChange}
         isInvalid={columnNameError}
         errorMessage={columnNameError ? '* column name already exists' : ''}
       />
@@ -172,7 +135,7 @@ export function AddColumn() {
               />
             </Tab>
             <Tab key="variable" title="Variable">
-              <TableVariableValueComponent />
+              <TableVariableValueComponent setValues={setValues} />
             </Tab>
             <Tab key="spatial-lag" title="Spatial Lag" />
             <Tab key="rates" title="Rates" />
@@ -197,17 +160,12 @@ export function AddColumn() {
               />
             </Tab>
             <Tab key="preview-sql" title="SQL Preview">
-              <div className="relative h-40 w-full">
-                <MonacoEditor
-                  defaultLanguage="sql"
-                  value={code}
-                  onChange={onMonacoEditorChange}
-                  onMount={onEditorMount}
-                  options={{
-                    minimap: {enabled: false},
-                    fixedOverflowWidgets: true
-                  }}
-                  theme={theme === 'dark' ? 'vs-dark' : 'vs-light'}
+              <div className="h-40 w-full">
+                <SQLEditor
+                  initContent={code}
+                  onChange={onSQLEditorChange}
+                  theme={theme}
+                  suggestKeys={suggestKeys}
                 />
               </div>
             </Tab>

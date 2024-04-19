@@ -145,6 +145,25 @@ export function useDuckDB() {
     }
   }, []);
 
+  const queryValues = useCallback(async (queryString: string): Promise<unknown[]> => {
+    if (!db) {
+      throw new Error('DuckDB is not initialized');
+    }
+    try {
+      // remove \n from sql
+      const sqlString = queryString.replace(/\n/g, '');
+
+      const conn = await db.connect();
+      const arrowResult = await conn.query<{v: any}>(sqlString);
+      const result = arrowResult.getChildAt(0)?.toArray();
+      await conn.close();
+      return result || [];
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }, []);
+
   const query = useCallback(async (tableName: string, queryString: string): Promise<number[]> => {
     if (!db) {
       throw new Error('DuckDB is not initialized');
@@ -206,5 +225,5 @@ export function useDuckDB() {
     []
   );
 
-  return {query, addColumn, importArrowFile};
+  return {query, queryValues, addColumn, importArrowFile};
 }

@@ -7,7 +7,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {GeoDaState} from '@/store';
 import {TableQueryComponent} from './table-query-component';
-import {AddColumn} from './add-column';
+import {AddColumn} from './column-add-component';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before querying and editing data.';
 
@@ -38,7 +38,7 @@ function TablePanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
-        <div className="flex w-full flex-col p-1">
+        <div className="h-full overflow-y-auto  p-1">
           <Tabs
             aria-label="Options"
             variant="solid"
