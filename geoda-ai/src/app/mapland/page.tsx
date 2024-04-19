@@ -7,7 +7,6 @@ import '@/styles/globals.css';
 import '@/styles/style.css';
 
 import {useRef} from 'react';
-// import dynamic from 'next/dynamic';
 import {Provider as ReduxProvider} from 'react-redux';
 import {RootContext} from '@kepler.gl/components';
 
@@ -25,6 +24,7 @@ import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);
+
   return (
     <RootContext.Provider value={rootNode}>
       <ReduxProvider store={store}>

@@ -38,6 +38,7 @@ export function SignIn() {
       </>
     );
   }
+
   return (
     <>
       Not signed in <br />
@@ -46,10 +47,13 @@ export function SignIn() {
   );
 }
 
-export async function UserAccountModal() {
+export function UserAccountModal() {
   // get the dispatch function from the redux store
   const dispatch = useDispatch();
-  const session = false;
+  const session = useSession();
+
+  // When rendering client side don't display anything until loading is complete
+  // if (typeof window !== 'undefined' && !session) return null;
 
   const showSignInModal = useSelector((state: GeoDaState) => state.root.uiState.showSignInModal);
 
@@ -57,7 +61,9 @@ export async function UserAccountModal() {
     dispatch(setSignInModal(false));
   };
 
-  return showSignInModal ? (
+  return session.data === null ? (
+    <SignIn />
+  ) : (
     <>
       <Modal isOpen={showSignInModal} onClose={onCloseModal}>
         <ModalContent>
@@ -65,7 +71,7 @@ export async function UserAccountModal() {
             <>
               <ModalHeader className="flex flex-col gap-1">Welcome Back!</ModalHeader>
               <ModalBody>
-                <SignIn />
+                <p>{session.data?.user?.email}</p>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onClose}>
@@ -77,5 +83,5 @@ export async function UserAccountModal() {
         </ModalContent>
       </Modal>
     </>
-  ) : null;
+  );
 }

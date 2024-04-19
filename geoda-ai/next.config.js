@@ -6,7 +6,7 @@ const nextConfig = {
   // set react strict mode false to fix react-modal cannot register modal instance that's already open
   reactStrictMode: false,
   // enable a static export and export all pages to static HTML files under out folder
-  output: 'export',
+  // output: 'export',
   // discard: only set basePath to /reactgeoda to deploy in github pages
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   typescript: {
