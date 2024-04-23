@@ -139,7 +139,6 @@ export function AddColumn() {
             </Tab>
             <Tab key="spatial-lag" title="Spatial Lag" />
             <Tab key="rates" title="Rates" />
-            <Tab key="date-time" title="Date/Time" />
           </Tabs>
         </CardBody>
       </Card>
