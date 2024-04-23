@@ -80,6 +80,38 @@ export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}): Rea
   );
 }
 
+export type WeightsSelectorProps = {
+  weights: {weightsMeta: WeightsMeta}[];
+  onSelectWeights: (value: any) => void;
+  label?: string;
+};
+
+export function WeightsSelector({weights, onSelectWeights, label}: WeightsSelectorProps) {
+  const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
+
+  // handle select weights
+  const onSelectionChange = (value: any) => {
+    const selectValue = value.currentKey;
+    setSelectedWeight(selectValue);
+    onSelectWeights(selectValue);
+  };
+
+  return (
+    <Select
+      label={label || 'Select Spatial Weights'}
+      className="max-w mb-6"
+      onSelectionChange={onSelectionChange}
+      selectedKeys={[selectedWeight ?? weights[weights.length - 1].weightsMeta.id ?? '']}
+    >
+      {weights.map(({weightsMeta}, i) => (
+        <SelectItem key={weightsMeta.id ?? i} value={weightsMeta.id}>
+          {weightsMeta.id}
+        </SelectItem>
+      ))}
+    </Select>
+  );
+}
+
 /**
  * WeightsManagementComponent
  * @component
@@ -114,18 +146,7 @@ export function WeightsManagementComponent() {
       <CardBody>
         {weights?.length > 0 ? (
           <>
-            <Select
-              label="Select Spatial Weights"
-              className="max-w mb-6"
-              onSelectionChange={onSelectWeights}
-              selectedKeys={[selectedWeight ?? weights[weights.length - 1].weightsMeta.id ?? '']}
-            >
-              {weights.map(({weightsMeta}, i) => (
-                <SelectItem key={weightsMeta.id ?? i} value={weightsMeta.id}>
-                  {weightsMeta.id}
-                </SelectItem>
-              ))}
-            </Select>
+            <WeightsSelector weights={weights} onSelectWeights={onSelectWeights} />
             {weightsMeta && <WeightsMetaTable weightsMeta={weightsMeta} />}
           </>
         ) : (

@@ -21,6 +21,7 @@ import {PreviewDataTable} from './preview-data-table';
 import {TableVariableValueComponent} from './column-variable-component';
 import {SQL_KEYWORDS} from '@/constants';
 import {SQLEditor} from './sql-editor';
+import {SpatialLagValueComponent} from './column-spatial-lag-component';
 
 export function AddColumn() {
   const [columnName, setColumnName] = useState('');
@@ -137,7 +138,9 @@ export function AddColumn() {
             <Tab key="variable" title="Variable">
               <TableVariableValueComponent setValues={setValues} />
             </Tab>
-            <Tab key="spatial-lag" title="Spatial Lag" />
+            <Tab key="spatial-lag" title="Spatial Lag">
+              <SpatialLagValueComponent setValues={setValues} />
+            </Tab>
             <Tab key="rates" title="Rates" />
           </Tabs>
         </CardBody>

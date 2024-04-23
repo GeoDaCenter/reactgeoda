@@ -7,6 +7,7 @@ import {useSelector} from 'react-redux';
 type VariableSelectorProps = {
   variable?: string;
   setVariable: (variable: string) => void;
+  label?: string;
 };
 
 export function VariableSelector(props: VariableSelectorProps) {
@@ -27,7 +28,7 @@ export function VariableSelector(props: VariableSelectorProps) {
 
   return (
     <Autocomplete
-      label="Select a variable"
+      label={props.label || 'Select a variable'}
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
     >
