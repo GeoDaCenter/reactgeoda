@@ -87,9 +87,15 @@ export type WeightsSelectorProps = {
   weights: {weightsMeta: WeightsMeta}[];
   onSelectWeights: (value: any) => void;
   label?: string;
+  showWarningBox?: boolean;
 };
 
-export function WeightsSelector({weights, onSelectWeights, label}: WeightsSelectorProps) {
+export function WeightsSelector({
+  weights,
+  onSelectWeights,
+  label,
+  showWarningBox = true
+}: WeightsSelectorProps) {
   const dispatch = useDispatch();
   const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
 
@@ -120,11 +126,13 @@ export function WeightsSelector({weights, onSelectWeights, label}: WeightsSelect
       ))}
     </Select>
   ) : (
-    <WarningBox
-      message={'No Spatial Weights'}
-      type={WarningType.WARNING}
-      onClick={onWarningBoxClick}
-    />
+    showWarningBox && (
+      <WarningBox
+        message={'No Spatial Weights'}
+        type={WarningType.WARNING}
+        onClick={onWarningBoxClick}
+      />
+    )
   );
 }
 
