@@ -15,9 +15,6 @@ export type SpatialLagValueProps = {
  * The react component for spatial lag value
  */
 export function SpatialLagValueComponent({setValues}: SpatialLagValueProps) {
-  const [variableValues, setVariableValues] = useState<number[] | null>(null);
-  const [neighbors, setNeighbors] = useState<number[][] | null>(null);
-
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
@@ -25,6 +22,9 @@ export function SpatialLagValueComponent({setValues}: SpatialLagValueProps) {
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );
+
+  const [variableValues, setVariableValues] = useState<number[] | null>(null);
+  const [neighbors, setNeighbors] = useState<number[][] | undefined>(weights?.[0]?.weights);
 
   // update values when variableValues and neighbors change
   const updateValues = (variableValues?: number[], selectedWeights?: number[][]) => {

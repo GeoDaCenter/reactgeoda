@@ -12,9 +12,12 @@ import {
   Select,
   SelectItem
 } from '@nextui-org/react';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {WeightsMeta} from 'geoda-wasm';
+import {WarningBox, WarningType} from '../common/warning-box';
+import {setPropertyPanel} from '@/actions';
+import {PanelName} from '../panel/panel-container';
 
 // weightsMeta: mapping its key to descriptive label
 const WeightsMetaLables: Record<string, string> = {
@@ -87,6 +90,7 @@ export type WeightsSelectorProps = {
 };
 
 export function WeightsSelector({weights, onSelectWeights, label}: WeightsSelectorProps) {
+  const dispatch = useDispatch();
   const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
 
   // handle select weights
@@ -96,7 +100,13 @@ export function WeightsSelector({weights, onSelectWeights, label}: WeightsSelect
     onSelectWeights(selectValue);
   };
 
-  return (
+  // handle warning box click
+  const onWarningBoxClick = () => {
+    // dispatch action to open weights panel
+    dispatch(setPropertyPanel(PanelName.WEIGHTS));
+  };
+
+  return weights.length > 0 ? (
     <Select
       label={label || 'Select Spatial Weights'}
       className="max-w mb-6"
@@ -109,6 +119,12 @@ export function WeightsSelector({weights, onSelectWeights, label}: WeightsSelect
         </SelectItem>
       ))}
     </Select>
+  ) : (
+    <WarningBox
+      message={'No Spatial Weights'}
+      type={WarningType.WARNING}
+      onClick={onWarningBoxClick}
+    />
   );
 }
 

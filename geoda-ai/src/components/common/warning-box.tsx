@@ -96,14 +96,25 @@ export enum WarningType {
   WAIT = 'wait'
 }
 
+export type WarningBoxProps = {
+  message: string;
+  type: WarningType;
+  onClick?: () => void;
+};
+
 /**
  * Create a warning box React component that contains a warning icon and a warning message.
  * The warning message is passed in as props.
  * The warning icon and warning message are aligned horizontally.
  */
-export function WarningBox(props: {message: string; type: string}) {
+export function WarningBox(props: WarningBoxProps) {
+  const onClick = props.onClick;
+
   return (
-    <div className="warning-box mb-4 flex flex-row  bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300">
+    <div
+      className="warning-box flex cursor-pointer flex-row  bg-yellow-50 p-2 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
+      onClick={onClick}
+    >
       <div className="warning-icon p-1">
         {props.type === 'error' && <ErrorIcon />}
         {props.type === 'warning' && <WarningIcon />}
