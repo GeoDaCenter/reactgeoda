@@ -31,6 +31,7 @@ import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
 import {CustomFunctions} from '@/ai/openai-utils';
 import {linearRegressionCallbackFunc} from './regression-utils';
+import {createVariableCallBack} from './table-utils';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
@@ -365,7 +366,8 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
   boxplot: boxplotFunction,
   parallelCoordinate: parallelCoordinateFunction,
-  linearRegression: linearRegressionCallbackFunc
+  linearRegression: linearRegressionCallbackFunc,
+  createVariable: createVariableCallBack
 };
 
 export type BoxplotOutput = {

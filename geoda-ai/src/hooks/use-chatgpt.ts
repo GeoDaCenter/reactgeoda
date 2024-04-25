@@ -6,6 +6,7 @@ import {useSelector} from 'react-redux';
 import {MAP_ID} from '@/constants';
 import {getDataContainer} from '@/utils/data-utils';
 import {initOpenAI, processMessage} from '@/ai/openai-utils';
+import {useDuckDB} from './use-duckdb';
 
 /**
  * Create a message from custom function call
@@ -57,6 +58,8 @@ export function useChatGPT() {
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );
 
+  const {queryValues} = useDuckDB();
+
   /**
    * Upload sumary of the table to ChatGPT assistant
    * Note: this is not used specifically for uploading summary, but it could be a skeleton for uploading other file.
@@ -100,7 +103,7 @@ export function useChatGPT() {
     return processMessage({
       question,
       customFunctions: CUSTOM_FUNCTIONS,
-      customFunctionContext: {tableName, visState, weights, dataContainer},
+      customFunctionContext: {tableName, visState, weights, dataContainer, queryValues},
       customMessageCallback: createMessageFromCustomFunctionCall
     });
   }
