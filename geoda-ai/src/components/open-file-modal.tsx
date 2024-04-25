@@ -142,7 +142,9 @@ const OpenFileComponent = () => {
       </CardBody>
       <CardFooter className="justify-between text-small">
         <div>
-          <p className="text-tiny">Supported formates: GeoJSON, ESRI Shapefile, CSV</p>
+          <p className="text-tiny">
+            Supported formates: GeoArrow, GeoJSON, ESRI Shapefiles, CSV and GeoDa.Ai Project file
+          </p>
         </div>
         {/* <Button className="text-tiny" color="primary" radius="full" size="sm">
           Notify Me

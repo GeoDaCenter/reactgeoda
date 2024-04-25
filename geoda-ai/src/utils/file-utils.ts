@@ -2,6 +2,7 @@ import {ALL_FIELD_TYPES, DATASET_FORMATS} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {Feature} from 'geojson';
 import {geojsonFeaturesToArrow, ArrowLoader} from '@loaders.gl/arrow';
+import {makeObjectRowTable} from '@loaders.gl/schema';
 import {
   Field as ArrowField,
   Float64 as ArrowFloat,
@@ -53,6 +54,11 @@ const JSON_LOADER_OPTIONS = {
   ]
 };
 
+const SHAPEFILE_LOADER_OPTIONS = {
+  // TODO: loaders.gl only support shape: 'geojson-table' for now
+  shape: 'object-row-table'
+};
+
 export async function loadArrowFile(file: File) {
   const loadOptions = {
     arrow: ARROW_LOADER_OPTIONS,
@@ -98,6 +104,7 @@ export async function loadDroppedFile(files: File[]) {
     csv: CSV_LOADER_OPTIONS,
     arrow: ARROW_LOADER_OPTIONS,
     json: JSON_LOADER_OPTIONS,
+    shapefile: SHAPEFILE_LOADER_OPTIONS,
     metadata: true,
     fetch: droppedFilesFS.fetch,
     gis: {reproject: true},
@@ -116,6 +123,14 @@ export async function loadDroppedFile(files: File[]) {
     content = result.value as ProcessFileDataContent;
     result = await batches.next();
     if (result.done) {
+      if (shpFile) {
+        // content.data is Feature[] array, so we need to convert it to JSON shape
+        // {type: "FeatureCollection", features: Feature[]}
+        content.data = {
+          type: 'FeatureCollection',
+          features: content.data as Feature[]
+        };
+      }
       parsedData = await processFileData({
         content,
         fileCache: []
