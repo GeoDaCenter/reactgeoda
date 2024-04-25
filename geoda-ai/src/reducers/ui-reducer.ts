@@ -15,7 +15,10 @@ const initialState = {
   showGridView: false,
   showPropertyPanel: false,
   propertyPanelName: '',
-  openAIKey: LOCAL_API_KEY
+  openAIKey: LOCAL_API_KEY,
+  table: {
+    showQueryBuilder: true
+  }
 };
 
 export const uiReducer = (state = initialState, action: UiAction) => {
@@ -61,6 +64,22 @@ export const uiReducer = (state = initialState, action: UiAction) => {
       return {
         ...state,
         openAIKey: action.payload
+      };
+    case UI_ACTIONS.SET_SHOW_QUERY_BUILDER:
+      return {
+        ...state,
+        table: {
+          ...state.table,
+          showQueryBuilder: action.payload
+        }
+      };
+    case UI_ACTIONS.SET_QUERY_CODE:
+      return {
+        ...state,
+        table: {
+          ...state.table,
+          queryCode: action.payload
+        }
       };
     default:
       return state;

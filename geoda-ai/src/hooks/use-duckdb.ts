@@ -52,15 +52,19 @@ export async function initDuckDB() {
   return null;
 }
 
+export function getDuckDB() {
+  return db;
+}
+
 // initial the global duckdb instance, delay 100ms to avoid blocking loading default page
-// setTimeout(async () => {
-//   db = await initDuckDB();
-// }, 100);
+setTimeout(async () => {
+  db = await initDuckDB();
+}, 100);
 
 // wait until the page is loaded
-window.onload = async () => {
-  db = await initDuckDB();
-};
+// window.onload = async () => {
+//   db = await initDuckDB();
+// };
 
 /**
  * Get the summary of a table by passing the table name
@@ -126,31 +130,64 @@ export async function getColumnData(columnName: string): Promise<number[]> {
  * @returns {query, importTable} functions to query and import data
  */
 export function useDuckDB() {
-  const query = useCallback(async (queryString: string): Promise<number[]> => {
-    // trim queryString
-    queryString = queryString.trim();
-    // compare the first 6 letters in queryString with "SELECT"
-    const select = queryString.substring(0, 6).toUpperCase();
-    if (select !== 'SELECT') {
-      throw new Error('Only SELECT queries are supported');
+  const addColumn = useCallback(async (sql: string) => {
+    if (db) {
+      try {
+        // remove \n from sql
+        const sqlString = sql.replace(/\n/g, '');
+
+        const conn = await db.connect();
+        await conn.query(sqlString);
+        await conn.close();
+      } catch (error) {
+        console.error(error);
+      }
     }
+  }, []);
+
+  const queryValues = useCallback(async (queryString: string): Promise<unknown[]> => {
     if (!db) {
       throw new Error('DuckDB is not initialized');
     }
-    // replace first 6 letters "select" with "select row_index AS selected_index"
-    queryString = `SELECT row_index AS selected_index, ${queryString.substring(6)}`;
+    try {
+      // remove \n from sql
+      const sqlString = queryString.replace(/\n/g, '');
 
-    // connect to the database
-    const conn = await db.connect();
-    // Query
-    const arrowResult = await conn.query<{v: any}>(queryString);
-    // Convert arrow table to json
-    // const result = arrowResult.toArray().map(row => row.toJSON());
-    // get the row_index[] from the query result
-    const selectedIndexes = arrowResult.getChildAt(0)?.toArray();
-    // close the connection
-    await conn.close();
-    return selectedIndexes || [];
+      const conn = await db.connect();
+      const arrowResult = await conn.query<{v: any}>(sqlString);
+      const result = arrowResult.getChildAt(0)?.toArray();
+      await conn.close();
+      return result || [];
+    } catch (error) {
+      console.error(error);
+    }
+    return [];
+  }, []);
+
+  const query = useCallback(async (tableName: string, queryString: string): Promise<number[]> => {
+    if (!db) {
+      throw new Error('DuckDB is not initialized');
+    }
+    // remove \n from queryString
+    const query = queryString.replace(/\n/g, '');
+    const sql = `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${query.trim()}`;
+
+    try {
+      // connect to the database
+      const conn = await db.connect();
+      // Query
+      const arrowResult = await conn.query<{v: any}>(sql);
+      // Convert arrow table to json
+      // const result = arrowResult.toArray().map(row => row.toJSON());
+      // get the row_index[] from the query result
+      const selectedIndexes = arrowResult.getChildAt(0)?.toArray();
+      // close the connection
+      await conn.close();
+      return selectedIndexes || [];
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
   }, []);
 
   const importArrowFile = useCallback(
@@ -177,9 +214,6 @@ export function useDuckDB() {
             await conn.query('CREATE SEQUENCE serial');
             // Use nextval to update the row_index column
             await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
-
-            // test summary table
-            await getTableSummary();
           } catch (error) {
             console.error(error);
           }
@@ -191,5 +225,5 @@ export function useDuckDB() {
     []
   );
 
-  return {query, importArrowFile};
+  return {query, queryValues, addColumn, importArrowFile};
 }

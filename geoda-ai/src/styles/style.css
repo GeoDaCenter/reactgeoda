@@ -11,6 +11,12 @@
   display: none !important;
 }
 
+/* adjust Monaco Editor */
+.monaco-editor .suggest-widget {
+  /* left: 0 !important; */
+  /* width: 10rem !important; */
+}
+
 /* readjust the size of the close button in modal dialog */
 .react-responsive-modal-closeButton {
   width: 18px;
@@ -28,6 +34,36 @@
 /* fix mapboxgl-children */
 div[mapboxgl-children] {
   display: none;
+}
+
+/* custom css for react query builder */
+.ruleGroup {
+  border-color: #EEE !important;
+  background: none !important;
+}
+.rule {
+  flex-direction: row;
+}
+.rule-fields {
+  flex-grow: 0;
+  border: 1px solid #ddd;
+}
+.rule-operators {
+  width: 100px;
+  flex-grow: 0;
+  border: 1px solid #ddd;
+}
+.rule-value {
+  width: 80px;
+  flex-grow: 1;
+  border: 1px solid #ddd;
+}
+.ruleGroup-addRule, .ruleGroup-addGroup {
+  background-color: none;
+  padding-block: 1px;
+  border-width: 1px;
+  border-style: buttonborder;
+  padding-inline: 6px;
 }
 
 /* custom chatGPT css */
@@ -621,7 +657,9 @@ i.chevron-down {
   z-index: 5;
   display: block;
   position: absolute;
-  box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1),
+  box-shadow:
+    0 12px 28px 0 rgba(0, 0, 0, 0.2),
+    0 2px 4px 0 rgba(0, 0, 0, 0.1),
     inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   border-radius: 8px;
   min-width: 100px;

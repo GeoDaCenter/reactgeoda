@@ -48,7 +48,7 @@ export function getKeplerLayer(tableName: string, visState: VisState): GeojsonLa
 }
 
 // type guard function checks if the layer is a GeojsonLayer
-function isGeojsonLayer(layer: Layer): layer is GeojsonLayer {
+export function isGeojsonLayer(layer: Layer): layer is GeojsonLayer {
   return layer.type === 'geojson';
 }
 

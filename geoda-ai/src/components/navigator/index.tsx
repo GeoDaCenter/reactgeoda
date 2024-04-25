@@ -92,6 +92,7 @@ export function Navigator() {
 
   const onTableCallback = useCallback(
     (event: React.MouseEvent) => {
+      dispatch(setPropertyPanel(PanelName.TABLE));
       dispatch(setKeplerTableModal(!showKeplerTableModal));
       event.stopPropagation();
     },

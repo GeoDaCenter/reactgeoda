@@ -14,20 +14,12 @@ import {Key, useMemo, useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
-import {LISA_COLORS, LISA_LABELS} from '@/constants';
+import {LISA_COLORS, LISA_LABELS, accordionItemClasses} from '@/constants';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getColumnData, getDataset, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {localMoran} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
-
-// accordion related
-export const accordionItemClasses = {
-  base: 'py-0 w-full m-0',
-  title: 'font-normal text-small',
-  indicator: 'text-medium',
-  content: 'text-small px-0'
-};
 
 export function LocalMoranPanel() {
   const dispatch = useDispatch();

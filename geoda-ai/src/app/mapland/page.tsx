@@ -17,12 +17,14 @@ import GridLayout from '@/components/dashboard/grid-layout';
 // import LanguageSelector from '../components/language-selector';
 import IntlProviderWrapper from '@/components/intl-provider-wrapper';
 import {Navigator} from '@/components/navigator';
-import {OpenFileModal} from '@/components/open-file-modal';
 import {PanelContainer} from '@/components/panel/panel-container';
 import {TableContainer} from '@/components/table/table-container';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {SaveProjectModal} from '@/components/save-project-modal';
 import {useSearchParams} from 'next/navigation';
+
+import dynamic from 'next/dynamic';
+const OpenFileModal = dynamic(() => import('@/components/open-file-modal'), {ssr: false});
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);

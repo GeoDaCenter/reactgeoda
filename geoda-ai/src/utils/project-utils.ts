@@ -42,6 +42,8 @@ export async function loadGeoDaProject(geodaFile: File) {
 
   // convert arrowTable from base64 string to ArrayBuffer
   const arrowTableBuffer = Buffer.from(geodaFileData.arrowTable, 'base64').buffer;
+  // TODO: this could be simplified as
+  // const apacheArrowTable = arrow.tableFromIPC([new Uint8Array(arrayBuffer)]);
   // create a File object from the ArrayBuffer
   const arrowFile = new File([arrowTableBuffer], geodaFileData.fileName);
   // load arrow file

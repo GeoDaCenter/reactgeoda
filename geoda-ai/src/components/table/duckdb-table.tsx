@@ -1,9 +1,8 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Table as ArrowTable, Field as ArrowField} from 'apache-arrow';
 // @ts-ignore
 import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
-import MonacoEditor from '@monaco-editor/react';
 
 // @ts-ignore FIXME
 import {
@@ -17,10 +16,10 @@ import {arrowDataTypeToFieldType, arrowDataTypeToAnalyzerDataType} from '@kepler
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
 import {GeoDaState} from '../../store';
-import {useDuckDB} from '../../hooks/use-duckdb';
 import {useTheme} from 'styled-components';
+import {getDataset} from '@/utils/data-utils';
 
-const MIN_STATS_CELL_SIZE = 122;
+export const MIN_STATS_CELL_SIZE = 122;
 
 // create a selector to get the action creators from kepler.gl
 const keplerActionSelector = makeGetActionCreators();
@@ -60,28 +59,12 @@ export function DuckDBTableComponent() {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  // set state for monaco editor
-  const [code, setCode] = useState('');
-
-  const rawFileData = useSelector((state: GeoDaState) => state.root.file.rawFileData);
-
-  // use current file name as the name of the table
-  const tableName = rawFileData.fileName;
+  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
   // get Kepler state from redux store
-  const kepler = useSelector((state: GeoDaState) => state.keplerGl['kepler_map']);
+  const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
-  // get dataset, TODO only one dataset is supported now
-  const dataset = useMemo(
-    () => Object.values(kepler.visState.datasets)[0],
-    [kepler.visState.datasets]
-  );
-  const dataId = useMemo(
-    () => Object.keys(kepler.visState.datasets)[0],
-    [kepler.visState.datasets]
-  );
-
-  // @ts-expect-error
+  // @ts-expect-error FIXME
   const {fields, dataContainer, pinnedColumns, filteredIndex} = dataset;
 
   const filteredIndexDict = useMemo(() => {
@@ -137,77 +120,11 @@ export function DuckDBTableComponent() {
   // get action creators from kepler.gl
   const {visStateActions} = keplerActionSelector(dispatch, {});
 
-  // get duckdb hook
-  const {query, importArrowFile} = useDuckDB();
-
-  // write callback function onQueryClick
-  const onQueryClick = async () => {
-    const selectedIndexes = await query(code);
-
-    if (selectedIndexes) {
-      // dispatch action SET_FILTER_INDEXES to update filtered indexes in kepler
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: selectedIndexes}
-      });
-      // const newData = processArrowTable(result);
-      // const updatedDataset: ProtoDataset = {
-      //   // @ts-expect-error FIXME
-      //   data: newData,
-      //   info: {
-      //     id: generateHashIdFromString(tableName),
-      //     label: tableName,
-      //     format: 'arrow'
-      //   }
-      // };
-      // // dispatch action to update dataset in kepler
-      // dispatch(updateVisData([updatedDataset], {keepExistingConfig: true}));
-      // const keplerTable = datasets[info.id];
-      // // update the data in keplerTable
-      // keplerTable.update(validatedData);
-    }
-  };
-
-  const onMonacoEditorChange = (value: string | undefined) => {
-    if (value) {
-      setCode(value);
-    }
-    // console.log('ev', ev);
-  };
-
-  useEffect(() => {
-    importArrowFile(rawFileData);
-    setCode(`select * from "${tableName}"`);
-  }, [rawFileData, importArrowFile, tableName]);
-
   return (
     <div
-      className="item-center flex w-full flex-col p-5"
-      style={{height: '100%', minWidth: '50vw', padding: '20px'}}
+      className="item-center flex w-full flex-col bg-white"
+      style={{height: '100%', minWidth: '50vw', padding: '0px'}}
     >
-      <div className="flex w-full basis-1/4 flex-col items-center justify-center">
-        <div className="h-20 w-full rounded border-2 border-solid border-rose-800 p-1">
-          <MonacoEditor
-            language="sql"
-            value={code}
-            onChange={onMonacoEditorChange}
-            options={{
-              minimap: {enabled: false}
-            }}
-          />
-        </div>
-        <div className="m-2 flex w-full flex-row items-start space-x-4">
-          <button
-            onClick={onQueryClick}
-            className="inline-flex items-center rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400"
-          >
-            Query
-          </button>
-          <button className="inline-flex items-center rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400">
-            Reset
-          </button>
-        </div>
-      </div>
       <DataTable
         key={dataId}
         dataId={dataId}

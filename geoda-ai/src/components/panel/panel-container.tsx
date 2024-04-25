@@ -18,11 +18,13 @@ import {ScatterplotPanel} from '../plots/scatterplot-panel';
 import {DashboardPanel} from '../dashboard/dashboard-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
+const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {
   CHAT_GPT = 'ChatGpt',
   SETTINGS = 'Settings',
+  TABLE = 'Table',
   MAPPING = 'Mapping',
   WEIGHTS = 'Weights',
   LISA = 'Lisa',
@@ -73,6 +75,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.SPREG && <SpregPanel />}
         {propertyPanelName === PanelName.SCATTERPLOT && <ScatterplotPanel />}
         {propertyPanelName === PanelName.DASHBOARD && <DashboardPanel />}
+        {propertyPanelName === PanelName.TABLE && <TablePanel />}
       </div>
     </div>
   ) : null;

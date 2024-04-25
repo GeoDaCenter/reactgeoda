@@ -7,9 +7,10 @@ import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
-import {LocalMoranPanel, accordionItemClasses} from './local-moran-panel';
+import {LocalMoranPanel} from './local-moran-panel';
+import {accordionItemClasses} from '@/constants';
 
-const NO_WEIGHTS_MESSAGE = 'Please create a spatial weights matrix before running LISA analysis.';
+const NO_WEIGHTS_MESSAGE = 'Please create a spatial weights before running LISA analysis.';
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running LISA analysis.';
 
 export function LisaPanel() {

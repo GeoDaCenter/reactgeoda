@@ -14,6 +14,7 @@ import {RegressionProps} from '@/actions/regression-actions';
 import {RawFileDataProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
+import {RuleGroupType} from 'react-querybuilder';
 
 /**
  * Define the State of the Redux store
@@ -36,6 +37,11 @@ export type GeoDaState = {
       showKeplerTableModal: boolean;
       showGridView: boolean;
       openAIKey: string;
+      table: {
+        queryBuilder?: RuleGroupType;
+        queryCode?: string;
+        showQueryBuilder: boolean;
+      };
     };
     weights: Array<WeightsProps>;
     plots: Array<PlotProps>;

@@ -25,6 +25,8 @@ import {MAP_ID} from '@/constants';
 import {loadDroppedFile} from '@/utils/file-utils';
 import {LoadedGeoDaConfig, loadGeoDaProject} from '@/utils/project-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
+import {getDuckDB, useDuckDB} from '@/hooks/use-duckdb';
+import {ProtoDataset} from '@kepler.gl/types';
 
 type ProcessDropFilesOutput = RawFileDataProps & {
   keplerConfig?: SavedConfigV1['config'];
@@ -43,8 +45,13 @@ async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> 
   return await loadDroppedFile(files);
 }
 
+/**
+ * Open File Component
+ * @returns JSX.Element
+ */
 const OpenFileComponent = () => {
   const dispatch = useDispatch();
+  const {importArrowFile} = useDuckDB();
 
   // create a useState to store the status of loading file
   const [loading, setLoading] = useState(false);
@@ -58,13 +65,27 @@ const OpenFileComponent = () => {
       const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
         await processDropFiles(acceptedFiles);
 
+      // add arrowTable to duckdb
+      await importArrowFile({fileName, arrowTable});
+
+      // append duckdb instance to arrowFormatData
+      const datasets: ProtoDataset | undefined = arrowFormatData
+        ? {
+            ...arrowFormatData,
+            data: {
+              ...arrowFormatData.data,
+              db: getDuckDB()
+            }
+          }
+        : arrowFormatData;
+
       // dispatch addDataToMap action to default kepler.gl instance
       if (arrowFormatData) {
         dispatch(
           wrapTo(
             MAP_ID,
             addDataToMap({
-              datasets: arrowFormatData,
+              datasets: datasets || [],
               options: {centerMap: true},
               ...(keplerConfig && {config: keplerConfig})
             })
@@ -86,7 +107,7 @@ const OpenFileComponent = () => {
       // set loading to true to show loading bar
       setLoading(false);
     },
-    [dispatch]
+    [dispatch, importArrowFile]
   );
 
   const {getRootProps, getInputProps} = useDropzone({onDrop});
@@ -131,7 +152,7 @@ const OpenFileComponent = () => {
   );
 };
 
-export function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
+function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
   // get the dispatch function from the redux store
   const dispatch = useDispatch();
 
@@ -224,3 +245,5 @@ export function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
     </Modal>
   ) : null;
 }
+
+export default OpenFileModal;

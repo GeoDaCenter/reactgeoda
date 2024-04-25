@@ -10,6 +10,7 @@ import {CustomParallelCoordinateMessage} from './custom-parallel-coordinate-mess
 import {CustomSpregMessage} from './custom-spreg-message';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
 import {CustomMapMessage} from './custom-map-message';
+import {CustomCreateVariableMessage} from './custom-create-variable-message';
 
 type CustomFunctionOutputProps = {
   type: string;
@@ -48,6 +49,7 @@ export function CustomMessage({props}: {props: MessagePayload}) {
           <CustomParallelCoordinateMessage props={props} />
         )}
         {props.output.type === 'linearRegression' && <CustomSpregMessage props={props} />}
+        {props.output.type === 'createVariable' && <CustomCreateVariableMessage props={props} />}
       </>
     )
   );
