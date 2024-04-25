@@ -2,7 +2,6 @@ import {ALL_FIELD_TYPES, DATASET_FORMATS} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {Feature} from 'geojson';
 import {geojsonFeaturesToArrow, ArrowLoader} from '@loaders.gl/arrow';
-import {makeObjectRowTable} from '@loaders.gl/schema';
 import {
   Field as ArrowField,
   Float64 as ArrowFloat,
