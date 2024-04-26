@@ -51,7 +51,8 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
             strings: `Click to Add This PCP Plot`,
             autoStart: true,
             loop: false,
-            delay: 10
+            delay: 10,
+            cursor: ''
           }}
         />
       </Button>

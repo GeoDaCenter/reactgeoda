@@ -1,7 +1,16 @@
 import React, {Key, useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useIntl} from 'react-intl';
-import {Accordion, AccordionItem, Button, Input, Tab, Tabs} from '@nextui-org/react';
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Input,
+  Tab,
+  Tabs,
+  Card,
+  CardBody
+} from '@nextui-org/react';
 
 import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
@@ -11,6 +20,10 @@ import {useSession, signIn, signOut} from 'next-auth/react';
 
 export function SignIn() {
   const {data: session} = useSession();
+  const handleSignIn = () => {
+    // Directly specify 'cognito' or your provider's ID
+    signIn('cognito', {callbackUrl: 'http://localhost:3000/mapland'});
+  };
   if (session && session.user) {
     return (
       <>
@@ -24,7 +37,7 @@ export function SignIn() {
   return (
     <>
       Not signed in <br />
-      <Button color="danger" onClick={() => signIn()}>
+      <Button color="danger" onClick={handleSignIn}>
         Sign in
       </Button>
     </>
@@ -81,26 +94,30 @@ export function SettingsPanel() {
             </div>
           </Tab>
           <Tab key="open-ai" title="OpenAI">
-            <div className="flex flex-col gap-4 p-4">
-              <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1']}>
-                <AccordionItem
-                  key="1"
-                  aria-label="OpenAI Settings"
-                  title="OpenAI Settings"
-                  subtitle="Change your OpenAI settings"
-                >
-                  <Input
-                    type="string"
-                    label="OpenAI Key"
-                    defaultValue="Enter your OpenAI key here"
-                    className="max-w-full"
-                    onChange={onOpenAIKeyChange}
-                    value={key || ''}
-                  />
-                </AccordionItem>
-              </Accordion>
-              <Button color="danger">Confirm</Button>
-            </div>
+            <Card>
+              <CardBody>
+                <div className="flex flex-col gap-4 text-sm">
+                  <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1']}>
+                    <AccordionItem
+                      key="1"
+                      aria-label="OpenAI Settings"
+                      title="OpenAI Settings"
+                      subtitle="Change your OpenAI settings"
+                    >
+                      <Input
+                        type="string"
+                        label="OpenAI Key"
+                        defaultValue="Enter your OpenAI key here"
+                        className="max-w-full"
+                        onChange={onOpenAIKeyChange}
+                        value={key || ''}
+                      />
+                    </AccordionItem>
+                  </Accordion>
+                  <Button color="danger">Confirm</Button>
+                </div>
+              </CardBody>
+            </Card>
           </Tab>
         </Tabs>
       </div>
