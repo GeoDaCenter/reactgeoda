@@ -71,14 +71,34 @@ const customizedKeplerGlReducer = keplerGlReducer
       // hide side panel and data input window to disallow user customize the map
       readOnly: false,
       activeSidePanel: null,
-      currentModal: null
-      // mapControls: {
-      //   mapLegend: {
-      //     show: false,
-      //     active: true
-      //   }
-      // }
+      currentModal: null,
+      mapControls: {
+        mapDraw: {
+          active: false,
+          show: true
+        },
+        mapLegend: {
+          show: true,
+          active: false
+        },
+        toggle3d: {
+          show: true,
+          active: false
+        },
+        splitMap: {
+          show: true,
+          active: false
+        }
+      }
     }
+    // visState: {
+    //   editor: {
+    //     mode: 'DRAW_RECTANGLE',
+    //     features: [],
+    //     selectedFeature: null,
+    //     visible: true
+    //   }
+    // }
   })
   .plugin({
     SET_FILTER_INDEXES: (state: any, action: any) => {

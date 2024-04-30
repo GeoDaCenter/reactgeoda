@@ -104,6 +104,9 @@ const OpenFileComponent = () => {
         dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
       }
 
+      // set selection mode
+      // dispatch(setEditorMode('DRAW_RECTANGLE'));
+
       // set loading to true to show loading bar
       setLoading(false);
     },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 /**
  * Create a svg icon with a warning sign.
@@ -100,6 +100,7 @@ export type WarningBoxProps = {
   message: string;
   type: WarningType;
   onClick?: () => void;
+  dismissAfter?: number;
 };
 
 /**
@@ -110,7 +111,16 @@ export type WarningBoxProps = {
 export function WarningBox(props: WarningBoxProps) {
   const onClick = props.onClick;
 
-  return (
+  // add a state to make the warning box disappear after 1 second
+  const [visible, setVisible] = useState(true);
+
+  if (props.dismissAfter) {
+    setTimeout(() => {
+      setVisible(false);
+    }, props.dismissAfter);
+  }
+
+  return visible ? (
     <div
       className="warning-box flex cursor-pointer flex-row  bg-yellow-50 p-2 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
       onClick={onClick}
@@ -123,5 +133,5 @@ export function WarningBox(props: WarningBoxProps) {
       </div>
       <div className="warning-message flex-grow p-1">{props.message}</div>
     </div>
-  );
+  ) : null;
 }

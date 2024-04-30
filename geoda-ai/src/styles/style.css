@@ -10,6 +10,9 @@
 .layer-manager-header {
   display: none !important;
 }
+.ktdEag {
+  opacity: 1 !important;
+}
 
 /* adjust Monaco Editor */
 .monaco-editor .suggest-widget {
