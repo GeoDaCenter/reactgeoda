@@ -1,15 +1,65 @@
-import React, {useCallback} from 'react';
+import React, {Key, useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useIntl} from 'react-intl';
-import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Input,
+  Tab,
+  Tabs,
+  Card,
+  CardBody
+} from '@nextui-org/react';
 
 import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {accordionItemClasses} from '@/constants';
+import {useSession, signIn, signOut} from 'next-auth/react';
+
+export function SignIn() {
+  const {data: session} = useSession();
+  const handleCognitoSignIn = () => {
+    signIn('cognito-general', {
+      callbackUrl: 'http://localhost:3000/mapland'
+    });
+  };
+  const handleGoogleSignIn = () => {
+    signIn('cognito-google', {
+      callbackUrl: 'http://localhost:3000/mapland'
+    });
+  };
+  if (session && session.user) {
+    return (
+      <>
+        Signed in as {session.user.email} <br />
+        <Button color="danger" onClick={() => signOut()}>
+          Sign out
+        </Button>
+      </>
+    );
+  }
+  return (
+    <>
+      Not signed in <br />
+      <Button className="login-with-google-btn" onClick={handleGoogleSignIn}>
+        Continue with Google
+      </Button>
+      <Button color="danger" onClick={handleCognitoSignIn}>
+        Sign in
+      </Button>
+    </>
+  );
+}
 
 export function SettingsPanel() {
   const intl = useIntl();
+  const [showUserSettings, setShowUserSettings] = useState(true);
+  const onTabChange = (key: Key) => {
+    setShowUserSettings(key === 'user-settings');
+  };
+
   const dispatch = useDispatch();
 
   // define state openAIKey
@@ -39,25 +89,46 @@ export function SettingsPanel() {
         defaultMessage: 'Change your personal settings'
       })}
     >
-      <div className="flex flex-col gap-4 p-4">
-        <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1']}>
-          <AccordionItem
-            key="1"
-            aria-label="OpenAI Settings"
-            title="OpenAI Settings"
-            subtitle="Change your OpenAI settings"
-          >
-            <Input
-              type="string"
-              label="OpenAI Key"
-              defaultValue="Enter your OpenAI key here"
-              className="max-w-full"
-              onChange={onOpenAIKeyChange}
-              value={key || ''}
-            />
-          </AccordionItem>
-        </Accordion>
-        <Button color="danger">Confirm</Button>
+      <div className="h-full overflow-y-auto p-4">
+        <Tabs
+          aria-label="Options"
+          variant="solid"
+          color="warning"
+          selectedKey={showUserSettings ? 'user-settings' : 'open-ai'}
+          onSelectionChange={onTabChange}
+        >
+          <Tab key="user-settings" title="User Settings">
+            <div className="flex flex-col gap-4 p-4">
+              <SignIn />
+            </div>
+          </Tab>
+          <Tab key="open-ai" title="OpenAI">
+            <Card>
+              <CardBody>
+                <div className="flex flex-col gap-4 text-sm">
+                  <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1']}>
+                    <AccordionItem
+                      key="1"
+                      aria-label="OpenAI Settings"
+                      title="OpenAI Settings"
+                      subtitle="Change your OpenAI settings"
+                    >
+                      <Input
+                        type="string"
+                        label="OpenAI Key"
+                        defaultValue="Enter your OpenAI key here"
+                        className="max-w-full"
+                        onChange={onOpenAIKeyChange}
+                        value={key || ''}
+                      />
+                    </AccordionItem>
+                  </Accordion>
+                  <Button color="danger">Confirm</Button>
+                </div>
+              </CardBody>
+            </Card>
+          </Tab>
+        </Tabs>
       </div>
     </RightPanelContainer>
   );
