@@ -5,6 +5,8 @@ import 'react-responsive-modal/styles.css';
 
 import '@/styles/globals.css';
 import '@/styles/style.css';
+import '@/styles/superfine.css';
+import '@/styles/maplibre-gl.css';
 
 import {useRef} from 'react';
 // import dynamic from 'next/dynamic';
