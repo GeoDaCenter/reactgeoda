@@ -2,11 +2,13 @@
 .default-kepler-map {
   height: 100% !important;
 }
+/* adjust table height */
 .main-table {
   padding: 0px;
   flex-grow: 0;
   height: 40%;
 }
+/* hide add layer button */
 .layer-manager-header {
   display: none !important;
 }
@@ -15,6 +17,7 @@
   opacity: 1 !important;
   margin-left: -10px;
 }
+/* adjust for Edit layer on map selection */
 .editor-layers-list:hover {
   .nested-group {
     display: block;
@@ -30,7 +33,9 @@
   top: 0;
   left: 0;
 } */
-
+.data-ex-icons-table  {
+  color: #999999 !important;
+}
 /* adjust Monaco Editor */
 .monaco-editor .suggest-widget {
   /* left: 0 !important; */
