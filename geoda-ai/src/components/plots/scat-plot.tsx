@@ -21,6 +21,7 @@ import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
 import {getScatterChartOption} from '@/utils/scatterplot-utils';
+import {geodaBrushLink} from '@/actions';
 
 // Register the required ECharts components
 echarts.use([
@@ -122,10 +123,11 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         }, 100);
 
         // Dispatch action to highlight selected indices
-        dispatch({
-          type: 'SET_FILTER_INDEXES',
-          payload: {dataLabel: tableName, filteredIndex: brushed}
-        });
+        // dispatch({
+        //   type: 'SET_FILTER_INDEXES',
+        //   payload: {dataLabel: tableName, filteredIndex: brushed}
+        // });
+        dispatch(geodaBrushLink({originId: props.id, dataId: tableName, filteredIndex: brushed}));
       }
     };
   }, [dispatch, validPlot, props, tableName]);

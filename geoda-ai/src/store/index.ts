@@ -15,6 +15,7 @@ import {RawFileDataProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 import {RuleGroupType} from 'react-querybuilder';
+import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
 
 /**
  * Define the State of the Redux store
@@ -54,6 +55,9 @@ export type GeoDaState = {
       gridLayout?: Layout[];
       gridItems?: GridItemProps[];
       textItems?: GridTextItemProps[];
+    };
+    kepler: {
+      brushLink: [{datasetId: string; highlightIds: number[]}];
     };
   };
 };
@@ -101,6 +105,9 @@ const customizedKeplerGlReducer = keplerGlReducer
     // }
   })
   .plugin({
+    BRUSH_LINK_FROM_GEODA: (state: any, action: any) => {
+      return handleGeoDaBrushLink(state, action);
+    },
     SET_FILTER_INDEXES: (state: any, action: any) => {
       const {dataLabel, filteredIndex} = action.payload;
       const visState = state.visState;
