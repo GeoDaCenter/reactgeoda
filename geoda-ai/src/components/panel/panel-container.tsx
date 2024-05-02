@@ -15,6 +15,7 @@ import {BoxplotPanel} from '../plots/boxplot-panel';
 import {ParallelCoordinatePanel} from '../plots/parallel-coordinate-panel';
 import {SpregPanel} from '../spreg/spreg-panel';
 import {ScatterplotPanel} from '../plots/scatterplot-panel';
+import {BubbleChartPanel} from '../plots/bubble-chart-panel';
 import {DashboardPanel} from '../dashboard/dashboard-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
@@ -75,6 +76,7 @@ export const PanelContainer = () => {
         {propertyPanelName === PanelName.PARALLEL_COORDINATE && <ParallelCoordinatePanel />}
         {propertyPanelName === PanelName.SPREG && <SpregPanel />}
         {propertyPanelName === PanelName.SCATTERPLOT && <ScatterplotPanel />}
+        {propertyPanelName === PanelName.BUBBLE_CHART && <BubbleChartPanel />}
         {propertyPanelName === PanelName.DASHBOARD && <DashboardPanel />}
         {propertyPanelName === PanelName.TABLE && <TablePanel />}
       </div>

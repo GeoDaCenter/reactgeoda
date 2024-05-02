@@ -4,7 +4,7 @@ export type BubbleChartDataItemProps = {
   x: number;
   y: number;
   size: number;
-  color?: string;
+  color?: string | number;
 };
 
 export type BubbleChartDataProps = {
@@ -23,7 +23,7 @@ export function createBubbleChartData(
   xData: number[],
   yData: number[],
   sizeData: number[],
-  colorData?: string[]
+  colorData?: (string | number)[]
 ): BubbleChartDataProps {
   if (xData.length !== yData.length || xData.length !== sizeData.length) {
     throw new Error('xData, yData, and sizeData arrays should be same length.');
