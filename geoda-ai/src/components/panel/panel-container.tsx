@@ -33,7 +33,7 @@ export enum PanelName {
   BOXPLOT = 'Boxplot',
   SPREG = 'Spatial Regression',
   PARALLEL_COORDINATE = 'Parallel Coordinate',
-  BUBBLE_CHART = 'Bubble Chart'
+  BUBBLE_CHART = 'Bubble Chart',
   DASHBOARD = 'Dashboard'
 }
 

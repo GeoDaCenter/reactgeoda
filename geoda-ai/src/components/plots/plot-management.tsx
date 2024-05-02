@@ -4,12 +4,14 @@ import {Tab, Tabs} from '@nextui-org/react';
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
 import {Scatterplot} from './scat-plot';
+import {BubblePlot} from './bubble-chart-plot'
 import {
   HistogramPlotProps,
   BoxPlotProps,
   ParallelCoordinateProps,
   PlotProps,
-  ScatterPlotProps
+  ScatterPlotProps,
+  BubbleChartProps
 } from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
@@ -34,6 +36,11 @@ export function isScatterPlot(plot: PlotProps): plot is ScatterPlotProps {
   return plot.type === 'scatter';
 }
 
+// type guard function to check if the plot is a bubble chart
+export function isBubbleChart(plot: PlotProps): plot is BubbleChartProps {
+  return plot.type === 'bubble';
+}
+
 // PlotWrapper component with fixed height
 export function PlotWrapper(plot: PlotProps, isFixedHeight = true) {
   return (
@@ -44,6 +51,8 @@ export function PlotWrapper(plot: PlotProps, isFixedHeight = true) {
         <BoxPlot key={plot.id} props={plot} />
       ) : isParallelCoordinate(plot) ? (
         <ParallelCoordinatePlot key={plot.id} props={plot} />
+      ) : isBubbleChart(plot) ? (
+        <BubblePlot key={plot.id} props={plot} />
       ) : isScatterPlot(plot) ? (
         <Scatterplot key={plot.id} props={plot} />
       ) : null}
@@ -75,6 +84,9 @@ export const PlotManagementPanel = () => {
         </Tab>
         <Tab key="scatter" title="Scatter Plot">
           <PlotsWrapper plots={plots} plotType="scatter" />
+        </Tab>
+        <Tab key="bubble" title="Bubble Chart">
+          <PlotsWrapper plots={plots} plotType="bubble" />
         </Tab>
         <Tab key="boxplot" title="Box plot">
           <PlotsWrapper plots={plots} plotType="boxplot" />
