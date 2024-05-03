@@ -4,7 +4,7 @@ import {Tab, Tabs} from '@nextui-org/react';
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
 import {Scatterplot} from './scat-plot';
-import {BubbleChart} from './bubble-chart-plot'
+import {BubbleChart} from './bubble-chart-plot';
 import {
   HistogramPlotProps,
   BoxPlotProps,

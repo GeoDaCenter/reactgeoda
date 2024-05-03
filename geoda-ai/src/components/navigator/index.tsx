@@ -72,8 +72,8 @@ export function Navigator() {
       state.root.plots.filter(plot => plot.isNew && plot.type === 'scatter').length
   );
 
-   // get number of newly added bubble charts from state.root.plots
-   const newBubbleChartCount = useSelector(
+  // get number of newly added bubble charts from state.root.plots
+  const newBubbleChartCount = useSelector(
     (state: GeoDaState) =>
       state.root.plots.filter(plot => plot.isNew && plot.type === 'bubble').length
   );
@@ -292,7 +292,7 @@ export function Navigator() {
           isOneChar
           className="absolute left-0"
         >
-          <Tooltip key="cartogramTooltip" placement="right" content="Cartogram"> 
+          <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
             <Button
               isIconOnly
               size="sm"

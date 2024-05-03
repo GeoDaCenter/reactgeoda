@@ -83,8 +83,10 @@ export function getBubbleChartOption(
     tooltip: {
       trigger: 'item',
       formatter: function (params: any) {
-        return `${xVariableName}: ${params.value[0]}<br/>${yVariableName}: ${params.value[1]}<br/>Size: ${params.value[2]}` +
-               (params.value[3] ? `<br/>Color: ${params.value[3]}` : '');
+        return (
+          `${xVariableName}: ${params.value[0]}<br/>${yVariableName}: ${params.value[1]}<br/>Size: ${params.value[2]}` +
+          (params.value[3] ? `<br/>Color: ${params.value[3]}` : '')
+        );
       },
       axisPointer: {
         type: 'cross'

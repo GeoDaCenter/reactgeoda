@@ -29,7 +29,8 @@ export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload})
     console.error('Bubble chart data is unavailable or invalid.');
     return null;
   }
-  const {variableX, variableY, variableSize, variableColor} = output.result as BubbleChartOutput['result'];
+  const {variableX, variableY, variableSize, variableColor} =
+    output.result as BubbleChartOutput['result'];
 
   const bubbleChartProps: BubbleChartProps = {
     id: Math.random().toString(36).substring(7),

@@ -125,7 +125,7 @@ export type BubbleChartOutput = {
     variableY: string;
     variableSize: string;
     variableColor?: string;
-    points: Array<{x: number; y: number, size: number; color?: string | number}>;
+    points: Array<{x: number; y: number; size: number; color?: string | number}>;
   };
   data: BubbleChartDataProps;
 };
@@ -380,7 +380,10 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     }
   },
 
-  bubble : function ({variableX, variableY, variableSize, variableColor}, {dataContainer}): BubbleChartOutput | ErrorOutput {
+  bubble: function (
+    {variableX, variableY, variableSize, variableColor},
+    {dataContainer}
+  ): BubbleChartOutput | ErrorOutput {
     const columnDataX = getColumnData(variableX, dataContainer);
     const columnDataY = getColumnData(variableY, dataContainer);
     const columnDataSize = getColumnData(variableSize, dataContainer);
@@ -397,7 +400,16 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     try {
       // Create bubble chart data
-      const data = createBubbleChartData(variableX, variableY, variableSize, variableColor, columnDataX, columnDataY, columnDataSize, columnDataColor);
+      const data = createBubbleChartData(
+        variableX,
+        variableY,
+        variableSize,
+        variableColor,
+        columnDataX,
+        columnDataY,
+        columnDataSize,
+        columnDataColor
+      );
 
       return {
         type: 'bubble',

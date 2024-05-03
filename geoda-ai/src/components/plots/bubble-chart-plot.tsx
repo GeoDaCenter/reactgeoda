@@ -1,8 +1,8 @@
-import React, { useRef, RefObject, useMemo, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getBubbleChartOption } from '@/utils/bubblechart-utils';
+import React, {useRef, RefObject, useMemo, useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {getBubbleChartOption} from '@/utils/bubblechart-utils';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
-import { ScatterChart } from 'echarts/charts';
+import {ScatterChart} from 'echarts/charts';
 import * as echarts from 'echarts/core';
 import {
   TooltipComponent,
@@ -10,11 +10,11 @@ import {
   BrushComponent,
   ToolboxComponent
 } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
-import { GeoDaState } from '@/store';
-import { Filter } from '@kepler.gl/types';
+import {CanvasRenderer} from 'echarts/renderers';
+import {GeoDaState} from '@/store';
+import {Filter} from '@kepler.gl/types';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { Card, CardHeader, CardBody } from '@nextui-org/react';
+import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {BubbleChartProps} from '@/actions/plot-actions';
 import {MAP_ID} from '@/constants';
 
@@ -41,7 +41,6 @@ const EChartsUpdater = ({
   props,
   getChartOption
 }: EChartsUpdaterProps) => {
-
   const polygonFilter = useSelector((state: GeoDaState) => {
     const polyFilter = state.keplerGl[MAP_ID].visState.filters.find(
       (f: Filter) => f.type === 'polygon' && f.enabled === true
@@ -62,7 +61,7 @@ const EChartsUpdater = ({
   return null;
 };
 
-export const BubbleChart = ({ props }: { props: BubbleChartProps }) => {
+export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
@@ -72,7 +71,9 @@ export const BubbleChart = ({ props }: { props: BubbleChartProps }) => {
     return state.keplerGl[MAP_ID].visState.filteredIndex;
   });
 
-  const validPlot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === props.id));
+  const validPlot = useSelector((state: GeoDaState) =>
+    state.root.plots.find(p => p.id === props.id)
+  );
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => getBubbleChartOption(filteredIndex, props), [filteredIndex, props]);
@@ -81,33 +82,33 @@ export const BubbleChart = ({ props }: { props: BubbleChartProps }) => {
     return {
       brushSelected: function (params: any) {
         const brushed = [];
-          const brushComponent = params.batch[0];
-          for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-            const rawIndices = brushComponent.selected[sIdx].dataIndex;
-            brushed.push(...rawIndices);
-          }
-
-          // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
-          setTimeout(() => {
-            if (validPlot && brushed.length === 0) {
-              // reset options
-              const chart = eChartsRef.current;
-              if (chart) {
-                const chartInstance = chart.getEchartsInstance();
-                const updatedOption = getBubbleChartOption(null, props);
-                chartInstance.setOption(updatedOption);
-              }
-            }
-          }, 100);
-
-          // Dispatch action to highlight selected indices
-          dispatch({
-            type: 'SET_FILTER_INDEXES',
-            payload: {dataLabel: tableName, filteredIndex: brushed}
-          });
+        const brushComponent = params.batch[0];
+        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
+          const rawIndices = brushComponent.selected[sIdx].dataIndex;
+          brushed.push(...rawIndices);
         }
-      };
-    }, [dispatch, validPlot, props, tableName]);
+
+        // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
+        setTimeout(() => {
+          if (validPlot && brushed.length === 0) {
+            // reset options
+            const chart = eChartsRef.current;
+            if (chart) {
+              const chartInstance = chart.getEchartsInstance();
+              const updatedOption = getBubbleChartOption(null, props);
+              chartInstance.setOption(updatedOption);
+            }
+          }
+        }, 100);
+
+        // Dispatch action to highlight selected indices
+        dispatch({
+          type: 'SET_FILTER_INDEXES',
+          payload: {dataLabel: tableName, filteredIndex: brushed}
+        });
+      }
+    };
+  }, [dispatch, validPlot, props, tableName]);
 
   return useMemo(
     () => (

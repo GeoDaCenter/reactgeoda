@@ -1,15 +1,15 @@
-import React, { Key, useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useIntl } from 'react-intl';
-import { Button, Card, CardBody, Chip, Spacer, Tab, Tabs } from '@nextui-org/react';
-import { RightPanelContainer } from '../common/right-panel-template';
-import { WarningBox } from '../common/warning-box';
-import { VariableSelector } from '../common/variable-selector';
-import { GeoDaState } from '@/store';
-import { getColumnData, getDataContainer } from '@/utils/data-utils';
-import { createBubbleChartData } from '@/utils/bubblechart-utils';
-import { PlotProps, addPlot } from '@/actions/plot-actions';
-import { PlotManagementPanel } from './plot-management';
+import React, {Key, useState, useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {useIntl} from 'react-intl';
+import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
+import {RightPanelContainer} from '../common/right-panel-template';
+import {WarningBox} from '../common/warning-box';
+import {VariableSelector} from '../common/variable-selector';
+import {GeoDaState} from '@/store';
+import {getColumnData, getDataContainer} from '@/utils/data-utils';
+import {createBubbleChartData} from '@/utils/bubblechart-utils';
+import {PlotProps, addPlot} from '@/actions/plot-actions';
+import {PlotManagementPanel} from './plot-management';
 import {MAP_ID} from '@/constants';
 
 export function BubbleChartPanel() {
@@ -35,11 +35,28 @@ export function BubbleChartPanel() {
       const colorData = variableColor ? getColumnData(variableColor, dataContainer) : undefined;
 
       const bubbleChartData = createBubbleChartData(
-        variableX, variableY, variableSize, variableColor, xData, yData, sizeData, colorData
+        variableX,
+        variableY,
+        variableSize,
+        variableColor,
+        xData,
+        yData,
+        sizeData,
+        colorData
       );
 
       const id = Math.random().toString(36).substring(7);
-      dispatch(addPlot({ id, type: 'bubble', variableX, variableY, variableSize, variableColor, data: bubbleChartData }));
+      dispatch(
+        addPlot({
+          id,
+          type: 'bubble',
+          variableX,
+          variableY,
+          variableSize,
+          variableColor,
+          data: bubbleChartData
+        })
+      );
     } else {
       console.error('Required variables must be selected for a bubble chart');
     }
@@ -79,7 +96,10 @@ export function BubbleChartPanel() {
       icon={null}
     >
       {!tableName ? (
-        <WarningBox message="Please load a map first before creating and managing your plots." type="warning" /> // type warning? same in scatter
+        <WarningBox
+          message="Please load a map first before creating and managing your plots."
+          type="warning"
+        /> // type warning? same in scatter
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -96,27 +116,34 @@ export function BubbleChartPanel() {
                     <VariableSelector variable={variableX} setVariable={setVariableX} />
                     <VariableSelector variable={variableY} setVariable={setVariableY} />
                     <VariableSelector variable={variableSize} setVariable={setVariableSize} />
-                    <VariableSelector variable={variableColor} setVariable={setVariableColor} optional />
+                    <VariableSelector
+                      variable={variableColor}
+                      setVariable={setVariableColor}
+                      optional
+                    />
                     <Spacer y={1} />
-                    <Button onClick={onCreateBubbleChart} disabled={!variableX || !variableY || !variableSize}>
+                    <Button
+                      onClick={onCreateBubbleChart}
+                      disabled={!variableX || !variableY || !variableSize}
+                    >
                       Create Bubble Chart
                     </Button>
                   </div>
                 </CardBody>
               </Card>
             </Tab>
-            <Tab 
-                key="plot-management"
-                title={
-                    <div className="flex items-center space-x-2">
-                    <span>Plots Management</span>
-                    {plots?.length > 0 && (
-                        <Chip size="sm" variant="faded">
-                        {plots.length}
-                        </Chip>
-                    )}
-                    </div>
-                }
+            <Tab
+              key="plot-management"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Plots Management</span>
+                  {plots?.length > 0 && (
+                    <Chip size="sm" variant="faded">
+                      {plots.length}
+                    </Chip>
+                  )}
+                </div>
+              }
             >
               <PlotManagementPanel />
             </Tab>
@@ -125,4 +152,4 @@ export function BubbleChartPanel() {
       )}
     </RightPanelContainer>
   );
-};
+}
