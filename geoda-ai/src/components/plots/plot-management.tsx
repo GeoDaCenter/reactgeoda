@@ -4,7 +4,7 @@ import {Tab, Tabs} from '@nextui-org/react';
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
 import {Scatterplot} from './scat-plot';
-import {BubblePlot} from './bubble-chart-plot'
+import {BubbleChart} from './bubble-chart-plot'
 import {
   HistogramPlotProps,
   BoxPlotProps,
@@ -52,7 +52,7 @@ export function PlotWrapper(plot: PlotProps, isFixedHeight = true) {
       ) : isParallelCoordinate(plot) ? (
         <ParallelCoordinatePlot key={plot.id} props={plot} />
       ) : isBubbleChart(plot) ? (
-        <BubblePlot key={plot.id} props={plot} />
+        <BubbleChart key={plot.id} props={plot} />
       ) : isScatterPlot(plot) ? (
         <Scatterplot key={plot.id} props={plot} />
       ) : null}

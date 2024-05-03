@@ -26,6 +26,7 @@ import {
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './histogram-utils';
 import {ScatPlotDataProps, createScatterplotData} from './scatterplot-utils';
+import {BubbleChartDataProps, createBubbleChartData} from './bubblechart-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
 import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
@@ -43,7 +44,9 @@ export enum CustomFunctionNames {
   LOCAL_MORAN = 'univariateLocalMoran',
   HISTOGRAM = 'histogram',
   BOXPLOT = 'boxplot',
-  CONTIGUITY_WEIGHT = 'contiguityWeight'
+  CONTIGUITY_WEIGHT = 'contiguityWeight',
+  BUBBLE_CHART = 'bubble',
+  SCATTERPLOT = 'scatter'
 }
 
 type SummarizeDataProps = {
@@ -112,6 +115,19 @@ export type ScatterplotOutput = {
     points: Array<{x: number; y: number}>;
   };
   data: ScatPlotDataProps;
+};
+
+export type BubbleChartOutput = {
+  type: 'bubble';
+  name: string;
+  result: {
+    variableX: string;
+    variableY: string;
+    variableSize: string;
+    variableColor?: string;
+    points: Array<{x: number; y: number, size: number; color?: string | number}>;
+  };
+  data: BubbleChartDataProps;
 };
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -356,10 +372,46 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
           variableY,
           points: data.points
         },
-        data: data // Right now, wrapping data in array to match the expected output, but maybe should change the expected props
+        data: data
       };
     } catch (error: any) {
       // if xData and yData arrays lengths do not match
+      return {result: error.message};
+    }
+  },
+
+  bubble : function ({variableX, variableY, variableSize, variableColor}, {dataContainer}): BubbleChartOutput | ErrorOutput {
+    const columnDataX = getColumnData(variableX, dataContainer);
+    const columnDataY = getColumnData(variableY, dataContainer);
+    const columnDataSize = getColumnData(variableSize, dataContainer);
+    const columnDataColor = variableColor ? getColumnData(variableColor, dataContainer) : undefined;
+
+    // Check if both variables' data are successfully accessed
+    if (!columnDataX || columnDataX.length === 0 || !columnDataY || columnDataY.length === 0) {
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+    }
+
+    if (variableColor && (!columnDataColor || columnDataColor.length === 0)) {
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+    }
+
+    try {
+      // Create bubble chart data
+      const data = createBubbleChartData(variableX, variableY, variableSize, variableColor, columnDataX, columnDataY, columnDataSize, columnDataColor);
+
+      return {
+        type: 'bubble',
+        name: 'Bubble Chart Data',
+        result: {
+          variableX,
+          variableY,
+          variableSize,
+          variableColor,
+          points: data.points
+        },
+        data: data
+      };
+    } catch (error: any) {
       return {result: error.message};
     }
   },
