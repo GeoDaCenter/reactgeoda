@@ -17,6 +17,15 @@ const nextConfig = {
     // remove console.log in production
     removeConsole: process.env.NODE_ENV === 'production'
   },
+  redirects: async () => {
+    return [
+      {
+        source: '/logout',
+        destination: `${process.env.COGNITO_HOSTED_UI_DOMAIN}/logout?client_id=${process.env.COGNITO_CLIENT_ID}&logout_uri=${process.env.OAUTH_SIGN_OUT_REDIRECT_URL}`,
+        permanent: false
+      }
+    ];
+  },
   webpack: config => {
     // Support WASM modules for duckdb and geoda
     config.experiments = {

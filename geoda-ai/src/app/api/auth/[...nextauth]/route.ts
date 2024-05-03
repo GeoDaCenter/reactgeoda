@@ -9,7 +9,12 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.COGNITO_CLIENT_ID || '',
       clientSecret: process.env.COGNITO_CLIENT_SECRET || '',
       issuer: process.env.COGNITO_ISSUER,
-      checks: ['nonce']
+      checks: ['nonce'],
+      authorization: {
+        params: {
+          prompt: 'select_account'
+        }
+      }
     }),
     CognitoProvider({
       id: 'cognito-google',
@@ -21,7 +26,8 @@ export const authOptions: NextAuthOptions = {
         params: {
           identity_provider: 'Google',
           response_type: 'code',
-          scope: 'openid email'
+          scope: 'openid email',
+          prompt: 'select_account'
         }
       }
     })
