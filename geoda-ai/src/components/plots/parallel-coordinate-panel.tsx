@@ -56,14 +56,6 @@ export function ParallelCoordinatePanel() {
     }
   }, [newPlotsCount, plots]);
 
-  // monitor state.root.plots, if plots.length changed, update the tab title
-  const plotsLength = plots?.length;
-  useEffect(() => {
-    if (plotsLength) {
-      setShowPlotsManagement(true);
-    }
-  }, [plotsLength]);
-
   const onTabChange = (key: Key) => {
     if (key === 'parallel-coordinate-creation') {
       // Updated key value
