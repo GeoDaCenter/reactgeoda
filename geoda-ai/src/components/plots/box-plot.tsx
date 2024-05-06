@@ -1,4 +1,4 @@
-import {RefObject, useEffect, useMemo, useRef} from 'react';
+import {useMemo, useRef} from 'react';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 // Import the echarts core module, which provides the necessary interfaces for using echarts.
@@ -18,14 +18,13 @@ import {
 } from 'echarts/components';
 import {CanvasRenderer} from 'echarts/renderers';
 import {useDispatch, useSelector} from 'react-redux';
-import {Filter} from '@kepler.gl/types';
 
 import {BoxplotDataProps} from '@/utils/boxplot-utils';
 import {GeoDaState} from '@/store';
 import {MAP_ID} from '@/constants';
 import {BoxPlotProps} from '@/actions/plot-actions';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {GeojsonLayer, Layer} from '@kepler.gl/layers';
+import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 
 // Register the required components
 echarts.use([
@@ -70,6 +69,15 @@ function getChartOption(
       symbolSize: 6,
       itemStyle: {
         color: 'lightblue'
+      },
+      // highlight
+      emphasis: {
+        focus: 'series',
+        symbolSize: 6,
+        itemStyle: {
+          color: 'red',
+          borderWidth: 1
+        }
       }
     })) || [];
 
@@ -172,62 +180,18 @@ function getChartOption(
   return option;
 }
 
-type EChartsUpdaterProps = {
-  filteredIndex: Uint8ClampedArray | null;
-  eChartsRef: RefObject<ReactEChartsCore>;
-  props: BoxPlotProps;
-  getChartOption: (filteredIndex: Uint8ClampedArray | null, props: BoxPlotProps) => any;
-};
-
-const EChartsUpdater = ({
-  filteredIndex,
-  eChartsRef,
-  props,
-  getChartOption
-}: EChartsUpdaterProps) => {
-  // use selector to get filters with type === 'polygon'
-  const polygonFilter = useSelector((state: GeoDaState) => {
-    const polyFilter = state.keplerGl[MAP_ID].visState.filters.find(
-      (f: Filter) => f.type === 'polygon' && f.enabled === true
-    );
-    return polyFilter?.value?.geometry;
-  });
-
-  // when filteredIndexTrigger changes, update the chart option using setOption
-  useEffect(() => {
-    if (eChartsRef.current && polygonFilter) {
-      const updatedOption = getChartOption(filteredIndex, props);
-      const chart = eChartsRef.current;
-      if (chart) {
-        const chartInstance = chart.getEchartsInstance();
-        // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
-        chartInstance.setOption(updatedOption, true);
-      }
-    }
-  }, [eChartsRef, filteredIndex, getChartOption, polygonFilter, props]);
-
-  return null;
-};
-
 /**
  * The react component of a box plot using eCharts
  */
 export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
   const dispatch = useDispatch();
+  const eChartsRef = useRef<ReactEChartsCore>(null);
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-
-  // use selector to get tableName
+  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-
-  // use selector to get layer using tableName as layer.label
-  const filteredIndex = useSelector((state: GeoDaState) => {
-    const layer: GeojsonLayer = state.keplerGl[MAP_ID].visState.layers.find((layer: Layer) =>
-      tableName.startsWith(layer.config.label)
-    );
-    return layer.filteredIndex;
-  });
+  const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
   // use selector to check if plot is in state
   const validPlot = useSelector((state: GeoDaState) =>
@@ -239,53 +203,26 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );
 
-  // get raw data from props.variable
-  const rawDataArray = useMemo(() => {
-    const data = props.variables.map(variable => getColumnData(variable, dataContainer));
-    return data;
-  }, [props.variables, dataContainer]);
-
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getChartOption(filteredIndex, props, rawDataArray);
-  }, [filteredIndex, props, rawDataArray]);
+    const rawDataArray = props.variables.map(variable => getColumnData(variable, dataContainer));
+    return getChartOption(null, props, rawDataArray);
+  }, [dataContainer, props]);
 
   const bindEvents = useMemo(
     () => ({
       brushSelected: function (params: any) {
-        const brushed = [];
-        const brushComponent = params.batch[0];
-        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-          const rawIndices = brushComponent.selected[sIdx].dataIndex;
-          // merge rawIndices to brushed
-          brushed.push(...rawIndices);
-        }
-
-        // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
-        setTimeout(() => {
-          if (validPlot && brushed.length === 0) {
-            // reset options
-            const chart = eChartsRef.current;
-            if (chart) {
-              const chartInstance = chart.getEchartsInstance();
-              const updatedOption = getChartOption(null, props, rawDataArray);
-              chartInstance.setOption(updatedOption);
-            }
-          }
-        }, 100);
-
-        // dispatch action to highlight the selected ids
-        dispatch({
-          type: 'SET_FILTER_INDEXES',
-          payload: {dataLabel: tableName, filteredIndex: brushed}
-        });
+        onBrushSelected(
+          params,
+          dispatch,
+          dataId,
+          props.id,
+          eChartsRef.current?.getEchartsInstance()
+        );
       }
     }),
-    [dispatch, validPlot, props, tableName, rawDataArray]
+    [dispatch, dataId, props.id]
   );
-
-  // get reference of echarts
-  const eChartsRef = useRef<ReactEChartsCore>(null);
 
   return useMemo(
     () => (
@@ -307,17 +244,12 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
             style={{height: '200px', width: '100%'}}
             ref={eChartsRef}
           />
-          {validPlot && (
-            <EChartsUpdater
-              filteredIndex={filteredIndex}
-              eChartsRef={eChartsRef}
-              props={props}
-              getChartOption={getChartOption}
-            />
+          {validPlot && sourceId && sourceId !== props.id && eChartsRef && (
+            <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
           )}
         </CardBody>
       </Card>
     ),
-    [filteredIndex, props, validPlot, theme, option, bindEvents]
+    [props.type, props.variables, props.id, option, theme, bindEvents, validPlot, sourceId, dataId]
   );
 };

@@ -62,16 +62,6 @@ export function getScatterChartOption(filteredIndex: number[] | null, props: Sca
             borderWidth: 1
           }
         },
-        // normal: {
-        //   // focus: 'series',
-        //   symbolSize: 6,
-        //   itemStyle: {
-        //     color: 'lightblue',
-        //     borderColor: '#555',
-        //     borderWidth: 1,
-        //     opacity: 0.8
-        //   }
-        // },
         animationDelay: 0
       }
     ],

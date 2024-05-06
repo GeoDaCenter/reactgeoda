@@ -19,6 +19,7 @@ import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
 import {getScatterChartOption} from '@/utils/scatterplot-utils';
 import {geodaBrushLink} from '@/actions';
+import {getDataset} from '@/utils/data-utils';
 
 // Register the required ECharts components
 echarts.use([
@@ -35,41 +36,33 @@ echarts.use([
 type EChartsUpdaterProps = {
   dataId: string;
   eChartsRef: RefObject<ReactEChartsCore>;
-  // props: ScatterPlotProps;
-  getChartOption: (filteredIndex: number[] | null, props: ScatterPlotProps) => any;
 };
 
 // Update the chart when the filteredIndexes change by other components
-const EChartsUpdater = ({dataId, eChartsRef, getChartOption}: EChartsUpdaterProps) => {
-  // use selector to get filters with type === 'polygon'
+const EChartsUpdater = ({dataId, eChartsRef}: EChartsUpdaterProps) => {
   const filteredIndexes = useSelector(
     (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
   );
 
-  // store previous filteredIndexes
-  const prevFilteredIndexes = useRef<number[] | null>(null);
-
-  useEffect(() => {
-    if (filteredIndexes && prevFilteredIndexes.current !== filteredIndexes) {
-      prevFilteredIndexes.current = filteredIndexes;
-    }
-  }, [filteredIndexes]);
+  // get dataset from store
+  const dataset = useSelector((state: GeoDaState) => getDataset(state));
+  const numberOfRows = dataset?.dataContainer.numRows() || 0;
 
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
     if (eChartsRef.current && filteredIndexes) {
       console.log('EChartsUpdater setOption');
-      // const updatedOption = getChartOption(filteredIndexes, props);
       const chart = eChartsRef.current;
-      if (chart) {
-        const chartInstance = chart.getEchartsInstance();
+      const chartInstance = chart.getEchartsInstance();
+      chartInstance.dispatchAction({type: 'downplay'});
+      if (chart && filteredIndexes.length < numberOfRows) {
         // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
-        chartInstance.dispatchAction({type: 'downplay'});
         chartInstance.dispatchAction({type: 'highlight', dataIndex: filteredIndexes});
+        // const updatedOption = getChartOption(filteredIndexes, props);
         // chartInstance.setOption(updatedOption, true);
       }
     }
-  }, [eChartsRef, filteredIndexes, getChartOption]);
+  }, [eChartsRef, filteredIndexes, numberOfRows]);
 
   return null;
 };
@@ -151,12 +144,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
                   ref={eChartsRef}
                 />
                 {validPlot && sourceId && sourceId !== props.id && (
-                  <EChartsUpdater
-                    dataId={dataId}
-                    eChartsRef={eChartsRef}
-                    // props={props}
-                    getChartOption={getScatterChartOption}
-                  />
+                  <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
             </Card>
