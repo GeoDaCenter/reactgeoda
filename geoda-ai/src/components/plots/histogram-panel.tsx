@@ -8,7 +8,7 @@ import {ChangeEvent, Key, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createHistogram} from '@/utils/histogram-utils';
+import {createHistogram} from '@/utils/plots/histogram-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 

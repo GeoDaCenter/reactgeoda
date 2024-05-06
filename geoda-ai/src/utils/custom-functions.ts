@@ -24,11 +24,11 @@ import {
   CHAT_NOT_ENOUGH_COLUMNS
 } from '@/constants';
 import {WeightsProps} from '@/actions';
-import {HistogramDataProps, createHistogram} from './histogram-utils';
-import {ScatPlotDataProps, createScatterplotData} from './scatterplot-utils';
+import {HistogramDataProps, createHistogram} from './plots/histogram-utils';
+import {ScatPlotDataProps, createScatterplotData} from './plots/scatterplot-utils';
 import {BubbleChartDataProps, createBubbleChartData} from './bubblechart-utils';
-import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
-import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
+import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './plots/boxplot-utils';
+import {CreateParallelCoordinateProps} from './plots/parallel-coordinate-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
 import {CustomFunctions} from '@/ai/openai-utils';
 import {linearRegressionCallbackFunc} from './regression-utils';

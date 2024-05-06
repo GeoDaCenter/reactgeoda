@@ -72,7 +72,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 import {Filter} from '@kepler.gl/types';
 
-import {HistogramDataItemProps, HistogramDataProps} from '@/utils/histogram-utils';
+import {HistogramDataItemProps, HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {GeoDaState} from '@/store';
 import {MAP_ID} from '@/constants';
 import {RefObject, useEffect, useMemo, useRef} from 'react';

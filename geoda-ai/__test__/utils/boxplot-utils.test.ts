@@ -1,4 +1,4 @@
-import {createBoxplot, CreateBoxplotProps, BoxplotDataProps} from '@/utils/boxplot-utils';
+import {createBoxplot, CreateBoxplotProps, BoxplotDataProps} from '@/utils/plots/boxplot-utils';
 
 describe('createBoxplot', () => {
   it('should return the correct boxplot data', () => {

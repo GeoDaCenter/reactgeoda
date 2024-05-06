@@ -17,7 +17,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
-import {getScatterChartOption} from '@/utils/scatterplot-utils';
+import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 
 // Register the required ECharts components

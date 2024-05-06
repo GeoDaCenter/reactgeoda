@@ -1,6 +1,6 @@
-import {HistogramDataProps} from '@/utils/histogram-utils';
-import {ScatPlotDataProps} from '@/utils/scatterplot-utils';
-import {BoxplotDataProps} from '@/utils/boxplot-utils';
+import {HistogramDataProps} from '@/utils/plots/histogram-utils';
+import {ScatPlotDataProps} from '@/utils/plots/scatterplot-utils';
+import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
 import {BubbleChartDataProps} from '@/utils/bubblechart-utils';
 
 export enum PLOT_ACTIONS {

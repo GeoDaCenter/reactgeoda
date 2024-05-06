@@ -18,7 +18,7 @@ import {
 } from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {CreateBoxplotProps, createBoxplot} from '@/utils/boxplot-utils'; // Updated import
+import {CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils'; // Updated import
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 

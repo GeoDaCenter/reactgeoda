@@ -8,7 +8,7 @@ import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react
 import {VariableSelector} from '../common/variable-selector';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createScatterplotData} from '@/utils/scatterplot-utils';
+import {createScatterplotData} from '@/utils/plots/scatterplot-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 

@@ -18,7 +18,7 @@ import {
 import {CanvasRenderer} from 'echarts/renderers';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {getBoxPlotChartOption} from '@/utils/boxplot-utils';
+import {getBoxPlotChartOption} from '@/utils/plots/boxplot-utils';
 import {GeoDaState} from '@/store';
 import {BoxPlotProps} from '@/actions/plot-actions';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
