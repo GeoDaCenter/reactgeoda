@@ -1,4 +1,4 @@
-import React, {useRef, RefObject, useMemo, useEffect} from 'react';
+import React, {useRef, useMemo, useState} from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 //import {ScatterplotDataItemProps, ScatPlotDataProps} from '@/utils/scatterplot-utils';
 import {ScatterChart} from 'echarts/charts';
@@ -18,8 +18,7 @@ import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
 import {getScatterChartOption} from '@/utils/scatterplot-utils';
-import {geodaBrushLink} from '@/actions';
-import {getDataset} from '@/utils/data-utils';
+import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 
 // Register the required ECharts components
 echarts.use([
@@ -33,43 +32,10 @@ echarts.use([
 ]);
 //echarts.registerTransform(transform.regression);
 
-type EChartsUpdaterProps = {
-  dataId: string;
-  eChartsRef: RefObject<ReactEChartsCore>;
-};
-
-// Update the chart when the filteredIndexes change by other components
-const EChartsUpdater = ({dataId, eChartsRef}: EChartsUpdaterProps) => {
-  const filteredIndexes = useSelector(
-    (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
-  );
-
-  // get dataset from store
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const numberOfRows = dataset?.dataContainer.numRows() || 0;
-
-  // when filteredIndexTrigger changes, update the chart option using setOption
-  useEffect(() => {
-    if (eChartsRef.current && filteredIndexes) {
-      console.log('EChartsUpdater setOption');
-      const chart = eChartsRef.current;
-      const chartInstance = chart.getEchartsInstance();
-      chartInstance.dispatchAction({type: 'downplay'});
-      if (chart && filteredIndexes.length < numberOfRows) {
-        // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
-        chartInstance.dispatchAction({type: 'highlight', dataIndex: filteredIndexes});
-        // const updatedOption = getChartOption(filteredIndexes, props);
-        // chartInstance.setOption(updatedOption, true);
-      }
-    }
-  }, [eChartsRef, filteredIndexes, numberOfRows]);
-
-  return null;
-};
-
 export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
+  const [rendered, setRendered] = useState(false);
 
   // use selector to get theme and table name
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
@@ -78,47 +44,28 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
   // use selector to get sourceId of interaction
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
-  // use selector to check if plot is in state
-  const validPlot = useSelector((state: GeoDaState) =>
-    state.root.plots.find(p => p.id === props.id)
-  );
-
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
     return getScatterChartOption(null, props);
   }, [props]);
 
-  const bindEvents = useMemo(() => {
-    let brushed: number[] = [];
-    return {
+  const bindEvents = useMemo(
+    () => ({
       brushSelected: function (params: any) {
-        brushed = [];
-        const brushComponent = params.batch[0];
-        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-          const rawIndices = brushComponent.selected[sIdx].dataIndex;
-          brushed.push(...rawIndices);
-        }
-        // },
-        // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
-        setTimeout(() => {
-          if (validPlot && brushed.length === 0) {
-            const chart = eChartsRef.current;
-            if (chart) {
-              const chartInstance = chart.getEchartsInstance();
-              // clear any highlighted if no data is brushed
-              chartInstance.dispatchAction({type: 'downplay'});
-              // reset options
-              // const updatedOption = getScatterChartOption(null, props);
-              // chartInstance.setOption(updatedOption);
-            }
-          }
-        }, 100);
-
-        // Dispatch action to highlight selected in other components
-        dispatch(geodaBrushLink({sourceId: props.id, dataId: dataId, filteredIndex: brushed}));
+        onBrushSelected(
+          params,
+          dispatch,
+          dataId,
+          props.id,
+          eChartsRef.current?.getEchartsInstance()
+        );
+      },
+      rendered: function () {
+        setRendered(true);
       }
-    };
-  }, [dispatch, props, dataId, validPlot]);
+    }),
+    [dispatch, dataId, props.id]
+  );
 
   return useMemo(
     () => (
@@ -143,7 +90,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
                   style={{height: '100%', width: '100%'}}
                   ref={eChartsRef}
                 />
-                {validPlot && sourceId && sourceId !== props.id && (
+                {rendered && sourceId && sourceId !== props.id && (
                   <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
@@ -152,6 +99,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [props, option, theme, bindEvents, validPlot, sourceId, dataId]
+    [props, option, theme, bindEvents, rendered, sourceId, dataId]
   );
 };

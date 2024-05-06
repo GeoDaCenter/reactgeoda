@@ -1,4 +1,6 @@
+import {BoxPlotProps} from '@/actions';
 import {quantile as d3Quantile, median as d3Median, mean as d3Mean} from 'd3-array';
+import {EChartsOption} from 'echarts';
 
 // Boxplot data input props
 export type CreateBoxplotProps = {
@@ -17,6 +19,8 @@ export type BoxplotDataProps = {
   meanPoint: [string, number][];
   // the visible points, which will be rendred as blue points that are not covered by the box
   visiblePoints: [string, number][];
+  // raw data
+  rawData: {[key: string]: number[]};
 };
 
 /**
@@ -45,5 +49,135 @@ export function createBoxplot({data, boundIQR}: CreateBoxplotProps): BoxplotData
     return {name: key, value: [min, q1, median, q3, max]};
   });
 
-  return {boxData, meanPoint, visiblePoints};
+  return {boxData, meanPoint, visiblePoints, rawData: data};
+}
+
+export function getBoxPlotChartOption(props: BoxPlotProps) {
+  // get plotData from props.data
+  const plotData: BoxplotDataProps = props.data;
+
+  // build scatter plot data using rawData in the form of [0, value]
+  const pointsData = Object.values(plotData.rawData)?.map(
+    (rawData, dataIndex) => rawData?.map((value: number) => [value, dataIndex]) || []
+  );
+
+  // build mean point
+  const meanPoint = plotData.meanPoint.map((mp, dataIndex) => [mp[1], dataIndex]);
+
+  const scatterSeries =
+    pointsData?.map(data => ({
+      type: 'scatter',
+      data,
+      symbolSize: 6,
+      itemStyle: {
+        color: 'lightblue'
+      },
+      // highlight
+      emphasis: {
+        focus: 'series',
+        symbolSize: 6,
+        itemStyle: {
+          color: 'red',
+          borderWidth: 1
+        }
+      }
+    })) || [];
+
+  const series = [
+    ...scatterSeries,
+    {
+      type: 'boxplot',
+      data: plotData.boxData,
+      itemStyle: {
+        borderColor: 'black',
+        color: '#DB631C'
+      }
+    },
+    {
+      type: 'scatter',
+      data: meanPoint,
+      symbolSize: 8,
+      itemStyle: {
+        color: '#14C814',
+        borderColor: 'black',
+        opacity: 1
+      }
+    }
+  ];
+
+  // build option for echarts
+  const option: EChartsOption = {
+    yAxis: {
+      type: 'category',
+      boundaryGap: true,
+      splitArea: {show: false},
+      splitLine: {show: false},
+      axisLine: {
+        show: false,
+        onZero: false
+      },
+      axisTick: {show: false},
+      axisLabel: {
+        formatter: function (d: any, i) {
+          return `${plotData.boxData[i].name}`;
+        }
+      }
+    },
+    xAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: function (d: any) {
+          return `${d}`;
+        }
+      },
+      splitLine: {show: true, interval: 'auto', lineStyle: {color: '#f3f3f3'}},
+      splitArea: {show: false},
+      axisTick: {show: true},
+      axisLine: {show: true}
+    },
+    // @ts-ignore
+    series,
+    // dataZoom: [
+    //   {
+    //     type: 'inside'
+    //   },
+    //   {
+    //     type: 'slider',
+    //     height: 15,
+    //     bottom: 25,
+    //     fillerColor: 'rgba(255,255,255,0.1)'
+    //   }
+    // ],
+    tooltip: {
+      trigger: 'item',
+      axisPointer: {
+        type: 'shadow'
+      },
+      confine: true
+      // extraCssText: 'z-index: 9999;'
+      // formatter: function (params: any) {
+      //   // ids that associated with the bar
+      //   const range = params[1].data.label;
+      //   const count = params[1].value;
+      //   return `Range: ${range}<br/> # Observations: ${count}`;
+      // }
+    },
+    brush: {
+      toolbox: ['rect', 'keep', 'clear'],
+      xAxisIndex: 0
+    },
+    grid: [
+      {
+        left: '3%',
+        right: '5%',
+        top: '20%',
+        bottom: '0%',
+        containLabel: true,
+        height: 'auto'
+      }
+    ],
+    // avoid flickering when brushing
+    progressive: 0
+  };
+  return option;
 }

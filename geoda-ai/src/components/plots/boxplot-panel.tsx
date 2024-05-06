@@ -1,6 +1,6 @@
 import {useIntl} from 'react-intl';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
@@ -65,6 +65,8 @@ export function BoxplotPanel() {
     const id = Math.random().toString(36).substring(7);
     // dispatch action to create boxplot and add to store
     dispatch(addPlot({id, type: 'boxplot', variables, data: boxplot}));
+    // show plots management tab
+    setShowPlotsManagement(true);
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
@@ -82,21 +84,8 @@ export function BoxplotPanel() {
     }
   }, [newPlotsCount, plots]);
 
-  // monitor state.root.plots, if plots.length changed, update the tab title
-  const plotsLength = plots?.length;
-  useEffect(() => {
-    if (plotsLength) {
-      setShowPlotsManagement(true);
-    }
-  }, [plotsLength]);
-
   const onTabChange = (key: Key) => {
-    if (key === 'boxplot-creation') {
-      // Updated key value
-      setShowPlotsManagement(false);
-    } else {
-      setShowPlotsManagement(true);
-    }
+    setShowPlotsManagement(key === 'plot-management');
   };
 
   return (
@@ -112,7 +101,7 @@ export function BoxplotPanel() {
       icon={null}
     >
       {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs

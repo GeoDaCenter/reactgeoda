@@ -36,6 +36,8 @@ export function ScatterplotPanel() {
       const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
       const id = Math.random().toString(36).substring(7);
       dispatch(addPlot({id, type: 'scatter', variableX, variableY, data: scatterplotData}));
+      // Show the plots management panel
+      setShowPlotsManagement(true);
     } else {
       console.error('X and Y variables must be selected for a scatter plot');
     }
@@ -54,13 +56,6 @@ export function ScatterplotPanel() {
       });
     }
   }, [newPlotsCount, plots]);
-
-  const plotsLength = plots?.length;
-  useEffect(() => {
-    if (plotsLength) {
-      setShowPlotsManagement(true);
-    }
-  }, [plotsLength]);
 
   const onTabChange = (key: Key) => {
     setShowPlotsManagement(key === 'plot-management');
@@ -90,8 +85,16 @@ export function ScatterplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <VariableSelector variable={variableX} setVariable={setVariableX} />
-                    <VariableSelector variable={variableY} setVariable={setVariableY} />
+                    <VariableSelector
+                      variable={variableX}
+                      setVariable={setVariableX}
+                      label="Select Independent Variable X"
+                    />
+                    <VariableSelector
+                      variable={variableY}
+                      setVariable={setVariableY}
+                      label="Select Dependent Variable Y"
+                    />
                     <Spacer y={1} />
                     <Button onClick={onCreateScatterplot} disabled={!variableX || !variableY}>
                       Create Scatterplot

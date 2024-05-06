@@ -26,11 +26,11 @@ export const EChartsUpdater = ({dataId, eChartsRef}: EChartsUpdaterProps) => {
     if (eChartsRef.current && filteredIndexes) {
       console.log('EChartsUpdater setOption');
       const chart = eChartsRef.current;
-      const chartInstance = chart.getEchartsInstance();
-      chartInstance.dispatchAction({type: 'downplay'});
-      if (chart && filteredIndexes.length < numberOfRows) {
+      const chartInstance = chart?.getEchartsInstance();
+      chartInstance?.dispatchAction({type: 'downplay'});
+      if (filteredIndexes.length < numberOfRows) {
         // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
-        chartInstance.dispatchAction({type: 'highlight', dataIndex: filteredIndexes});
+        chartInstance?.dispatchAction({type: 'highlight', dataIndex: filteredIndexes});
         // const updatedOption = getChartOption(filteredIndexes, props);
         // chartInstance.setOption(updatedOption, true);
       }
