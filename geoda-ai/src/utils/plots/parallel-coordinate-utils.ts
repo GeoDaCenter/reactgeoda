@@ -1,3 +1,78 @@
+import {ParallelCoordinateProps} from '@/actions';
+import {EChartsOption} from 'echarts';
+
 export type CreateParallelCoordinateProps = {
   data: {[key: string]: number[]};
 };
+
+export function getPCPChartOption(props: ParallelCoordinateProps, rawDataArray?: number[][]) {
+  const axis = props.variables.map((variable, index) => ({dim: index, name: variable}));
+  let dataCols: number[][] = [];
+  if (rawDataArray) {
+    const transposedData = rawDataArray[0].map((_, colIndex) =>
+      rawDataArray.map(row => row[colIndex])
+    );
+    dataCols = transposedData;
+  }
+
+  // build option for echarts
+  const option: EChartsOption = {
+    parallel: {
+      left: '5%',
+      right: '35%',
+      top: '23%',
+      bottom: '15%',
+      layout: 'vertical',
+      parallelAxisDefault: {
+        axisLabel: {
+          formatter: (value: number): string => {
+            return Intl.NumberFormat('en-US', {
+              notation: 'compact',
+              maximumFractionDigits: 1
+            }).format(value);
+          }
+        }
+      }
+    },
+    brush: {
+      brushLink: 'all',
+      inBrush: {
+        color: '#0096C7',
+        opacity: 1
+      },
+      outOfBrush: {
+        // opacity: 0.5
+      }
+    },
+    parallelAxis: axis,
+    series: {
+      type: 'parallel',
+      lineStyle: {
+        width: 0.5,
+        opacity: 0.5,
+        color: 'lightblue'
+      },
+      data: dataCols,
+      // highlight
+      emphasis: {
+        focus: 'series',
+        lineStyle: {
+          color: 'red'
+        }
+      }
+    },
+    grid: [
+      {
+        left: '3%',
+        right: '5%',
+        top: '20%',
+        bottom: '0%',
+        containLabel: true,
+        height: 'auto'
+      }
+    ],
+    // avoid flickering when brushing
+    progressive: 0
+  };
+  return option;
+}
