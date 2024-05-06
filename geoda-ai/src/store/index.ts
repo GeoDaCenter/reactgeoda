@@ -56,8 +56,9 @@ export type GeoDaState = {
       gridItems?: GridItemProps[];
       textItems?: GridTextItemProps[];
     };
-    kepler: {
-      brushLink: [{datasetId: string; highlightIds: number[]}];
+    interaction: {
+      sourceId?: string;
+      brushLink: {[key: string]: number[]};
     };
   };
 };

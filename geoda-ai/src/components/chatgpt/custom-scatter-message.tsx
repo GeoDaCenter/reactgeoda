@@ -6,7 +6,7 @@ import {ScatterPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
 import {ScatterplotOutput} from '@/utils/custom-functions';
-import {Scatterplot} from '../plots/scat-plot';
+import {Scatterplot} from '../plots/scatter-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 

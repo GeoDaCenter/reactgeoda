@@ -47,13 +47,14 @@ export async function loadGeoDaProject(geodaFile: File) {
   // create a File object from the ArrayBuffer
   const arrowFile = new File([arrowTableBuffer], geodaFileData.fileName);
   // load arrow file
-  const {fileName, arrowTable, arrowFormatData} = await loadArrowFile(arrowFile);
+  const {fileName, dataId, arrowTable, arrowFormatData} = await loadArrowFile(arrowFile);
 
   // load geodaConfig
   const geodaConfig = loadGeoDaConfig(geodaFileData.geodaConfig);
 
   return {
     fileName,
+    dataId,
     arrowTable,
     arrowFormatData,
     keplerConfig: geodaFileData.keplerConfig,

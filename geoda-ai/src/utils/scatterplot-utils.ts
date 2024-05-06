@@ -30,10 +30,7 @@ export function createScatterplotData(
   };
 }
 
-export function getScatterChartOption(
-  filteredIndex: Uint8ClampedArray | null,
-  props: ScatterPlotProps
-) {
+export function getScatterChartOption(filteredIndex: number[] | null, props: ScatterPlotProps) {
   const seriesData = props.data.points.map(point => [point.x, point.y]);
   const xVariableName = props.data.variableX;
   const yVariableName = props.data.variableY;
@@ -53,11 +50,28 @@ export function getScatterChartOption(
         itemStyle: {
           color: 'lightblue',
           borderColor: '#555',
-          opacity: 0.8
+          opacity: 0.8,
+          borderWidth: 1
         },
+        // highlight
         emphasis: {
-          focus: 'series'
+          // focus: 'series',
+          symbolSize: 6,
+          itemStyle: {
+            color: 'red',
+            borderWidth: 1
+          }
         },
+        // normal: {
+        //   // focus: 'series',
+        //   symbolSize: 6,
+        //   itemStyle: {
+        //     color: 'lightblue',
+        //     borderColor: '#555',
+        //     borderWidth: 1,
+        //     opacity: 0.8
+        //   }
+        // },
         animationDelay: 0
       }
     ],

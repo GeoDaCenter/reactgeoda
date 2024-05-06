@@ -4,4 +4,4 @@ export * from './ui-actions';
 export * from './weights-actions';
 export * from './ai-actions';
 export * from './plot-actions';
-export * from './kepler-actions';
+export * from './interaction-actions';

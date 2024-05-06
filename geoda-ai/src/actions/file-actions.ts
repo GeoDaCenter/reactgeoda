@@ -20,6 +20,8 @@ export const saveProject = () => ({
 export type RawFileDataProps = {
   // the file name
   fileName: string;
+  // the dataId, should be the same as the dataId in kepler.gl
+  dataId?: string;
   // the raw arrow table for duckdb
   arrowTable: ArrowTable;
   // the processed data for kepler.gl

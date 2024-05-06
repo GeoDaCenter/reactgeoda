@@ -1,4 +1,8 @@
-import {KeplerBrushLinkPayloadProps, KEPLER_ACTIONS, GeoDaBrushLinkPayloadProps} from '@/actions';
+import {
+  KeplerBrushLinkPayloadProps,
+  INTERACTION_ACTIONS,
+  GeoDaBrushLinkPayloadProps
+} from '@/actions';
 import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 
 export type BrushLinkProps = {
@@ -6,6 +10,7 @@ export type BrushLinkProps = {
 };
 
 export type KeplerStateProps = {
+  sourceId?: string;
   brushLink: BrushLinkProps;
 };
 
@@ -18,11 +23,11 @@ export type KeplerAction = {
   payload: KeplerBrushLinkPayloadProps | GeoDaBrushLinkPayloadProps;
 };
 
-export const keplerReducer = (state = initialState, action: KeplerAction) => {
+export const interactionReducer = (state = initialState, action: KeplerAction) => {
   switch (action.type) {
-    case KEPLER_ACTIONS.BRUSH_LINK_FROM_KEPLER:
+    case INTERACTION_ACTIONS.BRUSH_LINK_FROM_KEPLER:
       return keplerBrushLinkUpdater(state, action.payload as KeplerBrushLinkPayloadProps);
-    case KEPLER_ACTIONS.BRUSH_LINK_FROM_GEODA:
+    case INTERACTION_ACTIONS.BRUSH_LINK_FROM_GEODA:
       return geodaBrushLinkUpdater(state, action.payload as GeoDaBrushLinkPayloadProps);
     default:
       return state;
@@ -56,6 +61,7 @@ function keplerBrushLinkUpdater(
 
   return {
     ...state,
+    sourceId: 'kepler',
     brushLink
   };
 }
@@ -64,9 +70,10 @@ function geodaBrushLinkUpdater(
   state: KeplerStateProps,
   payload: GeoDaBrushLinkPayloadProps
 ): KeplerStateProps {
-  const {dataId, filteredIndex} = payload;
+  const {sourceId, dataId, filteredIndex} = payload;
   return {
     ...state,
+    sourceId: sourceId,
     brushLink: {
       ...state.brushLink,
       [dataId]: filteredIndex

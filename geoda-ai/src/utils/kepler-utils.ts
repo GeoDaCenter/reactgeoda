@@ -1,5 +1,5 @@
 import {GeoDaBrushLinkPayloadProps} from '@/actions';
-import {KeplerAction} from '@/reducers/kepler-reducer';
+import {KeplerAction} from '@/reducers/interaction-reducer';
 import {Layer} from '@kepler.gl/layers';
 import {KeplerGlState} from '@kepler.gl/reducers';
 import {Filter} from '@kepler.gl/types';
@@ -13,14 +13,15 @@ export function handleGeoDaBrushLink(state: KeplerGlState, action: KeplerAction)
   if (!isGeoDaBrushLinkPayloadProps(action.payload)) {
     return state;
   }
-  const {dataId: dataLabel, filteredIndex} = action.payload;
-  const visState = state.visState;
-  const datasets = visState.datasets;
-  const dataId = Object.keys(datasets).find(dataId => datasets[dataId].label === dataLabel);
-  if (!dataId) {
+  const {sourceId, dataId, filteredIndex} = action.payload;
+  if (sourceId === 'kepler') {
     return state;
   }
+
+  const visState = state.visState;
+  const datasets = visState.datasets;
   const dataset = datasets[dataId];
+
   if (filteredIndex) {
     dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
     const layers = visState.layers.filter((l: Layer) => l.config.dataId === dataId);
@@ -36,8 +37,7 @@ export function handleGeoDaBrushLink(state: KeplerGlState, action: KeplerAction)
   visState.editor = {
     ...visState.editor,
     features: [],
-    selectedFeature: null,
-    visible: false
+    selectedFeature: null
   };
 
   return {

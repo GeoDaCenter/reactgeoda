@@ -6,7 +6,6 @@ import * as echarts from 'echarts/core';
 //import { transform } from 'echarts-stat';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {Filter} from '@kepler.gl/types';
 import {
   TooltipComponent,
   GridComponent,
@@ -14,9 +13,7 @@ import {
   ToolboxComponent
   //DataZoomComponent
 } from 'echarts/components';
-import {GeojsonLayer, Layer} from '@kepler.gl/layers';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
-import {MAP_ID} from '@/constants';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
@@ -36,39 +33,43 @@ echarts.use([
 //echarts.registerTransform(transform.regression);
 
 type EChartsUpdaterProps = {
-  filteredIndex: Uint8ClampedArray | null;
+  dataId: string;
   eChartsRef: RefObject<ReactEChartsCore>;
-  props: ScatterPlotProps;
-  getChartOption: (filteredIndex: Uint8ClampedArray | null, props: ScatterPlotProps) => any;
+  // props: ScatterPlotProps;
+  getChartOption: (filteredIndex: number[] | null, props: ScatterPlotProps) => any;
 };
 
-const EChartsUpdater = ({
-  filteredIndex,
-  eChartsRef,
-  props,
-  getChartOption
-}: EChartsUpdaterProps) => {
+// Update the chart when the filteredIndexes change by other components
+const EChartsUpdater = ({dataId, eChartsRef, getChartOption}: EChartsUpdaterProps) => {
   // use selector to get filters with type === 'polygon'
-  const polygonFilter = useSelector((state: GeoDaState) => {
-    const polyFilter = state.keplerGl[MAP_ID].visState.filters.find(
-      (f: Filter) => f.type === 'polygon' && f.enabled === true
-    );
-    return polyFilter?.value?.geometry;
-  });
+  const filteredIndexes = useSelector(
+    (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
+  );
+
+  // store previous filteredIndexes
+  const prevFilteredIndexes = useRef<number[] | null>(null);
+
+  useEffect(() => {
+    if (filteredIndexes && prevFilteredIndexes.current !== filteredIndexes) {
+      prevFilteredIndexes.current = filteredIndexes;
+    }
+  }, [filteredIndexes]);
 
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
-    if (eChartsRef.current && polygonFilter) {
+    if (eChartsRef.current && filteredIndexes) {
       console.log('EChartsUpdater setOption');
-      const updatedOption = getChartOption(filteredIndex, props);
+      // const updatedOption = getChartOption(filteredIndexes, props);
       const chart = eChartsRef.current;
       if (chart) {
         const chartInstance = chart.getEchartsInstance();
         // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
-        chartInstance.setOption(updatedOption, true);
+        chartInstance.dispatchAction({type: 'downplay'});
+        chartInstance.dispatchAction({type: 'highlight', dataIndex: filteredIndexes});
+        // chartInstance.setOption(updatedOption, true);
       }
     }
-  }, [eChartsRef, filteredIndex, getChartOption, polygonFilter, props]);
+  }, [eChartsRef, filteredIndexes, getChartOption]);
 
   return null;
 };
@@ -79,15 +80,10 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
 
   // use selector to get theme and table name
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
 
-  // use selector to get layer using tableName as layer.label
-  const filteredIndex = useSelector((state: GeoDaState) => {
-    const layer: GeojsonLayer = state.keplerGl[MAP_ID].visState.layers.find((layer: Layer) =>
-      tableName.startsWith(layer.config.label)
-    );
-    return layer.filteredIndex;
-  });
+  // use selector to get sourceId of interaction
+  const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
   // use selector to check if plot is in state
   const validPlot = useSelector((state: GeoDaState) =>
@@ -96,41 +92,40 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getScatterChartOption(filteredIndex, props);
-  }, [filteredIndex, props]);
+    return getScatterChartOption(null, props);
+  }, [props]);
 
   const bindEvents = useMemo(() => {
+    let brushed: number[] = [];
     return {
       brushSelected: function (params: any) {
-        const brushed = [];
+        brushed = [];
         const brushComponent = params.batch[0];
         for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
           const rawIndices = brushComponent.selected[sIdx].dataIndex;
           brushed.push(...rawIndices);
         }
-
+        // },
         // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
         setTimeout(() => {
           if (validPlot && brushed.length === 0) {
-            // reset options
             const chart = eChartsRef.current;
             if (chart) {
               const chartInstance = chart.getEchartsInstance();
-              const updatedOption = getScatterChartOption(null, props);
-              chartInstance.setOption(updatedOption);
+              // clear any highlighted if no data is brushed
+              chartInstance.dispatchAction({type: 'downplay'});
+              // reset options
+              // const updatedOption = getScatterChartOption(null, props);
+              // chartInstance.setOption(updatedOption);
             }
           }
         }, 100);
 
-        // Dispatch action to highlight selected indices
-        // dispatch({
-        //   type: 'SET_FILTER_INDEXES',
-        //   payload: {dataLabel: tableName, filteredIndex: brushed}
-        // });
-        dispatch(geodaBrushLink({originId: props.id, dataId: tableName, filteredIndex: brushed}));
+        // Dispatch action to highlight selected in other components
+        dispatch(geodaBrushLink({sourceId: props.id, dataId: dataId, filteredIndex: brushed}));
       }
     };
-  }, [dispatch, validPlot, props, tableName]);
+  }, [dispatch, props, dataId, validPlot]);
 
   return useMemo(
     () => (
@@ -155,11 +150,11 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
                   style={{height: '100%', width: '100%'}}
                   ref={eChartsRef}
                 />
-                {validPlot && (
+                {validPlot && sourceId && sourceId !== props.id && (
                   <EChartsUpdater
-                    filteredIndex={filteredIndex}
+                    dataId={dataId}
                     eChartsRef={eChartsRef}
-                    props={props}
+                    // props={props}
                     getChartOption={getScatterChartOption}
                   />
                 )}
@@ -169,6 +164,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [filteredIndex, option, theme, validPlot, props, bindEvents]
+    [props, option, theme, bindEvents, validPlot, sourceId, dataId]
   );
 };
