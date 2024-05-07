@@ -1,4 +1,5 @@
 import {ScatterPlotProps} from '@/actions/plot-actions';
+import {numericFormatter} from './format-utils';
 
 export type ScatterplotDataItemProps = {
   x: number;
@@ -37,10 +38,16 @@ export function getScatterChartOption(filteredIndex: number[] | null, props: Sca
 
   const option = {
     xAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: {
+        formatter: numericFormatter
+      }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: {
+        formatter: numericFormatter
+      }
     },
     series: [
       {

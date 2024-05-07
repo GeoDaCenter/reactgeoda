@@ -1,6 +1,7 @@
 import {BoxPlotProps} from '@/actions';
 import {quantile as d3Quantile, median as d3Median, mean as d3Mean} from 'd3-array';
 import {EChartsOption} from 'echarts';
+import {numericFormatter} from './format-utils';
 
 // Boxplot data input props
 export type CreateBoxplotProps = {
@@ -90,7 +91,8 @@ export function getBoxPlotChartOption(props: BoxPlotProps) {
       data: plotData.boxData,
       itemStyle: {
         borderColor: 'black',
-        color: '#DB631C'
+        color: '#DB631C',
+        opacity: 1
       }
     },
     {
@@ -126,9 +128,7 @@ export function getBoxPlotChartOption(props: BoxPlotProps) {
     xAxis: {
       type: 'value',
       axisLabel: {
-        formatter: function (d: any) {
-          return `${d}`;
-        }
+        formatter: numericFormatter
       },
       splitLine: {show: true, interval: 'auto', lineStyle: {color: '#f3f3f3'}},
       splitArea: {show: false},

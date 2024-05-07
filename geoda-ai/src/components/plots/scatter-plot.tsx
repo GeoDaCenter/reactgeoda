@@ -59,9 +59,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
           props.id,
           eChartsRef.current?.getEchartsInstance()
         );
-      },
-      rendered: function () {
-        setRendered(true);
       }
     }),
     [dispatch, dataId, props.id]
@@ -89,6 +86,9 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
                   onEvents={bindEvents}
                   style={{height: '100%', width: '100%'}}
                   ref={eChartsRef}
+                  onChartReady={() => {
+                    setRendered(true);
+                  }}
                 />
                 {rendered && sourceId && sourceId !== props.id && (
                   <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />

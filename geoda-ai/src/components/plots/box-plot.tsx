@@ -50,6 +50,8 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
   const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
+  const seriesIndex = props.variables.map((_, i) => i);
+
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
     return getBoxPlotChartOption(props);
@@ -90,13 +92,27 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
             onEvents={bindEvents}
             style={{height: '200px', width: '100%'}}
             ref={eChartsRef}
+            // onChartReady={() => {
+            //   setRendered(true);
+            // }}
           />
-          {rendered && sourceId && sourceId !== props.id && eChartsRef && (
-            <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
+          {rendered && sourceId && sourceId !== props.id && (
+            <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} seriesIndex={seriesIndex} />
           )}
         </CardBody>
       </Card>
     ),
-    [props.type, props.variables, props.id, option, theme, bindEvents, rendered, sourceId, dataId]
+    [
+      props.type,
+      props.variables,
+      props.id,
+      option,
+      theme,
+      bindEvents,
+      rendered,
+      sourceId,
+      dataId,
+      seriesIndex
+    ]
   );
 };

@@ -4,7 +4,7 @@ import {WarningBox} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
-import {Key, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
@@ -38,6 +38,8 @@ export function ParallelCoordinatePanel() {
     const id = Math.random().toString(36).substring(7);
     // dispatch action to create pcp and add to store
     dispatch(addPlot({id, type: 'parallel-coordinate', variables}));
+    // Show the plots management panel
+    setShowPlotsManagement(true);
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
@@ -52,18 +54,8 @@ export function ParallelCoordinatePanel() {
           plot.isNew = false;
         }
       });
-      // dispatch action to update isNew flag of plots
     }
   }, [newPlotsCount, plots]);
-
-  const onTabChange = (key: Key) => {
-    if (key === 'parallel-coordinate-creation') {
-      // Updated key value
-      setShowPlotsManagement(false);
-    } else {
-      setShowPlotsManagement(true);
-    }
-  };
 
   return (
     <RightPanelContainer
@@ -87,7 +79,7 @@ export function ParallelCoordinatePanel() {
             color="warning"
             size="md"
             selectedKey={showPlotsManagement ? 'plot-management' : 'parallel-coordinate-creation'}
-            onSelectionChange={onTabChange}
+            onSelectionChange={key => setShowPlotsManagement(key === 'plot-management')}
           >
             <Tab
               key="parallel-coordinate-creation"

@@ -9,10 +9,11 @@ import {EChartsType} from 'echarts';
 type EChartsUpdaterProps = {
   dataId: string;
   eChartsRef: RefObject<ReactEChartsCore>;
+  seriesIndex?: number | number[];
 };
 
 // Update the chart when the filteredIndexes change by other components
-export const EChartsUpdater = ({dataId, eChartsRef}: EChartsUpdaterProps) => {
+export const EChartsUpdater = ({dataId, eChartsRef, seriesIndex}: EChartsUpdaterProps) => {
   const filteredIndexes = useSelector(
     (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
   );
@@ -24,18 +25,21 @@ export const EChartsUpdater = ({dataId, eChartsRef}: EChartsUpdaterProps) => {
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
     if (eChartsRef.current && filteredIndexes) {
-      console.log('EChartsUpdater setOption');
       const chart = eChartsRef.current;
       const chartInstance = chart?.getEchartsInstance();
       chartInstance?.dispatchAction({type: 'downplay'});
       if (filteredIndexes.length < numberOfRows) {
         // chartInstance.dispatchAction({type: 'brush', command: 'clear', areas: []});
-        chartInstance?.dispatchAction({type: 'highlight', dataIndex: filteredIndexes});
+        chartInstance?.dispatchAction({
+          type: 'highlight',
+          dataIndex: filteredIndexes,
+          ...(seriesIndex ? {seriesIndex} : {})
+        });
         // const updatedOption = getChartOption(filteredIndexes, props);
         // chartInstance.setOption(updatedOption, true);
       }
     }
-  }, [eChartsRef, filteredIndexes, numberOfRows]);
+  }, [eChartsRef, filteredIndexes, numberOfRows, seriesIndex]);
 
   return null;
 };

@@ -1,12 +1,19 @@
 import {ParallelCoordinateProps} from '@/actions';
 import {EChartsOption} from 'echarts';
+import {numericFormatter} from './format-utils';
 
 export type CreateParallelCoordinateProps = {
   data: {[key: string]: number[]};
 };
 
 export function getPCPChartOption(props: ParallelCoordinateProps, rawDataArray?: number[][]) {
-  const axis = props.variables.map((variable, index) => ({dim: index, name: variable}));
+  const variableNames = props.variables;
+  // get the longest length of variableNames
+  const maxLabelLength = Math.max(...variableNames.map(variable => variable.length));
+  // assume each character is 12px
+  const maxLabelPixel = maxLabelLength * 12;
+
+  const axis = variableNames.map((variable, index) => ({dim: index, name: variable}));
   let dataCols: number[][] = [];
   if (rawDataArray) {
     const transposedData = rawDataArray[0].map((_, colIndex) =>
@@ -19,29 +26,25 @@ export function getPCPChartOption(props: ParallelCoordinateProps, rawDataArray?:
   const option: EChartsOption = {
     parallel: {
       left: '5%',
-      right: '35%',
+      right: `${maxLabelPixel}px`,
       top: '23%',
       bottom: '15%',
       layout: 'vertical',
       parallelAxisDefault: {
         axisLabel: {
-          formatter: (value: number): string => {
-            return Intl.NumberFormat('en-US', {
-              notation: 'compact',
-              maximumFractionDigits: 1
-            }).format(value);
-          }
+          formatter: numericFormatter
         }
       }
     },
     brush: {
+      toolbox: ['rect', 'keep', 'clear'],
       brushLink: 'all',
       inBrush: {
         color: '#0096C7',
-        opacity: 1
+        opacity: 0.8
       },
       outOfBrush: {
-        // opacity: 0.5
+        opacity: 0.5
       }
     },
     parallelAxis: axis,
@@ -49,7 +52,7 @@ export function getPCPChartOption(props: ParallelCoordinateProps, rawDataArray?:
       type: 'parallel',
       lineStyle: {
         width: 0.5,
-        opacity: 0.5,
+        opacity: 0.8,
         color: 'lightblue'
       },
       data: dataCols,
@@ -57,7 +60,8 @@ export function getPCPChartOption(props: ParallelCoordinateProps, rawDataArray?:
       emphasis: {
         focus: 'series',
         lineStyle: {
-          color: 'red'
+          color: 'red',
+          opacity: 0.5
         }
       }
     },

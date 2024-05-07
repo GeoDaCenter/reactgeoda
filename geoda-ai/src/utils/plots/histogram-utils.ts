@@ -1,6 +1,7 @@
 import {HistogramPlotProps} from '@/actions';
 import {bin as d3bin} from 'd3-array';
 import {EChartsOption} from 'echarts';
+import {numericFormatter} from './format-utils';
 
 export type HistogramDataItemProps = {
   index: number;
@@ -159,9 +160,7 @@ export function getHistogramChartOption(filteredIndex: number[] | null, props: H
           hideOverlap: true,
           rotate: 35,
           overflow: 'truncate',
-          formatter: function (d: any) {
-            return `${d.toFixed(1)}`;
-          }
+          formatter: numericFormatter
         },
         splitLine: {
           show: false
@@ -172,9 +171,7 @@ export function getHistogramChartOption(filteredIndex: number[] | null, props: H
     yAxis: {
       type: 'value',
       axisLabel: {
-        formatter: function (d: any) {
-          return `${d}`;
-        }
+        formatter: numericFormatter
       },
       splitLine: {
         show: true

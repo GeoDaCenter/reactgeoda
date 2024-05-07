@@ -3,7 +3,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {Key, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {VariableSelector} from '../common/variable-selector';
 import {MAP_ID} from '@/constants';
@@ -57,10 +57,6 @@ export function ScatterplotPanel() {
     }
   }, [newPlotsCount, plots]);
 
-  const onTabChange = (key: Key) => {
-    setShowPlotsManagement(key === 'plot-management');
-  };
-
   return (
     <RightPanelContainer
       title={intl.formatMessage({id: 'plot.scatterplot.title', defaultMessage: 'Scatterplot'})}
@@ -79,7 +75,7 @@ export function ScatterplotPanel() {
             variant="solid"
             color="warning"
             selectedKey={showPlotsManagement ? 'plot-management' : 'scatterplot-creation'}
-            onSelectionChange={onTabChange}
+            onSelectionChange={key => setShowPlotsManagement(key === 'plot-management')}
           >
             <Tab key="scatterplot-creation" title="Create Scatterplot">
               <Card>

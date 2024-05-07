@@ -86,14 +86,14 @@ echarts.use([
   CanvasRenderer
 ]);
 
-type EChartsUpdaterProps = {
+type ChartsUpdaterProps = {
   dataId: string;
   eChartsRef: RefObject<ReactEChartsCore>;
   props: HistogramPlotProps;
   getChartOption: (filteredIndex: number[] | null, props: HistogramPlotProps) => any;
 };
 
-const EChartsUpdater = ({dataId, eChartsRef, props, getChartOption}: EChartsUpdaterProps) => {
+const ChartsUpdater = ({dataId, eChartsRef, props, getChartOption}: ChartsUpdaterProps) => {
   const filteredIndexes = useSelector(
     (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
   );
@@ -137,9 +137,6 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
 
   const bindEvents = useMemo(() => {
     return {
-      rendered: function () {
-        setRendered(true);
-      },
       brushSelected: function (params: any) {
         const brushed = [];
         const brushComponent = params.batch[0];
@@ -192,14 +189,15 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
                   notMerge={true}
                   lazyUpdate={true}
                   theme={theme}
-                  // onChartReady={this.onChartReadyCallback}
                   onEvents={bindEvents}
-                  // opts={}
                   style={{height: '100%', width: '100%'}}
                   ref={eChartsRef}
+                  onChartReady={() => {
+                    setRendered(true);
+                  }}
                 />
                 {rendered && sourceId && sourceId !== props.id && (
-                  <EChartsUpdater
+                  <ChartsUpdater
                     dataId={dataId}
                     eChartsRef={eChartsRef}
                     props={props}
