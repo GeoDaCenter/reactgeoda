@@ -25,7 +25,7 @@ import {
 } from '@/constants';
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './plots/histogram-utils';
-import {ScatPlotDataProps, createScatterplotData} from './plots/scatterplot-utils';
+import {ScatPlotDataProps} from './plots/scatterplot-utils';
 import {BubbleChartDataProps, createBubbleChartData} from './bubblechart-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './plots/boxplot-utils';
 import {CreateParallelCoordinateProps} from './plots/parallel-coordinate-utils';
@@ -112,7 +112,6 @@ export type ScatterplotOutput = {
   result: {
     variableX: string;
     variableY: string;
-    points: Array<{x: number; y: number}>;
   };
   data: ScatPlotDataProps;
 };
@@ -329,14 +328,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     }
 
     // call histogram function
-    const hist = createHistogram(columnData, k);
-
-    // remove key items from hist
-    const histogram = hist.map((h: HistogramDataProps) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {items, ...rest} = h;
-      return rest;
-    });
+    const histogram = createHistogram(columnData, k);
 
     return {
       type: 'histogram',
@@ -347,7 +339,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         numberOfBins: k,
         histogram
       },
-      data: hist
+      data: histogram
     };
   },
 
@@ -361,18 +353,17 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     }
 
     try {
-      // Create scatterplot data
-      const data = createScatterplotData(variableX, variableY, columnDataX, columnDataY);
-
       return {
         type: 'scatter',
         name: 'Scatterplot Data',
         result: {
           variableX,
-          variableY,
-          points: data.points
+          variableY
         },
-        data: data
+        data: {
+          variableX,
+          variableY
+        }
       };
     } catch (error: any) {
       // if xData and yData arrays lengths do not match

@@ -1,4 +1,3 @@
-import {BoxPlotProps} from '@/actions';
 import {quantile as d3Quantile, median as d3Median, mean as d3Mean} from 'd3-array';
 import {EChartsOption} from 'echarts';
 import {numericFormatter} from './format-utils';
@@ -14,14 +13,10 @@ export type BoxplotDataProps = {
   // the boxData which will be rendred as boxplot by eCharts
   // [low, Q1, Q2, Q3, high]
   boxData: Array<{name: string; value: [number, number, number, number, number]}>;
-  // the outliers, which will be rendred as red points, not used for now
-  outlier?: [string, number][];
   // the mean point, which will be rendred as a green point
   meanPoint: [string, number][];
-  // the visible points, which will be rendred as blue points that are not covered by the box
-  visiblePoints: [string, number][];
-  // raw data
-  rawData: {[key: string]: number[]};
+  // the outliers, which will be rendred as red points, not used for now
+  outlier?: [string, number][];
 };
 
 /**
@@ -50,20 +45,27 @@ export function createBoxplot({data, boundIQR}: CreateBoxplotProps): BoxplotData
     return {name: key, value: [min, q1, median, q3, max]};
   });
 
-  return {boxData, meanPoint, visiblePoints, rawData: data};
+  return {boxData, meanPoint};
 }
 
-export function getBoxPlotChartOption(props: BoxPlotProps) {
-  // get plotData from props.data
-  const plotData: BoxplotDataProps = props.data;
+export type BoxPlotChartOptionProps = {
+  rawData: {[key: string]: number[]};
+  boxData: Array<{name: string; value: [number, number, number, number, number]}>;
+  meanPoint: [string, number][];
+};
 
+export function getBoxPlotChartOption({
+  rawData,
+  boxData,
+  meanPoint
+}: BoxPlotChartOptionProps): EChartsOption {
   // build scatter plot data using rawData in the form of [0, value]
-  const pointsData = Object.values(plotData.rawData)?.map(
-    (rawData, dataIndex) => rawData?.map((value: number) => [value, dataIndex]) || []
+  const pointsData = Object.values(rawData)?.map(
+    (values, dataIndex) => values?.map((value: number) => [value, dataIndex]) || []
   );
 
-  // build mean point
-  const meanPoint = plotData.meanPoint.map((mp, dataIndex) => [mp[1], dataIndex]);
+  // build mean point data for series
+  const meanPointData = meanPoint.map((mp, dataIndex) => [mp[1], dataIndex]);
 
   const scatterSeries =
     pointsData?.map(data => ({
@@ -88,7 +90,7 @@ export function getBoxPlotChartOption(props: BoxPlotProps) {
     ...scatterSeries,
     {
       type: 'boxplot',
-      data: plotData.boxData,
+      data: boxData,
       itemStyle: {
         borderColor: 'black',
         color: '#DB631C',
@@ -97,7 +99,7 @@ export function getBoxPlotChartOption(props: BoxPlotProps) {
     },
     {
       type: 'scatter',
-      data: meanPoint,
+      data: meanPointData,
       symbolSize: 8,
       itemStyle: {
         color: '#14C814',
@@ -121,7 +123,7 @@ export function getBoxPlotChartOption(props: BoxPlotProps) {
       axisTick: {show: false},
       axisLabel: {
         formatter: function (d: any, i) {
-          return `${plotData.boxData[i].name}`;
+          return `${boxData[i].name}`;
         }
       }
     },

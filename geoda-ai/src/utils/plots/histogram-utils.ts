@@ -1,5 +1,3 @@
-import {HistogramPlotProps} from '@/actions';
-import {bin as d3bin} from 'd3-array';
 import {EChartsOption} from 'echarts';
 import {numericFormatter} from './format-utils';
 
@@ -12,8 +10,6 @@ export type HistogramDataProps = {
   bin: number;
   binStart: number;
   binEnd: number;
-  count: number;
-  items: HistogramDataItemProps[];
 };
 
 /**
@@ -22,33 +18,32 @@ export type HistogramDataProps = {
 export function createHistogram(data: number[], numberOfBins: number): HistogramDataProps[] {
   const minVal = Math.min(...data);
   const maxVal = Math.max(...data);
-  // create a dictionary to store value and index of data
-  const dataDict: Array<HistogramDataItemProps> = data.map((d: number, i: number) => {
-    return {index: i, value: d};
-  });
-  // put the data index into bins, which are separated equally in the range of minVal and maxVal
-  // the domain will be uniformly divided into approximately count bins
-  const binning = d3bin().thresholds(numberOfBins).domain([minVal, maxVal]);
-  // @ts-expect-error NOTE: d3-array types doesn't include the custom value accessor, but this works in d3-array
-  const bins = binning.value((d: HistogramDataItemProps) => d.value)(dataDict);
   // calculate the bin width
   const binWidth = (maxVal - minVal) / numberOfBins;
   // create the histogram, store indexes of data items in each bin
-  const histogram = bins.map((bin: any, i: number) => {
-    return {
-      bin: i,
-      binStart: minVal + i * binWidth,
-      binEnd: minVal + (i + 1) * binWidth,
-      count: bin.length,
-      items: bin
-    };
-  });
+  const histogram = Array(numberOfBins)
+    .fill(0)
+    .map((_, i: number) => {
+      return {
+        bin: i,
+        binStart: minVal + i * binWidth,
+        binEnd: i === numberOfBins - 1 ? maxVal : minVal + (i + 1) * binWidth
+      };
+    });
   return histogram;
 }
 
 export const defaultBarColors = ['#FF6B6B', '#48BB78', '#4299E1', '#ED64A6', '#F6E05E'];
 
-export function getHistogramChartOption(filteredIndex: number[] | null, props: HistogramPlotProps) {
+export type HistogramChartOptionProps = {
+  data: HistogramDataProps[];
+};
+
+export function getHistogramChartOption(
+  filteredIndex: number[] | null,
+  histogramData: HistogramDataProps[],
+  barDataIndexes: number[][]
+): EChartsOption {
   const hasHighlighted = filteredIndex && filteredIndex.length > 0;
 
   // create a dictionary to store the indexes of data items that have been filtered
@@ -60,50 +55,46 @@ export function getHistogramChartOption(filteredIndex: number[] | null, props: H
   }
 
   // build highlighted bars from filteredIndex and filteredIndexDict
-  const highlightedBars = props.data.map((d: HistogramDataProps, i: number) => {
-    const highlightedIds = d.items.reduce((acc: number[], d: HistogramDataItemProps) => {
-      if (filteredIndexDict[d.index] === true) {
-        acc.push(d.index);
-      }
-      return acc;
-    }, []);
+  const highlightedBars = histogramData.map((d: HistogramDataProps, i: number) => {
+    // get highlighted ids for each bar
+    const highlightedIds = barDataIndexes[i].filter((d: number) => filteredIndexDict[d] === true);
+
     return {
       value: hasHighlighted ? highlightedIds?.length : 0,
       itemStyle: {
         color: defaultBarColors[i % defaultBarColors.length],
         opacity: 1
       },
-      label: `[${d.binStart.toFixed(1)} - ${d.binEnd.toFixed(1)}]`,
+      label: `[${numericFormatter(d.binStart)} - ${numericFormatter(d.binEnd)}]`,
       // ids that associated with the bar and been filtered
-      ids: hasHighlighted ? highlightedIds : 0
+      ids: hasHighlighted ? highlightedIds : []
     };
   });
-
-  // get plotData from props.data
-  const plotData: HistogramDataProps[] = props.data;
 
   // use binStart values as the x axis tick values
   // const xTickValues = plotData.map((d: HistogramDataProps) => d.binStart.toFixed(1));
 
   // get min value from plotData
-  const minValue = plotData[0].binStart;
-  const maxValue = plotData[plotData.length - 1].binEnd;
-  const numBins = plotData.length;
+  const minValue = histogramData[0].binStart;
+  const maxValue = histogramData[histogramData.length - 1].binEnd;
+  const numBins = histogramData.length;
   const interval = (maxValue - minValue) / numBins;
 
   // get bar data from plotData
-  const barData = plotData.map((d: HistogramDataProps, i: number) => {
+  const barData = histogramData.map((d: HistogramDataProps, i: number) => {
     return {
-      value: hasHighlighted ? d.count - highlightedBars[i].value : d.count,
+      value: hasHighlighted
+        ? barDataIndexes[i].length - highlightedBars[i].value
+        : barDataIndexes[i].length,
       itemStyle: {
         color: defaultBarColors[i % defaultBarColors.length],
         opacity: hasHighlighted ? 0.5 : 1,
         shadowBlur: 10,
         shadowColor: 'rgba(0,0,0,0.3)'
       },
-      label: `[${d.binStart.toFixed(1)} - ${d.binEnd.toFixed(1)}]`,
+      label: `[${numericFormatter(d.binStart)} - ${numericFormatter(d.binEnd)}]`,
       // ids that associated with the bar and been filtered
-      ids: d.items.map((d: HistogramDataItemProps) => d.index)
+      ids: barDataIndexes[i]
     };
   });
 

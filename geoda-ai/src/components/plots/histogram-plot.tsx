@@ -71,9 +71,10 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {GeoDaState} from '@/store';
 import {RefObject, useEffect, useMemo, useRef, useState} from 'react';
-import {getHistogramChartOption} from '@/utils/plots/histogram-utils';
+import {getHistogramChartOption, HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {geodaBrushLink} from '@/actions';
-import {getDataset} from '@/utils/data-utils';
+import {getColumnData, getDataContainer, getDataset} from '@/utils/data-utils';
+import {MAP_ID} from '@/constants';
 
 // Register the required components
 echarts.use([
@@ -89,11 +90,18 @@ echarts.use([
 type ChartsUpdaterProps = {
   dataId: string;
   eChartsRef: RefObject<ReactEChartsCore>;
-  props: HistogramPlotProps;
-  getChartOption: (filteredIndex: number[] | null, props: HistogramPlotProps) => any;
+  histogramData: HistogramDataProps[];
+  barDataIndexes: number[][];
+  getChartOption: typeof getHistogramChartOption;
 };
 
-const ChartsUpdater = ({dataId, eChartsRef, props, getChartOption}: ChartsUpdaterProps) => {
+const ChartsUpdater = ({
+  dataId,
+  eChartsRef,
+  histogramData,
+  barDataIndexes,
+  getChartOption
+}: ChartsUpdaterProps) => {
   const filteredIndexes = useSelector(
     (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
   );
@@ -105,14 +113,14 @@ const ChartsUpdater = ({dataId, eChartsRef, props, getChartOption}: ChartsUpdate
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
     if (eChartsRef.current && filteredIndexes) {
-      const updatedOption = getHistogramChartOption(filteredIndexes, props);
+      const updatedOption = getHistogramChartOption(filteredIndexes, histogramData, barDataIndexes);
       const chart = eChartsRef.current;
       if (chart && filteredIndexes.length < numberOfRows) {
         const chartInstance = chart.getEchartsInstance();
         chartInstance.setOption(updatedOption, true);
       }
     }
-  }, [eChartsRef, filteredIndexes, getChartOption, numberOfRows, props]);
+  }, [barDataIndexes, eChartsRef, filteredIndexes, getChartOption, histogramData, numberOfRows]);
 
   return null;
 };
@@ -122,19 +130,47 @@ const ChartsUpdater = ({dataId, eChartsRef, props, getChartOption}: ChartsUpdate
  */
 export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
   const dispatch = useDispatch();
+  const eChartsRef = useRef<ReactEChartsCore>(null);
 
   const [rendered, setRendered] = useState(false);
+
+  const {id, type, variable, data: histogramData} = props;
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
+  // use selector to get tableName, dataContainer
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
+  );
+  // get data from variable
+  const rawData = useMemo(() => getColumnData(variable, dataContainer), [dataContainer, variable]);
+
+  // get indexes of data items for each bar
+  const barDataIndexes = useMemo(
+    () =>
+      histogramData.map((d: HistogramDataProps) => {
+        const indexes = [];
+        for (let i = 0; i < rawData.length; i++) {
+          const value = rawData[i];
+          if (value >= d.binStart && value < d.binEnd) {
+            indexes.push(i);
+          }
+        }
+        return indexes;
+      }),
+    [histogramData, rawData]
+  );
+
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getHistogramChartOption(null, props);
-  }, [props]);
+    return getHistogramChartOption(null, histogramData, barDataIndexes);
+  }, [histogramData, barDataIndexes]);
 
+  // bind events for brush selection in eCharts Histogram
   const bindEvents = useMemo(() => {
     return {
       brushSelected: function (params: any) {
@@ -149,9 +185,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
 
         // get selected ids from brushed bars
         const filteredIndex =
-          brushed.length > 0
-            ? brushed.map((idx: number) => props.data[idx].items.map(item => item.index)).flat()
-            : [];
+          brushed.length > 0 ? brushed.map((idx: number) => barDataIndexes[idx]).flat() : [];
 
         // check if this plot is in state.plots
         if (brushed.length === 0) {
@@ -159,18 +193,15 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           const chart = eChartsRef.current;
           if (chart) {
             const chartInstance = chart.getEchartsInstance();
-            const updatedOption = getHistogramChartOption(null, props);
+            const updatedOption = getHistogramChartOption(null, histogramData, barDataIndexes);
             chartInstance.setOption(updatedOption);
           }
         }
         // Dispatch action to highlight selected in other components
-        dispatch(geodaBrushLink({sourceId: props.id, dataId, filteredIndex}));
+        dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex}));
       }
     };
-  }, [dataId, dispatch, props]);
-
-  // get reference of echarts
-  const eChartsRef = useRef<ReactEChartsCore>(null);
+  }, [barDataIndexes, dataId, dispatch, histogramData, id]);
 
   return useMemo(
     () => (
@@ -179,8 +210,8 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           <div style={{height, width}}>
             <Card className="h-full w-full" shadow="none">
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-                <p className="text-tiny font-bold uppercase">{props.type}</p>
-                <small className="text-default-500">{props.variable}</small>
+                <p className="text-tiny font-bold uppercase">{type}</p>
+                <small className="text-default-500">{variable}</small>
               </CardHeader>
               <CardBody className="py-2">
                 <ReactEChartsCore
@@ -196,11 +227,12 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
                     setRendered(true);
                   }}
                 />
-                {rendered && sourceId && sourceId !== props.id && (
+                {rendered && sourceId && sourceId !== id && (
                   <ChartsUpdater
                     dataId={dataId}
                     eChartsRef={eChartsRef}
-                    props={props}
+                    histogramData={histogramData}
+                    barDataIndexes={barDataIndexes}
                     getChartOption={getHistogramChartOption}
                   />
                 )}
@@ -210,6 +242,18 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [bindEvents, dataId, option, props, rendered, sourceId, theme]
+    [
+      barDataIndexes,
+      bindEvents,
+      dataId,
+      histogramData,
+      id,
+      option,
+      rendered,
+      sourceId,
+      theme,
+      type,
+      variable
+    ]
   );
 };

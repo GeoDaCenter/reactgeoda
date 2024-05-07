@@ -19,6 +19,8 @@ import {CanvasRenderer} from 'echarts/renderers';
 import {ScatterPlotProps} from '@/actions/plot-actions';
 import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
+import {getColumnData, getDataContainer} from '@/utils/data-utils';
+import {MAP_ID} from '@/constants';
 
 // Register the required ECharts components
 echarts.use([
@@ -37,6 +39,8 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
   const eChartsRef = useRef<ReactEChartsCore>(null);
   const [rendered, setRendered] = useState(false);
 
+  const {id, variableX, variableY} = props;
+
   // use selector to get theme and table name
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
@@ -44,24 +48,26 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
   // use selector to get sourceId of interaction
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
+  );
+
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getScatterChartOption(null, props);
-  }, [props]);
+    const xData = getColumnData(variableX, dataContainer);
+    const yData = getColumnData(variableY, dataContainer);
+
+    return getScatterChartOption(variableX, xData, variableY, yData);
+  }, [dataContainer, variableX, variableY]);
 
   const bindEvents = useMemo(
     () => ({
       brushSelected: function (params: any) {
-        onBrushSelected(
-          params,
-          dispatch,
-          dataId,
-          props.id,
-          eChartsRef.current?.getEchartsInstance()
-        );
+        onBrushSelected(params, dispatch, dataId, id, eChartsRef.current?.getEchartsInstance());
       }
     }),
-    [dispatch, dataId, props.id]
+    [dispatch, dataId, id]
   );
 
   return useMemo(
@@ -73,7 +79,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">Scatter Plot</p>
                 <small className="text-default-500">
-                  x: {props.variableX}, y: {props.variableY}
+                  x: {variableX}, y: {variableY}
                 </small>
               </CardHeader>
               <CardBody className="py-2">
@@ -90,7 +96,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
                     setRendered(true);
                   }}
                 />
-                {rendered && sourceId && sourceId !== props.id && (
+                {rendered && sourceId && sourceId !== id && (
                   <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
@@ -99,6 +105,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [props, option, theme, bindEvents, rendered, sourceId, dataId]
+    [variableX, variableY, option, theme, bindEvents, rendered, sourceId, id, dataId]
   );
 };

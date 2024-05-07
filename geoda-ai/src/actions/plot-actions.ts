@@ -1,5 +1,4 @@
 import {HistogramDataProps} from '@/utils/plots/histogram-utils';
-import {ScatPlotDataProps} from '@/utils/plots/scatterplot-utils';
 import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
 import {BubbleChartDataProps} from '@/utils/bubblechart-utils';
 
@@ -10,6 +9,7 @@ export enum PLOT_ACTIONS {
 
 type BasePlotProps = {
   id: string;
+  type: string;
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
   isNew?: boolean;
 };
@@ -24,7 +24,6 @@ export type ScatterPlotProps = BasePlotProps & {
   type: 'scatter';
   variableX: string;
   variableY: string;
-  data: ScatPlotDataProps;
 };
 
 export type BoxPlotProps = BasePlotProps & {

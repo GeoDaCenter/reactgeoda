@@ -35,8 +35,7 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
     id: Math.random().toString(36).substring(7),
     type: 'scatter',
     variableX: variableX,
-    variableY: variableY,
-    data: output.result as ScatterplotOutput['result']
+    variableY: variableY
   };
 
   // handle click event

@@ -18,10 +18,12 @@ import {
 import {CanvasRenderer} from 'echarts/renderers';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {getBoxPlotChartOption} from '@/utils/plots/boxplot-utils';
+import {CreateBoxplotProps, getBoxPlotChartOption} from '@/utils/plots/boxplot-utils';
 import {GeoDaState} from '@/store';
 import {BoxPlotProps} from '@/actions/plot-actions';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
+import {getColumnData, getDataContainer} from '@/utils/data-utils';
+import {MAP_ID} from '@/constants';
 
 // Register the required components
 echarts.use([
@@ -41,6 +43,8 @@ echarts.use([
  * The react component of a box plot using eCharts
  */
 export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
+  const {id, type, variables, data: boxPlotData} = props;
+
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
   const [rendered, setRendered] = useState(false);
@@ -49,38 +53,48 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
+  // use selector to get tableName
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  // use selector to get dataContainer
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
+  );
 
-  const seriesIndex = props.variables.map((_, i) => i);
+  const seriesIndex = variables.map((_, i) => i);
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    return getBoxPlotChartOption(props);
-  }, [props]);
+    const rawData = variables.reduce((prev: CreateBoxplotProps['data'], cur: string) => {
+      const values = getColumnData(cur, dataContainer);
+      prev[cur] = values;
+      return prev;
+    }, {});
+
+    return getBoxPlotChartOption({
+      rawData,
+      boxData: boxPlotData.boxData,
+      meanPoint: boxPlotData.meanPoint
+    });
+  }, [boxPlotData.boxData, boxPlotData.meanPoint, dataContainer, variables]);
 
   const bindEvents = useMemo(
     () => ({
       brushSelected: function (params: any) {
-        onBrushSelected(
-          params,
-          dispatch,
-          dataId,
-          props.id,
-          eChartsRef.current?.getEchartsInstance()
-        );
+        onBrushSelected(params, dispatch, dataId, id, eChartsRef.current?.getEchartsInstance());
       },
       rendered: function () {
         setRendered(true);
       }
     }),
-    [dispatch, dataId, props.id]
+    [dispatch, dataId, id]
   );
 
   return useMemo(
     () => (
       <Card className="my-4" shadow="none">
         <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-          <p className="text-tiny font-bold uppercase">{props.type}</p>
-          <small className="text-default-500">{props.variables.join(',')}</small>
+          <p className="text-tiny font-bold uppercase">{type}</p>
+          <small className="text-default-500">{variables.join(',')}</small>
         </CardHeader>
         <CardBody className="w-full py-2">
           <ReactEChartsCore
@@ -96,23 +110,12 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
             //   setRendered(true);
             // }}
           />
-          {rendered && sourceId && sourceId !== props.id && (
+          {rendered && sourceId && sourceId !== id && (
             <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} seriesIndex={seriesIndex} />
           )}
         </CardBody>
       </Card>
     ),
-    [
-      props.type,
-      props.variables,
-      props.id,
-      option,
-      theme,
-      bindEvents,
-      rendered,
-      sourceId,
-      dataId,
-      seriesIndex
-    ]
+    [type, variables, option, theme, bindEvents, rendered, sourceId, id, dataId, seriesIndex]
   );
 };

@@ -4,7 +4,7 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
-import {ChangeEvent, Key, useEffect, useState} from 'react';
+import {ChangeEvent, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';

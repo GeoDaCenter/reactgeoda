@@ -6,9 +6,6 @@ import {GeoDaState} from '@/store';
 import {useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {VariableSelector} from '../common/variable-selector';
-import {MAP_ID} from '@/constants';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createScatterplotData} from '@/utils/plots/scatterplot-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 
@@ -23,19 +20,13 @@ export function ScatterplotPanel() {
   const [variableY, setVariableY] = useState<string | undefined>(undefined);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
     if (variableX && variableY) {
-      const xData = getColumnData(variableX, dataContainer);
-      const yData = getColumnData(variableY, dataContainer);
-      const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
       const id = Math.random().toString(36).substring(7);
-      dispatch(addPlot({id, type: 'scatter', variableX, variableY, data: scatterplotData}));
+      dispatch(addPlot({id, type: 'scatter', variableX, variableY}));
       // Show the plots management panel
       setShowPlotsManagement(true);
     } else {
