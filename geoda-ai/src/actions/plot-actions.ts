@@ -1,6 +1,7 @@
 import {HistogramDataProps} from '@/utils/histogram-utils';
 import {ScatPlotDataProps} from '@/utils/scatterplot-utils';
 import {BoxplotDataProps} from '@/utils/boxplot-utils';
+import {BubbleChartDataProps} from '@/utils/bubblechart-utils';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
@@ -37,10 +38,20 @@ export type ParallelCoordinateProps = BasePlotProps & {
   variables: string[];
 };
 
+export type BubbleChartProps = BasePlotProps & {
+  type: 'bubble';
+  variableX: string;
+  variableY: string;
+  variableSize: string;
+  variableColor?: string; // optionally, color
+  data: BubbleChartDataProps;
+};
+
 export type PlotProps =
   | HistogramPlotProps
   | ScatterPlotProps
   | BoxPlotProps
+  | BubbleChartProps
   | ParallelCoordinateProps;
 
 export type RemovePlotProps = {

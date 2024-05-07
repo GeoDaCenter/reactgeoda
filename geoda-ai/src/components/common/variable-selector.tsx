@@ -9,6 +9,7 @@ type VariableSelectorProps = {
   setVariable: (variable: string) => void;
   label?: string;
   size?: 'sm' | 'md' | 'lg';
+  optional?: boolean; // for optional vars
 };
 
 export function VariableSelector(props: VariableSelectorProps) {
