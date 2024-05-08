@@ -1,10 +1,7 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
 import {Layout} from 'react-grid-layout';
-
-import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
-import {Filter} from '@kepler.gl/types';
 
 import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
@@ -58,6 +55,7 @@ export type GeoDaState = {
     };
     interaction: {
       sourceId?: string;
+      // brushLink: key is the dataId used in kepler.gl, value is the filtered index
       brushLink: {[key: string]: number[]};
     };
   };
@@ -108,37 +106,6 @@ const customizedKeplerGlReducer = keplerGlReducer
   .plugin({
     BRUSH_LINK_FROM_GEODA: (state: any, action: any) => {
       return handleGeoDaBrushLink(state, action);
-    },
-    SET_FILTER_INDEXES: (state: any, action: any) => {
-      const {dataLabel, filteredIndex} = action.payload;
-      const visState = state.visState;
-      const datasets = visState.datasets;
-      const dataId = Object.keys(datasets).find(dataId => datasets[dataId].label === dataLabel);
-      if (!dataId) {
-        return state;
-      }
-      const dataset = datasets[dataId];
-      if (filteredIndex) {
-        dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
-        const layers = visState.layers.filter((l: Layer) => l.config.dataId === dataId);
-        layers.forEach((l: Layer) => {
-          l.formatLayerData(datasets);
-        });
-      }
-
-      // remove filters that typ is polygon
-      visState.filters = visState.filters.filter((f: Filter) => f.type !== 'polygon');
-      return {
-        ...state
-        // visState: {
-        //   ...visState,
-        //   datasets: {
-        //     ...datasets,
-        //     [dataId]: dataset
-        //   },
-        //   filters
-        // }
-      };
     }
   });
 

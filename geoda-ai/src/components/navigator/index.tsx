@@ -5,7 +5,7 @@ import {Badge, Button, Tooltip, Avatar} from '@nextui-org/react';
 import {GeoDaLogo} from './geoda-logo';
 import {
   IconBoxplot,
-  IconCartogram,
+  IconBubbleChart,
   IconChatgpt,
   IconChoropleth,
   IconHistogram,
@@ -290,9 +290,8 @@ export function Navigator() {
           size="sm"
           placement="bottom-right"
           isOneChar
-          className="absolute left-0"
         >
-          <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
+          <Tooltip key="cartogramTooltip" placement="right" content="BubbleChart">
             <Button
               isIconOnly
               size="sm"
@@ -301,7 +300,7 @@ export function Navigator() {
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
             >
-              <IconCartogram />
+              <IconBubbleChart />
             </Button>
           </Tooltip>
         </Badge>
