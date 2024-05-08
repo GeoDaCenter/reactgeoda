@@ -21,6 +21,7 @@ import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils'; // Updated import
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
+import {generateRandomId} from '@/utils/ui-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -62,7 +63,7 @@ export function BoxplotPanel() {
     const boundIQR = parseFloat(hingeValue);
     const boxplot = createBoxplot({data, boundIQR});
     // generate random id for boxplot
-    const id = Math.random().toString(36).substring(7);
+    const id = generateRandomId();
     // dispatch action to create boxplot and add to store
     dispatch(addPlot({id, type: 'boxplot', variables, data: boxplot}));
     // show plots management tab

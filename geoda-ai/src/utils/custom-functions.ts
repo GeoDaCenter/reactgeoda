@@ -25,14 +25,13 @@ import {
 } from '@/constants';
 import {WeightsProps} from '@/actions';
 import {HistogramDataProps, createHistogram} from './plots/histogram-utils';
-import {ScatPlotDataProps} from './plots/scatterplot-utils';
-import {BubbleChartDataProps, createBubbleChartData} from './bubblechart-utils';
 import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './plots/boxplot-utils';
 import {CreateParallelCoordinateProps} from './plots/parallel-coordinate-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
 import {CustomFunctions} from '@/ai/openai-utils';
 import {linearRegressionCallbackFunc} from './regression-utils';
 import {createVariableCallBack} from './table-utils';
+import {generateRandomId} from './ui-utils';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
@@ -113,7 +112,6 @@ export type ScatterplotOutput = {
     variableX: string;
     variableY: string;
   };
-  data: ScatPlotDataProps;
 };
 
 export type BubbleChartOutput = {
@@ -124,9 +122,7 @@ export type BubbleChartOutput = {
     variableY: string;
     variableSize: string;
     variableColor?: string;
-    points: Array<{x: number; y: number; size: number; color?: string | number}>;
   };
-  data: BubbleChartDataProps;
 };
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -334,7 +330,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       type: 'histogram',
       name: 'Histogram',
       result: {
-        id: Math.random().toString(36).substring(7),
+        id: generateRandomId(),
         variableName,
         numberOfBins: k,
         histogram
@@ -359,10 +355,6 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         result: {
           variableX,
           variableY
-        },
-        data: {
-          variableX,
-          variableY
         }
       };
     } catch (error: any) {
@@ -381,7 +373,14 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     const columnDataColor = variableColor ? getColumnData(variableColor, dataContainer) : undefined;
 
     // Check if both variables' data are successfully accessed
-    if (!columnDataX || columnDataX.length === 0 || !columnDataY || columnDataY.length === 0) {
+    if (
+      !columnDataX ||
+      columnDataX.length === 0 ||
+      !columnDataY ||
+      columnDataY.length === 0 ||
+      !columnDataSize ||
+      columnDataSize.length === 0
+    ) {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
 
@@ -389,34 +388,16 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
 
-    try {
-      // Create bubble chart data
-      const data = createBubbleChartData(
+    return {
+      type: 'bubble',
+      name: 'Bubble Chart Data',
+      result: {
         variableX,
         variableY,
         variableSize,
-        variableColor,
-        columnDataX,
-        columnDataY,
-        columnDataSize,
-        columnDataColor
-      );
-
-      return {
-        type: 'bubble',
-        name: 'Bubble Chart Data',
-        result: {
-          variableX,
-          variableY,
-          variableSize,
-          variableColor,
-          points: data.points
-        },
-        data: data
-      };
-    } catch (error: any) {
-      return {result: error.message};
-    }
+        variableColor
+      }
+    };
   },
 
   boxplot: boxplotFunction,
@@ -468,7 +449,7 @@ function boxplotFunction(
     type: 'boxplot',
     name: 'Boxplot',
     result: {
-      id: Math.random().toString(36).substring(7),
+      id: generateRandomId(),
       variables: variableNames,
       boundIQR,
       boxplot: boxplot.boxData
@@ -505,7 +486,7 @@ function parallelCoordinateFunction(
     type: 'parallel-coordinate',
     name: 'ParallelCoordinate',
     result: {
-      id: Math.random().toString(36).substring(7),
+      id: generateRandomId(),
       variables: variableNames
     }
   };

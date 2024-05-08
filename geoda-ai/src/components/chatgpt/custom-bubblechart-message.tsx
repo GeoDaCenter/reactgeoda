@@ -9,6 +9,7 @@ import {BubbleChartOutput} from '@/utils/custom-functions';
 import {BubbleChart} from '../plots/bubble-chart-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
+import {generateRandomId} from '@/utils/ui-utils';
 
 /**
  * Custom Bubble Chart Message
@@ -33,13 +34,12 @@ export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload})
     output.result as BubbleChartOutput['result'];
 
   const bubbleChartProps: BubbleChartProps = {
-    id: Math.random().toString(36).substring(7),
+    id: generateRandomId(),
     type: 'bubble',
     variableX: variableX,
     variableY: variableY,
     variableSize: variableSize,
-    variableColor: variableColor,
-    data: output.result as BubbleChartOutput['result']
+    variableColor: variableColor
   };
 
   // Handle click event

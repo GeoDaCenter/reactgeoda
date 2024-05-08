@@ -70,6 +70,8 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
     [dispatch, dataId, id]
   );
 
+  const title = `${variableX} vs ${variableY}`;
+
   return useMemo(
     () => (
       <AutoSizer>
@@ -78,9 +80,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
             <Card className="h-full w-full" shadow="none">
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">Scatter Plot</p>
-                <small className="text-default-500">
-                  x: {variableX}, y: {variableY}
-                </small>
+                <small className="text-default-500">{title}</small>
               </CardHeader>
               <CardBody className="py-2">
                 <ReactEChartsCore
@@ -105,6 +105,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [variableX, variableY, option, theme, bindEvents, rendered, sourceId, id, dataId]
+    [title, option, theme, bindEvents, rendered, sourceId, id, dataId]
   );
 };

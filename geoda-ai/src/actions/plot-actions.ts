@@ -1,6 +1,5 @@
 import {HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
-import {BubbleChartDataProps} from '@/utils/bubblechart-utils';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
@@ -43,7 +42,6 @@ export type BubbleChartProps = BasePlotProps & {
   variableY: string;
   variableSize: string;
   variableColor?: string; // optionally, color
-  data: BubbleChartDataProps;
 };
 
 export type PlotProps =

@@ -9,6 +9,7 @@ import {ScatterplotOutput} from '@/utils/custom-functions';
 import {Scatterplot} from '../plots/scatter-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
+import {generateRandomId} from '@/utils/ui-utils';
 
 /**
  * Custom Scatter Message
@@ -32,7 +33,7 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   const {variableX, variableY} = output.result as ScatterplotOutput['result'];
 
   const scatterPlotProps: ScatterPlotProps = {
-    id: Math.random().toString(36).substring(7),
+    id: generateRandomId(),
     type: 'scatter',
     variableX: variableX,
     variableY: variableY

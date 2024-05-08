@@ -1,4 +1,4 @@
-import React, {useRef, RefObject, useMemo, useEffect} from 'react';
+import React, {useRef, useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {getBubbleChartOption} from '@/utils/bubblechart-utils';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
@@ -12,11 +12,12 @@ import {
 } from 'echarts/components';
 import {CanvasRenderer} from 'echarts/renderers';
 import {GeoDaState} from '@/store';
-import {Filter} from '@kepler.gl/types';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {BubbleChartProps} from '@/actions/plot-actions';
 import {MAP_ID} from '@/constants';
+import {getColumnData, getDataContainer} from '@/utils/data-utils';
+import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 
 // Register the required ECharts components
 echarts.use([
@@ -28,87 +29,47 @@ echarts.use([
   ToolboxComponent
 ]);
 
-type EChartsUpdaterProps = {
-  filteredIndex: Uint8ClampedArray | null;
-  eChartsRef: RefObject<ReactEChartsCore>;
-  props: BubbleChartProps;
-  getChartOption: (filteredIndex: Uint8ClampedArray | null, props: BubbleChartProps) => any;
-};
-
-const EChartsUpdater = ({
-  filteredIndex,
-  eChartsRef,
-  props,
-  getChartOption
-}: EChartsUpdaterProps) => {
-  const polygonFilter = useSelector((state: GeoDaState) => {
-    const polyFilter = state.keplerGl[MAP_ID].visState.filters.find(
-      (f: Filter) => f.type === 'polygon' && f.enabled === true
-    );
-    return polyFilter?.value?.geometry;
-  });
-
-  useEffect(() => {
-    if (eChartsRef.current && polygonFilter) {
-      const updatedOption = getChartOption(filteredIndex, props);
-      const chart = eChartsRef.current.getEchartsInstance();
-      if (chart) {
-        chart.setOption(updatedOption, true);
-      }
-    }
-  }, [eChartsRef, filteredIndex, getChartOption, polygonFilter, props]);
-
-  return null;
-};
-
 export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
+  // flag to check if the chart is rendered
+  const [rendered, setRendered] = useState(false);
+
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
+  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-
-  const filteredIndex = useSelector((state: GeoDaState) => {
-    return state.keplerGl[MAP_ID].visState.filteredIndex;
-  });
-
-  const validPlot = useSelector((state: GeoDaState) =>
-    state.root.plots.find(p => p.id === props.id)
+  // get dataContainer
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );
 
+  const {id, variableX, variableY, variableSize, variableColor} = props;
+
   // get chart option by calling getChartOption only once
-  const option = useMemo(() => getBubbleChartOption(filteredIndex, props), [filteredIndex, props]);
+  const option = useMemo(() => {
+    // get xData from variableX
+    const xData = getColumnData(variableX, dataContainer);
+    // get yData from variableY
+    const yData = getColumnData(variableY, dataContainer);
+    // get sizeData from variableSize
+    const sizeData = getColumnData(variableSize, dataContainer);
+    // get colorData from variableColor
+    const colorData = variableColor ? getColumnData(variableColor, dataContainer) : undefined;
 
-  const bindEvents = useMemo(() => {
-    return {
+    return getBubbleChartOption({variableX, variableY, xData, yData, sizeData, colorData});
+  }, [dataContainer, variableColor, variableSize, variableX, variableY]);
+
+  const bindEvents = useMemo(
+    () => ({
       brushSelected: function (params: any) {
-        const brushed = [];
-        const brushComponent = params.batch[0];
-        for (let sIdx = 0; sIdx < brushComponent.selected.length; sIdx++) {
-          const rawIndices = brushComponent.selected[sIdx].dataIndex;
-          brushed.push(...rawIndices);
-        }
-
-        // check if brushed.length is 0 after 100ms, since brushSelected may return empty array for some reason?!
-        setTimeout(() => {
-          if (validPlot && brushed.length === 0) {
-            // reset options
-            const chart = eChartsRef.current;
-            if (chart) {
-              const chartInstance = chart.getEchartsInstance();
-              const updatedOption = getBubbleChartOption(null, props);
-              chartInstance.setOption(updatedOption);
-            }
-          }
-        }, 100);
-
-        // Dispatch action to highlight selected indices
-        dispatch({
-          type: 'SET_FILTER_INDEXES',
-          payload: {dataLabel: tableName, filteredIndex: brushed}
-        });
+        onBrushSelected(params, dispatch, dataId, id, eChartsRef.current?.getEchartsInstance());
       }
-    };
-  }, [dispatch, validPlot, props, tableName]);
+    }),
+    [dispatch, dataId, id]
+  );
+
+  const title = `${variableX} vs ${variableY} by ${variableSize}`;
 
   return useMemo(
     () => (
@@ -118,9 +79,7 @@ export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
             <Card className="h-full w-full" shadow="none">
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">Bubble Chart</p>
-                <small className="text-default-500">
-                  {props.data.variableX} vs {props.data.variableY} by {props.data.variableSize}
-                </small>
+                <small className="text-default-500">{title}</small>
               </CardHeader>
               <CardBody className="py-2">
                 <ReactEChartsCore
@@ -132,14 +91,12 @@ export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
                   onEvents={bindEvents}
                   style={{height: '100%', width: '100%'}}
                   ref={eChartsRef}
+                  onChartReady={() => {
+                    setRendered(true);
+                  }}
                 />
-                {validPlot && (
-                  <EChartsUpdater
-                    filteredIndex={filteredIndex}
-                    eChartsRef={eChartsRef}
-                    props={props}
-                    getChartOption={getBubbleChartOption}
-                  />
+                {rendered && sourceId && sourceId !== id && (
+                  <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
             </Card>
@@ -147,6 +104,6 @@ export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
         )}
       </AutoSizer>
     ),
-    [filteredIndex, option, theme, validPlot, props, bindEvents]
+    [title, option, theme, bindEvents, rendered, sourceId, id, dataId]
   );
 };
