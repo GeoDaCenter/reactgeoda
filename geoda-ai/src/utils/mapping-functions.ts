@@ -4,18 +4,10 @@ import {UnknownAction} from 'redux';
 import {naturalBreaks, quantileBreaks} from 'geoda-wasm';
 import {addLayer, reorderLayer} from '@kepler.gl/actions';
 import {Layer} from '@kepler.gl/layers';
+import {ColorRange} from '@kepler.gl/constants';
 
 import {MappingTypes} from '@/constants';
 import {generateRandomId} from './ui-utils';
-
-type CreateCustomScaleMapProps = {
-  dispatch: Dispatch<UnknownAction>;
-  layer: Layer;
-  breaks: number[];
-  mappingType: string;
-  colorFieldName: string;
-  isPreview?: boolean;
-};
 
 type CreateUniqueValuesMapProps = {
   dispatch: Dispatch<UnknownAction>;
@@ -87,17 +79,33 @@ export function createUniqueValuesMap({
   dispatch(reorderLayer([newLayer.id, existingLayerIds]));
 }
 
+type CreateCustomScaleMapProps = {
+  dispatch: Dispatch<UnknownAction>;
+  layer: Layer;
+  breaks: number[];
+  mappingType: string;
+  colorFieldName: string;
+  isPreview?: boolean;
+  colorRange?: ColorRange;
+};
+
 export function createCustomScaleMap({
   dispatch,
   layer,
   breaks,
   mappingType,
   colorFieldName,
-  isPreview
+  isPreview,
+  colorRange
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
-  const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
+  let colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
+
+  if (colorRange) {
+    colors = colorRange.colors;
+  }
+
   const colorMap = colors.map((color, index) => {
     return [breaks[index], color];
   });
@@ -105,13 +113,15 @@ export function createCustomScaleMap({
     color,
     legend: `${breaks[index]}`
   }));
-  const colorRange = {
+
+  const customColorRange = {
     category: 'custom',
     type: 'diverging',
     name: 'ColorBrewer RdBu-5',
     colors,
     colorMap,
-    colorLegend
+    colorLegend,
+    ...(colorRange || {})
   };
 
   // get dataId
@@ -134,7 +144,7 @@ export function createCustomScaleMap({
       },
       visConfig: {
         ...layer?.config.visConfig,
-        colorRange,
+        colorRange: customColorRange,
         colorDomain: breaks,
         thickness: 0.2
       },

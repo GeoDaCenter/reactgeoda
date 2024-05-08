@@ -1,22 +1,23 @@
 import {useIntl} from 'react-intl';
-import {Select, SelectItem, Button, Tabs, Tab, Card, CardBody} from '@nextui-org/react';
+import {Select, SelectItem, Button, Tabs, Tab, Card, CardBody, Spacer} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   appInjector,
   LayerListFactory,
   makeGetActionCreators,
-  MapManagerFactory
+  MapManagerFactory,
+  ColorPalette
 } from '@kepler.gl/components';
 import {LayerClasses} from '@kepler.gl/layers';
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
 import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnData, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {wrapTo} from '@kepler.gl/actions';
-import {SIDEBAR_PANELS} from '@kepler.gl/constants';
+import {SIDEBAR_PANELS, COLOR_RANGES, ColorRange} from '@kepler.gl/constants';
 
 // const MapContainer = KeplerInjector.get(MapContainerFactory);
 const LayerList = appInjector.get(LayerListFactory);
@@ -111,6 +112,16 @@ export function MappingPanel() {
   // useState for mapping type
   const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
 
+  // useState for color ranges
+  const [colorRanges, setColorRanges] = useState(
+    COLOR_RANGES.filter(colorRange => {
+      return colorRange.colors.length === k;
+    })
+  );
+
+  // useState for selected color range
+  const [selectedColorRange, setSelectedColorRange] = useState(colorRanges[0]);
+
   // use selector to get tableName from redux store
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
 
@@ -140,9 +151,14 @@ export function MappingPanel() {
 
   // handle number of bins change
   const onKSelectionChange = (value: any) => {
-    const selectValue = value.currentKey;
+    const kValue = Number(value.currentKey);
     // convert string to number
-    setK(Number(selectValue));
+    setK(kValue);
+    // update color range
+    const newColorRanges = COLOR_RANGES.filter(colorRange => {
+      return colorRange.colors.length === kValue;
+    });
+    setColorRanges(newColorRanges);
   };
 
   // handle variable change
@@ -151,23 +167,31 @@ export function MappingPanel() {
     setVariable(selectValue);
   };
 
+  // handle color range selection change
+  const onSelectColorRange = (p: ColorRange) => {
+    setSelectedColorRange(p);
+  };
+
   // handle onCreateMap
   const onCreateMap = async () => {
-    if (!tableName) return;
+    if (!tableName) {
+      return;
+    }
 
     // get column data from dataContainer
     const columnData = getColumnData(variable, layer.dataContainer);
 
-    // run quantile breaks
+    // run map breaks
     const breaks = await createMapBreaks(mappingType, k, columnData);
 
-    // create custom scale map
+    // create custom scale map in kepler.gl
     createCustomScaleMap({
       breaks,
       mappingType,
       colorFieldName: variable,
       dispatch,
-      layer
+      layer,
+      colorRange: selectedColorRange
     });
   };
 
@@ -184,7 +208,7 @@ export function MappingPanel() {
       icon={null}
     >
       {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -211,6 +235,7 @@ export function MappingPanel() {
                       label="Select map type"
                       className="max-w"
                       onSelectionChange={onMapTypeChange}
+                      defaultSelectedKeys={[mappingType]}
                     >
                       {mappingTypes.map(mappingType => (
                         <SelectItem key={mappingType.value} value={mappingType.value}>
@@ -222,6 +247,7 @@ export function MappingPanel() {
                       label="Select number of bins"
                       className="max-w"
                       onSelectionChange={onKSelectionChange}
+                      defaultSelectedKeys={[`${k}`]}
                     >
                       {defaultBins.map(bin => (
                         <SelectItem key={bin.value} value={bin.value}>
@@ -240,13 +266,45 @@ export function MappingPanel() {
                         </SelectItem>
                       ))}
                     </Select>
+                    <Select
+                      label="Select color scheme"
+                      className="max-w"
+                      items={colorRanges}
+                      renderValue={items => {
+                        return items.map(item => (
+                          <ColorPalette
+                            key={item.data?.name}
+                            colors={item.data?.colors || []}
+                            isReversed={false}
+                            isSelected={item.data?.name === selectedColorRange.name}
+                          />
+                        ));
+                      }}
+                      defaultSelectedKeys={[`${selectedColorRange.name}`]}
+                    >
+                      {colorRange => (
+                        <SelectItem
+                          key={`${colorRange.name}`}
+                          onClick={() => onSelectColorRange(colorRange)}
+                          className="gap-0 py-0"
+                        >
+                          <ColorPalette
+                            colors={colorRange.colors}
+                            isReversed={false}
+                            isSelected={colorRange.name === selectedColorRange.name}
+                          />
+                        </SelectItem>
+                      )}
+                    </Select>
+                    <Spacer y={2} />
                     <Button
                       radius="sm"
                       color="primary"
                       className="bg-rose-900"
                       onClick={onCreateMap}
+                      isDisabled={!variable || !mappingType || k <= 0}
                     >
-                      Add Layer
+                      Create a New Map Layer
                     </Button>
                   </div>
                 </CardBody>
