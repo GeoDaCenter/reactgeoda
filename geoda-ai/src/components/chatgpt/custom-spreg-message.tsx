@@ -7,6 +7,7 @@ import {HeartIcon} from '../icons/heart';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {addRegression, RegressionDataProps} from '@/actions/regression-actions';
+import {generateRandomId} from '@/utils/ui-utils';
 
 /**
  * Custom Spreg Message
@@ -22,7 +23,7 @@ export const CustomSpregMessage = ({props}: {props: CustomMessagePayload}) => {
   const onClick = () => {
     // dispatch action to create regression and add to store
     // generate random id
-    const id = Math.random().toString(36).substring(7);
+    const id = generateRandomId();
     dispatch(addRegression({id, type: 'regression', data: regResult, isNew: true}));
     // hide the button once clicked
     setHide(true);

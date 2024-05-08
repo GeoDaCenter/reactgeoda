@@ -1,16 +1,17 @@
 import {useIntl} from 'react-intl';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
-import {ChangeEvent, Key, useEffect, useState} from 'react';
+import {ChangeEvent, useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createHistogram} from '@/utils/histogram-utils';
+import {createHistogram} from '@/utils/plots/histogram-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
+import {generateRandomId} from '@/utils/ui-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -40,14 +41,15 @@ export function HistogramPanel() {
 
   // on create histogram
   const onCreateHistogram = () => {
-    console.log('Create histogram');
     // get data from variable
     const data = getColumnData(variable, dataContainer);
     const histogram = createHistogram(data, 7);
     // generate random id for histogram
-    const id = Math.random().toString(36).substring(7);
+    const id = generateRandomId();
     // dispatch action to create histogram and add to store
     dispatch(addPlot({id, type: 'histogram', variable, data: histogram}));
+    // Show the plots management panel
+    setShowPlotsManagement(true);
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
@@ -65,22 +67,6 @@ export function HistogramPanel() {
     }
   }, [newPlotsCount, plots]);
 
-  // monitor state.root.plots, if plots.length changed, update the tab title
-  const plotsLength = plots?.length;
-  useEffect(() => {
-    if (plotsLength) {
-      setShowPlotsManagement(true);
-    }
-  }, [plotsLength]);
-
-  const onTabChange = (key: Key) => {
-    if (key === 'histogram-creation') {
-      setShowPlotsManagement(false);
-    } else {
-      setShowPlotsManagement(true);
-    }
-  };
-
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -94,7 +80,7 @@ export function HistogramPanel() {
       icon={null}
     >
       {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -104,7 +90,7 @@ export function HistogramPanel() {
             classNames={{}}
             size="md"
             selectedKey={showPlotsManagement ? 'plot-management' : 'histogram-creation'}
-            onSelectionChange={onTabChange}
+            onSelectionChange={key => setShowPlotsManagement(key === 'plot-management')}
           >
             <Tab
               key="histogram-creation"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Key, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {
   Tabs,
@@ -22,6 +22,7 @@ import {
 } from 'geoda-wasm';
 
 import {addWeights} from '@/actions';
+import {WarningBox, WarningType} from '../common/warning-box';
 
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
@@ -31,14 +32,15 @@ type WeightsCreationProps = {
 export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const dispatch = useDispatch();
 
-  const [weightsType, setWeightsType] = React.useState<string>('contiguity');
-  const [inputK, setInputK] = React.useState<number>(4);
-  const [contiguityType, setContiguityType] = React.useState<string>('queen');
-  const [orderOfContiguity, setOrderContiguity] = React.useState<number>(1);
-  const [precisionThreshold, setPrecisionThreshold] = React.useState<number>(0);
-  const [includeLowerOrder, setIncludeLowerOrder] = React.useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [weightsType, setWeightsType] = useState<string>('contiguity');
+  const [inputK, setInputK] = useState<number>(4);
+  const [contiguityType, setContiguityType] = useState<string>('queen');
+  const [orderOfContiguity, setOrderContiguity] = useState<number>(1);
+  const [precisionThreshold, setPrecisionThreshold] = useState<number>(0);
+  const [includeLowerOrder, setIncludeLowerOrder] = useState<boolean>(false);
 
-  const onWeightsSelectionChange = (key: React.Key) => {
+  const onWeightsSelectionChange = (key: Key) => {
     setWeightsType(key as string);
   };
 
@@ -47,53 +49,59 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   };
 
   const onCreateWeights = async () => {
-    const binaryGeometryType = keplerLayer?.meta.featureTypes;
-    const binaryGeometries = keplerLayer?.dataToFeature;
-    if (binaryGeometries && binaryGeometryType) {
-      if (weightsType === 'contiguity') {
-        const isQueen = contiguityType === 'queen';
-        const useCentroids = binaryGeometryType.point || binaryGeometryType.line;
-        const weights = await getContiguityNeighborsFromBinaryGeometries({
-          binaryGeometryType,
-          // @ts-ignore
-          binaryGeometries,
-          isQueen,
-          useCentroids,
-          precisionThreshold,
-          orderOfContiguity,
-          includeLowerOrder
-        });
-        const weightsMeta: WeightsMeta = {
-          ...getMetaFromWeights(weights),
-          id: `w-${contiguityType}-contiguity-${orderOfContiguity}${
-            includeLowerOrder ? '-lower' : ''
-          }`,
-          type: contiguityType === 'queen' ? 'queen' : 'rook',
-          symmetry: 'symmetric',
-          order: orderOfContiguity,
-          includeLowerOrder,
-          threshold: precisionThreshold
-        };
-        // dispatch action to update redux state state.root.weights
-        dispatch(addWeights({weights, weightsMeta}));
-      } else if (weightsType === 'distance') {
-        const k = inputK;
-        const weights = await getNearestNeighborsFromBinaryGeometries({
-          k,
-          binaryGeometryType,
-          // @ts-ignore
-          binaryGeometries
-        });
-        const weightsMeta: WeightsMeta = {
-          ...getMetaFromWeights(weights),
-          id: `w-${k}-nn`,
-          type: 'knn',
-          symmetry: 'asymmetric',
-          k
-        };
-        // dispatch action to update redux state state.root.weights
-        dispatch(addWeights({weights, weightsMeta}));
+    setError(null);
+    try {
+      const binaryGeometryType = keplerLayer?.meta.featureTypes;
+      const binaryGeometries = keplerLayer?.dataToFeature;
+      if (binaryGeometries && binaryGeometryType) {
+        if (weightsType === 'contiguity') {
+          const isQueen = contiguityType === 'queen';
+          const useCentroids = binaryGeometryType.point || binaryGeometryType.line;
+          const weights = await getContiguityNeighborsFromBinaryGeometries({
+            binaryGeometryType,
+            // @ts-ignore
+            binaryGeometries,
+            isQueen,
+            useCentroids,
+            precisionThreshold,
+            orderOfContiguity,
+            includeLowerOrder
+          });
+          const weightsMeta: WeightsMeta = {
+            ...getMetaFromWeights(weights),
+            id: `w-${contiguityType}-contiguity-${orderOfContiguity}${
+              includeLowerOrder ? '-lower' : ''
+            }`,
+            type: contiguityType === 'queen' ? 'queen' : 'rook',
+            symmetry: 'symmetric',
+            order: orderOfContiguity,
+            includeLowerOrder,
+            threshold: precisionThreshold
+          };
+          // dispatch action to update redux state state.root.weights
+          dispatch(addWeights({weights, weightsMeta}));
+        } else if (weightsType === 'distance') {
+          const k = inputK;
+          const weights = await getNearestNeighborsFromBinaryGeometries({
+            k,
+            binaryGeometryType,
+            // @ts-ignore
+            binaryGeometries
+          });
+          const weightsMeta: WeightsMeta = {
+            ...getMetaFromWeights(weights),
+            id: `w-${k}-nn`,
+            type: 'knn',
+            symmetry: 'asymmetric',
+            k
+          };
+          // dispatch action to update redux state state.root.weights
+          dispatch(addWeights({weights, weightsMeta}));
+        }
       }
+    } catch (e) {
+      console.error(e);
+      setError(`Create weights error: ${e}`);
     }
   };
 
@@ -207,6 +215,7 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
             </Tab>
           </Tabs>
         </div>
+        {error && <WarningBox type={WarningType.ERROR} message={error} />}
         <Spacer y={8} />
         <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateWeights}>
           Create Spatial Weights

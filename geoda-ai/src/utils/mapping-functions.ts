@@ -6,6 +6,7 @@ import {addLayer, reorderLayer} from '@kepler.gl/actions';
 import {Layer} from '@kepler.gl/layers';
 
 import {MappingTypes} from '@/constants';
+import {generateRandomId} from './ui-utils';
 
 type CreateCustomScaleMapProps = {
   dispatch: Dispatch<UnknownAction>;
@@ -56,7 +57,7 @@ export function createUniqueValuesMap({
   // get dataId
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
-  const id = Math.random().toString(36).substring(7);
+  const id = generateRandomId();
   // create a new Layer
   const newLayer = {
     id,
@@ -116,7 +117,7 @@ export function createCustomScaleMap({
   // get dataId
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
-  const id = Math.random().toString(36).substring(7);
+  const id = generateRandomId();
   const label = `${mappingType} Map`;
   // create a new Layer
   const newLayer = {

@@ -23,6 +23,7 @@ import {MAP_ID} from '@/constants';
 import {addRegression, RegressionProps} from '@/actions/regression-actions';
 import {runRegression} from '@/utils/regression-utils';
 import {RegressionReport} from './spreg-report';
+import {generateRandomId} from '@/utils/ui-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
@@ -89,7 +90,7 @@ export function SpregPanel() {
       datasetName: tableName
     });
     // generate random id
-    const id = Math.random().toString(36).substring(7);
+    const id = generateRandomId();
     // dispatch action to create regression and add to store
     dispatch(addRegression({id, type: 'regression', data: regression}));
   };

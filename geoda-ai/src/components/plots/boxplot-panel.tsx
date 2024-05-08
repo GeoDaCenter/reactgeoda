@@ -1,6 +1,6 @@
 import {useIntl} from 'react-intl';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
@@ -18,9 +18,10 @@ import {
 } from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {CreateBoxplotProps, createBoxplot} from '@/utils/boxplot-utils'; // Updated import
+import {CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils'; // Updated import
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
+import {generateRandomId} from '@/utils/ui-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -62,9 +63,11 @@ export function BoxplotPanel() {
     const boundIQR = parseFloat(hingeValue);
     const boxplot = createBoxplot({data, boundIQR});
     // generate random id for boxplot
-    const id = Math.random().toString(36).substring(7);
+    const id = generateRandomId();
     // dispatch action to create boxplot and add to store
     dispatch(addPlot({id, type: 'boxplot', variables, data: boxplot}));
+    // show plots management tab
+    setShowPlotsManagement(true);
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
@@ -82,21 +85,8 @@ export function BoxplotPanel() {
     }
   }, [newPlotsCount, plots]);
 
-  // monitor state.root.plots, if plots.length changed, update the tab title
-  const plotsLength = plots?.length;
-  useEffect(() => {
-    if (plotsLength) {
-      setShowPlotsManagement(true);
-    }
-  }, [plotsLength]);
-
   const onTabChange = (key: Key) => {
-    if (key === 'boxplot-creation') {
-      // Updated key value
-      setShowPlotsManagement(false);
-    } else {
-      setShowPlotsManagement(true);
-    }
+    setShowPlotsManagement(key === 'plot-management');
   };
 
   return (
@@ -112,7 +102,7 @@ export function BoxplotPanel() {
       icon={null}
     >
       {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs

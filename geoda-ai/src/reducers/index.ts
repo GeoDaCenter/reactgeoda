@@ -8,6 +8,7 @@ import {plotReducer} from './plot-reducer';
 import {regressionReducer} from './regression-reducer';
 import {aiReducer} from './ai-reducer';
 import {dashboardReducer} from './dashboard-reducer';
+import {interactionReducer} from './interaction-reducer';
 
 /**
  * Combine all reducers into a single root reducer
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
   plots: plotReducer,
   regressions: regressionReducer,
   ai: aiReducer,
-  dashboard: dashboardReducer
+  dashboard: dashboardReducer,
+  interaction: interactionReducer
 });
 
 const rootReducerWithLoadProject = (state: any, action: any) => {

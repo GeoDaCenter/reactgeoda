@@ -6,9 +6,10 @@ import {ScatterPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
 import {ScatterplotOutput} from '@/utils/custom-functions';
-import {Scatterplot} from '../plots/scat-plot';
+import {Scatterplot} from '../plots/scatter-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
+import {generateRandomId} from '@/utils/ui-utils';
 
 /**
  * Custom Scatter Message
@@ -32,11 +33,10 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   const {variableX, variableY} = output.result as ScatterplotOutput['result'];
 
   const scatterPlotProps: ScatterPlotProps = {
-    id: Math.random().toString(36).substring(7),
+    id: generateRandomId(),
     type: 'scatter',
     variableX: variableX,
-    variableY: variableY,
-    data: output.result as ScatterplotOutput['result']
+    variableY: variableY
   };
 
   // handle click event

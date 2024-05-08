@@ -2,15 +2,40 @@
 .default-kepler-map {
   height: 100% !important;
 }
+/* adjust table height */
 .main-table {
   padding: 0px;
   flex-grow: 0;
   height: 40%;
 }
+/* hide add layer button */
 .layer-manager-header {
   display: none !important;
 }
-
+/* adjust for check box */
+.ktdEag {
+  opacity: 1 !important;
+  margin-left: -10px;
+}
+/* adjust for Edit layer on map selection */
+.editor-layers-list:hover {
+  .nested-group {
+    display: block;
+  }
+}
+/* .kg-checkbox .kg-checkbox__label::before {
+  border: 1px solid #0F9668;
+  height: 12px;
+  width: 12px;
+  display: inline-block;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+} */
+.data-ex-icons-table  {
+  color: #999999 !important;
+}
 /* adjust Monaco Editor */
 .monaco-editor .suggest-widget {
   /* left: 0 !important; */
@@ -38,7 +63,7 @@ div[mapboxgl-children] {
 
 /* custom css for react query builder */
 .ruleGroup {
-  border-color: #EEE !important;
+  border-color: #eee !important;
   background: none !important;
 }
 .rule {
@@ -58,7 +83,8 @@ div[mapboxgl-children] {
   flex-grow: 1;
   border: 1px solid #ddd;
 }
-.ruleGroup-addRule, .ruleGroup-addGroup {
+.ruleGroup-addRule,
+.ruleGroup-addGroup {
   background-color: none;
   padding-block: 1px;
   border-width: 1px;

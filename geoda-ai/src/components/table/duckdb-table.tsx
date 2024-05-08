@@ -59,17 +59,23 @@ export function DuckDBTableComponent() {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
 
   // get Kepler state from redux store
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   // @ts-expect-error FIXME
-  const {fields, dataContainer, pinnedColumns, filteredIndex} = dataset;
+  const {fields, dataContainer, pinnedColumns} = dataset;
+
+  // get filteredIndex from redux
+  const filteredIndex = useSelector(
+    (state: GeoDaState) => state.root.interaction?.brushLink?.[dataId]
+  );
 
   const filteredIndexDict = useMemo(() => {
     const dict: {[key: number]: boolean} = {};
-    filteredIndex.forEach((i: number) => {
+    filteredIndex?.forEach((i: number) => {
       dict[i] = true;
     });
     return dict;
@@ -118,30 +124,46 @@ export function DuckDBTableComponent() {
   );
 
   // get action creators from kepler.gl
-  const {visStateActions} = keplerActionSelector(dispatch, {});
+  const {visStateActions} = useMemo(() => keplerActionSelector(dispatch, {}), [dispatch]);
 
-  return (
-    <div
-      className="item-center flex w-full flex-col bg-white"
-      style={{height: '100%', minWidth: '50vw', padding: '0px'}}
-    >
-      <DataTable
-        key={dataId}
-        dataId={dataId}
-        columns={columns}
-        colMeta={colMeta}
-        cellSizeCache={cellSizeCache}
-        dataContainer={dataContainer}
-        filteredIndex={filteredIndexDict}
-        pinnedColumns={pinnedColumns}
-        sortColumn={{}}
-        sortTableColumn={visStateActions.sortTableColumn}
-        pinTableColumn={visStateActions.pinTableColumn}
-        copyTableColumn={visStateActions.copyTableColumn}
-        setColumnDisplayFormat={visStateActions.setColumnDisplayFormat}
-        theme={theme}
-      />
-    </div>
+  return useMemo(
+    () => (
+      <div
+        className="item-center flex w-full flex-col bg-white"
+        style={{height: '100%', minWidth: '50vw', padding: '0px'}}
+      >
+        <DataTable
+          key={tableName}
+          dataId={tableName}
+          columns={columns}
+          colMeta={colMeta}
+          cellSizeCache={cellSizeCache}
+          dataContainer={dataContainer}
+          filteredIndex={filteredIndexDict}
+          pinnedColumns={pinnedColumns}
+          sortColumn={{}}
+          sortTableColumn={visStateActions.sortTableColumn}
+          pinTableColumn={visStateActions.pinTableColumn}
+          copyTableColumn={visStateActions.copyTableColumn}
+          setColumnDisplayFormat={visStateActions.setColumnDisplayFormat}
+          theme={theme}
+        />
+      </div>
+    ),
+    [
+      cellSizeCache,
+      colMeta,
+      columns,
+      dataContainer,
+      filteredIndexDict,
+      pinnedColumns,
+      tableName,
+      theme,
+      visStateActions.copyTableColumn,
+      visStateActions.pinTableColumn,
+      visStateActions.setColumnDisplayFormat,
+      visStateActions.sortTableColumn
+    ]
   );
 }
 
