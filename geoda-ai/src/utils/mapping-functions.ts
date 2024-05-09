@@ -1,7 +1,15 @@
 import {Dispatch} from 'react';
 import colorbrewer from 'colorbrewer';
 import {UnknownAction} from 'redux';
-import {naturalBreaks, quantileBreaks} from 'geoda-wasm';
+import {
+  naturalBreaks,
+  quantileBreaks,
+  equalIntervalBreaks,
+  hinge15Breaks,
+  hinge30Breaks,
+  percentileBreaks,
+  standardDeviationBreaks
+} from 'geoda-wasm';
 import {addLayer, reorderLayer} from '@kepler.gl/actions';
 import {Layer} from '@kepler.gl/layers';
 import {ColorRange} from '@kepler.gl/constants';
@@ -170,6 +178,17 @@ export async function createMapBreaks(
     return await quantileBreaks(k, values);
   } else if (mappingType === MappingTypes.NATURAL_BREAK) {
     return await naturalBreaks(k, values);
+  } else if (mappingType === MappingTypes.EQUAL_INTERVAL) {
+    return await equalIntervalBreaks(k, values);
+  } else if (mappingType === MappingTypes.BOX_MAP_15) {
+    return await hinge15Breaks(values);
+  } else if (mappingType === MappingTypes.BOX_MAP_30) {
+    return await hinge30Breaks(values);
+  } else if (mappingType === MappingTypes.PERCENTILE) {
+    return await percentileBreaks(values);
+  } else if (mappingType === MappingTypes.STD_MAP) {
+    return await standardDeviationBreaks(values);
   }
+
   return [];
 }

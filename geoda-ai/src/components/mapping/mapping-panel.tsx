@@ -14,11 +14,13 @@ import {MAP_ID, MappingTypes} from '@/constants';
 import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {getColumnData, getLayer} from '@/utils/data-utils';
+import {getColumnData, getDataset, getLayer} from '@/utils/data-utils';
 import {wrapTo} from '@kepler.gl/actions';
 import {SIDEBAR_PANELS} from '@kepler.gl/constants';
 import {getDefaultColorRange} from '../common/color-selector';
 import {ClassificationPanel, ClassificationOnValuesChange} from '../common/classification-panel';
+import {useDuckDB} from '@/hooks/use-duckdb';
+import {addKeplerColumn} from '@/utils/table-utils';
 
 // const MapContainer = KeplerInjector.get(MapContainerFactory);
 const LayerList = appInjector.get(LayerListFactory);
@@ -29,6 +31,7 @@ const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and manag
 export function MappingPanel() {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const {addColumnWithValues} = useDuckDB();
 
   // get kepler actions
   const dispatchKepler = (action: any) => dispatch(wrapTo(MAP_ID, action));
@@ -41,8 +44,8 @@ export function MappingPanel() {
 
   // use selector to get tableName from redux store
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-
   const layer = useSelector((state: GeoDaState) => getLayer(state));
+  const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   // get datasets from redux store
   const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
@@ -57,25 +60,41 @@ export function MappingPanel() {
   // handle classification config changes
   const [k, setK] = useState(5);
   const [variable, setVariable] = useState('');
-  const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
+  const [mappingType, setMappingType] = useState<string>(MappingTypes.QUANTILE);
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
+  const [rateValues, setRateValues] = useState<number[] | undefined>(undefined);
 
   const onClassficationValueChange = ({
     method,
     variable,
     k,
-    colorRange
+    colorRange,
+    rateValues
   }: ClassificationOnValuesChange) => {
     setMappingType(method);
     setVariable(variable);
     setK(k);
     setSelectedColorRange(colorRange);
+    setRateValues(rateValues);
   };
 
   // handle onCreateMap
   const onCreateMap = async () => {
     if (!tableName) {
       return;
+    }
+
+    if (rateValues) {
+      // in case of rate mapping, add rate values to a new column first
+      await addColumnWithValues(tableName, variable, rateValues);
+      // add column to kepler.gl
+      addKeplerColumn({
+        dataset,
+        newFieldName: variable,
+        fieldType: 'real',
+        columnData: rateValues,
+        dispatch
+      });
     }
 
     // get column data from dataContainer
@@ -111,15 +130,7 @@ export function MappingPanel() {
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
-          <Tabs
-            aria-label="Options"
-            variant="solid"
-            color="warning"
-            classNames={{}}
-            size="md"
-            // selectedKey={showPlotsManagement ? 'plot-management' : 'histogram-creation'}
-            // onSelectionChange={onTabChange}
-          >
+          <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
             <Tab
               key="map-creation"
               title={

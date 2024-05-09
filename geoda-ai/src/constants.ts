@@ -4,7 +4,18 @@ export const PREVIEW_MAP_ID = 'preview_map';
 
 export const DEFAULT_RANDOM_SEED = 123456789;
 
-// create mapping types enum from mappingTypes values
+export enum ClassificationTypes {
+  QUANTILE = 'quantile',
+  NATURAL_BREAK = 'natural-break',
+  EQUAL_INTERVAL = 'equal-interval',
+  PERCENTILE = 'percentile',
+  BOX_MAP_15 = 'box-map-15',
+  BOX_MAP_30 = 'box-map-30',
+  STD_MAP = 'std-map',
+  UNIQUE_VALUES = 'unique-values'
+}
+
+// create mapping types enum from mappingTypes values extends ClassificationTypes
 export enum MappingTypes {
   QUANTILE = 'quantile',
   NATURAL_BREAK = 'natural-break',

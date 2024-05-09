@@ -3,68 +3,50 @@
 import {MappingTypes} from '@/constants';
 import {useMemo, useState} from 'react';
 import {ColorSelector, getDefaultColorRange} from './color-selector';
-import {Select, SelectItem} from '@nextui-org/react';
+import {Select, SelectItem, Tab, Tabs} from '@nextui-org/react';
 import {ColorRange} from '@kepler.gl/constants';
 import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
+import {RateValueComponent} from '../table/column-rate-component';
 
 export const ClassificationTypes = [
   {
-    label: 'Quantile Map',
+    label: 'Quantile',
     value: MappingTypes.QUANTILE
   },
   {
-    label: 'Natural Breaks Map',
+    label: 'Natural Breaks',
     value: MappingTypes.NATURAL_BREAK
   },
   {
-    label: 'Equal Interval Map',
+    label: 'Equal Interval',
     value: MappingTypes.EQUAL_INTERVAL
   },
   {
-    label: 'Percentile Map',
+    label: 'Percentile',
     value: MappingTypes.PERCENTILE
   },
   {
-    label: 'Box Map (Hinge=1.5)',
+    label: 'Box (Hinge=1.5)',
     value: MappingTypes.BOX_MAP_15
   },
   {
-    label: 'Box Map (Hinge=3.0)',
+    label: 'Box (Hinge=3.0)',
     value: MappingTypes.BOX_MAP_30
   },
   {
-    label: 'Standard Deviation Map',
+    label: 'Standard Deviation',
     value: MappingTypes.STD_MAP
   },
   {
-    label: 'Unique Values Map',
+    label: 'Unique Values',
     value: MappingTypes.UNIQUE_VALUES
   },
   {
-    label: 'Co-location Map',
-    value: MappingTypes.COLOCATION
-  },
-  {
-    label: 'Raw Rate Map',
-    value: MappingTypes.RAW_RATE
-  },
-  {
-    label: 'Excess Rate Map',
-    value: MappingTypes.EXCESS_RATE
-  },
-  {
-    label: 'Empirical Bayes Map',
-    value: MappingTypes.EB_MAP
-  },
-  {
-    label: 'Spatial Rate Map',
-    value: MappingTypes.SPATIAL_RATE
-  },
-  {
-    label: 'Spatial Empirical Bayes Map',
-    value: MappingTypes.SPATIAL_EB_MAP
+    label: 'Co-location',
+    value: MappingTypes.COLOCATION,
+    disabled: true
   }
 ];
 
@@ -79,6 +61,7 @@ export type ClassificationOnValuesChange = {
   variable: string;
   k: number;
   colorRange?: ColorRange;
+  rateValues?: number[];
 };
 
 export type ClassificationPanelProps = {
@@ -87,6 +70,9 @@ export type ClassificationPanelProps = {
 
 // It will be used in the Map Panel component and Bubble Chart component
 export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) {
+  // useSelector to get layer from redux store
+  const layer = useSelector((state: GeoDaState) => getLayer(state));
+
   // useState for number of bins
   const [k, setK] = useState(5);
 
@@ -98,9 +84,6 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
 
   // useState for selected color range
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
-
-  // useSelector to get layer from redux store
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
 
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
@@ -140,13 +123,41 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
     onValuesChange?.({method: mappingType, variable, k, colorRange: p});
   };
 
+  // handle rate values change
+  const onRateValuesChange = (values: unknown | unknown[], label: string) => {
+    if (Array.isArray(values)) {
+      onValuesChange?.({
+        method: mappingType,
+        variable: label,
+        k,
+        colorRange: selectedColorRange,
+        rateValues: values
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2">
+      <Tabs key="classification-panel-tabs" variant="underlined" aria-label="classification-tabs">
+        <Tab key="basic-mapping" title="Basic Mapping">
+          <Select label="Variable" className="max-w" onSelectionChange={onVariableSelectionChange}>
+            {numericColumns.map((col: string) => (
+              <SelectItem key={col} value={col}>
+                {col}
+              </SelectItem>
+            ))}
+          </Select>
+        </Tab>
+        <Tab key="rate-mapping" title="Rate Mapping">
+          <RateValueComponent setValues={onRateValuesChange} />
+        </Tab>
+      </Tabs>
       <Select
         label="Classification Method"
         className="max-w"
         onSelectionChange={onMapTypeChange}
         defaultSelectedKeys={[mappingType]}
+        disabledKeys={ClassificationTypes.filter(t => t.disabled).map(t => t.value)}
       >
         {ClassificationTypes.map(mappingType => (
           <SelectItem key={mappingType.value} value={mappingType.value}>
@@ -163,13 +174,6 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
         {DefaultNumberOfCategories.map(bin => (
           <SelectItem key={bin.value} value={bin.value}>
             {bin.label}
-          </SelectItem>
-        ))}
-      </Select>
-      <Select label="Variable" className="max-w" onSelectionChange={onVariableSelectionChange}>
-        {numericColumns.map((col: string) => (
-          <SelectItem key={col} value={col}>
-            {col}
           </SelectItem>
         ))}
       </Select>

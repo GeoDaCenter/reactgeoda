@@ -8,10 +8,9 @@ import {GeoDaState} from '@/store';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
 
-// Rest of the code...
 export type RateValueProps = {
   // call back function to set values in add column panel
-  setValues: (values: unknown | unknown[]) => void;
+  setValues: (values: unknown | unknown[], label: string) => void;
 };
 
 export function RateValueComponent({setValues}: RateValueProps) {
@@ -27,29 +26,40 @@ export function RateValueComponent({setValues}: RateValueProps) {
   const [neighbors, setNeighbors] = useState<number[][] | undefined>(weights?.[0]?.weights);
   const [eventValues, setEventValues] = useState<number[] | null>(null);
   const [baseValues, setBaseValues] = useState<number[] | null>(null);
+  const [eventVariableName, setEventVariableName] = useState<string | undefined>(undefined);
+  const [baseVariableName, setBaseVariableName] = useState<string | undefined>(undefined);
 
-  const updateValues = (eventValues?: number[], baseValues?: number[], neighbors?: number[][]) => {
+  const updateValues = (
+    eventVariable?: string,
+    eventValues?: number[],
+    baseVariable?: string,
+    baseValues?: number[],
+    neighbors?: number[][]
+  ) => {
     if (eventValues && baseValues && (!method.startsWith('Spatial') || neighbors)) {
       const rateValues = calculateRates({eventValues, baseValues, method, neighbors});
-      setValues(rateValues);
+      const label = `${method}_${eventVariable}_${baseVariable}`;
+      setValues(rateValues, label);
     }
   };
 
   const onEventVariableChange = (variable: string) => {
+    setEventVariableName(variable);
     // get values from event variable
     const values = getColumnData(variable, dataContainer);
     setEventValues(values);
     if (baseValues && (!method.startsWith('Spatial') || neighbors)) {
-      updateValues(values, baseValues, neighbors);
+      updateValues(variable, values, baseVariableName, baseValues, neighbors);
     }
   };
 
   const onBaseVariableChange = (variable: string) => {
+    setBaseVariableName(variable);
     // get values from base variable
     const values = getColumnData(variable, dataContainer);
     setBaseValues(values);
     if (eventValues && (!method.startsWith('Spatial') || neighbors)) {
-      updateValues(eventValues, values, neighbors);
+      updateValues(eventVariableName, eventValues, variable, values, neighbors);
     }
   };
 
@@ -58,7 +68,7 @@ export function RateValueComponent({setValues}: RateValueProps) {
     const selectedMethod = keys.currentKey;
     setMethod(selectedMethod);
     if (eventValues && baseValues && neighbors) {
-      updateValues(eventValues, baseValues, neighbors);
+      updateValues(eventVariableName, eventValues, baseVariableName, baseValues, neighbors);
     }
   };
 
@@ -68,14 +78,25 @@ export function RateValueComponent({setValues}: RateValueProps) {
     if (selectedW) {
       setNeighbors(selectedW.weights);
       if (eventValues && baseValues) {
-        updateValues(eventValues, baseValues, selectedW.weights);
+        updateValues(
+          eventVariableName,
+          eventValues,
+          baseVariableName,
+          baseValues,
+          selectedW.weights
+        );
       }
     }
   };
 
   return (
     <div className="flex flex-col gap-1">
-      <Select label="Method" size="sm" onSelectionChange={onMethodChange}>
+      <Select
+        label="Method"
+        size="sm"
+        onSelectionChange={onMethodChange}
+        defaultSelectedKeys={[Object.values(RatesOptions)[0]]}
+      >
         {Object.values(RatesOptions).map(option => (
           <SelectItem key={option} value={option}>
             {option}

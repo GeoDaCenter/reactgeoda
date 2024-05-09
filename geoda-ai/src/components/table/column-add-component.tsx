@@ -32,7 +32,7 @@ export function AddColumn() {
   const [previewTab, setPreviewTab] = useState('preview-table');
   const [columnNameError, setColumnNameError] = useState(false);
 
-  const {addColumn} = useDuckDB();
+  const {addColumn, addColumnWithValues} = useDuckDB();
   const dispatch = useDispatch();
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
@@ -81,7 +81,12 @@ export function AddColumn() {
   // handle add column
   const handleAddColumnClick = () => {
     // add column to duckdb
-    addColumn(code);
+    if (Array.isArray(values)) {
+      addColumnWithValues(columnName, values);
+    } else {
+      addColumn(code);
+    }
+
     // add column to kepler.gl
     addKeplerColumn({
       dataset,
