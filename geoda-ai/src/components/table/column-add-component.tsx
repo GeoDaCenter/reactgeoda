@@ -22,7 +22,7 @@ import {TableVariableValueComponent} from './column-variable-component';
 import {SQL_KEYWORDS} from '@/constants';
 import {SQLEditor} from './sql-editor';
 import {SpatialLagValueComponent} from './column-spatial-lag-component';
-import {RateValueComponent} from './column-rate-component';
+import {RateValueComponent} from '../common/rate-component';
 
 export function AddColumn() {
   const [columnName, setColumnName] = useState('');
@@ -82,7 +82,7 @@ export function AddColumn() {
   const handleAddColumnClick = () => {
     // add column to duckdb
     if (Array.isArray(values)) {
-      addColumnWithValues(columnName, values);
+      addColumnWithValues(tableName, columnName, values);
     } else {
       addColumn(code);
     }
@@ -102,6 +102,10 @@ export function AddColumn() {
   // handle preview selection change
   const onPreviewSelectionChange = (key: Key) => {
     setPreviewTab(key as string);
+  };
+
+  const onRateValuesChange = (values: unknown | unknown[]) => {
+    setValues(values);
   };
 
   return (
@@ -148,7 +152,7 @@ export function AddColumn() {
               <SpatialLagValueComponent setValues={setValues} />
             </Tab>
             <Tab key="rates" title="Rates">
-              <RateValueComponent setValues={setValues} />
+              <RateValueComponent onValuesChange={onRateValuesChange} />
             </Tab>
           </Tabs>
         </CardBody>

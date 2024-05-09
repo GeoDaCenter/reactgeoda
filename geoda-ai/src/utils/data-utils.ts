@@ -4,9 +4,6 @@ import {KeplerTable, Datasets} from '@kepler.gl/table';
 import {DataContainerInterface} from '../../../../csds_kepler/src/utils/src/data-container-interface';
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
-import {Field} from '@kepler.gl/types';
-import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
-import {addTableColumn} from '@kepler.gl/actions';
 
 /**
  * Get the names of the integer and string fields from the kepler.gl layer

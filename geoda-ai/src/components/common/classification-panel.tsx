@@ -8,7 +8,7 @@ import {ColorRange} from '@kepler.gl/constants';
 import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {RateValueComponent} from '../table/column-rate-component';
+import {RateValueComponent} from './rate-component';
 
 export const ClassificationTypes = [
   {
@@ -149,7 +149,7 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
           </Select>
         </Tab>
         <Tab key="rate-mapping" title="Rate Mapping">
-          <RateValueComponent setValues={onRateValuesChange} />
+          <RateValueComponent onValuesChange={onRateValuesChange} />
         </Tab>
       </Tabs>
       <Select

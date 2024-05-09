@@ -1,6 +1,6 @@
 import {RatesOptions, calculateRates} from 'geoda-wasm';
 import {Select, SelectItem, Selection} from '@nextui-org/react';
-import {VariableSelector} from '../common/variable-selector';
+import {VariableSelector} from './variable-selector';
 import {useState} from 'react';
 import {WeightsSelector} from '../weights/weights-management';
 import {useSelector} from 'react-redux';
@@ -9,11 +9,11 @@ import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
 
 export type RateValueProps = {
-  // call back function to set values in add column panel
-  setValues: (values: unknown | unknown[], label: string) => void;
+  // call back function to handle values and label change
+  onValuesChange: (values: unknown | unknown[], label: string) => void;
 };
 
-export function RateValueComponent({setValues}: RateValueProps) {
+export function RateValueComponent({onValuesChange}: RateValueProps) {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // use selector to get tableName
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
@@ -38,8 +38,8 @@ export function RateValueComponent({setValues}: RateValueProps) {
   ) => {
     if (eventValues && baseValues && (!method.startsWith('Spatial') || neighbors)) {
       const rateValues = calculateRates({eventValues, baseValues, method, neighbors});
-      const label = `${method}_${eventVariable}_${baseVariable}`;
-      setValues(rateValues, label);
+      const label = `${method}_${eventVariable}_${baseVariable}`.replace(/\s/g, '_');
+      onValuesChange(rateValues, label);
     }
   };
 
