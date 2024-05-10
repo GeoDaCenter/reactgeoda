@@ -62,6 +62,8 @@ export function SignIn() {
 }
 
 export function SettingsPanel() {
+  const isStaticExport = process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
+
   const intl = useIntl();
   const [showUserSettings, setShowUserSettings] = useState(true);
   const onTabChange = (key: Key) => {
@@ -105,9 +107,11 @@ export function SettingsPanel() {
           selectedKey={showUserSettings ? 'user-settings' : 'open-ai'}
           onSelectionChange={onTabChange}
         >
-          <Tab key="user-settings" title="User Settings">
-            <SignIn />
-          </Tab>
+          {!isStaticExport && (
+            <Tab key="user-settings" title="User Settings">
+              <SignIn />
+            </Tab>
+          )}
           <Tab key="open-ai" title="OpenAI">
             <Card>
               <CardBody>

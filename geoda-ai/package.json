@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "cross-env BASE_PATH='' next dev",
     "copy-geoda-wasm": "cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/app/mapland/geoda.wasm && cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/geoda.wasm",
-    "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build && yarn copy-geoda-wasm",
+    "build-local": "cross-env NODE_ENV=production BASE_PATH='' NEXT_PUBLIC_STATIC_EXPORT=true next build && yarn copy-geoda-wasm",
     "get-kepler": "cd ../.. && git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler",
     "get-geoda-lib": "cd ../.. && git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib",
     "build-kepler": "yarn set version 1.22.19 && yarn --cwd ../../csds_kepler install",
@@ -14,7 +14,9 @@
     "prettier": "prettier --ignore-path ./.prettierignore . '**/*.{js,jsx,ts,tsx}' --check",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "build:ssr": "cross-env NEXT_PUBLIC_STATIC_EXPORT=false next build",
+    "dev-static": "cross-env NEXT_PUBLIC_STATIC_EXPORT=true BASE_PATH='' next dev"
   },
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^1.10.1",

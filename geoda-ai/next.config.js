@@ -1,12 +1,25 @@
 const {resolve} = require('path');
 // const CopyPlugin = require('copy-webpack-plugin');
 
+const isStaticExport = process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // set react strict mode false to fix react-modal cannot register modal instance that's already open
   reactStrictMode: false,
   // enable a static export and export all pages to static HTML files under out folder
-  //output: 'export',
+  output: isStaticExport ? 'export' : 'standalone',
+  exportPathMap: async function (defaultPathMap) {
+    if (isStaticExport) {
+      // Example: Delete specific dynamic API route entries
+      Object.keys(defaultPathMap).forEach(path => {
+        if (path.startsWith('/api/auth/')) {
+          delete defaultPathMap[path];
+        }
+      });
+    }
+    return defaultPathMap;
+  },
   // discard: only set basePath to /reactgeoda to deploy in github pages
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   typescript: {
