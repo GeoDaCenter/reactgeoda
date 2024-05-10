@@ -99,12 +99,16 @@ export function useChatGPT() {
    * Process message by sending message to ChatGPT assistant and retrieving response
    * @returns
    */
-  async function processChatGPTMessage(question: string): Promise<MessageModel[]> {
+  async function processChatGPTMessage(
+    question: string,
+    streamMessage: (delta: string, customMessage?: MessageModel) => void
+  ): Promise<MessageModel[]> {
     return processMessage({
       question,
       customFunctions: CUSTOM_FUNCTIONS,
       customFunctionContext: {tableName, visState, weights, dataContainer, queryValues},
-      customMessageCallback: createMessageFromCustomFunctionCall
+      customMessageCallback: createMessageFromCustomFunctionCall,
+      streamMessageCallback: streamMessage
     });
   }
 
