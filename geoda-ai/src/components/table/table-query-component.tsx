@@ -10,7 +10,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import MonacoEditor from '@monaco-editor/react';
 
 import 'react-querybuilder/dist/query-builder.css';
-import {setQueryCode} from '@/actions';
+import {geodaBrushLink, setQueryCode} from '@/actions';
 
 // const initialQuery: RuleGroupType = {combinator: 'and', rules: []};
 
@@ -23,12 +23,15 @@ function getQueryBuilder(sql: string) {
 }
 
 export function TableQueryComponent() {
+  const id = 'table-query';
+
   const dispatch = useDispatch();
   // get duckdb hook
   const {query} = useDuckDB();
 
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
   const queryCode = useSelector((state: GeoDaState) => state.root.uiState.table.queryCode);
 
@@ -69,26 +72,7 @@ export function TableQueryComponent() {
     const selectedIndexes = await query(tableName, code);
 
     if (selectedIndexes) {
-      // dispatch action SET_FILTER_INDEXES to update filtered indexes in kepler
-      dispatch({
-        type: 'SET_FILTER_INDEXES',
-        payload: {dataLabel: tableName, filteredIndex: selectedIndexes}
-      });
-      // const newData = processArrowTable(result);
-      // const updatedDataset: ProtoDataset = {
-      //   // @ts-expect-error FIXME
-      //   data: newData,
-      //   info: {
-      //     id: generateHashIdFromString(tableName),
-      //     label: tableName,
-      //     format: 'arrow'
-      //   }
-      // };
-      // // dispatch action to update dataset in kepler
-      // dispatch(updateVisData([updatedDataset], {keepExistingConfig: true}));
-      // const keplerTable = datasets[info.id];
-      // // update the data in keplerTable
-      // keplerTable.update(validatedData);
+      dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: selectedIndexes}));
     }
   };
 

@@ -97,12 +97,15 @@ const OpenFileComponent = () => {
       dispatch(setOpenFileModal(false));
 
       // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData({fileName, arrowTable}));
+      dispatch(setRawFileData({fileName, dataId: datasets?.info.id, arrowTable}));
 
       if (geodaConfig) {
         // dispatch action to set geoda config, update redux state state.root
         dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
       }
+
+      // set selection mode
+      // dispatch(setEditorMode('DRAW_RECTANGLE'));
 
       // set loading to true to show loading bar
       setLoading(false);

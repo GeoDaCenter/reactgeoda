@@ -24,14 +24,14 @@ import {
   CHAT_NOT_ENOUGH_COLUMNS
 } from '@/constants';
 import {WeightsProps} from '@/actions';
-import {HistogramDataProps, createHistogram} from './histogram-utils';
-import {ScatPlotDataProps, createScatterplotData} from './scatterplot-utils';
-import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './boxplot-utils';
-import {CreateParallelCoordinateProps} from './parallel-coordinate-utils';
+import {HistogramDataProps, createHistogram} from './plots/histogram-utils';
+import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './plots/boxplot-utils';
+import {CreateParallelCoordinateProps} from './plots/parallel-coordinate-utils';
 import {DataContainerInterface} from '@kepler.gl/utils';
 import {CustomFunctions} from '@/ai/openai-utils';
 import {linearRegressionCallbackFunc} from './regression-utils';
 import {createVariableCallBack} from './table-utils';
+import {generateRandomId} from './ui-utils';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
@@ -43,7 +43,9 @@ export enum CustomFunctionNames {
   LOCAL_MORAN = 'univariateLocalMoran',
   HISTOGRAM = 'histogram',
   BOXPLOT = 'boxplot',
-  CONTIGUITY_WEIGHT = 'contiguityWeight'
+  CONTIGUITY_WEIGHT = 'contiguityWeight',
+  BUBBLE_CHART = 'bubble',
+  SCATTERPLOT = 'scatter'
 }
 
 type SummarizeDataProps = {
@@ -109,9 +111,18 @@ export type ScatterplotOutput = {
   result: {
     variableX: string;
     variableY: string;
-    points: Array<{x: number; y: number}>;
   };
-  data: ScatPlotDataProps;
+};
+
+export type BubbleChartOutput = {
+  type: 'bubble';
+  name: string;
+  result: {
+    variableX: string;
+    variableY: string;
+    variableSize: string;
+    variableColor?: string;
+  };
 };
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
@@ -313,25 +324,18 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     }
 
     // call histogram function
-    const hist = createHistogram(columnData, k);
-
-    // remove key items from hist
-    const histogram = hist.map((h: HistogramDataProps) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {items, ...rest} = h;
-      return rest;
-    });
+    const histogram = createHistogram(columnData, k);
 
     return {
       type: 'histogram',
       name: 'Histogram',
       result: {
-        id: Math.random().toString(36).substring(7),
+        id: generateRandomId(),
         variableName,
         numberOfBins: k,
         histogram
       },
-      data: hist
+      data: histogram
     };
   },
 
@@ -345,23 +349,55 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     }
 
     try {
-      // Create scatterplot data
-      const data = createScatterplotData(variableX, variableY, columnDataX, columnDataY);
-
       return {
         type: 'scatter',
         name: 'Scatterplot Data',
         result: {
           variableX,
-          variableY,
-          points: data.points
-        },
-        data: data // Right now, wrapping data in array to match the expected output, but maybe should change the expected props
+          variableY
+        }
       };
     } catch (error: any) {
       // if xData and yData arrays lengths do not match
       return {result: error.message};
     }
+  },
+
+  bubble: function (
+    {variableX, variableY, variableSize, variableColor},
+    {dataContainer}
+  ): BubbleChartOutput | ErrorOutput {
+    const columnDataX = getColumnData(variableX, dataContainer);
+    const columnDataY = getColumnData(variableY, dataContainer);
+    const columnDataSize = getColumnData(variableSize, dataContainer);
+    const columnDataColor = variableColor ? getColumnData(variableColor, dataContainer) : undefined;
+
+    // Check if both variables' data are successfully accessed
+    if (
+      !columnDataX ||
+      columnDataX.length === 0 ||
+      !columnDataY ||
+      columnDataY.length === 0 ||
+      !columnDataSize ||
+      columnDataSize.length === 0
+    ) {
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+    }
+
+    if (variableColor && (!columnDataColor || columnDataColor.length === 0)) {
+      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+    }
+
+    return {
+      type: 'bubble',
+      name: 'Bubble Chart Data',
+      result: {
+        variableX,
+        variableY,
+        variableSize,
+        variableColor
+      }
+    };
   },
 
   boxplot: boxplotFunction,
@@ -413,7 +449,7 @@ function boxplotFunction(
     type: 'boxplot',
     name: 'Boxplot',
     result: {
-      id: Math.random().toString(36).substring(7),
+      id: generateRandomId(),
       variables: variableNames,
       boundIQR,
       boxplot: boxplot.boxData
@@ -450,7 +486,7 @@ function parallelCoordinateFunction(
     type: 'parallel-coordinate',
     name: 'ParallelCoordinate',
     result: {
-      id: Math.random().toString(36).substring(7),
+      id: generateRandomId(),
       variables: variableNames
     }
   };

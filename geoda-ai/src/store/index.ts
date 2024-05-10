@@ -1,10 +1,7 @@
 import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
 import {createLogger} from 'redux-logger';
 import {Layout} from 'react-grid-layout';
-
-import {Layer} from '@kepler.gl/layers';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
-import {Filter} from '@kepler.gl/types';
 
 import keplerLanguageMiddleware from './language-middleware';
 import rootReducer from '../reducers/index';
@@ -15,6 +12,7 @@ import {RawFileDataProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 import {RuleGroupType} from 'react-querybuilder';
+import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
 
 /**
  * Define the State of the Redux store
@@ -55,6 +53,11 @@ export type GeoDaState = {
       gridItems?: GridItemProps[];
       textItems?: GridTextItemProps[];
     };
+    interaction: {
+      sourceId?: string;
+      // brushLink: key is the dataId used in kepler.gl, value is the filtered index
+      brushLink: {[key: string]: number[]};
+    };
   };
 };
 
@@ -71,46 +74,38 @@ const customizedKeplerGlReducer = keplerGlReducer
       // hide side panel and data input window to disallow user customize the map
       readOnly: false,
       activeSidePanel: null,
-      currentModal: null
-      // mapControls: {
-      //   mapLegend: {
-      //     show: false,
-      //     active: true
-      //   }
-      // }
+      currentModal: null,
+      mapControls: {
+        mapDraw: {
+          active: false,
+          show: true
+        },
+        mapLegend: {
+          show: true,
+          active: false
+        },
+        toggle3d: {
+          show: true,
+          active: false
+        },
+        splitMap: {
+          show: true,
+          active: false
+        }
+      }
     }
+    // visState: {
+    //   editor: {
+    //     mode: 'DRAW_RECTANGLE',
+    //     features: [],
+    //     selectedFeature: null,
+    //     visible: true
+    //   }
+    // }
   })
   .plugin({
-    SET_FILTER_INDEXES: (state: any, action: any) => {
-      const {dataLabel, filteredIndex} = action.payload;
-      const visState = state.visState;
-      const datasets = visState.datasets;
-      const dataId = Object.keys(datasets).find(dataId => datasets[dataId].label === dataLabel);
-      if (!dataId) {
-        return state;
-      }
-      const dataset = datasets[dataId];
-      if (filteredIndex) {
-        dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;
-        const layers = visState.layers.filter((l: Layer) => l.config.dataId === dataId);
-        layers.forEach((l: Layer) => {
-          l.formatLayerData(datasets);
-        });
-      }
-
-      // remove filters that typ is polygon
-      visState.filters = visState.filters.filter((f: Filter) => f.type !== 'polygon');
-      return {
-        ...state
-        // visState: {
-        //   ...visState,
-        //   datasets: {
-        //     ...datasets,
-        //     [dataId]: dataset
-        //   },
-        //   filters
-        // }
-      };
+    BRUSH_LINK_FROM_GEODA: (state: any, action: any) => {
+      return handleGeoDaBrushLink(state, action);
     }
   });
 

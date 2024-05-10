@@ -5,7 +5,7 @@ import {Badge, Button, Tooltip, Avatar} from '@nextui-org/react';
 import {GeoDaLogo} from './geoda-logo';
 import {
   IconBoxplot,
-  IconCartogram,
+  IconBubbleChart,
   IconChatgpt,
   IconChoropleth,
   IconHistogram,
@@ -66,10 +66,16 @@ export function Navigator() {
     (state: GeoDaState) => state.root.regressions.filter(reg => reg.isNew).length
   );
 
-  // get number of newly added plots from state.root.plots
+  // get number of newly added scatterplots from state.root.plots
   const newScatterplotCount = useSelector(
     (state: GeoDaState) =>
       state.root.plots.filter(plot => plot.isNew && plot.type === 'scatter').length
+  );
+
+  // get number of newly added bubble charts from state.root.plots
+  const newBubbleChartCount = useSelector(
+    (state: GeoDaState) =>
+      state.root.plots.filter(plot => plot.isNew && plot.type === 'bubble').length
   );
 
   const onOpenCallback = useCallback(
@@ -123,6 +129,9 @@ export function Navigator() {
           break;
         case 'icon-scatterplot':
           dispatch(setPropertyPanel(PanelName.SCATTERPLOT));
+          break;
+        case 'icon-cartogram': // Maybe change this to BUBBLE chart ?
+          dispatch(setPropertyPanel(PanelName.BUBBLE_CHART));
           break;
         case 'icon-boxplot':
           dispatch(setPropertyPanel(PanelName.BOXPLOT));
@@ -274,18 +283,27 @@ export function Navigator() {
             <IconBoxplot />
           </Button>
         </Tooltip>
-        <Tooltip key="cartogramTooltip" placement="right" content="Cartogram">
-          <Button
-            isIconOnly
-            size="sm"
-            className="bg-transparent"
-            id="icon-cartogram"
-            onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
-          >
-            <IconCartogram />
-          </Button>
-        </Tooltip>
+        <Badge
+          color="danger"
+          content={newBubbleChartCount}
+          isInvisible={newBubbleChartCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+        >
+          <Tooltip key="cartogramTooltip" placement="right" content="BubbleChart">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-cartogram"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconBubbleChart />
+            </Button>
+          </Tooltip>
+        </Badge>
         <Tooltip key="pcpTooltip" placement="right" content="Parallel Coordinate Plot">
           <Button
             isIconOnly

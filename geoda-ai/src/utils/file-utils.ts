@@ -86,7 +86,12 @@ export async function loadArrowFile(file: File) {
   }
 
   const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
-  return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+  return {
+    fileName: content.fileName,
+    dataId: parsedData[0].info.id,
+    arrowTable,
+    arrowFormatData: parsedData[0]
+  };
 }
 
 export async function loadDroppedFile(files: File[]) {

@@ -3,14 +3,12 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {Key, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {VariableSelector} from '../common/variable-selector';
-import {MAP_ID} from '@/constants';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {createScatterplotData} from '@/utils/scatterplot-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
+import {generateRandomId} from '@/utils/ui-utils';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -23,19 +21,15 @@ export function ScatterplotPanel() {
   const [variableY, setVariableY] = useState<string | undefined>(undefined);
 
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
     if (variableX && variableY) {
-      const xData = getColumnData(variableX, dataContainer);
-      const yData = getColumnData(variableY, dataContainer);
-      const scatterplotData = createScatterplotData(variableX, variableY, xData, yData);
-      const id = Math.random().toString(36).substring(7);
-      dispatch(addPlot({id, type: 'scatter', variableX, variableY, data: scatterplotData}));
+      const id = generateRandomId();
+      dispatch(addPlot({id, type: 'scatter', variableX, variableY}));
+      // Show the plots management panel
+      setShowPlotsManagement(true);
     } else {
       console.error('X and Y variables must be selected for a scatter plot');
     }
@@ -55,17 +49,6 @@ export function ScatterplotPanel() {
     }
   }, [newPlotsCount, plots]);
 
-  const plotsLength = plots?.length;
-  useEffect(() => {
-    if (plotsLength) {
-      setShowPlotsManagement(true);
-    }
-  }, [plotsLength]);
-
-  const onTabChange = (key: Key) => {
-    setShowPlotsManagement(key === 'plot-management');
-  };
-
   return (
     <RightPanelContainer
       title={intl.formatMessage({id: 'plot.scatterplot.title', defaultMessage: 'Scatterplot'})}
@@ -84,14 +67,22 @@ export function ScatterplotPanel() {
             variant="solid"
             color="warning"
             selectedKey={showPlotsManagement ? 'plot-management' : 'scatterplot-creation'}
-            onSelectionChange={onTabChange}
+            onSelectionChange={key => setShowPlotsManagement(key === 'plot-management')}
           >
             <Tab key="scatterplot-creation" title="Create Scatterplot">
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <VariableSelector variable={variableX} setVariable={setVariableX} />
-                    <VariableSelector variable={variableY} setVariable={setVariableY} />
+                    <VariableSelector
+                      variable={variableX}
+                      setVariable={setVariableX}
+                      label="Select Independent Variable X"
+                    />
+                    <VariableSelector
+                      variable={variableY}
+                      setVariable={setVariableY}
+                      label="Select Dependent Variable Y"
+                    />
                     <Spacer y={1} />
                     <Button onClick={onCreateScatterplot} disabled={!variableX || !variableY}>
                       Create Scatterplot

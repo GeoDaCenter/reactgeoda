@@ -2,55 +2,58 @@ import {Button} from '@nextui-org/react';
 import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 
-import {ScatterPlotProps, addPlot} from '@/actions/plot-actions';
+import {BubbleChartProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {ScatterplotOutput} from '@/utils/custom-functions';
-import {Scatterplot} from '../plots/scatter-plot';
+import {BubbleChartOutput} from '@/utils/custom-functions';
+import {BubbleChart} from '../plots/bubble-chart-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {generateRandomId} from '@/utils/ui-utils';
 
 /**
- * Custom Scatter Message
+ * Custom Bubble Chart Message
  */
-export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload}) => {
   const dispatch = useDispatch();
   const [hide, setHide] = useState(false);
   const {output} = props;
 
   if (!output || !output.result || typeof output.result !== 'object') {
-    console.error('Scatterplot data is unavailable or invalid.');
+    console.error('Bubble chart data is unavailable or invalid.');
     return null;
   }
 
-  const scatterplotData = output.result;
+  const bubbleChartData = output.result;
 
-  if (!scatterplotData) {
-    console.error('Scatterplot data is unavailable or invalid.');
+  if (!bubbleChartData) {
+    console.error('Bubble chart data is unavailable or invalid.');
     return null;
   }
-  const {variableX, variableY} = output.result as ScatterplotOutput['result'];
+  const {variableX, variableY, variableSize, variableColor} =
+    output.result as BubbleChartOutput['result'];
 
-  const scatterPlotProps: ScatterPlotProps = {
+  const bubbleChartProps: BubbleChartProps = {
     id: generateRandomId(),
-    type: 'scatter',
+    type: 'bubble',
     variableX: variableX,
-    variableY: variableY
+    variableY: variableY,
+    variableSize: variableSize,
+    variableColor: variableColor
   };
 
-  // handle click event
+  // Handle click event
   const onClick = () => {
-    // dispatch action to update redux state with the new scatterplot
-    dispatch(addPlot({...scatterPlotProps, isNew: true}));
-    // hide the button once clicked
+    // Dispatch action to update redux state with the new bubble chart
+    dispatch(addPlot({...bubbleChartProps, isNew: true}));
+    // Hide the button once clicked
     setHide(true);
   };
 
   return (
     <div className="h-[330px] w-full">
       <div className="h-[280px] w-full">
-        <Scatterplot props={scatterPlotProps} />
+        <BubbleChart props={bubbleChartProps} />
       </div>
       <Button
         radius="full"
@@ -61,7 +64,7 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
       >
         <Typewriter
           options={{
-            strings: 'Click to Add This Scatterplot',
+            strings: 'Click to Add This Bubble Chart',
             autoStart: true,
             loop: false,
             delay: 10

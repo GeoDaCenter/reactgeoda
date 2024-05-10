@@ -2,6 +2,9 @@ const {resolve} = require('path');
 // const CopyPlugin = require('copy-webpack-plugin');
 
 const isStaticExport = process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
+// import package.json to get version from ../../csds_kepler/package.json
+const packageJson = require('../../csds_kepler/package.json');
+const keplerVersion = packageJson.version;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -62,13 +65,15 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
-      'styled-components': resolve(__dirname, './node_modules/styled-components'),
+      'styled-components': resolve(__dirname, '../../csds_kepler/node_modules/styled-components'),
       'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,
         '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'
       ),
+      'react-palm': resolve(__dirname, '../../csds_kepler/node_modules/react-palm'),
+      'asciify-image': resolve(__dirname, './node_modules/asciify-image'),
       '@kepler.gl/effects': resolve(__dirname, '../../csds_kepler/src/effects/src/index'),
       '@kepler.gl/reducers': resolve(__dirname, '../../csds_kepler/src/reducers/src/index'),
       '@kepler.gl/actions': resolve(__dirname, '../../csds_kepler/src/actions/src/index'),
@@ -117,6 +122,24 @@ const nextConfig = {
       include: /node_modules/,
       type: 'javascript/auto'
     });
+
+    // This is to find and replace __PACKAGE_VERSION__ with 3.0.0 in kepler
+    config.module.rules.push({
+      test: /\.ts$/,
+      loader: 'string-replace-loader',
+      options: {
+        search: '__PACKAGE_VERSION__',
+        replace: keplerVersion,
+        flags: 'g'
+      }
+    });
+
+    // Define global variable __VERSION__ with value "4.1.0" for loaders.gl
+    config.plugins.push(
+      new (require('webpack').DefinePlugin)({
+        __VERSION__: JSON.stringify('4.2.1')
+      })
+    );
 
     // This is to avoid error when using GeoDaWASM
     config.resolve.fallback = {fs: false};
