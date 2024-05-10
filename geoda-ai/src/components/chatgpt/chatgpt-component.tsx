@@ -20,7 +20,10 @@ export type ChatGPTComponentProps = {
   // the function to initialize OpenAI js client
   initOpenAI: (apiKey: string) => void;
   // the function to process user prompt message and return response in array of MessageModel
-  processMessage: (message: string) => Promise<Array<MessageModel>>;
+  processMessage: (
+    message: string,
+    streamMessage: (delta: string, customMessage?: MessageModel) => void
+  ) => Promise<Array<MessageModel>>;
   // the function to return a component to render custom message
   getCustomMessageComponent?: () => React.FC<{props: any}>;
   // initial messages
@@ -85,13 +88,25 @@ export const ChatGPTComponent = ({
     setMessages(newMessages);
     setIsTyping(true);
 
+    // add an empty return message to show typing indicator
+    setMessages([
+      ...newMessages,
+      {message: ' ', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
+    ]);
+
     // process input message to chatgpt
-    const returnMessage = await processMessage(message);
+    await processMessage(message, (deltaMessage: string, customMessage?: MessageModel) => {
+      setMessages([
+        ...newMessages,
+        {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
+        ...(customMessage ? [customMessage] : [])
+      ]);
+    });
 
     // display return message in dialog
-    if (returnMessage) {
-      setMessages([...newMessages, ...returnMessage]);
-    }
+    // if (returnMessage) {
+    //   setMessages([...newMessages, ...returnMessage]);
+    // }
     setIsTyping(false);
   };
 
