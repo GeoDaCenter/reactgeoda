@@ -21,7 +21,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnData, getDataset, getLayer} from '@/utils/data-utils';
 import {wrapTo} from '@kepler.gl/actions';
 import {SIDEBAR_PANELS} from '@kepler.gl/constants';
-import {getDefaultColorRange} from '../common/color-selector';
+import {getDefaultColorRange} from '@/utils/color-utils';
 import {ClassificationPanel, ClassificationOnValuesChange} from '../common/classification-panel';
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {addKeplerColumn} from '@/utils/table-utils';

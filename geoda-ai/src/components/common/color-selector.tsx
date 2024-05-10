@@ -1,7 +1,8 @@
 import React from 'react';
 import {Select, SelectItem} from '@nextui-org/react';
-import {COLOR_RANGES, ColorRange} from '@kepler.gl/constants';
+import {ColorRange} from '@kepler.gl/constants';
 import {ColorPalette} from '@kepler.gl/components';
+import {ALL_COLOR_RANGES} from '@/utils/color-utils';
 
 type ColorSelectorProps = {
   numberOfColors?: number;
@@ -9,18 +10,12 @@ type ColorSelectorProps = {
   onSelectColorRange: (colorRange: ColorRange) => void;
 };
 
-export function getDefaultColorRange(numberOfColors: number) {
-  return COLOR_RANGES.find(colorRange => {
-    return colorRange.colors.length === numberOfColors;
-  });
-}
-
 export function ColorSelector({
   numberOfColors = 5,
   defaultColorRange,
   onSelectColorRange
 }: ColorSelectorProps) {
-  const colorRanges = COLOR_RANGES.filter(colorRange => {
+  const colorRanges = ALL_COLOR_RANGES.filter(colorRange => {
     return colorRange.colors.length === numberOfColors;
   });
 
@@ -42,13 +37,15 @@ export function ColorSelector({
           />
         ));
       }}
-      defaultSelectedKeys={[`${selectedColorRange.name}`]}
+      selectedKeys={[`${selectedColorRange.name}`]}
     >
       {colorRange => (
         <SelectItem
           key={`${colorRange.name}`}
           onClick={() => onSelectColorRange(colorRange)}
           className="gap-0 py-0"
+          textValue=""
+          value=""
         >
           <ColorPalette
             colors={colorRange.colors}

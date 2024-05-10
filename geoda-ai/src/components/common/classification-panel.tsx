@@ -1,14 +1,15 @@
 // This component will be used to display the classification panel for data or map classification
 
-import {MappingTypes} from '@/constants';
+import {MAP_ID, MappingTypes} from '@/constants';
 import {useMemo, useState} from 'react';
-import {ColorSelector, getDefaultColorRange} from './color-selector';
+import {ColorSelector} from './color-selector';
 import {Select, SelectItem, Tab, Tabs} from '@nextui-org/react';
 import {ColorRange} from '@kepler.gl/constants';
-import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
+import {getColumnData, getDataContainer, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {RateValueComponent} from './rate-component';
+import {getDefaultColorRange, findColorRange} from '@/utils/color-utils';
 
 export const ClassificationTypes = [
   {
@@ -72,6 +73,12 @@ export type ClassificationPanelProps = {
 export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) {
   // useSelector to get layer from redux store
   const layer = useSelector((state: GeoDaState) => getLayer(state));
+  // use selector to get tableName
+  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  // use selector to get dataContainer
+  const dataContainer = useSelector((state: GeoDaState) =>
+    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
+  );
 
   // useState for number of bins
   const [k, setK] = useState(5);
@@ -95,14 +102,50 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
   const onMapTypeChange = (value: any) => {
     const selectValue = value.currentKey;
     setMappingType(selectValue);
-    onValuesChange?.({method: selectValue, variable, k, colorRange: selectedColorRange});
+    // if user selects unique values, get unique values from the column
+    let numberOfCategories = k;
+    let updatedColorRange = selectedColorRange;
+    if (selectValue === MappingTypes.UNIQUE_VALUES && variable !== '') {
+      try {
+        // get k value for unique values
+        const values = getColumnData(variable, dataContainer);
+        // check if values are all integers
+        values.forEach((v: number) => {
+          if (!Number.isInteger(v)) {
+            throw new Error('Values are not all integers');
+          }
+        });
+        const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
+        numberOfCategories = uniqueValues.length;
+        setK(numberOfCategories);
+        // get color range based on k value
+        const newColorRange = findColorRange(numberOfCategories, selectedColorRange);
+        if (newColorRange) {
+          updatedColorRange = newColorRange;
+          setSelectedColorRange(newColorRange);
+        }
+      } catch (e) {
+        // error because of undefined column
+        setMappingType(MappingTypes.QUANTILE);
+      }
+    }
+    // call onValuesChange callback
+    onValuesChange?.({
+      method: selectValue,
+      variable,
+      k: numberOfCategories,
+      colorRange: updatedColorRange
+    });
   };
 
   // handle number of bins change
   const onKSelectionChange = (value: any) => {
     const kValue = Number(value.currentKey);
     setK(kValue);
-    onValuesChange?.({method: mappingType, variable, k: kValue, colorRange: selectedColorRange});
+    // get color range based on k value when number of bins change
+    const newColorRange = findColorRange(kValue, selectedColorRange);
+    setSelectedColorRange(newColorRange);
+    onValuesChange?.({method: mappingType, variable, k: kValue, colorRange: newColorRange});
   };
 
   // handle variable change
@@ -156,7 +199,7 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
         label="Classification Method"
         className="max-w"
         onSelectionChange={onMapTypeChange}
-        defaultSelectedKeys={[mappingType]}
+        selectedKeys={[mappingType]}
         disabledKeys={ClassificationTypes.filter(t => t.disabled).map(t => t.value)}
       >
         {ClassificationTypes.map(mappingType => (
@@ -169,7 +212,7 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
         label="Number of Categories"
         className="max-w"
         onSelectionChange={onKSelectionChange}
-        defaultSelectedKeys={[`${k}`]}
+        selectedKeys={[`${k}`]}
       >
         {DefaultNumberOfCategories.map(bin => (
           <SelectItem key={bin.value} value={bin.value}>

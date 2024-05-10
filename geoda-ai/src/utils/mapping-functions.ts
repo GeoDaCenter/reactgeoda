@@ -1,5 +1,4 @@
 import {Dispatch} from 'react';
-import colorbrewer from 'colorbrewer';
 import {UnknownAction} from 'redux';
 import {
   naturalBreaks,
@@ -16,6 +15,7 @@ import {ColorRange} from '@kepler.gl/constants';
 
 import {MappingTypes} from '@/constants';
 import {generateRandomId} from './ui-utils';
+import {getDefaultColorRange} from './color-utils';
 
 type CreateUniqueValuesMapProps = {
   dispatch: Dispatch<UnknownAction>;
@@ -37,11 +37,11 @@ export function createUniqueValuesMap({
   colorFieldName
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
-  const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
-  const colorMap = colors.map((color, index) => {
+  const colors = getDefaultColorRange(hexColors.length)?.colors;
+  const colorMap = colors?.map((color, index) => {
     return [uniqueValues[index], color];
   });
-  const colorLegend = colors.map((color, index) => ({
+  const colorLegend = colors?.map((color, index) => ({
     color,
     legend: `${legendLabels[index]}`
   }));
@@ -65,7 +65,7 @@ export function createUniqueValuesMap({
     config: {
       dataId,
       columns: {geojson: layer?.config.columns.geojson.value},
-      label: `${mappingType} Map`,
+      label: `${mappingType} Map - ${colorFieldName}`,
       colorScale: 'ordinal',
       colorField: {
         name: `${colorFieldName}`,
@@ -107,17 +107,15 @@ export function createCustomScaleMap({
   colorRange
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
-  const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
-  let colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
-
+  let colors = getDefaultColorRange(breaks.length + 1)?.colors;
   if (colorRange) {
     colors = colorRange.colors;
   }
 
-  const colorMap = colors.map((color, index) => {
+  const colorMap = colors?.map((color, index) => {
     return [breaks[index], color];
   });
-  const colorLegend = colors.map((color, index) => ({
+  const colorLegend = colors?.map((color, index) => ({
     color,
     legend: `${breaks[index]}`
   }));
@@ -136,7 +134,7 @@ export function createCustomScaleMap({
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
   const id = generateRandomId();
-  const label = `${mappingType} Map`;
+  const label = `${mappingType} Map - ${colorFieldName} (${breaks.length + 1} classes)`;
   // create a new Layer
   const newLayer = {
     id,
