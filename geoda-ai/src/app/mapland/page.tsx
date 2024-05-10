@@ -9,7 +9,6 @@ import '@/styles/superfine.css';
 import '@/styles/maplibre-gl.css';
 
 import {useRef} from 'react';
-// import dynamic from 'next/dynamic';
 import {Provider as ReduxProvider} from 'react-redux';
 import {RootContext} from '@kepler.gl/components';
 
@@ -19,12 +18,13 @@ import GridLayout from '@/components/dashboard/grid-layout';
 // import LanguageSelector from '../components/language-selector';
 import IntlProviderWrapper from '@/components/intl-provider-wrapper';
 import {Navigator} from '@/components/navigator';
-import {PanelContainer} from '@/components/panel/panel-container';
 import {TableContainer} from '@/components/table/table-container';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {SaveProjectModal} from '@/components/save-project-modal';
 import {useSearchParams} from 'next/navigation';
+import {PanelContainer} from '@/components/panel/panel-container';
 
+// the following components used use-duckdb hook and should be loaded dynamically
 import dynamic from 'next/dynamic';
 const OpenFileModal = dynamic(() => import('@/components/open-file-modal'), {ssr: false});
 

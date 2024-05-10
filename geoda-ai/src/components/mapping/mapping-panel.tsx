@@ -11,7 +11,11 @@ import {
 import {LayerClasses} from '@kepler.gl/layers';
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
-import {createMapBreaks, createCustomScaleMap} from '@/utils/mapping-functions';
+import {
+  createMapBreaks,
+  createCustomScaleMap,
+  createUniqueValuesMap
+} from '@/utils/mapping-functions';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {getColumnData, getDataset, getLayer} from '@/utils/data-utils';
@@ -28,7 +32,7 @@ const MapManager = appInjector.get(MapManagerFactory);
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
-export function MappingPanel() {
+function MappingPanel() {
   const intl = useIntl();
   const dispatch = useDispatch();
   const {addColumnWithValues} = useDuckDB();
@@ -100,18 +104,33 @@ export function MappingPanel() {
     // get column data from dataContainer
     const columnData = getColumnData(variable, layer.dataContainer);
 
-    // run map breaks
-    const breaks = await createMapBreaks(mappingType, k, columnData);
+    if (mappingType === MappingTypes.UNIQUE_VALUES) {
+      const uniqueValues = Array.from(new Set(columnData));
+      const legendLabels = uniqueValues.map(v => v.toString());
+      // create unique values map in kepler.gl
+      createUniqueValuesMap({
+        dispatch,
+        layer,
+        uniqueValues,
+        legendLabels,
+        hexColors: selectedColorRange?.colors || [],
+        mappingType,
+        colorFieldName: variable
+      });
+    } else {
+      // run map breaks
+      const breaks = await createMapBreaks(mappingType, k, columnData);
 
-    // create custom scale map in kepler.gl
-    createCustomScaleMap({
-      breaks,
-      mappingType,
-      colorFieldName: variable,
-      dispatch,
-      layer,
-      colorRange: selectedColorRange
-    });
+      // create custom scale map in kepler.gl
+      createCustomScaleMap({
+        breaks,
+        mappingType,
+        colorFieldName: variable,
+        dispatch,
+        layer,
+        colorRange: selectedColorRange
+      });
+    }
   };
 
   return (
@@ -202,3 +221,5 @@ export function MappingPanel() {
     </RightPanelContainer>
   );
 }
+
+export default MappingPanel;

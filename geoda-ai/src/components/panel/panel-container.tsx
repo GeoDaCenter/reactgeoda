@@ -6,7 +6,6 @@ import {GeoDaState} from '../../store';
 import {SettingsPanel} from './settings-panel';
 import {IconXClose} from '../icons/xclose';
 import {setShowPropertyPanel} from '@/actions';
-import {MappingPanel} from '../mapping/mapping-panel';
 
 import {WeightsPanel} from '../weights/weights-panel';
 import {LisaPanel} from '../lisa/lisa-panel';
@@ -20,6 +19,7 @@ import {DashboardPanel} from '../dashboard/dashboard-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
+const MappingPanel = dynamic(() => import('../mapping/mapping-panel'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {
