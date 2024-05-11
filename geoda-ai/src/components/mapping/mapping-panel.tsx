@@ -1,5 +1,5 @@
 import {useIntl} from 'react-intl';
-import {Button, Tabs, Tab, Card, CardBody, Spacer} from '@nextui-org/react';
+import {Button, Tabs, Tab, Card, CardBody, Spacer, CardHeader} from '@nextui-org/react';
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -56,7 +56,6 @@ function MappingPanel() {
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   // get datasets from redux store
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
   const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
   const layerOrder = useSelector(
@@ -163,50 +162,46 @@ function MappingPanel() {
                 </div>
               }
             >
-              <Card>
-                <CardBody>
-                  <div className="flex flex-col gap-2">
-                    <ClassificationPanel onValuesChange={onClassficationValueChange} />
-                    <Spacer y={2} />
-                    <Button
-                      radius="sm"
-                      color="primary"
-                      className="bg-rose-900"
-                      onClick={onCreateMap}
-                      isDisabled={!variable || !mappingType || k <= 0}
+              <div className="flex flex-col gap-2">
+                <Card>
+                  <CardBody>
+                    <div className="flex flex-col gap-2">
+                      <ClassificationPanel onValuesChange={onClassficationValueChange} />
+                      <Spacer y={2} />
+                      <Button
+                        radius="sm"
+                        color="primary"
+                        className="bg-rose-900"
+                        onClick={onCreateMap}
+                        isDisabled={!variable || !mappingType || k <= 0}
+                      >
+                        Create a New Map Layer
+                      </Button>
+                    </div>
+                  </CardBody>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <p className="text-sm">Map Layers</p>
+                  </CardHeader>
+                  <CardBody>
+                    <KeplerGlContext.Provider
+                      value={{id: MAP_ID, selector: state => state.keplerGl[MAP_ID]}}
                     >
-                      Create a New Map Layer
-                    </Button>
-                  </div>
-                </CardBody>
-              </Card>
-            </Tab>
-            <Tab
-              key="map-management"
-              title={
-                <div className="flex items-center space-x-2">
-                  <span>Map Layers</span>
-                </div>
-              }
-            >
-              <Card>
-                <CardBody>
-                  <KeplerGlContext.Provider
-                    value={{id: MAP_ID, selector: state => state.keplerGl[MAP_ID]}}
-                  >
-                    <DndContext>
-                      <LayerList
-                        datasets={datasets}
-                        layers={layers}
-                        layerOrder={layerOrder}
-                        layerClasses={LayerClasses}
-                        uiStateActions={uiStateActions}
-                        visStateActions={visStateActions}
-                      />
-                    </DndContext>
-                  </KeplerGlContext.Provider>
-                </CardBody>
-              </Card>
+                      <DndContext>
+                        <LayerList
+                          datasets={datasets}
+                          layers={layers}
+                          layerOrder={layerOrder}
+                          layerClasses={LayerClasses}
+                          uiStateActions={uiStateActions}
+                          visStateActions={visStateActions}
+                        />
+                      </DndContext>
+                    </KeplerGlContext.Provider>
+                  </CardBody>
+                </Card>
+              </div>
             </Tab>
             <Tab
               key="basemap"
