@@ -46,7 +46,10 @@ const nextConfig = {
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
       'styled-components': resolve(__dirname, '../../csds_kepler/node_modules/styled-components'),
       'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js'),
-      // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
+      '@dnd-kit/core': resolve(__dirname, './node_modules/@dnd-kit/core'),
+      '@dnd-kit/modifiers': resolve(__dirname, './node_modules/@dnd-kit/modifiers'),
+      '@dnd-kit/sortable': resolve(__dirname, './node_modules/@dnd-kit/sortable'),
+      '@dnd-kit/utilities': resolve(__dirname, './node_modules/@dnd-kit/utilities'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,
         '../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs'

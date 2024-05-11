@@ -4,6 +4,8 @@ import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   appInjector,
+  DndContextFactory,
+  KeplerGlContext,
   LayerListFactory,
   makeGetActionCreators,
   MapManagerFactory
@@ -25,10 +27,12 @@ import {getDefaultColorRange} from '@/utils/color-utils';
 import {ClassificationPanel, ClassificationOnValuesChange} from '../common/classification-panel';
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {addKeplerColumn} from '@/utils/table-utils';
+// import {DndContext} from '@dnd-kit/core';
 
 // const MapContainer = KeplerInjector.get(MapContainerFactory);
 const LayerList = appInjector.get(LayerListFactory);
 const MapManager = appInjector.get(MapManagerFactory);
+const DndContext = appInjector.get(DndContextFactory);
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -52,6 +56,7 @@ function MappingPanel() {
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   // get datasets from redux store
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
   const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
   const layerOrder = useSelector(
@@ -186,14 +191,20 @@ function MappingPanel() {
             >
               <Card>
                 <CardBody>
-                  <LayerList
-                    datasets={datasets}
-                    layers={layers}
-                    layerOrder={layerOrder}
-                    layerClasses={LayerClasses}
-                    uiStateActions={uiStateActions}
-                    visStateActions={visStateActions}
-                  />
+                  <KeplerGlContext.Provider
+                    value={{id: MAP_ID, selector: state => state.keplerGl[MAP_ID]}}
+                  >
+                    <DndContext>
+                      <LayerList
+                        datasets={datasets}
+                        layers={layers}
+                        layerOrder={layerOrder}
+                        layerClasses={LayerClasses}
+                        uiStateActions={uiStateActions}
+                        visStateActions={visStateActions}
+                      />
+                    </DndContext>
+                  </KeplerGlContext.Provider>
                 </CardBody>
               </Card>
             </Tab>
