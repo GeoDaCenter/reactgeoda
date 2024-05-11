@@ -1,5 +1,5 @@
 import {useCallback} from 'react';
-
+import {tableFromArrays} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
@@ -130,6 +130,39 @@ export async function getColumnData(columnName: string): Promise<number[]> {
  * @returns {query, importTable} functions to query and import data
  */
 export function useDuckDB() {
+  /**
+   * Add a new column to the table with the column name and values.
+   * Note: using a bulk appended table:
+   * Using a temporary table to store the values and then update the main table
+   */
+  const addColumnWithValues = useCallback(
+    async (tableName: string, columnName: string, columnValues: number[]) => {
+      if (db) {
+        try {
+          const conn = await db.connect();
+          // create a temporary arrow table with the column name and values
+          const arrowTable = tableFromArrays({[columnName]: columnValues});
+          // create a temporary duckdb table using the arrow table
+          await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
+          // add a new column from the temporary table to the main table
+          await conn.query(
+            `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" NUMERIC DEFAULT 0`
+          );
+          // update the new column with the values from the temporary table
+          await conn.query(
+            `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
+          );
+          // drop the temporary table
+          await conn.query(`DROP TABLE "temp_${columnName}"`);
+          await conn.close();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    },
+    []
+  );
+
   const addColumn = useCallback(async (sql: string) => {
     if (db) {
       try {
@@ -225,5 +258,5 @@ export function useDuckDB() {
     []
   );
 
-  return {query, queryValues, addColumn, importArrowFile};
+  return {query, queryValues, addColumn, importArrowFile, addColumnWithValues};
 }
