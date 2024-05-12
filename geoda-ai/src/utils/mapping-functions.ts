@@ -1,21 +1,21 @@
 import {Dispatch} from 'react';
-import colorbrewer from 'colorbrewer';
 import {UnknownAction} from 'redux';
-import {naturalBreaks, quantileBreaks} from 'geoda-wasm';
+import {
+  naturalBreaks,
+  quantileBreaks,
+  equalIntervalBreaks,
+  hinge15Breaks,
+  hinge30Breaks,
+  percentileBreaks,
+  standardDeviationBreaks
+} from 'geoda-wasm';
 import {addLayer, reorderLayer} from '@kepler.gl/actions';
 import {Layer} from '@kepler.gl/layers';
+import {ColorRange} from '@kepler.gl/constants';
 
 import {MappingTypes} from '@/constants';
 import {generateRandomId} from './ui-utils';
-
-type CreateCustomScaleMapProps = {
-  dispatch: Dispatch<UnknownAction>;
-  layer: Layer;
-  breaks: number[];
-  mappingType: string;
-  colorFieldName: string;
-  isPreview?: boolean;
-};
+import {getDefaultColorRange} from './color-utils';
 
 type CreateUniqueValuesMapProps = {
   dispatch: Dispatch<UnknownAction>;
@@ -37,11 +37,11 @@ export function createUniqueValuesMap({
   colorFieldName
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
-  const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
-  const colorMap = colors.map((color, index) => {
+  const colors = getDefaultColorRange(hexColors.length)?.colors;
+  const colorMap = colors?.map((color, index) => {
     return [uniqueValues[index], color];
   });
-  const colorLegend = colors.map((color, index) => ({
+  const colorLegend = colors?.map((color, index) => ({
     color,
     legend: `${legendLabels[index]}`
   }));
@@ -65,7 +65,7 @@ export function createUniqueValuesMap({
     config: {
       dataId,
       columns: {geojson: layer?.config.columns.geojson.value},
-      label: `${mappingType} Map`,
+      label: `${mappingType} Map - ${colorFieldName}`,
       colorScale: 'ordinal',
       colorField: {
         name: `${colorFieldName}`,
@@ -87,38 +87,54 @@ export function createUniqueValuesMap({
   dispatch(reorderLayer([newLayer.id, existingLayerIds]));
 }
 
+type CreateCustomScaleMapProps = {
+  dispatch: Dispatch<UnknownAction>;
+  layer: Layer;
+  breaks: number[];
+  mappingType: string;
+  colorFieldName: string;
+  isPreview?: boolean;
+  colorRange?: ColorRange;
+};
+
 export function createCustomScaleMap({
   dispatch,
   layer,
   breaks,
   mappingType,
   colorFieldName,
-  isPreview
+  isPreview,
+  colorRange
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
-  const hexColors = colorbrewer.YlOrBr[breaks.length + 1];
-  const colors = hexColors.map(color => `#${color.match(/[0-9a-f]{2}/g)?.join('')}`);
-  const colorMap = colors.map((color, index) => {
+  let colors = getDefaultColorRange(breaks.length + 1)?.colors;
+  if (colorRange) {
+    colors = colorRange.colors;
+  }
+
+  const colorMap = colors?.map((color, index) => {
     return [breaks[index], color];
   });
-  const colorLegend = colors.map((color, index) => ({
+  const colorLegend = colors?.map((color, index) => ({
     color,
     legend: `${breaks[index]}`
   }));
-  const colorRange = {
+
+  const customColorRange = {
     category: 'custom',
     type: 'diverging',
     name: 'ColorBrewer RdBu-5',
     colors,
     colorMap,
-    colorLegend
+    colorLegend,
+    ...(colorRange || {})
   };
 
   // get dataId
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
   const id = generateRandomId();
-  const label = `${mappingType} Map`;
+  const label = `${mappingType} Map - ${colorFieldName} (${breaks.length + 1} classes)`;
   // create a new Layer
   const newLayer = {
     id,
@@ -134,7 +150,7 @@ export function createCustomScaleMap({
       },
       visConfig: {
         ...layer?.config.visConfig,
-        colorRange,
+        colorRange: customColorRange,
         colorDomain: breaks,
         thickness: 0.2
       },
@@ -160,6 +176,17 @@ export async function createMapBreaks(
     return await quantileBreaks(k, values);
   } else if (mappingType === MappingTypes.NATURAL_BREAK) {
     return await naturalBreaks(k, values);
+  } else if (mappingType === MappingTypes.EQUAL_INTERVAL) {
+    return await equalIntervalBreaks(k, values);
+  } else if (mappingType === MappingTypes.BOX_MAP_15) {
+    return await hinge15Breaks(values);
+  } else if (mappingType === MappingTypes.BOX_MAP_30) {
+    return await hinge30Breaks(values);
+  } else if (mappingType === MappingTypes.PERCENTILE) {
+    return await percentileBreaks(values);
+  } else if (mappingType === MappingTypes.STD_MAP) {
+    return await standardDeviationBreaks(values);
   }
+
   return [];
 }

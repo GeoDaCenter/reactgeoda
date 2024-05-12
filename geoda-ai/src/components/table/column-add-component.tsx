@@ -22,7 +22,7 @@ import {TableVariableValueComponent} from './column-variable-component';
 import {SQL_KEYWORDS} from '@/constants';
 import {SQLEditor} from './sql-editor';
 import {SpatialLagValueComponent} from './column-spatial-lag-component';
-import {RateValueComponent} from './column-rate-component';
+import {RateValueComponent} from '../common/rate-component';
 
 export function AddColumn() {
   const [columnName, setColumnName] = useState('');
@@ -32,7 +32,7 @@ export function AddColumn() {
   const [previewTab, setPreviewTab] = useState('preview-table');
   const [columnNameError, setColumnNameError] = useState(false);
 
-  const {addColumn} = useDuckDB();
+  const {addColumn, addColumnWithValues} = useDuckDB();
   const dispatch = useDispatch();
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
@@ -81,7 +81,12 @@ export function AddColumn() {
   // handle add column
   const handleAddColumnClick = () => {
     // add column to duckdb
-    addColumn(code);
+    if (Array.isArray(values)) {
+      addColumnWithValues(tableName, columnName, values);
+    } else {
+      addColumn(code);
+    }
+
     // add column to kepler.gl
     addKeplerColumn({
       dataset,
@@ -97,6 +102,10 @@ export function AddColumn() {
   // handle preview selection change
   const onPreviewSelectionChange = (key: Key) => {
     setPreviewTab(key as string);
+  };
+
+  const onRateValuesChange = (values: unknown | unknown[]) => {
+    setValues(values);
   };
 
   return (
@@ -143,7 +152,7 @@ export function AddColumn() {
               <SpatialLagValueComponent setValues={setValues} />
             </Tab>
             <Tab key="rates" title="Rates">
-              <RateValueComponent setValues={setValues} />
+              <RateValueComponent onValuesChange={onRateValuesChange} />
             </Tab>
           </Tabs>
         </CardBody>
