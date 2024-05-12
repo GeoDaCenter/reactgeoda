@@ -23,7 +23,7 @@ export type ChatGPTComponentProps = {
   processMessage: (
     message: string,
     streamMessage: (delta: string, customMessage?: MessageModel) => void
-  ) => Promise<Array<MessageModel>>;
+  ) => void;
   // the function to return a component to render custom message
   getCustomMessageComponent?: () => React.FC<{props: any}>;
   // initial messages

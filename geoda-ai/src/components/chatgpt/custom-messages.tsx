@@ -12,13 +12,7 @@ import {CustomSpregMessage} from './custom-spreg-message';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
 import {CustomMapMessage} from './custom-map-message';
 import {CustomCreateVariableMessage} from './custom-create-variable-message';
-
-type CustomFunctionOutputProps = {
-  type: string;
-  name: string;
-  result: unknown;
-  data?: unknown;
-};
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 
 export type CustomMessagePayload = {
   type: string;
