@@ -1,6 +1,8 @@
 const {resolve} = require('path');
+const path = require('path');
 // const CopyPlugin = require('copy-webpack-plugin');
 
+const isStaticExport = process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
 // import package.json to get version from ../../csds_kepler/package.json
 const packageJson = require('../../csds_kepler/package.json');
 const keplerVersion = packageJson.version;
@@ -10,7 +12,7 @@ const nextConfig = {
   // set react strict mode false to fix react-modal cannot register modal instance that's already open
   reactStrictMode: false,
   // enable a static export and export all pages to static HTML files under out folder
-  output: 'export',
+  output: isStaticExport ? 'export' : 'standalone',
   // discard: only set basePath to /reactgeoda to deploy in github pages
   basePath: process.env.BASE_PATH ?? '/reactgeoda',
   typescript: {
@@ -21,6 +23,7 @@ const nextConfig = {
     // remove console.log in production
     removeConsole: process.env.NODE_ENV === 'production'
   },
+
   webpack: config => {
     // Support WASM modules for duckdb and geoda
     config.experiments = {
@@ -138,5 +141,16 @@ const nextConfig = {
     return config;
   }
 };
+
+// Conditionally set the redirects if not a static export
+if (!isStaticExport) {
+  nextConfig['redirects'] = async () => [
+    {
+      source: '/logout',
+      destination: `${process.env.COGNITO_HOSTED_UI_DOMAIN}/logout?client_id=${process.env.COGNITO_CLIENT_ID}&logout_uri=${process.env.OAUTH_SIGN_OUT_REDIRECT_URL}`,
+      permanent: false
+    }
+  ];
+}
 
 module.exports = nextConfig;

@@ -2,8 +2,9 @@ import React, {Suspense} from 'react';
 import {GoogleAnalytics} from '@next/third-parties/google';
 import ThemeClient from './theme-client';
 import Loading from './loading';
-import {Providers} from './providers';
 import StyledComponentsRegistry from '../lib/registry';
+
+import {Providers} from './providers';
 
 export const metadata = {
   title: 'GeoDa.AI',

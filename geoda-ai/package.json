@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env BASE_PATH='' next dev",
     "copy-geoda-wasm": "cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/app/mapland/geoda.wasm && cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/geoda.wasm",
-    "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build && yarn copy-geoda-wasm",
+    "remove-auth": "rm -rf ./src/app/api/auth",
+    "build-local": "yarn remove-auth && cross-env NODE_ENV=production BASE_PATH='' NEXT_PUBLIC_STATIC_EXPORT=true next build && yarn copy-geoda-wasm",
     "get-kepler": "cd ../.. && git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler",
     "get-geoda-lib": "cd ../.. && git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib",
     "build-kepler": "yarn set version 1.22.19 && yarn --cwd ../../csds_kepler install",
@@ -14,7 +15,9 @@
     "prettier": "prettier --ignore-path ./.prettierignore . '**/*.{js,jsx,ts,tsx}' --check",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "build:ssr": "cross-env NEXT_PUBLIC_STATIC_EXPORT=false next build",
+    "dev-static": "cross-env NEXT_PUBLIC_STATIC_EXPORT=true BASE_PATH='' next dev"
   },
   "dependencies": {
     "@chatscope/chat-ui-kit-react": "^1.10.1",
@@ -30,6 +33,7 @@
     "@loaders.gl/shapefile": "^4.1.0-alpha.4",
     "@monaco-editor/react": "^4.6.0",
     "@nextui-org/react": "^2.2.9",
+    "amazon-cognito-identity-js": "^6.3.12",
     "apache-arrow": "^13.0.0",
     "color-interpolate": "^1.0.5",
     "d3-array": "^3.2.4",
@@ -40,6 +44,7 @@
     "framer-motion": "^10.18.0",
     "lexical": "0.14.2",
     "next": "14.0.4",
+    "next-auth": "^4.24.7",
     "next-themes": "^0.2.1",
     "openai": "^4.24.1",
     "react": "18.2.0",
