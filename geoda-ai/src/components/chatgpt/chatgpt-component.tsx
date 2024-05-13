@@ -132,7 +132,7 @@ export const ChatGPTComponent = ({
               <TypingIndicator
                 content={intl.formatMessage({
                   id: 'GeoDa.AI.isTyping',
-                  defaultMessage: 'GeoDa.AI is typing'
+                  defaultMessage: 'GeoDa.AI is thinking'
                 })}
               />
             ) : null
@@ -173,7 +173,7 @@ export const ChatGPTComponent = ({
         <MessageInput
           placeholder={intl.formatMessage({
             id: 'chatGpt.inputPlaceholder',
-            defaultMessage: 'Type message here'
+            defaultMessage: 'Type your question here'
           })}
           onSend={handleSend}
           className="fill-current text-black dark:text-white"
