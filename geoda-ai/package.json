@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env BASE_PATH='' next dev",
     "copy-geoda-wasm": "cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/app/mapland/geoda.wasm && cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/geoda.wasm",
-    "build-local": "cross-env NODE_ENV=production BASE_PATH='' NEXT_PUBLIC_STATIC_EXPORT=true next build && yarn copy-geoda-wasm",
+    "remove-auth": "rm -rf ./src/app/api/auth",
+    "build-local": "yarn remove-auth && cross-env NODE_ENV=production BASE_PATH='' NEXT_PUBLIC_STATIC_EXPORT=true next build && yarn copy-geoda-wasm",
     "get-kepler": "cd ../.. && git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler",
     "get-geoda-lib": "cd ../.. && git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib",
     "build-kepler": "yarn set version 1.22.19 && yarn --cwd ../../csds_kepler install",
@@ -89,7 +90,6 @@
     "jsonp": "^0.2.1",
     "mersenne-twister": "^1.1.0",
     "monaco-editor": "^0.45.0",
-    "null-loader": "^4.0.1",
     "postcss": "^8",
     "postcss-reporter": "^7.0.5",
     "prettier": "^3.1.1",

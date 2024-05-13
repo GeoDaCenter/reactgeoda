@@ -16,54 +16,11 @@ import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {accordionItemClasses} from '@/constants';
-import {useSession, signIn, signOut} from 'next-auth/react';
+import {SignIn} from '../auth/sign-in-component';
 
-export function SignIn() {
-  const {data: session} = useSession();
-  const handleCognitoSignIn = () => {
-    signIn('cognito-general');
-  };
-  const handleGoogleSignIn = () => {
-    signIn('cognito-google');
-  };
-  if (session && session.user) {
-    return (
-      <>
-        <Card>
-          <CardBody>
-            <div className="flex flex-col gap-4 p-4">
-              Signed in as {session.user.email} <br />
-              <Button color="danger" onClick={() => signOut({callbackUrl: '/logout'})}>
-                Sign out
-              </Button>
-            </div>
-          </CardBody>
-        </Card>
-      </>
-    );
-  }
-  return (
-    <>
-      <Card>
-        <CardBody>
-          <div className="flex flex-col gap-4 p-4">
-            <p>Login to your account</p>
-            <Button className="login-with-google-btn" onClick={handleGoogleSignIn}>
-              Continue with Google
-            </Button>
-            <Button color="danger" onClick={handleCognitoSignIn}>
-              Sign in
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-    </>
-  );
-}
+const IS_STATIC_EXPORT = process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
 
 export function SettingsPanel() {
-  const isStaticExport = process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
-
   const intl = useIntl();
   const [showUserSettings, setShowUserSettings] = useState(true);
   const onTabChange = (key: Key) => {
@@ -107,7 +64,7 @@ export function SettingsPanel() {
           selectedKey={showUserSettings ? 'user-settings' : 'open-ai'}
           onSelectionChange={onTabChange}
         >
-          {!isStaticExport && (
+          {!IS_STATIC_EXPORT && (
             <Tab key="user-settings" title="User Settings">
               <SignIn />
             </Tab>
