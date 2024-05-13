@@ -140,8 +140,13 @@ export const ChatGPTComponent = ({
         >
           {messages.map((message, i) => {
             return message.type === 'custom' && CustomMessageComponent ? (
-              <Message key={i} model={{direction: 'incoming', type: 'custom', position: 'normal'}}>
-                <Message.CustomContent className="w-[283px]">
+              <Message
+                key={i}
+                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
+                className="geoda-custom-message"
+                // style={{marginTop: '-14px'}}
+              >
+                <Message.CustomContent className="w-full">
                   <CustomMessageComponent props={message.payload ?? {}} />
                 </Message.CustomContent>
               </Message>
