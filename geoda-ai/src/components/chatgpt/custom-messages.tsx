@@ -32,7 +32,8 @@ export function isCustomMessagePayload(payload: MessagePayload): payload is Cust
  */
 export function CustomMessage({props}: {props: MessagePayload}) {
   return (
-    isCustomMessagePayload(props) && (
+    isCustomMessagePayload(props) &&
+    'type' in props.output && (
       <>
         {props.output.type === 'mapping' && <CustomMapMessage props={props} />}
         {props.output.type === 'weights' && <CustomWeightsMessage props={props} />}

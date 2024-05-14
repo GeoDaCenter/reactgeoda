@@ -165,8 +165,7 @@ export function createCustomScaleMap({
         colorDomain: breaks,
         thickness: 0.2,
         opacity: 1
-      },
-      isVisible: true
+      }
     }
   };
 
@@ -174,7 +173,8 @@ export function createCustomScaleMap({
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
   if (isPreview) {
-    dispatch(reorderLayer([...layerOrder, newLayer.id]));
+    // dispatch(reorderLayer([...layerOrder, newLayer.id]));
+    dispatch(reorderLayer([...layerOrder]));
   }
   return newLayer;
 }

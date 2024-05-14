@@ -82,7 +82,7 @@ export function HistogramPanel() {
       {!tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
-        <div className="h-full overflow-y-auto p-4">
+        <div className="h-full w-full overflow-y-auto p-4">
           <Tabs
             aria-label="Options"
             variant="solid"

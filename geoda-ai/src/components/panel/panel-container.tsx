@@ -79,7 +79,7 @@ export const PanelContainer = () => {
         <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
           <IconXClose />
         </div>
-        <div className="h-full">
+        <div className="h-full" style={{width: `${panelWidth}px`}}>
           {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
           {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
           {propertyPanelName === PanelName.MAPPING && <MappingPanel />}

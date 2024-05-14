@@ -3,7 +3,7 @@ import {Accordion, AccordionItem, Button, Tab, Tabs, Radio, RadioGroup} from '@n
 import dynamic from 'next/dynamic';
 
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {getLayer} from '@/utils/data-utils';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
@@ -54,7 +54,13 @@ export function DashboardPanel() {
 
   // get grid items from redux store
   const gridItems = useSelector((state: GeoDaState) => state.root.dashboard.gridItems); // get all layers from kepler.gl visstate
-  const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
+  const layerOrder = useSelector(
+    (state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layerOrder
+  );
+  const layers = useSelector((state: GeoDaState) =>
+    // get layers that their ids are in layerOrder
+    state.keplerGl[MAP_ID]?.visState?.layers?.filter((l: Layer) => layerOrder.includes(l.id))
+  );
   const layerIds = layers?.map((layer: Layer) => layer.id);
   // get all plots from redux state
   const plots = useSelector((state: GeoDaState) => state.root.plots);
@@ -99,7 +105,7 @@ export function DashboardPanel() {
       icon={null}
     >
       {!layer ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
           <div className="flex flex-row gap-4 text-sm">

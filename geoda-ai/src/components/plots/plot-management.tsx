@@ -74,8 +74,8 @@ export const PlotManagementPanel = () => {
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   return (
-    <div className="flex flex-col overflow-y-scroll">
-      <Tabs aria-label="Options" color="primary" variant="underlined" classNames={{}} size="md">
+    <div className="flex flex-col overflow-y-scroll" style={{width: 'calc(100%)'}}>
+      <Tabs aria-label="Options" color="primary" variant="solid" size="md" fullWidth={true}>
         <Tab key="all" title="All">
           <PlotsWrapper plots={plots} />
         </Tab>

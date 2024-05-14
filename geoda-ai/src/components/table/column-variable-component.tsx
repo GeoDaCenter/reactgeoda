@@ -137,7 +137,7 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
         </div> */}
         <Input
           label=""
-          placeholder="Type to search SQL function..."
+          placeholder="Type to search avaiable duckdb SQL function..."
           startContent={
             <SearchIcon className="pointer-events-none mb-0.5 flex-shrink-0 text-black/50 text-slate-400 dark:text-white/90" />
           }
@@ -145,7 +145,7 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
           onValueChange={onSearchFunction}
         />
         <div className="w-full">
-          <ScrollShadow className="h-[100px] w-[300px] p-1" size={10}>
+          <ScrollShadow className="h-[100px] w-[400px] p-1" size={10}>
             <Table
               hideHeader
               aria-label="Duckdb function"
