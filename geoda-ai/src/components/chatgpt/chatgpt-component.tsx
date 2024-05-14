@@ -127,16 +127,7 @@ export const ChatGPTComponent = ({
           autoScrollToBottom={true}
           autoScrollToBottomOnMount={false}
           scrollBehavior="smooth"
-          typingIndicator={
-            isTyping ? (
-              <TypingIndicator
-                content={intl.formatMessage({
-                  id: 'GeoDa.AI.isTyping',
-                  defaultMessage: 'GeoDa.AI is thinking'
-                })}
-              />
-            ) : null
-          }
+          typingIndicator={isTyping ? <TypingIndicator content="" /> : null}
         >
           {messages.map((message, i) => {
             return message.type === 'custom' && CustomMessageComponent ? (

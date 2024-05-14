@@ -66,11 +66,16 @@ export type ClassificationOnValuesChange = {
 };
 
 export type ClassificationPanelProps = {
+  props: {
+    k?: number;
+    variable?: string;
+    mappingType?: string;
+  };
   onValuesChange?: ({method, variable, k, colorRange}: ClassificationOnValuesChange) => void;
 };
 
 // It will be used in the Map Panel component and Bubble Chart component
-export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) {
+export function ClassificationPanel({props, onValuesChange}: ClassificationPanelProps) {
   // useSelector to get layer from redux store
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   // use selector to get tableName
@@ -81,13 +86,13 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
   );
 
   // useState for number of bins
-  const [k, setK] = useState(5);
+  const [k, setK] = useState(props.k || 5);
 
   // useState for variable name
-  const [variable, setVariable] = useState('');
+  const [variable, setVariable] = useState(props.variable || '');
 
   // useState for mapping type
-  const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
+  const [mappingType, setMappingType] = useState(props.mappingType || MappingTypes.QUANTILE);
 
   // useState for selected color range
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
@@ -160,6 +165,7 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
     });
   };
 
+  console.log('variable', variable);
   // handle color range selection change
   const onSelectColorRange = (p: ColorRange) => {
     setSelectedColorRange(p);
@@ -183,7 +189,12 @@ export function ClassificationPanel({onValuesChange}: ClassificationPanelProps) 
     <div className="flex flex-col gap-2">
       <Tabs key="classification-panel-tabs" variant="underlined" aria-label="classification-tabs">
         <Tab key="basic-mapping" title="Basic Mapping">
-          <Select label="Variable" className="max-w" onSelectionChange={onVariableSelectionChange}>
+          <Select
+            label="Variable"
+            className="max-w"
+            onSelectionChange={onVariableSelectionChange}
+            selectedKeys={[variable]}
+          >
             {numericColumns.map((col: string) => (
               <SelectItem key={col} value={col}>
                 {col}

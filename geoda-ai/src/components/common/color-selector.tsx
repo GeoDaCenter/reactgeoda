@@ -22,6 +22,14 @@ export function ColorSelector({
   const selectedColorRange =
     colorRanges.find(colorRange => colorRange.name === defaultColorRange) || colorRanges[0];
 
+  const onColorSchemeSelectionChange = (keys: any) => {
+    const selectValue = keys.currentKey;
+    const selectedColorRange = colorRanges.find(colorRange => colorRange.name === selectValue);
+    if (selectedColorRange) {
+      onSelectColorRange(selectedColorRange);
+    }
+  };
+
   return (
     <Select
       label="Select color scheme"
@@ -38,15 +46,10 @@ export function ColorSelector({
         ));
       }}
       selectedKeys={[`${selectedColorRange.name}`]}
+      onSelectionChange={onColorSchemeSelectionChange}
     >
       {colorRange => (
-        <SelectItem
-          key={`${colorRange.name}`}
-          onClick={() => onSelectColorRange(colorRange)}
-          className="gap-0 py-0"
-          textValue=""
-          value=""
-        >
+        <SelectItem key={`${colorRange.name}`} className="gap-0 py-0" textValue="" value="">
           <ColorPalette
             colors={colorRange.colors}
             isReversed={false}

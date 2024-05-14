@@ -31,6 +31,9 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   // use selector to get layer
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 
+  // use selector to get layerOrder
+  const layerOrder = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder);
+
   // use selector to get layer
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layers);
 
@@ -73,19 +76,20 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
         dispatch,
         layer,
         isPreview: true,
-        colorRange: selectedColorRange
+        colorRange: selectedColorRange,
+        layerOrder
       });
       return newLayer.id;
     }
     return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [breaks, dispatch, functionArgs, output, selectedColorRange]);
 
   // handle click event
   const onClick = () => {
     if ('type' in output && 'mapping' === output.type) {
-      const allLayerIds = layers.map((layer: Layer) => layer.id);
       // find other layers except updateLayer
-      const otherLayers = allLayerIds.filter((id: string) => id !== updateLayer);
+      const otherLayers = layerOrder.filter((id: string) => id !== updateLayer);
       // new order of layers
       const newOrder = [updateLayer, ...otherLayers];
       dispatch(reorderLayer(newOrder));

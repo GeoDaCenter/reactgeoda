@@ -103,8 +103,18 @@ export function RateValueComponent({onValuesChange}: RateValueProps) {
           </SelectItem>
         ))}
       </Select>
-      <VariableSelector setVariable={onEventVariableChange} label="Event Variable" size="sm" />
-      <VariableSelector setVariable={onBaseVariableChange} label="Base Variable" size="sm" />
+      <VariableSelector
+        setVariable={onEventVariableChange}
+        label="Event Variable"
+        size="sm"
+        variable={eventVariableName}
+      />
+      <VariableSelector
+        setVariable={onBaseVariableChange}
+        label="Base Variable"
+        size="sm"
+        variable={baseVariableName}
+      />
       {method.startsWith('Spatial') && (
         <WeightsSelector weights={weights} onSelectWeights={onWeightsSelectionChange} />
       )}

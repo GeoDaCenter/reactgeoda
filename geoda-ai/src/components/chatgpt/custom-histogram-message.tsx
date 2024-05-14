@@ -55,7 +55,7 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
             strings: `Click to Add This Histogram`,
             autoStart: true,
             loop: false,
-            delay: 10
+            delay: 0
           }}
         />
       </Button>

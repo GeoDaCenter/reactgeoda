@@ -25,6 +25,8 @@ type CreateUniqueValuesMapProps = {
   legendLabels: string[];
   mappingType: string;
   colorFieldName: string;
+  layerOrder: string[];
+  isPreview?: boolean;
 };
 
 export function createUniqueValuesMap({
@@ -34,7 +36,9 @@ export function createUniqueValuesMap({
   legendLabels,
   hexColors,
   mappingType,
-  colorFieldName
+  colorFieldName,
+  layerOrder,
+  isPreview
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   const colors = getDefaultColorRange(hexColors.length)?.colors;
@@ -81,11 +85,13 @@ export function createUniqueValuesMap({
       isVisible: true
     }
   };
+
   // dispatch action to add new layer in kepler
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
-  const existingLayerIds = layer.id;
-  dispatch(reorderLayer([newLayer.id, existingLayerIds]));
+  if (isPreview) {
+    dispatch(reorderLayer([...layerOrder, newLayer.id]));
+  }
 }
 
 type CreateCustomScaleMapProps = {
@@ -96,6 +102,7 @@ type CreateCustomScaleMapProps = {
   colorFieldName: string;
   isPreview?: boolean;
   colorRange?: ColorRange;
+  layerOrder: string[];
 };
 
 export function createCustomScaleMap({
@@ -105,7 +112,8 @@ export function createCustomScaleMap({
   mappingType,
   colorFieldName,
   isPreview,
-  colorRange
+  colorRange,
+  layerOrder
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   let colors = getDefaultColorRange(breaks.length + 1)?.colors;
@@ -161,12 +169,12 @@ export function createCustomScaleMap({
       isVisible: true
     }
   };
+
   // dispatch action to add new layer in kepler
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
-  const existingLayerIds = layer.id;
-  if (existingLayerIds && isPreview) {
-    dispatch(reorderLayer([existingLayerIds, newLayer.id]));
+  if (isPreview) {
+    dispatch(reorderLayer([...layerOrder, newLayer.id]));
   }
   return newLayer;
 }
