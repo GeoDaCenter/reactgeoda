@@ -65,7 +65,7 @@ export function createUniqueValuesMap({
     config: {
       dataId,
       columns: {geojson: layer?.config.columns.geojson.value},
-      label: `${mappingType} Map - ${colorFieldName}`,
+      label: `${mappingType}-${colorFieldName}`,
       colorScale: 'ordinal',
       colorField: {
         name: `${colorFieldName}`,
@@ -75,7 +75,8 @@ export function createUniqueValuesMap({
         ...layer?.config.visConfig,
         colorRange,
         colorDomain: uniqueValues,
-        thickness: 0.2
+        thickness: 0.2,
+        opacity: 1
       },
       isVisible: true
     }
@@ -133,9 +134,11 @@ export function createCustomScaleMap({
   // get dataId
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
-  const id = generateRandomId();
-  const label = `${mappingType} Map - ${colorFieldName} (${breaks.length + 1} classes)`;
+  const label = `${mappingType}-${colorFieldName}-${breaks.length + 1}`;
+  // check if there is already a layer with the same label
+
   // create a new Layer
+  const id = generateRandomId();
   const newLayer = {
     id,
     type: 'geojson',
@@ -152,7 +155,8 @@ export function createCustomScaleMap({
         ...layer?.config.visConfig,
         colorRange: customColorRange,
         colorDomain: breaks,
-        thickness: 0.2
+        thickness: 0.2,
+        opacity: 1
       },
       isVisible: true
     }

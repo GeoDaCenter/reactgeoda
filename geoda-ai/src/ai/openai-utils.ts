@@ -44,12 +44,16 @@ export async function initOpenAI(apiKey: string) {
   }
 }
 
-export type CustomFunctionOutputProps = {
-  type: string;
-  name: string;
-  result: unknown;
-  data?: unknown;
-};
+export type CustomFunctionOutputProps =
+  | {
+      type: string;
+      name: string;
+      result: unknown;
+      data?: unknown;
+    }
+  | {
+      result: unknown;
+    };
 
 // key is the name of the function, value is the function itself
 export type CustomFunctions = {

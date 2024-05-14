@@ -92,25 +92,10 @@ div[mapboxgl-children] {
   padding-inline: 6px;
 }
 
-/* splitter */
-.split {
-  display: flex;
-  flex-direction: row;
-  width: calc(100% - 48px);
-}
-
-.gutter {
-  background-color: #eee;
-  background-repeat: no-repeat;
-  background-position: 50%;
-}
-
-.gutter.gutter-horizontal {
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
-  cursor: col-resize;
-}
-
 /* custom chatGPT css */
+.geoda-custom-message .cs-message__content-wrapper {
+  width: 100% !important;
+}
 .cs-button--attachment {
   display: none !important;
 }

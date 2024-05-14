@@ -91,7 +91,7 @@ export const ChatGPTComponent = ({
     // add an empty return message to show typing indicator
     setMessages([
       ...newMessages,
-      {message: ' ', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
+      {message: '', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
     ]);
 
     // process input message to chatgpt
@@ -154,6 +154,7 @@ export const ChatGPTComponent = ({
               <Message
                 key={i}
                 model={message}
+                style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
                 draggable={true}
                 unselectable="on"
                 onDragStart={e =>
