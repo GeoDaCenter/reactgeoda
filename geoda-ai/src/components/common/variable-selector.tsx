@@ -1,7 +1,7 @@
 import {GeoDaState} from '@/store';
 import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
-import {Key, useMemo} from 'react';
+import {Key, useMemo, useState} from 'react';
 import {useSelector} from 'react-redux';
 
 type VariableSelectorProps = {
@@ -16,6 +16,9 @@ export function VariableSelector(props: VariableSelectorProps) {
   // use selector to get layer from redux store
   const layer = useSelector((state: GeoDaState) => getLayer(state));
 
+  // state for variable
+  const [variable, setVariable] = useState<string>('');
+
   // get numeric columns from redux store
   const numericColumns = useMemo(() => {
     const fieldNames = getNumericFieldNames(layer);
@@ -26,6 +29,8 @@ export function VariableSelector(props: VariableSelectorProps) {
   const onVariableSelectionChange = (value: Key) => {
     const selectValue = value as string;
     props.setVariable(selectValue);
+    // update variable in state
+    setVariable(selectValue);
   };
 
   return (
@@ -34,6 +39,7 @@ export function VariableSelector(props: VariableSelectorProps) {
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
       size={props.size || 'md'}
+      selectedKey={variable}
     >
       {numericColumns.map(column => (
         <AutocompleteItem key={column} value={column}>

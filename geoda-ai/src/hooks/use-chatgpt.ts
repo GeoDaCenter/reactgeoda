@@ -5,7 +5,7 @@ import {GeoDaState} from '@/store';
 import {useSelector} from 'react-redux';
 import {MAP_ID} from '@/constants';
 import {getDataContainer} from '@/utils/data-utils';
-import {initOpenAI, processMessage} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps, initOpenAI, processMessage} from '@/ai/openai-utils';
 import {useDuckDB} from './use-duckdb';
 
 /**
@@ -19,7 +19,7 @@ function createMessageFromCustomFunctionCall({
 }: {
   functionName: string;
   functionArgs: Record<string, unknown>;
-  output: any;
+  output: CustomFunctionOutputProps;
 }): MessageModel | null {
   const type = 'custom';
   const message = '';
@@ -33,7 +33,12 @@ function createMessageFromCustomFunctionCall({
     output
   };
 
-  if (functionName !== 'summarizeData') {
+  // get values from enum CustomFunctionNames
+  const allFunctions = Object.keys(CUSTOM_FUNCTIONS);
+  // remove 'summarizeData' from allFunctions
+  const functionsWithCustomMessage = allFunctions.filter(funcName => funcName !== 'summarizeData');
+  // return custom message
+  if (functionsWithCustomMessage.includes(functionName)) {
     return {
       type,
       message,
@@ -99,12 +104,16 @@ export function useChatGPT() {
    * Process message by sending message to ChatGPT assistant and retrieving response
    * @returns
    */
-  async function processChatGPTMessage(question: string): Promise<MessageModel[]> {
-    return processMessage({
+  async function processChatGPTMessage(
+    question: string,
+    streamMessage: (delta: string, customMessage?: MessageModel) => void
+  ) {
+    await processMessage({
       question,
       customFunctions: CUSTOM_FUNCTIONS,
       customFunctionContext: {tableName, visState, weights, dataContainer, queryValues},
-      customMessageCallback: createMessageFromCustomFunctionCall
+      customMessageCallback: createMessageFromCustomFunctionCall,
+      streamMessageCallback: streamMessage
     });
   }
 

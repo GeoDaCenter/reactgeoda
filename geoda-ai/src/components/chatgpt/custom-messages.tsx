@@ -12,13 +12,7 @@ import {CustomSpregMessage} from './custom-spreg-message';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
 import {CustomMapMessage} from './custom-map-message';
 import {CustomCreateVariableMessage} from './custom-create-variable-message';
-
-type CustomFunctionOutputProps = {
-  type: string;
-  name: string;
-  result: unknown;
-  data?: unknown;
-};
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 
 export type CustomMessagePayload = {
   type: string;
@@ -38,7 +32,8 @@ export function isCustomMessagePayload(payload: MessagePayload): payload is Cust
  */
 export function CustomMessage({props}: {props: MessagePayload}) {
   return (
-    isCustomMessagePayload(props) && (
+    isCustomMessagePayload(props) &&
+    'type' in props.output && (
       <>
         {props.output.type === 'mapping' && <CustomMapMessage props={props} />}
         {props.output.type === 'weights' && <CustomWeightsMessage props={props} />}

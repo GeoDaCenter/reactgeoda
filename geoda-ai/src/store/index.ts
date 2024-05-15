@@ -117,7 +117,12 @@ export const reducers = combineReducers({
 // Customize logger
 const loggerMiddleware = createLogger({
   predicate: (_getState: any, action: any) => {
-    const skipLogging = ['@@kepler.gl/LAYER_HOVER', '@@kepler.gl/MOUSE_MOVE'];
+    const skipLogging = [
+      '@@kepler.gl/LAYER_HOVER',
+      '@@kepler.gl/MOUSE_MOVE',
+      '@@kepler.gl/UPDATE_MAP',
+      'SET_MESSAGES'
+    ];
     return !skipLogging.includes(action.type);
   }
 });

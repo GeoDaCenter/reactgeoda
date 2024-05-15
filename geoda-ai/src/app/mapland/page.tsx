@@ -51,7 +51,6 @@ export default function Home() {
               <PanelContainer />
               <OpenFileModal projectUrl={projectUrl} />
               <SaveProjectModal />
-              {/* <DuckDBTableModal /> */}
             </div>
           </IntlProviderWrapper>
         </ThemeProviderWrapper>

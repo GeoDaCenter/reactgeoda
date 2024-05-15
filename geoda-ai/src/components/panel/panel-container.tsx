@@ -16,6 +16,8 @@ import {SpregPanel} from '../spreg/spreg-panel';
 import {ScatterplotPanel} from '../plots/scatterplot-panel';
 import {BubbleChartPanel} from '../plots/bubble-chart-panel';
 import {DashboardPanel} from '../dashboard/dashboard-panel';
+import {Splitter} from '../common/splitter';
+import {DEFAULT_PANEL_WIDTH} from '@/constants';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
@@ -41,6 +43,8 @@ export enum PanelName {
 export const PanelContainer = () => {
   const dispatch = useDispatch();
 
+  const [panelWidth, setPanelWidth] = React.useState<number>(DEFAULT_PANEL_WIDTH);
+
   // get showGridView from redux state
   const showPropertyPanel = useSelector(
     (state: GeoDaState) => state.root.uiState.showPropertyPanel
@@ -61,24 +65,35 @@ export const PanelContainer = () => {
   );
 
   return showPropertyPanel ? (
-    <div className="flex h-screen w-[380px] flex-col bg-gray-50 dark:bg-gray-900">
-      <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
-        <IconXClose />
-      </div>
-      <div className="h-full">
-        {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
-        {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
-        {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
-        {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
-        {propertyPanelName === PanelName.LISA && <LisaPanel />}
-        {propertyPanelName === PanelName.HISTOGRAM && <HistogramPanel />}
-        {propertyPanelName === PanelName.BOXPLOT && <BoxplotPanel />}
-        {propertyPanelName === PanelName.PARALLEL_COORDINATE && <ParallelCoordinatePanel />}
-        {propertyPanelName === PanelName.SPREG && <SpregPanel />}
-        {propertyPanelName === PanelName.SCATTERPLOT && <ScatterplotPanel />}
-        {propertyPanelName === PanelName.BUBBLE_CHART && <BubbleChartPanel />}
-        {propertyPanelName === PanelName.DASHBOARD && <DashboardPanel />}
-        {propertyPanelName === PanelName.TABLE && <TablePanel />}
+    <div
+      className="relative flex h-screen flex-row bg-gray-50 dark:bg-gray-900"
+      style={{width: panelWidth}}
+    >
+      <Splitter
+        mode="horizontal"
+        initialSize={panelWidth}
+        onSplitterChange={setPanelWidth}
+        minimumSize={DEFAULT_PANEL_WIDTH}
+      />
+      <div className="flex flex-grow flex-col">
+        <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
+          <IconXClose />
+        </div>
+        <div className="h-full" style={{width: `${panelWidth}px`}}>
+          {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
+          {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
+          {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
+          {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
+          {propertyPanelName === PanelName.LISA && <LisaPanel />}
+          {propertyPanelName === PanelName.HISTOGRAM && <HistogramPanel />}
+          {propertyPanelName === PanelName.BOXPLOT && <BoxplotPanel />}
+          {propertyPanelName === PanelName.PARALLEL_COORDINATE && <ParallelCoordinatePanel />}
+          {propertyPanelName === PanelName.SPREG && <SpregPanel />}
+          {propertyPanelName === PanelName.SCATTERPLOT && <ScatterplotPanel />}
+          {propertyPanelName === PanelName.BUBBLE_CHART && <BubbleChartPanel />}
+          {propertyPanelName === PanelName.DASHBOARD && <DashboardPanel />}
+          {propertyPanelName === PanelName.TABLE && <TablePanel />}
+        </div>
       </div>
     </div>
   ) : null;

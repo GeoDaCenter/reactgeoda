@@ -69,6 +69,16 @@ export type WeightsOutput = {
   data: number[][];
 };
 
+export type NaturalBreaksOutput = {
+  type: 'mapping';
+  name: string;
+  result: {
+    breaks: number[];
+    k: number;
+    type: string;
+  };
+};
+
 export type MappingOutput = {
   type: 'mapping';
   name: string;
@@ -150,7 +160,10 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     return {type: 'mapping', name: 'Quantile Breaks', result};
   },
 
-  naturalBreaks: async function ({k, variableName}: CustomMapBreaksProps, {tableName, visState}) {
+  naturalBreaks: async function (
+    {k, variableName}: CustomMapBreaksProps,
+    {tableName, visState}
+  ): Promise<NaturalBreaksOutput | ErrorOutput> {
     if (!checkIfFieldNameExists(tableName, variableName, visState)) {
       return {
         result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
@@ -160,7 +173,13 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     if (!columnData || columnData.length === 0) {
       return {result: CHAT_COLUMN_DATA_NOT_FOUND};
     }
-    const result = await naturalBreaks(k, columnData);
+    const breaks = await naturalBreaks(k, columnData);
+
+    const result = {
+      k,
+      breaks,
+      type: 'natural breaks map'
+    };
 
     return {type: 'mapping', name: 'Natural Breaks', result};
   },

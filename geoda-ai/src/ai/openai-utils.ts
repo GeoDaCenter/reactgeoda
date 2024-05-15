@@ -44,26 +44,42 @@ export async function initOpenAI(apiKey: string) {
   }
 }
 
+export type CustomFunctionOutputProps =
+  | {
+      type: string;
+      name: string;
+      result: unknown;
+      data?: unknown;
+    }
+  | {
+      result: unknown;
+    };
+
 // key is the name of the function, value is the function itself
 export type CustomFunctions = {
-  [key: string]: (
-    ...args: any[]
-  ) =>
-    | {result: string | Object; error?: string}
-    | Promise<{result: string | Object; error?: string}>;
+  [key: string]: (...args: any[]) => CustomFunctionOutputProps | Promise<CustomFunctionOutputProps>;
 };
+
+// define type for customMessageCallback
+export type CustomMessageCallback = (customFunctionCall: CustomFunctionCall) => MessageModel | null;
+
+// define type for customFunctionContext
+
+// define type for streamMessageCallback
+export type StreamMessageCallback = (deltaMessage: string, customMessage?: MessageModel) => void;
 
 export type CustomFunctionCall = {
   functionName: string;
   functionArgs: {};
-  output: any;
+  output: CustomFunctionOutputProps;
 };
 
 export type ProcessMessageProps = {
   question: string;
   customFunctions: CustomFunctions;
-  customFunctionContext: any;
-  customMessageCallback: (customFunctionCall: any) => MessageModel | null;
+  customFunctionContext: Object;
+  customMessageCallback: CustomMessageCallback;
+  streamMessageCallback: StreamMessageCallback;
 };
 
 /**
@@ -74,110 +90,100 @@ export async function processMessage({
   question,
   customFunctions,
   customFunctionContext,
-  customMessageCallback
-}: ProcessMessageProps): Promise<MessageModel[]> {
+  customMessageCallback,
+  streamMessageCallback
+}: ProcessMessageProps) {
   if (!openai || !thread || !assistant) return [];
   // pass in the user question into the existing thread
   await openai.beta.threads.messages.create(thread.id, {
     role: 'user',
     content: question
   });
-  // create a run
-  const run = await openai.beta.threads.runs.create(thread.id, {
-    assistant_id: assistant.id
-  });
-  // imediately fetch run-status, which will be "in_progress"
-  let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
 
-  // record last custom function call
-  let lastCustomFunctionCall = null;
+  // create a run with stream
+  const run = await openai.beta.threads.runs
+    .stream(thread.id, {
+      assistant_id: assistant.id
+    })
+    .on('textDelta', (textDelta, snapshot) => {
+      streamMessageCallback(snapshot.value || '');
+    })
+    .on('end', async () => {
+      await processRequiresAction(
+        customFunctions,
+        customFunctionContext,
+        customMessageCallback,
+        streamMessageCallback
+      );
+    });
 
-  // polling mechanism to see if runStatus is completed
-  while (runStatus.status !== 'completed') {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+  // final run
+  const result = await run.finalRun();
+  console.log('Run Result' + result);
+}
 
-    // Check for requires_action status
-    if (runStatus.status === 'requires_action') {
-      const toolCalls = runStatus.required_action?.submit_tool_outputs.tool_calls;
-      const toolOutputs = [];
-
-      for (let i = 0; toolCalls?.length && i < toolCalls.length; i++) {
-        const toolCall = toolCalls[i];
-        const functionName = toolCall.function.name;
-        console.log(`This question requires us to call a function: ${functionName}`);
-
-        const args = JSON.parse(toolCall.function.arguments);
-        const argsArray = Object.keys(args).map(key => args[key]);
-        console.log(`The arguments for this function are: ${argsArray} and ${args}`);
-
-        // Dynamically call the function with arguments
+async function processRequiresAction(
+  customFunctions: CustomFunctions,
+  customFunctionContext: Object,
+  customMessageCallback: CustomMessageCallback,
+  streamMessageCallback: StreamMessageCallback
+) {
+  if (openai && thread) {
+    const runs = await openai.beta.threads.runs.list(thread.id);
+    const curr_run = runs.data.find(run => run.status === 'requires_action');
+    // Details on the action required to continue the run.
+    // Details on the tool outputs needed for this run to continue.
+    // A list of the relevant tool calls (functions).
+    curr_run?.required_action?.submit_tool_outputs.tool_calls.forEach(async toolCall => {
+      // handle each tool call (function)
+      let result;
+      let output: CustomFunctionOutputProps | null = null;
+      let error = null;
+      // run custom function
+      const functionName = toolCall.function.name;
+      const args = JSON.parse(toolCall.function.arguments);
+      try {
         const func = customFunctions[functionName];
-        let output = null;
-        if (func) {
-          // run the function locally and get the output
-          output = await func(args, customFunctionContext);
-          if (output.result) {
-            toolOutputs.push({
-              tool_call_id: toolCall.id,
-              output: JSON.stringify(output.result)
-            });
-            lastCustomFunctionCall = {functionName, functionArgs: args, output};
-          }
-        }
-        if (!func || !output?.result) {
-          const errorMessage = `The function ${functionName} is not defined. You can contact GeoDa.AI team for assistance.`;
-          console.error(errorMessage);
-          // push an empty output
-          toolOutputs.push({
-            tool_call_id: toolCall.id,
-            output: errorMessage
-          });
-        }
+        output = await func(args, customFunctionContext);
+        result = output.result;
+      } catch (err) {
+        console.error(err);
+        error = err;
+        // make sure to return something back to openai when the function execution fails
+        result = `The function "${functionName}" is not executed. You can contact GeoDa.AI team for assistance. The error message is: ${error}`;
       }
-      // submit tool outputs, which is part of the process of training and improving AI model
-      await openai.beta.threads.runs.submitToolOutputs(thread.id, run.id, {
-        tool_outputs: toolOutputs
-      });
-      continue; // Continue polling for the final response
-    }
-    // Check for failed, cancelled, or expired status
-    if (['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
-      console.log(`Run status is '${runStatus.status}'. Unable to complete the request.`);
-      break; // Exit the loop if the status indicates a failure or cancellation
-    }
-  }
-  // Get the last assistant message from the messages array
-  const messages = await openai.beta.threads.messages.list(thread.id);
-  // Find the last message for the current run
-  const lastMessageForRun = messages.data
-    .filter(message => message.run_id === run.id && message.role === 'assistant')
-    .pop();
 
-  // If an assistant message is found
-  if (lastMessageForRun) {
-    if ('text' in lastMessageForRun.content[0]) {
-      const messageContent = lastMessageForRun.content[0].text.value;
-      console.log(`The assistant responded with: ${messageContent}`);
-      const responseMsgs: MessageModel[] = [
-        {
-          message: messageContent,
-          sender: 'ChatGPT',
-          direction: 'incoming',
-          position: 'normal'
-        }
-      ];
-      // append a custom response e.g. plot, map etc.
-      if (lastCustomFunctionCall) {
-        const customReponseMsg = customMessageCallback(lastCustomFunctionCall);
-        if (customReponseMsg) {
-          responseMsgs.push(customReponseMsg);
-        }
+      // submit tool outputs
+      if (openai && thread) {
+        const responseStream = openai.beta.threads.runs.submitToolOutputsStream(
+          thread.id,
+          curr_run.id,
+          {
+            tool_outputs: [
+              {
+                tool_call_id: toolCall.id,
+                output: JSON.stringify(result)
+              }
+            ]
+          }
+        );
+        let lastMessage = '';
+        responseStream
+          .on('textDelta', (textDelta, snapshot) => {
+            lastMessage = snapshot.value || '';
+            streamMessageCallback(snapshot.value || '');
+          })
+          .on('end', () => {
+            if (error === null && output) {
+              // append a custom response e.g. plot, map etc. if needed
+              const lastCustomFunctionCall = {functionName, functionArgs: args, output};
+              const customReponseMsg = customMessageCallback(lastCustomFunctionCall);
+              if (customReponseMsg) {
+                streamMessageCallback(lastMessage, customReponseMsg);
+              }
+            }
+          });
       }
-      return responseMsgs;
-    }
-  } else if (!['failed', 'cancelled', 'expired'].includes(runStatus.status)) {
-    console.log('No response received from the assistant.');
+    });
   }
-  return [];
 }

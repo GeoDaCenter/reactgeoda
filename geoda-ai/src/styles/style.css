@@ -33,7 +33,7 @@
   top: 0;
   left: 0;
 } */
-.data-ex-icons-table  {
+.data-ex-icons-table {
   color: #999999 !important;
 }
 /* adjust Monaco Editor */
@@ -93,6 +93,12 @@ div[mapboxgl-children] {
 }
 
 /* custom chatGPT css */
+.geoda-custom-message .cs-message__content-wrapper {
+  width: 100% !important;
+}
+.cs-button--attachment {
+  display: none !important;
+}
 .cs-main-container {
   border: none !important;
   width: 100%;

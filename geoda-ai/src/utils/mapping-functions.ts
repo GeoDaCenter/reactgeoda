@@ -25,6 +25,8 @@ type CreateUniqueValuesMapProps = {
   legendLabels: string[];
   mappingType: string;
   colorFieldName: string;
+  layerOrder: string[];
+  isPreview?: boolean;
 };
 
 export function createUniqueValuesMap({
@@ -34,7 +36,9 @@ export function createUniqueValuesMap({
   legendLabels,
   hexColors,
   mappingType,
-  colorFieldName
+  colorFieldName,
+  layerOrder,
+  isPreview
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   const colors = getDefaultColorRange(hexColors.length)?.colors;
@@ -65,7 +69,7 @@ export function createUniqueValuesMap({
     config: {
       dataId,
       columns: {geojson: layer?.config.columns.geojson.value},
-      label: `${mappingType} Map - ${colorFieldName}`,
+      label: `${mappingType}-${colorFieldName}`,
       colorScale: 'ordinal',
       colorField: {
         name: `${colorFieldName}`,
@@ -75,16 +79,19 @@ export function createUniqueValuesMap({
         ...layer?.config.visConfig,
         colorRange,
         colorDomain: uniqueValues,
-        thickness: 0.2
+        thickness: 0.2,
+        opacity: 1
       },
       isVisible: true
     }
   };
+
   // dispatch action to add new layer in kepler
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
-  const existingLayerIds = layer.id;
-  dispatch(reorderLayer([newLayer.id, existingLayerIds]));
+  if (isPreview) {
+    dispatch(reorderLayer([...layerOrder, newLayer.id]));
+  }
 }
 
 type CreateCustomScaleMapProps = {
@@ -95,6 +102,7 @@ type CreateCustomScaleMapProps = {
   colorFieldName: string;
   isPreview?: boolean;
   colorRange?: ColorRange;
+  layerOrder: string[];
 };
 
 export function createCustomScaleMap({
@@ -104,7 +112,8 @@ export function createCustomScaleMap({
   mappingType,
   colorFieldName,
   isPreview,
-  colorRange
+  colorRange,
+  layerOrder
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   let colors = getDefaultColorRange(breaks.length + 1)?.colors;
@@ -133,9 +142,11 @@ export function createCustomScaleMap({
   // get dataId
   const dataId = layer?.config.dataId;
   // generate random id for a new layer
-  const id = generateRandomId();
-  const label = `${mappingType} Map - ${colorFieldName} (${breaks.length + 1} classes)`;
+  const label = `${mappingType}-${colorFieldName}-${breaks.length + 1}`;
+  // check if there is already a layer with the same label
+
   // create a new Layer
+  const id = generateRandomId();
   const newLayer = {
     id,
     type: 'geojson',
@@ -152,17 +163,18 @@ export function createCustomScaleMap({
         ...layer?.config.visConfig,
         colorRange: customColorRange,
         colorDomain: breaks,
-        thickness: 0.2
-      },
-      isVisible: true
+        thickness: 0.2,
+        opacity: 1
+      }
     }
   };
+
   // dispatch action to add new layer in kepler
   dispatch(addLayer(newLayer, dataId));
   // dispatch action to reorder layer
-  const existingLayerIds = layer.id;
-  if (existingLayerIds && isPreview) {
-    dispatch(reorderLayer([existingLayerIds, newLayer.id]));
+  if (isPreview) {
+    // dispatch(reorderLayer([...layerOrder, newLayer.id]));
+    dispatch(reorderLayer([...layerOrder]));
   }
   return newLayer;
 }

@@ -20,7 +20,10 @@ export type ChatGPTComponentProps = {
   // the function to initialize OpenAI js client
   initOpenAI: (apiKey: string) => void;
   // the function to process user prompt message and return response in array of MessageModel
-  processMessage: (message: string) => Promise<Array<MessageModel>>;
+  processMessage: (
+    message: string,
+    streamMessage: (delta: string, customMessage?: MessageModel) => void
+  ) => void;
   // the function to return a component to render custom message
   getCustomMessageComponent?: () => React.FC<{props: any}>;
   // initial messages
@@ -85,13 +88,25 @@ export const ChatGPTComponent = ({
     setMessages(newMessages);
     setIsTyping(true);
 
+    // add an empty return message to show typing indicator
+    setMessages([
+      ...newMessages,
+      {message: '', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
+    ]);
+
     // process input message to chatgpt
-    const returnMessage = await processMessage(message);
+    await processMessage(message, (deltaMessage: string, customMessage?: MessageModel) => {
+      setMessages([
+        ...newMessages,
+        {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
+        ...(customMessage ? [customMessage] : [])
+      ]);
+    });
 
     // display return message in dialog
-    if (returnMessage) {
-      setMessages([...newMessages, ...returnMessage]);
-    }
+    // if (returnMessage) {
+    //   setMessages([...newMessages, ...returnMessage]);
+    // }
     setIsTyping(false);
   };
 
@@ -112,21 +127,17 @@ export const ChatGPTComponent = ({
           autoScrollToBottom={true}
           autoScrollToBottomOnMount={false}
           scrollBehavior="smooth"
-          typingIndicator={
-            isTyping ? (
-              <TypingIndicator
-                content={intl.formatMessage({
-                  id: 'GeoDa.AI.isTyping',
-                  defaultMessage: 'GeoDa.AI is typing'
-                })}
-              />
-            ) : null
-          }
+          typingIndicator={isTyping ? <TypingIndicator content="" /> : null}
         >
           {messages.map((message, i) => {
             return message.type === 'custom' && CustomMessageComponent ? (
-              <Message key={i} model={{direction: 'incoming', type: 'custom', position: 'normal'}}>
-                <Message.CustomContent className="w-[283px]">
+              <Message
+                key={i}
+                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
+                className="geoda-custom-message"
+                // style={{marginTop: '-14px'}}
+              >
+                <Message.CustomContent className="w-full">
                   <CustomMessageComponent props={message.payload ?? {}} />
                 </Message.CustomContent>
               </Message>
@@ -134,6 +145,7 @@ export const ChatGPTComponent = ({
               <Message
                 key={i}
                 model={message}
+                style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
                 draggable={true}
                 unselectable="on"
                 onDragStart={e =>
@@ -153,7 +165,7 @@ export const ChatGPTComponent = ({
         <MessageInput
           placeholder={intl.formatMessage({
             id: 'chatGpt.inputPlaceholder',
-            defaultMessage: 'Type message here'
+            defaultMessage: 'Type your question here'
           })}
           onSend={handleSend}
           className="fill-current text-black dark:text-white"
