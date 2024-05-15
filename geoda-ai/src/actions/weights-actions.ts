@@ -8,6 +8,7 @@ export enum WEIGHTS_ACTIONS {
 export type WeightsProps = {
   weightsMeta: WeightsMeta;
   weights: number[][];
+  weightsValues?: number[][];
   // isNew is used to determine if the weights are newly added by chatbot, so a number badge can be shown on the weights icon
   isNew?: boolean;
 };

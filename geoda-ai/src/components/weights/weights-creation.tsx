@@ -14,15 +14,16 @@ import {
   Radio
 } from '@nextui-org/react';
 import {GeojsonLayer} from '@kepler.gl/layers';
-import {
-  WeightsMeta,
-  getMetaFromWeights,
-  getNearestNeighborsFromBinaryGeometries,
-  getContiguityNeighborsFromBinaryGeometries
-} from 'geoda-wasm';
+import {getDistanceThresholds} from 'geoda-wasm';
 
 import {addWeights} from '@/actions';
 import {WarningBox, WarningType} from '../common/warning-box';
+import {
+  createContiguityWeights,
+  createDistanceWeights,
+  createKNNWeights,
+  CreateWeightsOutputProps
+} from '@/utils/weights-utils';
 
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
@@ -40,8 +41,33 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const [precisionThreshold, setPrecisionThreshold] = useState<number>(0);
   const [includeLowerOrder, setIncludeLowerOrder] = useState<boolean>(false);
 
-  const onWeightsSelectionChange = (key: Key) => {
+  const [minSliderValue, setMinSliderValue] = useState<number>(0);
+  const [maxSliderValue, setMaxSliderValue] = useState<number>(0);
+  const [sliderValue, setSliderValue] = useState<number>(0);
+
+  const binaryGeometryType = keplerLayer?.meta.featureTypes;
+  const binaryGeometries = keplerLayer?.dataToFeature;
+
+  const isMile = false;
+
+  const onWeightsSelectionChange = async (key: Key) => {
     setWeightsType(key as string);
+    if (key === 'distance' && binaryGeometries && binaryGeometryType) {
+      // compute the distanceThreshold
+      const {minDistance, maxDistance, maxPairDistance} = await getDistanceThresholds({
+        isMile,
+        binaryGeometryType,
+        // @ts-ignore
+        binaryGeometries
+      });
+      setMinSliderValue(minDistance);
+      setSliderValue(maxDistance);
+      setMaxSliderValue(maxPairDistance);
+    }
+  };
+
+  const onSliderValueChange = (value: number | number[]) => {
+    setSliderValue(value as number);
   };
 
   const onContiguityTypeChange = (value: string) => {
@@ -51,50 +77,38 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const onCreateWeights = async () => {
     setError(null);
     try {
-      const binaryGeometryType = keplerLayer?.meta.featureTypes;
-      const binaryGeometries = keplerLayer?.dataToFeature;
       if (binaryGeometries && binaryGeometryType) {
+        let result: CreateWeightsOutputProps | null = null;
+
         if (weightsType === 'contiguity') {
-          const isQueen = contiguityType === 'queen';
-          const useCentroids = binaryGeometryType.point || binaryGeometryType.line;
-          const weights = await getContiguityNeighborsFromBinaryGeometries({
+          result = await createContiguityWeights({
+            contiguityType,
             binaryGeometryType,
             // @ts-ignore
             binaryGeometries,
-            isQueen,
-            useCentroids,
             precisionThreshold,
             orderOfContiguity,
             includeLowerOrder
           });
-          const weightsMeta: WeightsMeta = {
-            ...getMetaFromWeights(weights),
-            id: `w-${contiguityType}-contiguity-${orderOfContiguity}${
-              includeLowerOrder ? '-lower' : ''
-            }`,
-            type: contiguityType === 'queen' ? 'queen' : 'rook',
-            symmetry: 'symmetric',
-            order: orderOfContiguity,
-            includeLowerOrder,
-            threshold: precisionThreshold
-          };
-          // dispatch action to update redux state state.root.weights
-          dispatch(addWeights({weights, weightsMeta}));
-        } else if (weightsType === 'distance') {
+        } else if (weightsType === 'knn') {
           const k = inputK;
-          const weights = await getNearestNeighborsFromBinaryGeometries({
+          result = await createKNNWeights({
             k,
             binaryGeometryType,
             // @ts-ignore
             binaryGeometries
           });
-          const weightsMeta: WeightsMeta = {
-            ...getMetaFromWeights(weights),
-            id: `w-${k}-nn`,
-            type: 'knn',
-            symmetry: 'asymmetric',
-            k
-          };
+        } else if (weightsType === 'band') {
+          result = await createDistanceWeights({
+            distanceThreshold: sliderValue,
+            isMile: false,
+            binaryGeometryType,
+            // @ts-ignore
+            binaryGeometries
+          });
+        }
+        if (result) {
+          const {weights, weightsMeta} = result;
           // dispatch action to update redux state state.root.weights
           dispatch(addWeights({weights, weightsMeta}));
         }
@@ -173,7 +187,7 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
                     <div className="space-y-1">
                       <p className="text-small text-default-600">Method:</p>
                     </div>
-                    <Tabs aria-label="distance-method">
+                    <Tabs aria-label="distance-method" onSelectionChange={onWeightsSelectionChange}>
                       <Tab key="knn" title="K-Nearest neighbors">
                         <Input
                           type="number"
@@ -188,10 +202,12 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
                         <Slider
                           label="Specify bandwidth"
                           step={0.01}
-                          maxValue={1}
-                          minValue={0}
-                          defaultValue={0.4}
+                          maxValue={maxSliderValue}
+                          minValue={minSliderValue}
+                          defaultValue={sliderValue}
+                          formatOptions={{style: 'unit', unit: isMile ? 'mile' : 'kilometer'}}
                           className="max-w-md"
+                          onChange={onSliderValueChange}
                         />
                         <div className="mt-6 flex flex-row gap-2">
                           <Checkbox className="flex grow" size="sm">

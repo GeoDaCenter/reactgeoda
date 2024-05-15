@@ -4,7 +4,7 @@ import {useSelector} from 'react-redux';
 import {Tabs, Tab, Card, CardBody, Chip} from '@nextui-org/react';
 
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {WeightsManagementComponent} from './weights-management';
 import {WeightsCreationComponent} from './weights-creation';
 import {GeoDaState} from '@/store';
@@ -77,7 +77,7 @@ export function WeightsPanel() {
       })}
     >
       {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="flex w-full flex-col p-4">
           <Tabs
