@@ -139,12 +139,23 @@ export function loadGeoDaConfig(geodaConfig: SavedGeoDaConfig): LoadedGeoDaConfi
   // load the weights from base64 string to ArrayBuffer
   const weights = loadWeights(geodaConfig.weights);
 
+  const updatedTextItems = geodaConfig.dashboard.textItems?.map(item => {
+    return {
+      ...item,
+      content: JSON.stringify(item.content) || ''
+    };
+  });
+
   return {
     ai: geodaConfig.ai,
     uiState: geodaConfig.uiState,
     weights,
     plots: geodaConfig.plots,
     regressions: geodaConfig.regressions,
-    dashboard: geodaConfig.dashboard
+    // @ts-ignore textItems is not correctly typed since content has to be string instead of EditorState JSON object when loading from file
+    dashboard: {
+      ...geodaConfig.dashboard,
+      ...(updatedTextItems ? {textItems: updatedTextItems} : {})
+    }
   };
 }

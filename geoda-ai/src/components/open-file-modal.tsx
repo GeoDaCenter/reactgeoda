@@ -27,6 +27,7 @@ import {LoadedGeoDaConfig, loadGeoDaProject} from '@/utils/project-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
 import {getDuckDB, useDuckDB} from '@/hooks/use-duckdb';
 import {ProtoDataset} from '@kepler.gl/types';
+import {WarningBox, WarningType} from './common/warning-box';
 
 type ProcessDropFilesOutput = RawFileDataProps & {
   keplerConfig?: SavedConfigV1['config'];
@@ -56,56 +57,64 @@ const OpenFileComponent = () => {
   // create a useState to store the status of loading file
   const [loading, setLoading] = useState(false);
 
+  // useState to store error message
+  const [error, setError] = useState<string | null>(null);
+
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // show loading bar
       setLoading(true);
 
-      // process dropped files, and return the file name, arrowTable and arrowFormatData
-      const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
-        await processDropFiles(acceptedFiles);
+      try {
+        // process dropped files, and return the file name, arrowTable and arrowFormatData
+        const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
+          await processDropFiles(acceptedFiles);
 
-      // add arrowTable to duckdb
-      await importArrowFile({fileName, arrowTable});
+        // add arrowTable to duckdb
+        await importArrowFile({fileName, arrowTable});
 
-      // append duckdb instance to arrowFormatData
-      const datasets: ProtoDataset | undefined = arrowFormatData
-        ? {
-            ...arrowFormatData,
-            data: {
-              ...arrowFormatData.data,
-              db: getDuckDB()
+        // append duckdb instance to arrowFormatData
+        const datasets: ProtoDataset | undefined = arrowFormatData
+          ? {
+              ...arrowFormatData,
+              data: {
+                ...arrowFormatData.data,
+                db: getDuckDB()
+              }
             }
-          }
-        : arrowFormatData;
+          : arrowFormatData;
 
-      // dispatch addDataToMap action to default kepler.gl instance
-      if (arrowFormatData) {
-        dispatch(
-          wrapTo(
-            MAP_ID,
-            addDataToMap({
-              datasets: datasets || [],
-              options: {centerMap: true},
-              ...(keplerConfig && {config: keplerConfig})
-            })
-          )
-        );
+        // dispatch addDataToMap action to default kepler.gl instance
+        if (arrowFormatData) {
+          dispatch(
+            wrapTo(
+              MAP_ID,
+              addDataToMap({
+                datasets: datasets || [],
+                options: {centerMap: true},
+                ...(keplerConfig && {config: keplerConfig})
+              })
+            )
+          );
+        }
+
+        // dispatch action to close modal, update redux state state.root.uiState.showOpenFileModal
+        dispatch(setOpenFileModal(false));
+
+        // dispatch action to set file data, update redux state state.fileData
+        dispatch(setRawFileData({fileName, dataId: datasets?.info.id, arrowTable}));
+
+        if (geodaConfig) {
+          // dispatch action to set geoda config, update redux state state.root
+          dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
+        }
+
+        // set selection mode
+        // dispatch(setEditorMode('DRAW_RECTANGLE'));
+      } catch (e) {
+        // load file failed, show error message
+        setError((e as Error).message);
       }
-
-      // dispatch action to close modal, update redux state state.root.uiState.showOpenFileModal
-      dispatch(setOpenFileModal(false));
-
-      // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData({fileName, dataId: datasets?.info.id, arrowTable}));
-
-      if (geodaConfig) {
-        // dispatch action to set geoda config, update redux state state.root
-        dispatch({type: 'LOAD_PROJECT', payload: geodaConfig});
-      }
-
-      // set selection mode
-      // dispatch(setEditorMode('DRAW_RECTANGLE'));
 
       // set loading to true to show loading bar
       setLoading(false);
@@ -143,15 +152,15 @@ const OpenFileComponent = () => {
           </div>
         </div>
       </CardBody>
-      <CardFooter className="justify-between text-small">
+      <CardFooter className="flex flex-col justify-between gap-3 text-small">
         <div>
           <p className="text-tiny">
             Supported formates: GeoArrow, GeoJSON, ESRI Shapefiles, CSV and GeoDa.Ai Project file
           </p>
         </div>
-        {/* <Button className="text-tiny" color="primary" radius="full" size="sm">
-          Notify Me
-        </Button> */}
+        {error && (
+          <WarningBox message={`Failed to open dropped file: ${error}`} type={WarningType.ERROR} />
+        )}
       </CardFooter>
     </Card>
   );
