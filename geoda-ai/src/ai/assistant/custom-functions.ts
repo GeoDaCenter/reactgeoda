@@ -9,6 +9,7 @@ import {
   localMoran,
   getContiguityNeighborsFromBinaryGeometries
 } from 'geoda-wasm';
+import {DataContainerInterface} from '@kepler.gl/utils';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
 import {
@@ -16,7 +17,7 @@ import {
   getColumnDataFromKeplerLayer,
   getKeplerLayer,
   getColumnData
-} from './data-utils';
+} from '@/utils/data-utils';
 import {
   CHAT_FIELD_NAME_NOT_FOUND,
   CHAT_COLUMN_DATA_NOT_FOUND,
@@ -24,14 +25,14 @@ import {
   CHAT_NOT_ENOUGH_COLUMNS
 } from '@/constants';
 import {WeightsProps} from '@/actions';
-import {HistogramDataProps, createHistogram} from './plots/histogram-utils';
-import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './plots/boxplot-utils';
-import {CreateParallelCoordinateProps} from './plots/parallel-coordinate-utils';
-import {DataContainerInterface} from '@kepler.gl/utils';
-import {CustomFunctions} from '@/ai/openai-utils';
-import {linearRegressionCallbackFunc} from './regression-utils';
-import {createVariableCallBack} from './table-utils';
-import {generateRandomId} from './ui-utils';
+import {HistogramDataProps, createHistogram} from '@/utils/plots/histogram-utils';
+import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils';
+import {CreateParallelCoordinateProps} from '@/utils/plots/parallel-coordinate-utils';
+import {generateRandomId} from '@/utils/ui-utils';
+
+import {CustomFunctions} from '../openai-utils';
+import {linearRegressionCallbackFunc} from './callbacks/callback-regression';
+import {createVariableCallBack} from './callbacks/callback-table';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model

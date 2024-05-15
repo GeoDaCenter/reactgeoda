@@ -5,7 +5,7 @@ import {useState} from 'react';
 import {HistogramPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {HistogramOutput} from '@/utils/custom-functions';
+import {HistogramOutput} from '@/ai/assistant/custom-functions';
 import {HistogramPlot} from '../plots/histogram-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';

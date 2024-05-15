@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {CustomFunctionNames} from '@/utils/custom-functions';
+import {CustomFunctionNames} from '@/ai/assistant/custom-functions';
 import {CustomWeightsMessage} from './custom-weights-message';
 import {CustomLocalMoranMessage} from './custom-lisa-message';
 import {CustomHistogramMessage} from './custom-histogram-message';

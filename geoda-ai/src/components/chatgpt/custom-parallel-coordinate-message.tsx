@@ -5,7 +5,7 @@ import {useState} from 'react';
 import {ParallelCoordinateProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {ParallelCoordinateOutput} from '@/utils/custom-functions';
+import {ParallelCoordinateOutput} from '@/ai/assistant/custom-functions';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';

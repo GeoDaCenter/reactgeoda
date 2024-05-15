@@ -14,7 +14,7 @@ import {reorderLayer, layerVisConfigChange} from '@kepler.gl/actions';
 import {MAP_ID} from '@/constants';
 import {ColorSelector} from '../common/color-selector';
 import {getDefaultColorRange} from '@/utils/color-utils';
-import {NaturalBreaksOutput} from '@/utils/custom-functions';
+import {NaturalBreaksOutput} from '@/ai/assistant/custom-functions';
 import {ColorRange} from '@kepler.gl/constants';
 
 /**

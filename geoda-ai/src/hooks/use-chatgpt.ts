@@ -1,6 +1,6 @@
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 // import {getTableSummary} from './use-duckdb';
-import {CUSTOM_FUNCTIONS} from '@/utils/custom-functions';
+import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
 import {GeoDaState} from '@/store';
 import {useSelector} from 'react-redux';
 import {MAP_ID} from '@/constants';

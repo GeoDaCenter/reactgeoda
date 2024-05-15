@@ -5,7 +5,7 @@ import {useState} from 'react';
 import {BubbleChartProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {BubbleChartOutput} from '@/utils/custom-functions';
+import {BubbleChartOutput} from '@/ai/assistant/custom-functions';
 import {BubbleChart} from '../plots/bubble-chart-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
