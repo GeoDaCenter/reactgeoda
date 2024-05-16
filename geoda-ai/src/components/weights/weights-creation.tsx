@@ -9,7 +9,6 @@ import {
   Slider,
   Checkbox,
   Spacer,
-  Button,
   RadioGroup,
   Radio
 } from '@nextui-org/react';
@@ -24,6 +23,7 @@ import {
   createKNNWeights,
   CreateWeightsOutputProps
 } from '@/utils/weights-utils';
+import {CreateButton} from '../common/create-button';
 
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
@@ -233,9 +233,9 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
         </div>
         {error && <WarningBox type={WarningType.ERROR} message={error} />}
         <Spacer y={8} />
-        <Button radius="sm" color="primary" className="bg-rose-900" onClick={onCreateWeights}>
+        <CreateButton onClick={onCreateWeights} isDisabled={false}>
           Create Spatial Weights
-        </Button>
+        </CreateButton>
       </div>
     </>
   );

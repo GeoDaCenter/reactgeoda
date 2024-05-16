@@ -1,14 +1,4 @@
-import {
-  Input,
-  Button,
-  Card,
-  CardBody,
-  Tabs,
-  Tab,
-  Select,
-  SelectItem,
-  Selection
-} from '@nextui-org/react';
+import {Input, Card, CardBody, Tabs, Tab, Select, SelectItem, Selection} from '@nextui-org/react';
 import {Key, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
@@ -23,6 +13,7 @@ import {SQL_KEYWORDS} from '@/constants';
 import {SQLEditor} from './sql-editor';
 import {SpatialLagValueComponent} from './column-spatial-lag-component';
 import {RateValueComponent} from '../common/rate-component';
+import {CreateButton} from '../common/create-button';
 
 export function AddColumn() {
   const [columnName, setColumnName] = useState('');
@@ -186,15 +177,9 @@ export function AddColumn() {
           </Tabs>
         </CardBody>
       </Card>
-      <Button
-        size="sm"
-        color="primary"
-        className="bg-rose-900"
-        onClick={handleAddColumnClick}
-        isDisabled={!isAddColumnButtonValid}
-      >
+      <CreateButton onClick={handleAddColumnClick} isDisabled={!isAddColumnButtonValid}>
         Add Column
-      </Button>
+      </CreateButton>
     </div>
   );
 }

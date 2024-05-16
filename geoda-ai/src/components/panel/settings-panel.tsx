@@ -1,12 +1,13 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useIntl} from 'react-intl';
-import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
+import {Accordion, AccordionItem, Input} from '@nextui-org/react';
 
 import {GeoDaState} from '../../store';
 import {setOpenAIKey} from '../../actions';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {accordionItemClasses} from '@/constants';
+import {CreateButton} from '../common/create-button';
 
 export function SettingsPanel() {
   const intl = useIntl();
@@ -57,7 +58,14 @@ export function SettingsPanel() {
             />
           </AccordionItem>
         </Accordion>
-        <Button color="danger">Confirm</Button>
+        <CreateButton
+          onClick={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+          isDisabled={false}
+        >
+          Confirm
+        </CreateButton>
       </div>
     </RightPanelContainer>
   );

@@ -1,13 +1,10 @@
 import {WeightsMeta} from 'geoda-wasm';
-import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 
 import {addWeights} from '@/actions';
 import {CustomMessagePayload} from './custom-messages';
-import {HeartIcon} from '../icons/heart';
 import {useDispatch} from 'react-redux';
-import {GreenCheckIcon} from '../icons/green-check';
+import {CustomCreateButton} from '../common/custom-create-button';
 
 /**
  * Custom Weights Message
@@ -29,24 +26,9 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => 
   };
 
   return (
-    <div className="w-60">
+    <div className="w-full">
       {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
-      <Button
-        radius="full"
-        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-        onClick={onClick}
-        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
-        isDisabled={hide}
-      >
-        <Typewriter
-          options={{
-            strings: `Click to Add This Spatial Weights`,
-            autoStart: true,
-            loop: false,
-            delay: 10
-          }}
-        />
-      </Button>
+      <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Spatial Weights" />
     </div>
   );
 };

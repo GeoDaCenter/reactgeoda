@@ -1,5 +1,5 @@
 import {useIntl} from 'react-intl';
-import {Button, Tabs, Tab, Card, CardBody, Spacer} from '@nextui-org/react';
+import {Tabs, Tab, Card, CardBody, Spacer} from '@nextui-org/react';
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -27,6 +27,7 @@ import {getDefaultColorRange} from '@/utils/color-utils';
 import {ClassificationPanel, ClassificationOnValuesChange} from '../common/classification-panel';
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {addKeplerColumn} from '@/utils/table-utils';
+import {CreateButton} from '../common/create-button';
 // import {DndContext} from '@dnd-kit/core';
 
 // const MapContainer = KeplerInjector.get(MapContainerFactory);
@@ -172,15 +173,12 @@ function MappingPanel() {
                       onValuesChange={onClassficationValueChange}
                     />
                     <Spacer y={2} />
-                    <Button
-                      radius="sm"
-                      color="primary"
-                      className="bg-rose-900"
+                    <CreateButton
                       onClick={onCreateMap}
                       isDisabled={!variable || !mappingType || k <= 0}
                     >
                       Create a New Map Layer
-                    </Button>
+                    </CreateButton>
                   </div>
                 </CardBody>
               </Card>

@@ -1,20 +1,17 @@
 import {LocalMoranResultType} from 'geoda-wasm';
-import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
 
 import {CustomMessagePayload} from './custom-messages';
-import {HeartIcon} from '../icons/heart';
 import {UniLocalMoranOutput} from '@/ai/assistant/custom-functions';
 import {LISA_COLORS, LISA_LABELS} from '@/constants';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {useDispatch, useSelector} from 'react-redux';
 import {getDataset, getLayer} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
-import {GreenCheckIcon} from '../icons/green-check';
+import {CustomCreateButton} from '../common/custom-create-button';
 
 /**
  * Custom LISA Message
@@ -25,14 +22,21 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) 
 
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
+  const layerOrder = useSelector(
+    (state: GeoDaState) => state.keplerGl.keplerGlInstance.visState.layerOrder
+  );
 
   const {output} = props;
 
-  const lm = output.data as LocalMoranResultType;
+  const lm = 'data' in output && (output.data as LocalMoranResultType);
   const {significanceThreshold, variableName} = output.result as UniLocalMoranOutput['result'];
 
   // handle click event
   const onClick = () => {
+    if (!lm) {
+      console.error('Local Moran data is unavailable or invalid.');
+      return;
+    }
     // get cluster values using significant cutoff
     const clusters = lm.pValues.map((p: number, i: number) => {
       if (p > significanceThreshold) {
@@ -75,7 +79,8 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) 
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,
-      layer
+      layer,
+      layerOrder
     });
     // hide the button once clicked
     setHide(true);
@@ -83,23 +88,7 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) 
 
   return (
     <div className="w-60">
-      {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
-      <Button
-        radius="full"
-        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-        onClick={onClick}
-        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
-        isDisabled={hide}
-      >
-        <Typewriter
-          options={{
-            strings: `Click to Create a Local Moran Map`,
-            autoStart: true,
-            loop: false,
-            delay: 10
-          }}
-        />
-      </Button>
+      <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Map" />
     </div>
   );
 };

@@ -1,15 +1,12 @@
-import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
+import {useDispatch} from 'react-redux';
 
+import {generateRandomId} from '@/utils/ui-utils';
 import {ScatterPlotProps, addPlot} from '@/actions/plot-actions';
-import {CustomMessagePayload} from './custom-messages';
-import {HeartIcon} from '../icons/heart';
 import {ScatterplotOutput} from '@/ai/assistant/custom-functions';
 import {Scatterplot} from '../plots/scatter-plot';
-import {useDispatch} from 'react-redux';
-import {GreenCheckIcon} from '../icons/green-check';
-import {generateRandomId} from '@/utils/ui-utils';
+import {CustomMessagePayload} from './custom-messages';
+import {CustomCreateButton} from '../common/custom-create-button';
 
 /**
  * Custom Scatter Message
@@ -48,26 +45,11 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   };
 
   return (
-    <div className="h-[330px] w-full">
+    <div className="w-full">
       <div className="h-[280px] w-full">
         <Scatterplot props={scatterPlotProps} />
       </div>
-      <Button
-        radius="full"
-        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-        onClick={onClick}
-        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
-        isDisabled={hide}
-      >
-        <Typewriter
-          options={{
-            strings: 'Click to Add This Scatterplot',
-            autoStart: true,
-            loop: false,
-            delay: 10
-          }}
-        />
-      </Button>
+      <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Scatterplot" />
     </div>
   );
 };

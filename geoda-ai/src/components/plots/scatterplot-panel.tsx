@@ -4,11 +4,12 @@ import {WarningBox} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {useEffect, useState} from 'react';
-import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
+import {Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {VariableSelector} from '../common/variable-selector';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
+import {CreateButton} from '../common/create-button';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -84,9 +85,12 @@ export function ScatterplotPanel() {
                       label="Select Dependent Variable Y"
                     />
                     <Spacer y={1} />
-                    <Button onClick={onCreateScatterplot} disabled={!variableX || !variableY}>
+                    <CreateButton
+                      onClick={onCreateScatterplot}
+                      isDisabled={!variableX || !variableY}
+                    >
                       Create Scatterplot
-                    </Button>
+                    </CreateButton>
                   </div>
                 </CardBody>
               </Card>

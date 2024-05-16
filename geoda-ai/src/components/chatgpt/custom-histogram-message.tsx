@@ -1,14 +1,11 @@
-import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
+import {useDispatch} from 'react-redux';
 
 import {HistogramPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
-import {HeartIcon} from '../icons/heart';
 import {HistogramOutput} from '@/ai/assistant/custom-functions';
 import {HistogramPlot} from '../plots/histogram-plot';
-import {useDispatch} from 'react-redux';
-import {GreenCheckIcon} from '../icons/green-check';
+import {CustomCreateButton} from '../common/custom-create-button';
 
 /**
  * Custom Histogram Message
@@ -19,23 +16,25 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   const {output} = props;
 
   const {id, variableName} = output.result as HistogramOutput['result'];
-  const histogram = output.data as HistogramOutput['data'];
+  const histogram = 'data' in output && (output.data as HistogramOutput['data']);
 
   const histogramPlotProps: HistogramPlotProps = {
     id,
     type: 'histogram',
     variable: variableName,
-    data: histogram
+    data: histogram || []
   };
 
   // handle click event
   const onClick = () => {
-    // dispatch action to update redux state state.root.weights
-    dispatch(
-      addPlot({id, type: 'histogram', variable: variableName, data: histogram, isNew: true})
-    );
-    // hide the button once clicked
-    setHide(true);
+    if (histogram) {
+      // dispatch action to update redux state state.root.weights
+      dispatch(
+        addPlot({id, type: 'histogram', variable: variableName, data: histogram, isNew: true})
+      );
+      // hide the button once clicked
+      setHide(true);
+    }
   };
 
   return (
@@ -43,22 +42,7 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
       <div className="h-[280px] w-full">
         <HistogramPlot props={histogramPlotProps} />
       </div>
-      <Button
-        radius="full"
-        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-        onClick={onClick}
-        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
-        isDisabled={hide}
-      >
-        <Typewriter
-          options={{
-            strings: `Click to Add This Histogram`,
-            autoStart: true,
-            loop: false,
-            delay: 0
-          }}
-        />
-      </Button>
+      <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Histogram" />
     </div>
   );
 };

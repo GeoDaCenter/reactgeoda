@@ -1,15 +1,12 @@
-import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
+import {useDispatch} from 'react-redux';
 
 import {BubbleChartProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
-import {HeartIcon} from '../icons/heart';
 import {BubbleChartOutput} from '@/ai/assistant/custom-functions';
 import {BubbleChart} from '../plots/bubble-chart-plot';
-import {useDispatch} from 'react-redux';
-import {GreenCheckIcon} from '../icons/green-check';
 import {generateRandomId} from '@/utils/ui-utils';
+import {CustomCreateButton} from '../common/custom-create-button';
 
 /**
  * Custom Bubble Chart Message
@@ -55,22 +52,7 @@ export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload})
       <div className="h-[280px] w-full">
         <BubbleChart props={bubbleChartProps} />
       </div>
-      <Button
-        radius="full"
-        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-        onClick={onClick}
-        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
-        isDisabled={hide}
-      >
-        <Typewriter
-          options={{
-            strings: 'Click to Add This Bubble Chart',
-            autoStart: true,
-            loop: false,
-            delay: 10
-          }}
-        />
-      </Button>
+      <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Bubble Chart" />
     </div>
   );
 };
