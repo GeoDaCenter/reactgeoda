@@ -135,7 +135,6 @@ export const ChatGPTComponent = ({
                 key={i}
                 model={{direction: 'incoming', type: 'custom', position: 'normal'}}
                 className="geoda-custom-message"
-                // style={{marginTop: '-14px'}}
               >
                 <Message.CustomContent className="w-full">
                   <CustomMessageComponent props={message.payload ?? {}} />

@@ -17,7 +17,7 @@ export const CustomWeightsMessage = ({props}: {props: CustomMessagePayload}) => 
   const {output} = props;
   const dispatch = useDispatch();
 
-  const weights = output.data as number[][];
+  const weights = 'data' in output ? (output.data as number[][]) : [];
   const weightsMeta: WeightsMeta = output.result as WeightsMeta;
 
   // handle click event

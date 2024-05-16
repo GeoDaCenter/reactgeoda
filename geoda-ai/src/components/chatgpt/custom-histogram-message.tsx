@@ -45,7 +45,7 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
       </div>
       <Button
         radius="full"
-        className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
         onClick={onClick}
         startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
         isDisabled={hide}
