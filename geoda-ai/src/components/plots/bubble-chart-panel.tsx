@@ -1,7 +1,7 @@
 import React, {Key, useState, useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useIntl} from 'react-intl';
-import {Button, Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
+import {Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {VariableSelector} from '../common/variable-selector';
@@ -9,6 +9,7 @@ import {GeoDaState} from '@/store';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
+import {CreateButton} from '../common/create-button';
 
 export function BubbleChartPanel() {
   const intl = useIntl();
@@ -114,14 +115,12 @@ export function BubbleChartPanel() {
                       optional
                     />
                     <Spacer y={1} />
-                    <Button
+                    <CreateButton
                       onClick={onCreateBubbleChart}
-                      disabled={isVariablesSelected ? false : true}
-                      color="primary"
-                      className={isVariablesSelected ? 'bg-rose-900' : 'bg-gray-200'}
+                      isDisabled={isVariablesSelected ? false : true}
                     >
                       Create Bubble Chart
-                    </Button>
+                    </CreateButton>
                   </div>
                 </CardBody>
               </Card>

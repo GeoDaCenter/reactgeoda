@@ -18,6 +18,7 @@ import {KeplerMapContainer} from '../common/kepler-map-container';
 import {RegressionReport} from '../spreg/spreg-report';
 import {TextCell} from './text-cell';
 import {WeightsMetaTable} from '../weights/weights-management';
+import {EditorState} from 'lexical';
 
 const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});
 
@@ -206,7 +207,7 @@ export function DashboardPanel() {
                         )}
                       {textItems &&
                         textItems.map(
-                          (textItem: {id: string; content: any}) =>
+                          (textItem: {id: string; content: EditorState}) =>
                             gridItems?.find(l => l.id === textItem.id && l.show === false) && (
                               <DraggableElement key={textItem.id} id={textItem.id}>
                                 <TextCell

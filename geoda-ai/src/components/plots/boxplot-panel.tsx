@@ -5,23 +5,14 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {Key, useEffect, useState} from 'react';
-import {
-  Button,
-  Card,
-  CardBody,
-  Chip,
-  Spacer,
-  Tab,
-  Tabs,
-  RadioGroup,
-  Radio
-} from '@nextui-org/react';
+import {Card, CardBody, Chip, Spacer, Tab, Tabs, RadioGroup, Radio} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils'; // Updated import
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
+import {CreateButton} from '../common/create-button';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -137,15 +128,9 @@ export function BoxplotPanel() {
                     </RadioGroup>
                   </div>
                   <Spacer y={8} />
-                  <Button
-                    onClick={onCreateBoxplot}
-                    radius="sm"
-                    color="primary"
-                    className="bg-rose-900"
-                    disabled={variables.length === 0}
-                  >
+                  <CreateButton onClick={onCreateBoxplot} isDisabled={variables.length === 0}>
                     Create Boxplot
-                  </Button>
+                  </CreateButton>
                 </CardBody>
               </Card>
             </Tab>

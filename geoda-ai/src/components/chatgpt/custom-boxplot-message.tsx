@@ -5,7 +5,7 @@ import {useState} from 'react';
 import {BoxPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {BoxplotOutput} from '@/utils/custom-functions';
+import {BoxplotOutput} from '@/ai/assistant/custom-functions';
 import {BoxPlot} from '../plots/box-plot';
 import {useDispatch} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
@@ -43,7 +43,7 @@ export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => 
       </div>
       <Button
         radius="full"
-        className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
+        className="mt-2 bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
         onClick={onClick}
         startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
         isDisabled={hide}

@@ -2,7 +2,6 @@ import {useIntl} from 'react-intl';
 import {
   Select,
   SelectItem,
-  Button,
   Tabs,
   Tab,
   Card,
@@ -18,12 +17,13 @@ import {getColumnData, getDataContainer, getLayer, getNumericFieldNames} from '@
 import {GeoDaState} from '@/store';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {MultiVariableSelector} from '../common/multivariable-selector';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {MAP_ID} from '@/constants';
 import {addRegression, RegressionProps} from '@/actions/regression-actions';
 import {runRegression} from '@/utils/regression-utils';
 import {RegressionReport} from './spreg-report';
 import {generateRandomId} from '@/utils/ui-utils';
+import {CreateButton} from '../common/create-button';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
@@ -123,7 +123,7 @@ export function SpregPanel() {
       })}
     >
       {numericColumns.length === 0 ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -193,15 +193,12 @@ export function SpregPanel() {
                         Spatial Error
                       </Radio>
                     </RadioGroup>
-                    <Button
+                    <CreateButton
                       onClick={onRunRegression}
-                      radius="sm"
-                      color="primary"
-                      className="bg-rose-900"
-                      disabled={xVariables.length === 0 || yVariable === ''}
+                      isDisabled={xVariables.length === 0 || yVariable === ''}
                     >
                       Run Regression
-                    </Button>
+                    </CreateButton>
                   </div>
                 </CardBody>
               </Card>

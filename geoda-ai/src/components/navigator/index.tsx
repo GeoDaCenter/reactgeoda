@@ -78,6 +78,12 @@ export function Navigator() {
       state.root.plots.filter(plot => plot.isNew && plot.type === 'bubble').length
   );
 
+  // get number of newly added boxplots from state.root.plots
+  const newBoxplotCount = useSelector(
+    (state: GeoDaState) =>
+      state.root.plots.filter(plot => plot.isNew && plot.type === 'boxplot').length
+  );
+
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
       // dispatch action to open modal, update redux state state.root.uiState.showOpenFileModal
@@ -271,18 +277,27 @@ export function Navigator() {
             </Button>
           </Tooltip>
         </Badge>
-        <Tooltip key="boxplotTooltip" placement="right" content="Box Plot">
-          <Button
-            isIconOnly
-            size="sm"
-            className="bg-transparent"
-            id="icon-boxplot"
-            onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
-          >
-            <IconBoxplot />
-          </Button>
-        </Tooltip>
+        <Badge
+          color="danger"
+          content={newBoxplotCount}
+          isInvisible={newBoxplotCount === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+        >
+          <Tooltip key="boxplotTooltip" placement="right" content="Box Plot">
+            <Button
+              isIconOnly
+              size="sm"
+              className="bg-transparent"
+              id="icon-boxplot"
+              onClick={onClickIconCallback}
+              isDisabled={!isFileLoaded}
+            >
+              <IconBoxplot />
+            </Button>
+          </Tooltip>
+        </Badge>
         <Badge
           color="danger"
           content={newBubbleChartCount}

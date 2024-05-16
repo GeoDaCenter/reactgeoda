@@ -118,8 +118,7 @@ export async function processMessage({
     });
 
   // final run
-  const result = await run.finalRun();
-  console.log('Run Result' + result);
+  run.finalRun();
 }
 
 async function processRequiresAction(
@@ -150,7 +149,10 @@ async function processRequiresAction(
         console.error(err);
         error = err;
         // make sure to return something back to openai when the function execution fails
-        result = `The function "${functionName}" is not executed. You can contact GeoDa.AI team for assistance. The error message is: ${error}`;
+        result = {
+          successs: false,
+          details: `The function "${functionName}" is not executed. You can contact GeoDa.AI team for assistance. The error message is: ${error}`
+        };
       }
 
       // submit tool outputs
@@ -185,5 +187,10 @@ async function processRequiresAction(
           });
       }
     });
+
+    // wait for the runs to complete
+    // if (curr_run?.status !== 'completed') {
+    //   await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+    // }
   }
 }

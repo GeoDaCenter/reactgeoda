@@ -6,7 +6,6 @@ import {
   Accordion,
   AccordionItem,
   Spacer,
-  Button,
   Tabs,
   Tab
 } from '@nextui-org/react';
@@ -20,6 +19,7 @@ import {GeoDaState} from '@/store';
 import {getColumnData, getDataset, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {localMoran} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
+import {CreateButton} from '../common/create-button';
 
 export function LocalMoranPanel() {
   const dispatch = useDispatch();
@@ -28,6 +28,7 @@ export function LocalMoranPanel() {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
+  const layerOrder = useSelector((state: GeoDaState) => state.keplerGl.mapState.layerOrder);
 
   // useState for variable name
   const [variable, setVariable] = useState('');
@@ -116,7 +117,8 @@ export function LocalMoranPanel() {
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,
-      layer
+      layer,
+      layerOrder
     });
   };
 
@@ -215,14 +217,9 @@ export function LocalMoranPanel() {
             </AccordionItem>
           </Accordion>
           <Spacer y={8} />
-          <Button
-            radius="sm"
-            color="primary"
-            className="max-w mb-4 bg-rose-900"
-            onClick={onCreateMap}
-          >
+          <CreateButton onClick={onCreateMap} isDisabled={variable === '' || selectedWeight === ''}>
             Run Analysis
-          </Button>
+          </CreateButton>
         </Tab>
         <Tab
           key="bi-localmoran"

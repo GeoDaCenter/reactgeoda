@@ -1,22 +1,14 @@
 // define a type of custom function that is an object contains key-value pairs
 
-import {
-  quantileBreaks,
-  naturalBreaks,
-  getNearestNeighborsFromBinaryGeometries,
-  WeightsMeta,
-  getMetaFromWeights,
-  localMoran,
-  getContiguityNeighborsFromBinaryGeometries
-} from 'geoda-wasm';
+import {quantileBreaks, naturalBreaks, WeightsMeta, localMoran} from 'geoda-wasm';
+import {DataContainerInterface} from '@kepler.gl/utils';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
 import {
   checkIfFieldNameExists,
   getColumnDataFromKeplerLayer,
-  getKeplerLayer,
   getColumnData
-} from './data-utils';
+} from '@/utils/data-utils';
 import {
   CHAT_FIELD_NAME_NOT_FOUND,
   CHAT_COLUMN_DATA_NOT_FOUND,
@@ -24,14 +16,15 @@ import {
   CHAT_NOT_ENOUGH_COLUMNS
 } from '@/constants';
 import {WeightsProps} from '@/actions';
-import {HistogramDataProps, createHistogram} from './plots/histogram-utils';
-import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from './plots/boxplot-utils';
-import {CreateParallelCoordinateProps} from './plots/parallel-coordinate-utils';
-import {DataContainerInterface} from '@kepler.gl/utils';
-import {CustomFunctions} from '@/ai/openai-utils';
-import {linearRegressionCallbackFunc} from './regression-utils';
-import {createVariableCallBack} from './table-utils';
-import {generateRandomId} from './ui-utils';
+import {HistogramDataProps, createHistogram} from '@/utils/plots/histogram-utils';
+import {BoxplotDataProps, CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils';
+import {CreateParallelCoordinateProps} from '@/utils/plots/parallel-coordinate-utils';
+import {generateRandomId} from '@/utils/ui-utils';
+
+import {CustomFunctions} from '../openai-utils';
+import {linearRegressionCallbackFunc} from './callbacks/callback-regression';
+import {createVariableCallBack} from './callbacks/callback-table';
+import {createWeightsCallback} from './callbacks/callback-weights';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
@@ -45,8 +38,23 @@ export enum CustomFunctionNames {
   BOXPLOT = 'boxplot',
   CONTIGUITY_WEIGHT = 'contiguityWeight',
   BUBBLE_CHART = 'bubble',
-  SCATTERPLOT = 'scatter'
+  SCATTERPLOT = 'scatter',
+  CREATE_WEIGHTS = 'createWeights'
 }
+
+export function createErrorResult(result: string): ErrorOutput {
+  return {
+    result: {
+      success: false,
+      details: result
+    }
+  };
+}
+
+export type CustomFunctionContext = {
+  tableName: string;
+  visState: any;
+};
 
 type SummarizeDataProps = {
   tableName?: string;
@@ -59,7 +67,10 @@ type CustomMapBreaksProps = {
 };
 
 export type ErrorOutput = {
-  result: string;
+  result: {
+    success: boolean;
+    details: string;
+  };
 };
 
 export type WeightsOutput = {
@@ -147,13 +158,13 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     {tableName, visState}
   ): Promise<MappingOutput | ErrorOutput> {
     if (!checkIfFieldNameExists(tableName, variableName, visState)) {
-      return {
-        result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
-      };
+      return createErrorResult(
+        `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
+      );
     }
     const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
     if (!columnData || columnData.length === 0) {
-      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
     }
     const result = await quantileBreaks(k, columnData);
 
@@ -165,13 +176,13 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     {tableName, visState}
   ): Promise<NaturalBreaksOutput | ErrorOutput> {
     if (!checkIfFieldNameExists(tableName, variableName, visState)) {
-      return {
-        result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
-      };
+      return createErrorResult(
+        `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
+      );
     }
     const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
     if (!columnData || columnData.length === 0) {
-      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
     }
     const breaks = await naturalBreaks(k, columnData);
 
@@ -184,94 +195,6 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     return {type: 'mapping', name: 'Natural Breaks', result};
   },
 
-  knnWeight: async function ({k}, {tableName, visState}): Promise<WeightsOutput | ErrorOutput> {
-    if (!tableName) {
-      return {result: 'Error: table name is empty'};
-    }
-
-    // get kepler.gl layer using tableName
-    const keplerLayer = getKeplerLayer(tableName, visState);
-    if (!keplerLayer) {
-      return {result: 'Error: layer is empty'};
-    }
-
-    const binaryGeometryType = keplerLayer.meta.featureTypes;
-    const binaryGeometries = keplerLayer.dataToFeature;
-    if (!binaryGeometries || !binaryGeometryType) {
-      return {result: 'Error: geometries in layer is empty'};
-    }
-
-    const weights = await getNearestNeighborsFromBinaryGeometries({
-      k,
-      binaryGeometryType,
-      // @ts-ignore
-      binaryGeometries
-    });
-    const weightsMeta: WeightsMeta = {
-      ...getMetaFromWeights(weights),
-      id: `w-${k}-nn`,
-      type: 'knn',
-      symmetry: 'asymmetric',
-      k
-    };
-
-    return {
-      type: 'weights',
-      name: 'KNN',
-      result: weightsMeta,
-      data: weights
-    };
-  },
-
-  contiguityWeight: async function (
-    {contiguityType, orderOfContiguity, includeLowerOrder, precisionThreshold},
-    {tableName, visState}
-  ): Promise<WeightsOutput | ErrorOutput> {
-    if (!tableName) {
-      return {result: 'Error: table name is empty'};
-    }
-    // get kepler.gl layer using tableName
-    const keplerLayer = getKeplerLayer(tableName, visState);
-    if (!keplerLayer) {
-      return {result: 'Error: layer is empty'};
-    }
-
-    const binaryGeometryType = keplerLayer.meta.featureTypes;
-    const binaryGeometries = keplerLayer.dataToFeature;
-    if (!binaryGeometries || !binaryGeometryType) {
-      return {result: 'Error: geometries in layer is empty'};
-    }
-    const weights = await getContiguityNeighborsFromBinaryGeometries({
-      binaryGeometryType,
-      // @ts-ignore
-      binaryGeometries,
-      isQueen: contiguityType === 'queen',
-      useCentroids: binaryGeometryType.point || binaryGeometryType.line,
-      precisionThreshold,
-      orderOfContiguity: orderOfContiguity || 1,
-      includeLowerOrder
-    });
-
-    const weightsMeta: WeightsMeta = {
-      ...getMetaFromWeights(weights),
-      id: `w-${contiguityType}-contiguity-${orderOfContiguity || 1}${
-        includeLowerOrder ? '-lower' : ''
-      }`,
-      type: contiguityType === 'queen' ? 'queen' : 'rook',
-      symmetry: 'symmetric',
-      order: orderOfContiguity || 1,
-      includeLowerOrder,
-      threshold: precisionThreshold
-    };
-
-    return {
-      type: 'weights',
-      name: 'Contiguity',
-      result: weightsMeta,
-      data: weights
-    };
-  },
-
   univariateLocalMoran: async function (
     {variableName, weightsID, permutations = 999, significanceThreshold = 0.05},
     {tableName, visState, weights}
@@ -279,7 +202,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     // get weights using weightsID
     let selectWeight = weights.find((w: WeightsProps) => w.weightsMeta.id === weightsID);
     if (weights.length === 0) {
-      return {result: CHAT_WEIGHTS_NOT_FOUND};
+      return createErrorResult(CHAT_WEIGHTS_NOT_FOUND);
     }
     if (!selectWeight) {
       // using last weights if weightsID is not found
@@ -288,12 +211,12 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     // get table name from geodaState
     if (!tableName) {
-      return {result: 'Error: table name is empty'};
+      return createErrorResult('Error: table name is empty');
     }
     if (!checkIfFieldNameExists(tableName, variableName, visState)) {
-      return {
-        result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, run local moran analysis using variable HR60 and KNN weights with k=4.`
-      };
+      return createErrorResult(
+        `${CHAT_FIELD_NAME_NOT_FOUND} For example, run local moran analysis using variable HR60 and KNN weights with k=4.`
+      );
     }
     // get column data
     const columnData = await getColumnDataFromKeplerLayer(
@@ -302,7 +225,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       visState.datasets
     );
     if (!columnData || columnData.length === 0) {
-      return {result: 'Error: column data is empty'};
+      return createErrorResult('Error: column data is empty');
     }
     // run LISA analysis
     const lm = await localMoran(columnData, selectWeight?.weights, permutations);
@@ -339,7 +262,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     // check column data is empty
     if (!columnData || columnData.length === 0) {
-      return {type: 'histogram', result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
     }
 
     // call histogram function
@@ -364,7 +287,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
 
     // Check if both variables' data are successfully accessed
     if (!columnDataX || columnDataX.length === 0 || !columnDataY || columnDataY.length === 0) {
-      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
     }
 
     try {
@@ -400,11 +323,11 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       !columnDataSize ||
       columnDataSize.length === 0
     ) {
-      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
     }
 
     if (variableColor && (!columnDataColor || columnDataColor.length === 0)) {
-      return {result: CHAT_COLUMN_DATA_NOT_FOUND};
+      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
     }
 
     return {
@@ -422,7 +345,8 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   boxplot: boxplotFunction,
   parallelCoordinate: parallelCoordinateFunction,
   linearRegression: linearRegressionCallbackFunc,
-  createVariable: createVariableCallBack
+  createVariable: createVariableCallBack,
+  createWeights: createWeightsCallback
 };
 
 export type BoxplotOutput = {
@@ -458,7 +382,7 @@ function boxplotFunction(
 
   // check column data is empty
   if (!data || Object.keys(data).length === 0) {
-    return {type: 'boxplot', result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
   }
 
   // call boxplot function
@@ -493,12 +417,12 @@ function parallelCoordinateFunction(
 
   // check column data is empty
   if (!data || Object.keys(data).length === 0) {
-    return {result: `${CHAT_COLUMN_DATA_NOT_FOUND}`};
+    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
   }
 
   // check if there are at least 2 columns
   if (Object.keys(data).length === 1) {
-    return {type: 'parallel-coordinate', result: `${CHAT_NOT_ENOUGH_COLUMNS}`};
+    return createErrorResult(CHAT_NOT_ENOUGH_COLUMNS);
   }
 
   return {

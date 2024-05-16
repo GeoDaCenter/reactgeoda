@@ -1,14 +1,11 @@
-import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
+import {useDispatch} from 'react-redux';
 
 import {ParallelCoordinateProps, addPlot} from '@/actions/plot-actions';
-import {CustomMessagePayload} from './custom-messages';
-import {HeartIcon} from '../icons/heart';
-import {ParallelCoordinateOutput} from '@/utils/custom-functions';
+import {ParallelCoordinateOutput} from '@/ai/assistant/custom-functions';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
-import {useDispatch} from 'react-redux';
-import {GreenCheckIcon} from '../icons/green-check';
+import {CustomCreateButton} from '../common/custom-create-button';
+import {CustomMessagePayload} from './custom-messages';
 
 /**
  * Custom PCP plot Message
@@ -39,22 +36,7 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
       <div className="h-[280px] w-full">
         <ParallelCoordinatePlot props={parallelCoordinateProps} />
       </div>
-      <Button
-        radius="full"
-        className="mt-2 w-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-none"
-        onClick={onClick}
-        startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
-        isDisabled={hide}
-      >
-        <Typewriter
-          options={{
-            strings: `Click to Add This PCP Plot`,
-            autoStart: true,
-            loop: false,
-            delay: 10
-          }}
-        />
-      </Button>
+      <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This PCP Plot" />
     </div>
   );
 };

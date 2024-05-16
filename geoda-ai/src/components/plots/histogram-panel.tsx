@@ -5,13 +5,14 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
 import {ChangeEvent, useEffect, useState} from 'react';
-import {Button, Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
+import {Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/plots/histogram-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
+import {CreateButton} from '../common/create-button';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -113,15 +114,12 @@ export function HistogramPanel() {
                     />
                   </div>
                   <Spacer y={8} />
-                  <Button
+                  <CreateButton
                     onClick={onCreateHistogram}
-                    radius="sm"
-                    color="primary"
-                    className="bg-rose-900"
-                    disabled={variable === '' || intervals <= 0}
+                    isDisabled={variable === '' || intervals <= 0}
                   >
                     Create Histogram
-                  </Button>
+                  </CreateButton>
                 </CardBody>
               </Card>
             </Tab>

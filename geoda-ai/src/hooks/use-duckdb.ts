@@ -202,8 +202,11 @@ export function useDuckDB() {
       throw new Error('DuckDB is not initialized');
     }
     // remove \n from queryString
-    const query = queryString.replace(/\n/g, '');
-    const sql = `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${query.trim()}`;
+    const query = queryString.replace(/\n/g, '').trim();
+    const sql =
+      query.length > 0
+        ? `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${query.trim()}`
+        : `SELECT row_index AS selected_index, * FROM "${tableName}"`;
 
     try {
       // connect to the database

@@ -93,6 +93,9 @@ div[mapboxgl-children] {
 }
 
 /* custom chatGPT css */
+.geoda-custom-message {
+  margin-top: -12px !important;
+}
 .geoda-custom-message .cs-message__content-wrapper {
   width: 100% !important;
 }
@@ -152,9 +155,9 @@ div[mapboxgl-children] {
 .cs-button--attachment {
   color: #999999 !important;
 }
-.cs-typing-indicator {
+/* .cs-typing-indicator {
   background-color: transparent !important;
-}
+} */
 
 /* lexical editor */
 .other h2 {
