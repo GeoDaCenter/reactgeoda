@@ -122,6 +122,15 @@ const OpenFileComponent = () => {
     [dispatch, importArrowFile]
   );
 
+  // Component to refresh the page after 10 second if error occurs
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        window.location.reload();
+      }, 10000);
+    }
+  }, [error]);
+
   const {getRootProps, getInputProps} = useDropzone({onDrop});
 
   return (

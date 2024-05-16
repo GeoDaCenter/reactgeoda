@@ -145,11 +145,10 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
           onValueChange={onSearchFunction}
         />
         <div className="w-full">
-          <ScrollShadow className="h-[100px] w-[400px] p-1" size={10}>
+          <ScrollShadow className="h-[100px] w-full p-1" size={10}>
             <Table
               hideHeader
               aria-label="Duckdb function"
-              className="w-[400px]"
               removeWrapper
               isStriped
               isCompact

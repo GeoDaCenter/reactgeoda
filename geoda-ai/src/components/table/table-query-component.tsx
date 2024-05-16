@@ -52,9 +52,11 @@ export function TableQueryComponent() {
     }
   };
 
-  const onResetClick = () => {
+  const onResetClick = async () => {
     setCode('');
+    setSqlQuery({combinator: 'and', rules: []});
     dispatch(setQueryCode(''));
+    await onQueryClick();
   };
 
   const onQueryBuilderClick = (value: boolean) => {
