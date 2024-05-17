@@ -130,6 +130,7 @@ export type ScatterplotOutput = {
   type: 'scatter';
   name: string;
   result: {
+    id: string;
     variableX: string;
     variableY: string;
   };
@@ -139,6 +140,7 @@ export type BubbleChartOutput = {
   type: 'bubble';
   name: string;
   result: {
+    id: string;
     variableX: string;
     variableY: string;
     variableSize: string;
@@ -295,6 +297,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
         type: 'scatter',
         name: 'Scatterplot Data',
         result: {
+          id: generateRandomId(),
           variableX,
           variableY
         }
@@ -334,6 +337,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       type: 'bubble',
       name: 'Bubble Chart Data',
       result: {
+        id: generateRandomId(),
         variableX,
         variableY,
         variableSize,

@@ -96,18 +96,15 @@ export const ChatGPTComponent = ({
 
     // process input message to chatgpt
     await processMessage(message, (deltaMessage: string, customMessage?: MessageModel) => {
+      if (deltaMessage.length > 0) {
+        setIsTyping(false);
+      }
       setMessages([
         ...newMessages,
         {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
         ...(customMessage ? [customMessage] : [])
       ]);
     });
-
-    // display return message in dialog
-    // if (returnMessage) {
-    //   setMessages([...newMessages, ...returnMessage]);
-    // }
-    setIsTyping(false);
   };
 
   // scroll to bottom when new message is added

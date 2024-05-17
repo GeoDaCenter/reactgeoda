@@ -56,14 +56,16 @@ export const CustomCreateVariableMessage = ({props}: {props: CustomMessagePayloa
 
   return createVariableData ? (
     <div className="w-full">
-      <div className="w-full">
-        <PreviewDataTable
-          fieldName={createVariableData.newColumn}
-          fieldType={createVariableData.columnType}
-          columnData={createVariableData.values}
-          numberOfRows={numberOfRows}
-        />
-      </div>
+      {!hide && (
+        <div className="w-full">
+          <PreviewDataTable
+            fieldName={createVariableData.newColumn}
+            fieldType={createVariableData.columnType}
+            columnData={createVariableData.values}
+            numberOfRows={numberOfRows}
+          />
+        </div>
+      )}
       <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Column" />
     </div>
   ) : null;

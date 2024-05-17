@@ -155,9 +155,9 @@ div[mapboxgl-children] {
 .cs-button--attachment {
   color: #999999 !important;
 }
-/* .cs-typing-indicator {
+.cs-typing-indicator {
   background-color: transparent !important;
-} */
+} 
 
 /* lexical editor */
 .other h2 {

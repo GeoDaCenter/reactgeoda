@@ -18,8 +18,6 @@ import {CustomCreateButton} from '../common/custom-create-button';
  * Custom Map Message
  */
 export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
-  const [hide, setHide] = useState(false);
-
   const {functionArgs, output} = props;
   const {k, breaks} = output.result as NaturalBreaksOutput['result'];
 
@@ -36,7 +34,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
 
   // useState for selected color range
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
-
+ 
   const updateLayer = useMemo(() => {
     if ('type' in output && 'mapping' === output.type) {
       const {variableName} = functionArgs;
@@ -82,6 +80,8 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [breaks, dispatch, functionArgs, output, selectedColorRange]);
 
+  const [hide, setHide] = useState(layerOrder.includes(updateLayer) || false);
+
   // handle click event
   const onClick = () => {
     if ('type' in output && 'mapping' === output.type) {
@@ -102,14 +102,18 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
 
   return (
     <div className="w-full">
-      <div className="h-[180px] w-full">
-        {updateLayer && <KeplerMapContainer layerId={updateLayer} mapIndex={1} />}
-      </div>
-      <ColorSelector
-        numberOfColors={k}
-        defaultColorRange={selectedColorRange?.name}
-        onSelectColorRange={onSelectColorRange}
-      />
+      {!hide && (
+        <>
+          <div className="h-[180px] w-full">
+            {updateLayer && <KeplerMapContainer layerId={updateLayer} mapIndex={1} />}
+          </div>
+          <ColorSelector
+            numberOfColors={k}
+            defaultColorRange={selectedColorRange?.name}
+            onSelectColorRange={onSelectColorRange}
+          />
+        </>
+      )}
       <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Map" />
     </div>
   );

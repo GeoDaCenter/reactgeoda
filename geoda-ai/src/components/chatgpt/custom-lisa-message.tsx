@@ -87,7 +87,7 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) 
   };
 
   return (
-    <div className="w-60">
+    <div className="w-full">
       <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Map" />
     </div>
   );
