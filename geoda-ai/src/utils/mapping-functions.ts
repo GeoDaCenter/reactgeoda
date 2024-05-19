@@ -165,7 +165,8 @@ export function createCustomScaleMap({
         colorDomain: breaks,
         thickness: 0.2,
         opacity: 1
-      }
+      },
+      isVisible: true
     }
   };
 

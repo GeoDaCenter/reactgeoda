@@ -15,6 +15,22 @@ export const metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" className="light">
+      <head>
+        <script>
+          {`
+HTMLCanvasElement.prototype.getContext = function(origFn) {
+  return function(type, attribs) {
+    attribs = attribs || {};
+    attribs.preserveDrawingBuffer = true;
+    attribs.alpha = true;
+    attribs.antialias = true;
+    attribs.depth = true;
+    return origFn.call(this, type, attribs);
+  };
+}(HTMLCanvasElement.prototype.getContext);
+          `}
+        </script>
+      </head>
       <body>
         <StyledComponentsRegistry>
           <Providers>

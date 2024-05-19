@@ -19,7 +19,13 @@ export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
 
-const ChatGPTPanel = () => {
+const ChatGPTPanel = ({
+  onStartCapture,
+  screenshot
+}: {
+  onStartCapture: () => null;
+  screenshot?: string;
+}) => {
   const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -78,6 +84,8 @@ const ChatGPTPanel = () => {
           getCustomMessageComponent={() => CustomMessage}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
           setMessages={updateMessages}
+          onStartCapture={onStartCapture}
+          screenshot={screenshot}
         />
       )}
     </RightPanelContainer>

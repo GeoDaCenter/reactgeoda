@@ -40,7 +40,7 @@ export enum PanelName {
   DASHBOARD = 'Dashboard'
 }
 
-export const PanelContainer = () => {
+export const PanelContainer = ({onStartCapture, screenshot}: {onStartCapture: () => null, screenshot?: string}) => {
   const dispatch = useDispatch();
 
   const [panelWidth, setPanelWidth] = React.useState<number>(DEFAULT_PANEL_WIDTH);
@@ -80,7 +80,9 @@ export const PanelContainer = () => {
           <IconXClose />
         </div>
         <div className="h-full" style={{width: `${panelWidth}px`}}>
-          {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
+          {propertyPanelName === PanelName.CHAT_GPT && (
+            <ChatGPTPanel onStartCapture={onStartCapture} screenshot={screenshot} />
+          )}
           {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
           {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
           {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}

@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import {ImageURLContentBlock} from 'openai/resources/beta/threads/messages.mjs';
 import {ReactNode} from 'react';
 
 export interface MessageImageContentProps {
@@ -66,7 +67,11 @@ export type CustomMessageCallback = (customFunctionCall: CustomFunctionCall) => 
 // define type for customFunctionContext
 
 // define type for streamMessageCallback
-export type StreamMessageCallback = (deltaMessage: string, customMessage?: MessageModel) => void;
+export type StreamMessageCallback = (
+  deltaMessage: string,
+  customMessage?: MessageModel,
+  isCompleted?: boolean
+) => void;
 
 export type CustomFunctionCall = {
   functionName: string;
@@ -76,6 +81,7 @@ export type CustomFunctionCall = {
 
 export type ProcessMessageProps = {
   question: string;
+  imageMessage?: string;
   customFunctions: CustomFunctions;
   customFunctionContext: Object;
   customMessageCallback: CustomMessageCallback;
@@ -88,13 +94,52 @@ export type ProcessMessageProps = {
  */
 export async function processMessage({
   question,
+  imageMessage,
   customFunctions,
   customFunctionContext,
   customMessageCallback,
   streamMessageCallback
 }: ProcessMessageProps) {
   if (!openai || !thread || !assistant) return [];
+
   // pass in the user question into the existing thread
+  if (imageMessage) {
+    const imageMessageContent: ImageURLContentBlock = {
+      type: 'image_url',
+      image_url: {
+        url: imageMessage || '',
+        detail: 'high'
+      }
+    };
+    let lastMessage = '';
+    // request chat completion
+    await openai.beta.chat.completions
+      .stream({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: question
+              },
+              imageMessageContent
+            ]
+          }
+        ]
+      })
+      .on('chunk', chunk => {
+        const delta = chunk.choices[0]?.delta?.content;
+        lastMessage += delta;
+        streamMessageCallback(lastMessage);
+      })
+      .on('finalChatCompletion', completion => {
+        streamMessageCallback(completion.choices[0]?.message.content || '', undefined, true);
+      });
+    return;
+  }
+
   await openai.beta.threads.messages.create(thread.id, {
     role: 'user',
     content: question

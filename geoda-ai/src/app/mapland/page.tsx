@@ -8,8 +8,9 @@ import '@/styles/style.css';
 import '@/styles/superfine.css';
 import '@/styles/maplibre-gl.css';
 
-import {useRef} from 'react';
+import {use, useEffect, useRef, useState} from 'react';
 import {Provider as ReduxProvider} from 'react-redux';
+import {ScreenCapture} from 'react-screen-capture';
 import {RootContext} from '@kepler.gl/components';
 
 import store from '@/store';
@@ -35,23 +36,49 @@ export default function Home() {
 
   const projectUrl = searchParams.get('project');
 
+  const [screenshot, setScreenshot] = useState<string | undefined>(undefined);
+
+  const onScreenCapture = (url: string) => {
+    const screenCaptureSource = url;
+    // save file
+    // const downloadLink = document.createElement('a');
+    // const fileName = 'react-screen-capture.png';
+
+    // downloadLink.href = screenCaptureSource;
+    // downloadLink.download = fileName;
+    // downloadLink.click();
+    // store the screen capture source to localStorage
+    localStorage.setItem('screenshot', screenCaptureSource);
+    setScreenshot(screenCaptureSource);
+    return null;
+  };
+
+  useEffect(() => {
+    // clean localStorage
+    localStorage.removeItem('screenshot');
+  }, []);
+
   return (
     <RootContext.Provider value={rootNode}>
       <ReduxProvider store={store}>
         <ThemeProviderWrapper>
           <IntlProviderWrapper>
-            <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
-              <Navigator />
-              <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
-                <div className="flex-1 flex-grow p-0">
-                  <GridLayout />
+            <ScreenCapture onEndCapture={onScreenCapture}>
+              {({onStartCapture}: {onStartCapture: () => null}) => (
+                <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
+                  <Navigator />
+                  <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
+                    <div className="flex-1 flex-grow p-0">
+                      <GridLayout />
+                    </div>
+                    <TableContainer />
+                  </div>
+                  <PanelContainer onStartCapture={onStartCapture} screenshot={screenshot} />
+                  <OpenFileModal projectUrl={projectUrl} />
+                  <SaveProjectModal />
                 </div>
-                <TableContainer />
-              </div>
-              <PanelContainer />
-              <OpenFileModal projectUrl={projectUrl} />
-              <SaveProjectModal />
-            </div>
+              )}
+            </ScreenCapture>
           </IntlProviderWrapper>
         </ThemeProviderWrapper>
       </ReduxProvider>
