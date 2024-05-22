@@ -44,8 +44,7 @@ export function CameraIcon() {
       </g>
     </svg>
   );
-} 
-
+}
 
 // An svg icon of map
 export function MapIcon() {

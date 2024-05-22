@@ -6,7 +6,7 @@ import {ParallelCoordinateOutput} from '@/ai/assistant/custom-functions';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {CustomMessagePayload} from './custom-messages';
-import { GeoDaState } from '@/store';
+import {GeoDaState} from '@/store';
 
 /**
  * Custom PCP plot Message
@@ -26,7 +26,6 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
   // get plot from redux store
   const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
   const [hide, setHide] = useState(Boolean(plot) || false);
-
 
   // handle click event
   const onClick = () => {

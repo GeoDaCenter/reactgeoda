@@ -172,7 +172,7 @@ export const ChatGPTComponent = ({
   }, [screenshot]);
 
   // handle on screenshot click
-  const onScreenshotClick = (evt: MouseEvent<HTMLButtonElement>) => {
+  const onScreenshotClick = () => {
     onStartCapture();
   };
 

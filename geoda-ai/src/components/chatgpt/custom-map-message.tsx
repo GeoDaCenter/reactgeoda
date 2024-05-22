@@ -34,7 +34,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
 
   // useState for selected color range
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
- 
+
   const updateLayer = useMemo(() => {
     if ('type' in output && 'mapping' === output.type) {
       const {variableName} = functionArgs;

@@ -40,7 +40,13 @@ export enum PanelName {
   DASHBOARD = 'Dashboard'
 }
 
-export const PanelContainer = ({onStartCapture, screenshot}: {onStartCapture: () => null, screenshot?: string}) => {
+export const PanelContainer = ({
+  onStartCapture,
+  screenshot
+}: {
+  onStartCapture: () => null;
+  screenshot?: string;
+}) => {
   const dispatch = useDispatch();
 
   const [panelWidth, setPanelWidth] = React.useState<number>(DEFAULT_PANEL_WIDTH);

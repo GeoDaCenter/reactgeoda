@@ -6,13 +6,17 @@ import {CustomMessagePayload} from './custom-messages';
 import {BubbleChartOutput} from '@/ai/assistant/custom-functions';
 import {BubbleChart} from '../plots/bubble-chart-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
-import { GeoDaState } from '@/store';
+import {GeoDaState} from '@/store';
 
 /**
  * Custom Bubble Chart Message
  */
 export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload}) => {
   const dispatch = useDispatch();
+  // get plot from redux store
+  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
+  const [hide, setHide] = useState(Boolean(plot) || false);
+
   const {output} = props;
 
   if (!output || !output.result || typeof output.result !== 'object') {
@@ -28,10 +32,6 @@ export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload})
   }
   const {id, variableX, variableY, variableSize, variableColor} =
     output.result as BubbleChartOutput['result'];
-
-  // get plot from redux store
-  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
-  const [hide, setHide] = useState(Boolean(plot) || false);
 
   const bubbleChartProps: BubbleChartProps = {
     id,

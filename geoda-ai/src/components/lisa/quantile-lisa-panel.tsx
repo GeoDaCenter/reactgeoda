@@ -1,15 +1,32 @@
-import {Tabs, Tab} from '@nextui-org/react';
+import {Tabs, Tab, Input} from '@nextui-org/react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
 import {useDispatch} from 'react-redux';
 import {getColumnData} from '@/utils/data-utils';
-import {localMoran} from 'geoda-wasm';
+import {quantileLisa} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {RunAnalysisProps, UnivariateLisaConfig} from './univariate-lisa-config';
+import {Key, useState} from 'react';
 
-export function LocalMoranPanel() {
+export function QuantileLisaPanel() {
   const dispatch = useDispatch();
+
+  const [selectedTab, setSelectedTab] = useState('univariate');
+
+  const onSelectionChange = (tab: Key) => {
+    setSelectedTab(tab as string);
+  };
+
+  const [kValue, setKValue] = useState('5');
+  const onKValueChange = (value: string) => {
+    setKValue(value);
+  };
+
+  const [quantileValue, setQuantileValue] = useState('1');
+  const onQuantileValueChange = (value: string) => {
+    setQuantileValue(value);
+  };
 
   // handle onCreateMap
   const runAnalysis = async ({
@@ -42,7 +59,9 @@ export function LocalMoranPanel() {
     const sigCutoff = parseFloat(threshold) || 0.05;
 
     // run LISA analysis
-    const lm = await localMoran({
+    const lm = await quantileLisa({
+      k: parseInt(kValue),
+      quantile: parseInt(quantileValue),
       data: columnData,
       neighbors: selectedWeightData?.weights,
       permutation: permutations,
@@ -58,7 +77,7 @@ export function LocalMoranPanel() {
     });
 
     // add new column to kepler.gl
-    const newFieldName = `moran_${variable}`;
+    const newFieldName = `ql_${variable}`;
 
     // get dataset from kepler.gl if dataset.label === tableName
 
@@ -86,7 +105,7 @@ export function LocalMoranPanel() {
       uniqueValues: lm.labels.map((_l, i) => i),
       hexColors: lm.colors,
       legendLabels: lm.labels,
-      mappingType: 'Local Moran',
+      mappingType: 'Quantile LISA',
       colorFieldName: newFieldName,
       dispatch,
       layer,
@@ -96,15 +115,37 @@ export function LocalMoranPanel() {
 
   return (
     <>
-      <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
+      <Tabs
+        aria-label="Options"
+        variant="solid"
+        color="warning"
+        classNames={{}}
+        size="md"
+        onSelectionChange={onSelectionChange}
+        selectedKey={selectedTab}
+      >
         <Tab
-          key="uni-localmoran"
+          key="univariate"
           title={
             <div className="flex items-center space-x-2">
               <span>Univariate</span>
             </div>
           }
         >
+          <div className="mb-4 flex flex-col gap-4">
+            <Input
+              label="Enter number of quantiles"
+              type="number"
+              onValueChange={onKValueChange}
+              value={kValue}
+            />
+            <Input
+              label="Enter which quantile to use"
+              type="number"
+              onValueChange={onQuantileValueChange}
+              value={quantileValue}
+            />
+          </div>
           <UnivariateLisaConfig runAnalysis={runAnalysis} />
         </Tab>
       </Tabs>

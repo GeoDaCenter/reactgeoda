@@ -8,7 +8,7 @@ import '@/styles/style.css';
 import '@/styles/superfine.css';
 import '@/styles/maplibre-gl.css';
 
-import {use, useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Provider as ReduxProvider} from 'react-redux';
 import {ScreenCapture} from 'react-screen-capture';
 import {RootContext} from '@kepler.gl/components';

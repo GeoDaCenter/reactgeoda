@@ -1,7 +1,7 @@
 import {useIntl} from 'react-intl';
 import {Accordion, AccordionItem} from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
-import {use, useMemo} from 'react';
+import {useMemo} from 'react';
 
 import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
@@ -11,6 +11,9 @@ import {LocalMoranPanel} from './local-moran-panel';
 import {accordionItemClasses} from '@/constants';
 import {setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
+import {LocalGPanel} from './local-g-panel';
+import {QuantileLisaPanel} from './quantile-lisa-panel';
+import {LocalGearyPanel} from './local-geary-panel';
 
 const NO_WEIGHTS_MESSAGE = 'Please create a spatial weights before running LISA analysis.';
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running LISA analysis.';
@@ -53,7 +56,7 @@ export function LisaPanel() {
           onClick={onNoWeightsMessageClick}
         />
       ) : (
-        <div className="p-4">
+        <div className="h-full overflow-y-auto p-4">
           <Accordion
             variant="splitted"
             className="max-w text-small"
@@ -67,24 +70,25 @@ export function LisaPanel() {
             >
               <LocalMoranPanel />
             </AccordionItem>
-            <AccordionItem
-              key="2"
-              aria-label="local-g"
-              title="Local G"
-              className="text-small"
-            ></AccordionItem>
+            <AccordionItem key="2" aria-label="local-g" title="Local G" className="text-small">
+              <LocalGPanel />
+            </AccordionItem>
             <AccordionItem
               key="3"
               aria-label="local-gear"
               title="Local Geary"
               className="text-small"
-            ></AccordionItem>
+            >
+              <LocalGearyPanel />
+            </AccordionItem>
             <AccordionItem
               key="4"
               aria-label="quantile-lisa"
               title="Quantile LISA"
               className="text-small"
-            ></AccordionItem>
+            >
+              <QuantileLisaPanel />
+            </AccordionItem>
           </Accordion>
         </div>
       )}

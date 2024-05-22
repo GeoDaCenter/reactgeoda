@@ -16,6 +16,10 @@ import {GeoDaState} from '@/store';
  */
 export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => {
   const dispatch = useDispatch();
+  // get plot from redux store
+  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
+  const [hide, setHide] = useState(Boolean(plot) || false);
+
   const {output} = props;
 
   if (!('data' in output)) {
@@ -32,10 +36,6 @@ export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => 
     variables,
     data: boxplot
   };
-
-  // get plot from redux store
-  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
-  const [hide, setHide] = useState(Boolean(plot) || false);
 
   // handle click event
   const onClick = () => {
