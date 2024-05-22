@@ -1,20 +1,23 @@
 import {useIntl} from 'react-intl';
 import {Accordion, AccordionItem} from '@nextui-org/react';
-import {useSelector} from 'react-redux';
-import {useMemo} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {use, useMemo} from 'react';
 
 import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {LocalMoranPanel} from './local-moran-panel';
 import {accordionItemClasses} from '@/constants';
+import {setPropertyPanel} from '@/actions';
+import {PanelName} from '../panel/panel-container';
 
 const NO_WEIGHTS_MESSAGE = 'Please create a spatial weights before running LISA analysis.';
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running LISA analysis.';
 
 export function LisaPanel() {
   const intl = useIntl();
+  const dispatch = useDispatch();
 
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   const layer = useSelector((state: GeoDaState) => getLayer(state));
@@ -24,6 +27,11 @@ export function LisaPanel() {
     const fieldNames = getNumericFieldNames(layer);
     return fieldNames;
   }, [layer]);
+
+  const onNoWeightsMessageClick = () => {
+    // dispatch to show weights panel
+    dispatch(setPropertyPanel(PanelName.WEIGHTS));
+  };
 
   return (
     <RightPanelContainer
@@ -37,9 +45,13 @@ export function LisaPanel() {
       })}
     >
       {numericColumns.length === 0 ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : weights.length === 0 ? (
-        <WarningBox message={NO_WEIGHTS_MESSAGE} type="warning" />
+        <WarningBox
+          message={NO_WEIGHTS_MESSAGE}
+          type={WarningType.WARNING}
+          onClick={onNoWeightsMessageClick}
+        />
       ) : (
         <div className="p-4">
           <Accordion

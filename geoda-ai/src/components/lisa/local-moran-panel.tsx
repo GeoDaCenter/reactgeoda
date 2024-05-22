@@ -13,7 +13,7 @@ import {Key, useMemo, useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
-import {LISA_COLORS, LISA_LABELS, accordionItemClasses} from '@/constants';
+import {LISA_COLORS, LISA_LABELS, MAP_ID, accordionItemClasses} from '@/constants';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getColumnData, getDataset, getLayer, getNumericFieldNames} from '@/utils/data-utils';
@@ -28,7 +28,8 @@ export function LocalMoranPanel() {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const layerOrder = useSelector((state: GeoDaState) => state.keplerGl.mapState.layerOrder);
+  const layerOrder =
+    useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder) || [];
 
   // useState for variable name
   const [variable, setVariable] = useState('');
@@ -75,7 +76,11 @@ export function LocalMoranPanel() {
     const sigCutoff = 0.05;
 
     // run LISA analysis
-    const lm = await localMoran(columnData, selectedWeightData?.weights, permutations);
+    const lm = await localMoran({
+      data: columnData,
+      neighbors: selectedWeightData?.weights,
+      permutation: permutations
+    });
 
     // get cluster values using significant cutoff
     const clusters = lm.pValues.map((p: number, i) => {
@@ -111,9 +116,9 @@ export function LocalMoranPanel() {
 
     // create custom scale map
     createUniqueValuesMap({
-      uniqueValues: [0, 1, 2, 3, 4, 5],
-      hexColors: LISA_COLORS,
-      legendLabels: LISA_LABELS,
+      uniqueValues: lm.labels.map((_l, i) => i),
+      hexColors: lm.colors,
+      legendLabels: lm.labels,
       mappingType: 'Local Moran',
       colorFieldName: newFieldName,
       dispatch,

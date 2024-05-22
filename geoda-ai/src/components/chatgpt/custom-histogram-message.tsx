@@ -44,7 +44,7 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   return (
     <div className="w-full">
       {!hide && (
-        <div className="h-[280px] w-full">
+        <div className="h-[280px] w-full ">
           <HistogramPlot props={histogramPlotProps} />
         </div>
       )}

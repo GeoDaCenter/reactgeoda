@@ -41,21 +41,24 @@ export function createUniqueValuesMap({
   isPreview
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
-  const colors = getDefaultColorRange(hexColors.length)?.colors;
+  const colors = hexColors;
+
   const colorMap = colors?.map((color, index) => {
     return [uniqueValues[index], color];
   });
-  const colorLegend = colors?.map((color, index) => ({
-    color,
-    legend: `${legendLabels[index]}`
-  }));
+
+  const colorLegends: {[key: string]: string} = colors?.reduce((prev, color, i) => {
+    prev[color] = legendLabels[i];
+    return prev;
+  }, {} as {[key: string]: string}); // Add index signature to allow indexing with a string
+
   const colorRange = {
     category: 'ordinal',
     type: 'diverging',
     name: 'ColorBrewer RdBu-5',
     colors,
     colorMap,
-    colorLegend
+    colorLegends
   };
 
   // get dataId
