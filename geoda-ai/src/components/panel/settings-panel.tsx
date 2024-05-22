@@ -4,10 +4,11 @@ import {useIntl} from 'react-intl';
 import {Accordion, AccordionItem, Input} from '@nextui-org/react';
 
 import {GeoDaState} from '../../store';
-import {setOpenAIKey} from '../../actions';
+import {setOpenAIKey, setPropertyPanel} from '../../actions';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {accordionItemClasses} from '@/constants';
 import {CreateButton} from '../common/create-button';
+import {PanelName} from '../panel/panel-container';
 
 export function SettingsPanel() {
   const intl = useIntl();
@@ -28,6 +29,11 @@ export function SettingsPanel() {
     },
     [dispatch]
   );
+
+  const onConfirmClick = useCallback(() => {
+    // dispatch action to show chatgpt panel
+    dispatch(setPropertyPanel(PanelName.CHAT_GPT));
+  }, [dispatch]);
 
   return (
     <RightPanelContainer
@@ -58,12 +64,7 @@ export function SettingsPanel() {
             />
           </AccordionItem>
         </Accordion>
-        <CreateButton
-          onClick={function (): void {
-            throw new Error('Function not implemented.');
-          }}
-          isDisabled={false}
-        >
+        <CreateButton onClick={onConfirmClick} isDisabled={false}>
           Confirm
         </CreateButton>
       </div>

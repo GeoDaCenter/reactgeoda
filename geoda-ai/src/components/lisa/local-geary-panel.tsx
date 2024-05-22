@@ -4,11 +4,11 @@ import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
 import {useDispatch} from 'react-redux';
 import {getColumnData} from '@/utils/data-utils';
-import {localMoran} from 'geoda-wasm';
+import {localGeary} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {RunAnalysisProps, UnivariateLisaConfig} from './univariate-lisa-config';
 
-export function LocalMoranPanel() {
+export function LocalGearyPanel() {
   const dispatch = useDispatch();
 
   // handle onCreateMap
@@ -42,7 +42,7 @@ export function LocalMoranPanel() {
     const sigCutoff = parseFloat(threshold) || 0.05;
 
     // run LISA analysis
-    const lm = await localMoran({
+    const lm = await localGeary({
       data: columnData,
       neighbors: selectedWeightData?.weights,
       permutation: permutations,
@@ -58,7 +58,7 @@ export function LocalMoranPanel() {
     });
 
     // add new column to kepler.gl
-    const newFieldName = `moran_${variable}`;
+    const newFieldName = `geary_${variable}`;
 
     // get dataset from kepler.gl if dataset.label === tableName
 
@@ -98,7 +98,7 @@ export function LocalMoranPanel() {
     <>
       <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
         <Tab
-          key="uni-localmoran"
+          key="uni-localgeary"
           title={
             <div className="flex items-center space-x-2">
               <span>Univariate</span>
@@ -107,6 +107,14 @@ export function LocalMoranPanel() {
         >
           <UnivariateLisaConfig runAnalysis={runAnalysis} />
         </Tab>
+        <Tab
+          key="multi-localgeary"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Multivariate</span>
+            </div>
+          }
+        ></Tab>
       </Tabs>
     </>
   );

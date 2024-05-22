@@ -16,6 +16,7 @@ const initialState = {
   showPropertyPanel: false,
   propertyPanelName: '',
   openAIKey: LOCAL_API_KEY,
+  screenCaptured: '',
   table: {
     showQueryBuilder: true
   }
@@ -27,6 +28,11 @@ export const uiReducer = (state = initialState, action: UiAction) => {
       return {
         ...state,
         theme: action.payload
+      };
+    case UI_ACTIONS.SET_SCREEN_CAPTURED:
+      return {
+        ...state,
+        screenCaptured: action.payload
       };
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {

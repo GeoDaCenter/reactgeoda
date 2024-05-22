@@ -48,6 +48,7 @@
     "react-grid-layout": "^1.4.4",
     "react-intl": "^6.5.5",
     "react-responsive-modal": "^6.4.2",
+    "react-screen-capture": "^1.1.1",
     "styled-components": "^6.1.6",
     "type-analyzer": "^0.4.0"
   },

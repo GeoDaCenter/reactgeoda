@@ -27,6 +27,25 @@ export function DashboardIcon() {
   );
 }
 
+// An svg icon of camera
+export function CameraIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      height="24"
+      role="presentation"
+      viewBox="0 0 24 24"
+      width="24"
+    >
+      <g fill="#fff">
+        <path d="M0 0h24v24H0z" fill="none" />
+        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 1.99 2H20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 14l-4-4 4-4v3h4v2h-4v3z" />
+      </g>
+    </svg>
+  );
+}
+
 // An svg icon of map
 export function MapIcon() {
   return (

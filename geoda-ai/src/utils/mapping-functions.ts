@@ -16,6 +16,7 @@ import {ColorRange} from '@kepler.gl/constants';
 import {MappingTypes} from '@/constants';
 import {generateRandomId} from './ui-utils';
 import {getDefaultColorRange} from './color-utils';
+import {numericFormatter} from './plots/format-utils';
 
 type CreateUniqueValuesMapProps = {
   dispatch: Dispatch<UnknownAction>;
@@ -41,21 +42,27 @@ export function createUniqueValuesMap({
   isPreview
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
-  const colors = getDefaultColorRange(hexColors.length)?.colors;
+  const colors = hexColors;
+
   const colorMap = colors?.map((color, index) => {
     return [uniqueValues[index], color];
   });
-  const colorLegend = colors?.map((color, index) => ({
-    color,
-    legend: `${legendLabels[index]}`
-  }));
+
+  const colorLegends: {[key: string]: string} = colors?.reduce(
+    (prev, color, i) => {
+      prev[color] = legendLabels[i];
+      return prev;
+    },
+    {} as {[key: string]: string}
+  ); // Add index signature to allow indexing with a string
+
   const colorRange = {
     category: 'ordinal',
     type: 'diverging',
     name: 'ColorBrewer RdBu-5',
     colors,
     colorMap,
-    colorLegend
+    colorLegends
   };
 
   // get dataId
@@ -124,10 +131,20 @@ export function createCustomScaleMap({
   const colorMap = colors?.map((color, index) => {
     return [breaks[index], color];
   });
-  const colorLegend = colors?.map((color, index) => ({
-    color,
-    legend: `${breaks[index]}`
-  }));
+
+  const colorLegends = colors?.reduce(
+    (prev, color, i) => {
+      const label =
+        i === 0
+          ? `<= ${numericFormatter(breaks[i])}`
+          : i === colors.length - 1
+            ? `> ${numericFormatter(breaks[i - 1])}`
+            : `${numericFormatter(breaks[i - 1])} - ${numericFormatter(breaks[i])}`;
+      prev[color] = label;
+      return prev;
+    },
+    {} as {[key: string]: string}
+  ); // Add index signature to allow indexing with a string
 
   const customColorRange = {
     category: 'custom',
@@ -135,7 +152,7 @@ export function createCustomScaleMap({
     name: 'ColorBrewer RdBu-5',
     colors,
     colorMap,
-    colorLegend,
+    colorLegends,
     ...(colorRange || {})
   };
 
@@ -165,7 +182,8 @@ export function createCustomScaleMap({
         colorDomain: breaks,
         thickness: 0.2,
         opacity: 1
-      }
+      },
+      isVisible: true
     }
   };
 

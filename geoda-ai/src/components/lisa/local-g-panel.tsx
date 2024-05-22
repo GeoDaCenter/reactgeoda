@@ -4,15 +4,22 @@ import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
 import {useDispatch} from 'react-redux';
 import {getColumnData} from '@/utils/data-utils';
-import {localMoran} from 'geoda-wasm';
+import {localG} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {RunAnalysisProps, UnivariateLisaConfig} from './univariate-lisa-config';
+import {Key, useState} from 'react';
 
-export function LocalMoranPanel() {
+export function LocalGPanel() {
   const dispatch = useDispatch();
 
+  const [selectedTab, setSelectedTab] = useState('uni-localg');
+
+  const onSelectionChange = (tab: Key) => {
+    setSelectedTab(tab as string);
+  };
+
   // handle onCreateMap
-  const runAnalysis = async ({
+  const runLocalG = async ({
     tableName,
     dataset,
     weights,
@@ -42,11 +49,12 @@ export function LocalMoranPanel() {
     const sigCutoff = parseFloat(threshold) || 0.05;
 
     // run LISA analysis
-    const lm = await localMoran({
+    const lm = await localG({
       data: columnData,
       neighbors: selectedWeightData?.weights,
       permutation: permutations,
-      significanceCutoff: sigCutoff
+      significanceCutoff: sigCutoff,
+      isGStar: selectedTab === 'uni-localgstart'
     });
 
     // get cluster values using significant cutoff
@@ -58,7 +66,7 @@ export function LocalMoranPanel() {
     });
 
     // add new column to kepler.gl
-    const newFieldName = `moran_${variable}`;
+    const newFieldName = `g_${variable}`;
 
     // get dataset from kepler.gl if dataset.label === tableName
 
@@ -86,7 +94,7 @@ export function LocalMoranPanel() {
       uniqueValues: lm.labels.map((_l, i) => i),
       hexColors: lm.colors,
       legendLabels: lm.labels,
-      mappingType: 'Local Moran',
+      mappingType: selectedTab === 'uni-localgstart' ? 'Local G*' : 'Local G',
       colorFieldName: newFieldName,
       dispatch,
       layer,
@@ -96,16 +104,34 @@ export function LocalMoranPanel() {
 
   return (
     <>
-      <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
+      <Tabs
+        aria-label="Options"
+        variant="solid"
+        color="warning"
+        classNames={{}}
+        size="md"
+        onSelectionChange={onSelectionChange}
+        selectedKey={selectedTab}
+      >
         <Tab
-          key="uni-localmoran"
+          key="uni-localg"
           title={
             <div className="flex items-center space-x-2">
-              <span>Univariate</span>
+              <span>Getis-Ord G</span>
             </div>
           }
         >
-          <UnivariateLisaConfig runAnalysis={runAnalysis} />
+          <UnivariateLisaConfig runAnalysis={runLocalG} />
+        </Tab>
+        <Tab
+          key="uni-localgstart"
+          title={
+            <div className="flex items-center space-x-2">
+              <span>Getis-Ord G*</span>
+            </div>
+          }
+        >
+          <UnivariateLisaConfig runAnalysis={runLocalG} />
         </Tab>
       </Tabs>
     </>

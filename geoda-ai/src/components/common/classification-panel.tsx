@@ -165,7 +165,6 @@ export function ClassificationPanel({props, onValuesChange}: ClassificationPanel
     });
   };
 
-  console.log('variable', variable);
   // handle color range selection change
   const onSelectColorRange = (p: ColorRange) => {
     setSelectedColorRange(p);

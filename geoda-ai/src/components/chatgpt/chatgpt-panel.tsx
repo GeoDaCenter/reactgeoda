@@ -5,12 +5,13 @@ import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {CustomMessage} from './custom-messages';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {setMessages} from '@/actions';
+import {setMessages, setPropertyPanel} from '@/actions';
+import {PanelName} from '../panel/panel-container';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
@@ -19,7 +20,7 @@ export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
 
-const ChatGPTPanel = () => {
+const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
   const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -55,6 +56,11 @@ const ChatGPTPanel = () => {
   // useChatGPT hook
   const {initOpenAI, processChatGPTMessage} = useChatGPT();
 
+  const onNoOpenAIKeyMessageClick = () => {
+    // dispatch to show settings panel
+    dispatch(setPropertyPanel(PanelName.SETTINGS));
+  };
+
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -67,9 +73,13 @@ const ChatGPTPanel = () => {
       })}
     >
       {!openAIKey ? (
-        <WarningBox message={NO_OPENAI_KEY_MESSAGE} type="warning" />
+        <WarningBox
+          message={NO_OPENAI_KEY_MESSAGE}
+          type={WarningType.WARNING}
+          onClick={onNoOpenAIKeyMessageClick}
+        />
       ) : !tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <ChatGPTComponent
           openAIKey={openAIKey}
@@ -78,6 +88,7 @@ const ChatGPTPanel = () => {
           getCustomMessageComponent={() => CustomMessage}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
           setMessages={updateMessages}
+          onStartCapture={onStartCapture}
         />
       )}
     </RightPanelContainer>

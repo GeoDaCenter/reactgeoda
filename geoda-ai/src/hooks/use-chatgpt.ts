@@ -106,10 +106,12 @@ export function useChatGPT() {
    */
   async function processChatGPTMessage(
     question: string,
-    streamMessage: (delta: string, customMessage?: MessageModel) => void
+    streamMessage: (delta: string, customMessage?: MessageModel) => void,
+    imageMessage?: string
   ) {
     await processMessage({
       question,
+      imageMessage,
       customFunctions: CUSTOM_FUNCTIONS,
       customFunctionContext: {tableName, visState, weights, dataContainer, queryValues},
       customMessageCallback: createMessageFromCustomFunctionCall,
