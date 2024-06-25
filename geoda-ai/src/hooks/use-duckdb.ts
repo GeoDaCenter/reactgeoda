@@ -94,7 +94,7 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
         return tableSummary;
       } catch (error) {
         console.error(error);
-        return 'error: can not get summary of the table because table name is not found';
+        return 'Error: can not get summary of the table because table name is not found';
       }
     }
     return tableSummary;
@@ -157,6 +157,7 @@ export function useDuckDB() {
           await conn.close();
         } catch (error) {
           console.error(error);
+          throw new Error("Can't add a new column with values to the table, Error: " + error);
         }
       }
     },
@@ -193,8 +194,8 @@ export function useDuckDB() {
       return result || [];
     } catch (error) {
       console.error(error);
+      throw new Error('Error: can not query the values from the table. Details: ' + error);
     }
-    return [];
   }, []);
 
   const query = useCallback(async (tableName: string, queryString: string): Promise<number[]> => {
@@ -222,7 +223,7 @@ export function useDuckDB() {
       return selectedIndexes || [];
     } catch (error) {
       console.error(error);
-      return [];
+      throw new Error('Error: can not query the values from the table. Details: ' + error);
     }
   }, []);
 

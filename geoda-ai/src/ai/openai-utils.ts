@@ -220,7 +220,7 @@ async function processRequiresAction(
             lastMessage = snapshot.value || '';
             streamMessageCallback(snapshot.value || '');
           })
-          .on('end', () => {
+          .on('end', async () => {
             if (error === null && output) {
               // append a custom response e.g. plot, map etc. if needed
               const lastCustomFunctionCall = {functionName, functionArgs: args, output};
@@ -229,13 +229,24 @@ async function processRequiresAction(
                 streamMessageCallback(lastMessage, customReponseMsg);
               }
             }
+            // wait for the runs to complete
+            // if (curr_run?.status !== 'completed' && openai && thread) {
+            //   await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+            // }
+          })
+          .on('error', async err => {
+            console.error(err);
+            if (openai && thread) {
+              await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+            }
+          })
+          .on('abort', async () => {
+            console.log('abort');
+            if (openai && thread) {
+              await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+            }
           });
       }
     });
-
-    // wait for the runs to complete
-    // if (curr_run?.status !== 'completed') {
-    //   await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
-    // }
   }
 }
