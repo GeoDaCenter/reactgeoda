@@ -214,7 +214,7 @@ async function processRequiresAction(
             ]
           }
         );
-        let lastMessage = '';
+        let lastMessage = '\n\n';
         responseStream
           .on('textDelta', (textDelta, snapshot) => {
             lastMessage = snapshot.value || '';
@@ -228,11 +228,17 @@ async function processRequiresAction(
               if (customReponseMsg) {
                 streamMessageCallback(lastMessage, customReponseMsg);
               }
+            } else {
+              console.log('there is an error happend in the custom function');
             }
             // wait for the runs to complete
-            // if (curr_run?.status !== 'completed' && openai && thread) {
-            //   await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
-            // }
+            if (curr_run?.status !== 'completed' && openai && thread) {
+              try {
+                await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+              } catch (err) {
+                console.error(err);
+              }
+            }
           })
           .on('error', async err => {
             console.error(err);
