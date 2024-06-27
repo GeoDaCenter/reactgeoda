@@ -64,7 +64,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
         dispatch(layerVisConfigChange(existingLayer, newVisCconfig));
         return existingLayer.id;
       }
-      if (mappingType === MappingTypes.UNIQUE_VALUES) {
+      if (mappingType === 'unique values') {
         const newLayer = createUniqueValuesMap({
           dispatch,
           layer,
