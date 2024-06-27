@@ -1,6 +1,6 @@
 // define a type of custom function that is an object contains key-value pairs
 
-import {quantileBreaks, naturalBreaks, WeightsMeta, localMoran} from 'geoda-wasm';
+import {WeightsMeta, localMoran} from 'geoda-wasm';
 import {DataContainerInterface} from '@kepler.gl/utils';
 
 import {getTableSummary} from '@/hooks/use-duckdb';
@@ -25,21 +25,19 @@ import {CustomFunctions} from '../openai-utils';
 import {linearRegressionCallbackFunc} from './callbacks/callback-regression';
 import {createVariableCallBack} from './callbacks/callback-table';
 import {createWeightsCallback} from './callbacks/callback-weights';
+import {createMapCallback} from './callbacks/callback-map';
 
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
 export enum CustomFunctionNames {
   SUMMARIZE_DATA = 'summarizeData',
-  QUANTILE_BREAKS = 'quantileBreaks',
-  NATURAL_BREAKS = 'naturalBreaks',
-  KNN_WEIGHT = 'knnWeight',
   LOCAL_MORAN = 'univariateLocalMoran',
   HISTOGRAM = 'histogram',
   BOXPLOT = 'boxplot',
-  CONTIGUITY_WEIGHT = 'contiguityWeight',
   BUBBLE_CHART = 'bubble',
   SCATTERPLOT = 'scatter',
-  CREATE_WEIGHTS = 'createWeights'
+  CREATE_WEIGHTS = 'createWeights',
+  CREATE_MAP = 'createMap'
 }
 
 export function createErrorResult(result: string): ErrorOutput {
@@ -59,11 +57,6 @@ export type CustomFunctionContext = {
 type SummarizeDataProps = {
   tableName?: string;
   result?: string;
-};
-
-type CustomMapBreaksProps = {
-  k: number;
-  variableName: string;
 };
 
 export type ErrorOutput = {
@@ -154,49 +147,6 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     const result = await getTableSummary();
     return {tableName, result};
   },
-
-  quantileBreaks: async function (
-    {k, variableName}: CustomMapBreaksProps,
-    {tableName, visState}
-  ): Promise<MappingOutput | ErrorOutput> {
-    if (!checkIfFieldNameExists(tableName, variableName, visState)) {
-      return createErrorResult(
-        `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
-      );
-    }
-    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
-    if (!columnData || columnData.length === 0) {
-      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
-    }
-    const result = await quantileBreaks(k, columnData);
-
-    return {type: 'mapping', name: 'Quantile Breaks', result};
-  },
-
-  naturalBreaks: async function (
-    {k, variableName}: CustomMapBreaksProps,
-    {tableName, visState}
-  ): Promise<NaturalBreaksOutput | ErrorOutput> {
-    if (!checkIfFieldNameExists(tableName, variableName, visState)) {
-      return createErrorResult(
-        `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a jenks map using variable HR60 and 5 breaks.`
-      );
-    }
-    const columnData = getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
-    if (!columnData || columnData.length === 0) {
-      return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
-    }
-    const breaks = await naturalBreaks(k, columnData);
-
-    const result = {
-      k,
-      breaks,
-      type: 'natural breaks map'
-    };
-
-    return {type: 'mapping', name: 'Natural Breaks', result};
-  },
-
   univariateLocalMoran: async function (
     {variableName, weightsID, permutations = 999, significanceThreshold = 0.05},
     {tableName, visState, weights}
@@ -230,7 +180,11 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
       return createErrorResult('Error: column data is empty');
     }
     // run LISA analysis
-    const lm = await localMoran(columnData, selectWeight?.weights, permutations);
+    const lm = await localMoran({
+      data: columnData,
+      neighbors: selectWeight?.weights,
+      permutation: permutations
+    });
     // get cluster values using significant cutoff
     const clusters = lm.pValues.map((p: number, i) => {
       if (p > significanceThreshold) {
@@ -350,7 +304,8 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   parallelCoordinate: parallelCoordinateFunction,
   linearRegression: linearRegressionCallbackFunc,
   createVariable: createVariableCallBack,
-  createWeights: createWeightsCallback
+  createWeights: createWeightsCallback,
+  createMap: createMapCallback
 };
 
 export type BoxplotOutput = {

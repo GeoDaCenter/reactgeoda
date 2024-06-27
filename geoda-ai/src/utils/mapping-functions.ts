@@ -99,6 +99,7 @@ export function createUniqueValuesMap({
   if (isPreview) {
     dispatch(reorderLayer([...layerOrder, newLayer.id]));
   }
+  return newLayer;
 }
 
 type CreateCustomScaleMapProps = {
@@ -197,11 +198,17 @@ export function createCustomScaleMap({
   return newLayer;
 }
 
-export async function createMapBreaks(
-  mappingType: string,
-  k: number,
-  values: number[]
-): Promise<number[]> {
+export type CreateMapBreaksProps = {
+  mappingType: string;
+  k?: number;
+  values: number[];
+};
+
+export async function createMapBreaks({
+  mappingType,
+  k = 5,
+  values
+}: CreateMapBreaksProps): Promise<number[]> {
   if (mappingType === MappingTypes.QUANTILE) {
     return await quantileBreaks(k, values);
   } else if (mappingType === MappingTypes.NATURAL_BREAK) {

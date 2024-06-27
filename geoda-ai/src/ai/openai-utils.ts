@@ -201,7 +201,7 @@ async function processRequiresAction(
       }
 
       // submit tool outputs
-      if (openai && thread) {
+      if (openai && thread && curr_run && curr_run.status !== 'in_progress') {
         const responseStream = openai.beta.threads.runs.submitToolOutputsStream(
           thread.id,
           curr_run.id,
@@ -242,13 +242,13 @@ async function processRequiresAction(
           })
           .on('error', async err => {
             console.error(err);
-            if (openai && thread) {
+            if (openai && thread && curr_run && curr_run.status !== 'completed') {
               await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
             }
           })
           .on('abort', async () => {
             console.log('abort');
-            if (openai && thread) {
+            if (openai && thread && curr_run && curr_run.status !== 'completed') {
               await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
             }
           });
