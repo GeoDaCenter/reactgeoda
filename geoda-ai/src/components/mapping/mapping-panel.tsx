@@ -125,7 +125,7 @@ function MappingPanel() {
       });
     } else {
       // run map breaks
-      const breaks = await createMapBreaks(mappingType, k, columnData);
+      const breaks = await createMapBreaks({mappingType, k, values: columnData});
 
       // create custom scale map in kepler.gl
       createCustomScaleMap({

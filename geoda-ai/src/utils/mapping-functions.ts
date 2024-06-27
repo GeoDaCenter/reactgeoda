@@ -44,6 +44,9 @@ export function createUniqueValuesMap({
   // get colors, colorMap, colorLegend to create colorRange
   const colors = hexColors;
 
+  // get colorField type number or string by checking values in uniqueValues
+  const colorFieldType = uniqueValues.every(value => typeof value === 'number') ? 'real' : 'string';
+
   const colorMap = colors?.map((color, index) => {
     return [uniqueValues[index], color];
   });
@@ -80,7 +83,7 @@ export function createUniqueValuesMap({
       colorScale: 'ordinal',
       colorField: {
         name: `${colorFieldName}`,
-        type: 'real'
+        type: colorFieldType
       },
       visConfig: {
         ...layer?.config.visConfig,
@@ -99,6 +102,7 @@ export function createUniqueValuesMap({
   if (isPreview) {
     dispatch(reorderLayer([...layerOrder, newLayer.id]));
   }
+  return newLayer;
 }
 
 type CreateCustomScaleMapProps = {
@@ -197,11 +201,17 @@ export function createCustomScaleMap({
   return newLayer;
 }
 
-export async function createMapBreaks(
-  mappingType: string,
-  k: number,
-  values: number[]
-): Promise<number[]> {
+export type CreateMapBreaksProps = {
+  mappingType: string;
+  k?: number;
+  values: number[];
+};
+
+export async function createMapBreaks({
+  mappingType,
+  k = 5,
+  values
+}: CreateMapBreaksProps): Promise<number[]> {
   if (mappingType === MappingTypes.QUANTILE) {
     return await quantileBreaks(k, values);
   } else if (mappingType === MappingTypes.NATURAL_BREAK) {

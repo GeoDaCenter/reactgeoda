@@ -175,6 +175,8 @@ async function processRequiresAction(
   if (openai && thread) {
     const runs = await openai.beta.threads.runs.list(thread.id);
     const curr_run = runs.data.find(run => run.status === 'requires_action');
+
+    let previousFunctionName: string | null = null;
     // Details on the action required to continue the run.
     // Details on the tool outputs needed for this run to continue.
     // A list of the relevant tool calls (functions).
@@ -182,76 +184,80 @@ async function processRequiresAction(
       // handle each tool call (function)
       let result;
       let output: CustomFunctionOutputProps | null = null;
-      let error = null;
       // run custom function
       const functionName = toolCall.function.name;
       const args = JSON.parse(toolCall.function.arguments);
-      try {
-        const func = customFunctions[functionName];
-        output = await func(args, customFunctionContext);
-        result = output.result;
-      } catch (err) {
-        console.error(err);
-        error = err;
-        // make sure to return something back to openai when the function execution fails
-        result = {
-          successs: false,
-          details: `The function "${functionName}" is not executed. You can contact GeoDa.AI team for assistance. The error message is: ${error}`
-        };
-      }
+      // prevent running the same function (with different arguments) multiple times
+      if (previousFunctionName !== functionName) {
+        let error = null;
+        try {
+          const func = customFunctions[functionName];
+          output = await func(args, customFunctionContext);
+          result = output.result;
+        } catch (err) {
+          console.error(err);
+          error = err;
+          // make sure to return something back to openai when the function execution fails
+          result = {
+            successs: false,
+            details: `The function "${functionName}" is not executed. You can contact GeoDa.AI team for assistance. The error message is: ${error}`
+          };
+        }
 
-      // submit tool outputs
-      if (openai && thread) {
-        const responseStream = openai.beta.threads.runs.submitToolOutputsStream(
-          thread.id,
-          curr_run.id,
-          {
-            tool_outputs: [
-              {
-                tool_call_id: toolCall.id,
-                output: JSON.stringify(result)
-              }
-            ]
-          }
-        );
-        let lastMessage = '\n\n';
-        responseStream
-          .on('textDelta', (textDelta, snapshot) => {
-            lastMessage = snapshot.value || '';
-            streamMessageCallback(snapshot.value || '');
-          })
-          .on('end', async () => {
-            if (error === null && output) {
-              // append a custom response e.g. plot, map etc. if needed
-              const lastCustomFunctionCall = {functionName, functionArgs: args, output};
-              const customReponseMsg = customMessageCallback(lastCustomFunctionCall);
-              if (customReponseMsg) {
-                streamMessageCallback(lastMessage, customReponseMsg);
-              }
-            } else {
-              console.log('there is an error happend in the custom function');
+        // submit tool outputs
+        if (openai && thread && curr_run && curr_run.status !== 'in_progress') {
+          const responseStream = openai.beta.threads.runs.submitToolOutputsStream(
+            thread.id,
+            curr_run.id,
+            {
+              tool_outputs: [
+                {
+                  tool_call_id: toolCall.id,
+                  output: JSON.stringify(result)
+                }
+              ]
             }
-            // wait for the runs to complete
-            if (curr_run?.status !== 'completed' && openai && thread) {
-              try {
+          );
+          let lastMessage = '\n\n';
+          responseStream
+            .on('textDelta', (textDelta, snapshot) => {
+              lastMessage = snapshot.value || '';
+              streamMessageCallback(snapshot.value || '');
+            })
+            .on('end', async () => {
+              if (error === null && output) {
+                // append a custom response e.g. plot, map etc. if needed
+                const lastCustomFunctionCall = {functionName, functionArgs: args, output};
+                const customReponseMsg = customMessageCallback(lastCustomFunctionCall);
+                if (customReponseMsg) {
+                  streamMessageCallback(lastMessage, customReponseMsg);
+                }
+              } else {
+                console.log('there is an error happend in the custom function');
+              }
+              // wait for the runs to complete
+              if (curr_run?.status !== 'completed' && openai && thread) {
+                try {
+                  await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+                } catch (err) {
+                  console.error(err);
+                }
+              }
+            })
+            .on('error', async err => {
+              console.error(err);
+              if (openai && thread && curr_run && curr_run.status !== 'completed') {
                 await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
-              } catch (err) {
-                console.error(err);
               }
-            }
-          })
-          .on('error', async err => {
-            console.error(err);
-            if (openai && thread) {
-              await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
-            }
-          })
-          .on('abort', async () => {
-            console.log('abort');
-            if (openai && thread) {
-              await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
-            }
-          });
+            })
+            .on('abort', async () => {
+              console.log('abort');
+              if (openai && thread && curr_run && curr_run.status !== 'completed') {
+                await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
+              }
+            });
+        }
+        previousFunctionName = functionName;
       }
     });
   }

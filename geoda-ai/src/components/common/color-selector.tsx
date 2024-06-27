@@ -30,7 +30,7 @@ export function ColorSelector({
     }
   };
 
-  return (
+  return selectedColorRange ? (
     <Select
       label="Select color scheme"
       className="max-w"
@@ -58,5 +58,5 @@ export function ColorSelector({
         </SelectItem>
       )}
     </Select>
-  );
+  ) : null;
 }

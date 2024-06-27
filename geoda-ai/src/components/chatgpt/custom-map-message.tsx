@@ -3,14 +3,13 @@ import {Layer} from '@kepler.gl/layers';
 import {CustomMessagePayload} from './custom-messages';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {createCustomScaleMap} from '@/utils/mapping-functions';
+import {createCustomScaleMap, createUniqueValuesMap} from '@/utils/mapping-functions';
 import {getLayer} from '@/utils/data-utils';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {reorderLayer, layerVisConfigChange} from '@kepler.gl/actions';
-import {MAP_ID} from '@/constants';
+import {MAP_ID, MappingTypes} from '@/constants';
 import {ColorSelector} from '../common/color-selector';
 import {getDefaultColorRange} from '@/utils/color-utils';
-import {NaturalBreaksOutput} from '@/ai/assistant/custom-functions';
 import {ColorRange} from '@kepler.gl/constants';
 import {CustomCreateButton} from '../common/custom-create-button';
 
@@ -19,7 +18,9 @@ import {CustomCreateButton} from '../common/custom-create-button';
  */
 export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   const {functionArgs, output} = props;
-  const {k, breaks} = output.result as NaturalBreaksOutput['result'];
+  const mappingType = 'type' in output ? output.name : 'quantile';
+  const breaks = output.result as number[];
+  const k = mappingType === MappingTypes.UNIQUE_VALUES ? breaks.length : breaks.length + 1;
 
   const dispatch = useDispatch();
 
@@ -38,9 +39,8 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   const updateLayer = useMemo(() => {
     if ('type' in output && 'mapping' === output.type) {
       const {variableName} = functionArgs;
-      const mappingType = output.name;
       const colorFieldName = variableName;
-      const label = `${mappingType}-${colorFieldName}-${breaks.length + 1}`;
+      const label = `${mappingType}-${colorFieldName}-${k}`;
       // check if there is already a layer with the same label
       const existingLayer = layers.find((layer: Layer) => layer.config.label === label);
       if (existingLayer && selectedColorRange) {
@@ -64,17 +64,31 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
         dispatch(layerVisConfigChange(existingLayer, newVisCconfig));
         return existingLayer.id;
       }
-      const newLayer = createCustomScaleMap({
-        breaks,
-        mappingType,
-        colorFieldName,
-        dispatch,
-        layer,
-        isPreview: true,
-        colorRange: selectedColorRange,
-        layerOrder
-      });
-      return newLayer.id;
+      if (mappingType === 'unique values') {
+        const newLayer = createUniqueValuesMap({
+          dispatch,
+          layer,
+          uniqueValues: breaks,
+          legendLabels: breaks.map(v => v.toString()),
+          hexColors: selectedColorRange?.colors || [],
+          mappingType,
+          colorFieldName,
+          layerOrder
+        });
+        return newLayer.id;
+      } else {
+        const newLayer = createCustomScaleMap({
+          breaks,
+          mappingType,
+          colorFieldName,
+          dispatch,
+          layer,
+          isPreview: true,
+          colorRange: selectedColorRange,
+          layerOrder
+        });
+        return newLayer.id;
+      }
     }
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
