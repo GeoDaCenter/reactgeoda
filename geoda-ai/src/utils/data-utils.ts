@@ -86,7 +86,7 @@ export function getColumnDataFromKeplerLayer(
   tableName: string,
   columnName: string,
   datasets: Datasets
-): Array<number> {
+): Array<number | string> {
   // get dataset from datasets if dataset.label === tableName
   const dataset = Object.values(datasets).find(
     (dataset: KeplerTable) => dataset.label === tableName
@@ -108,7 +108,7 @@ export function getColumnDataFromKeplerLayer(
 
     // get column data from dataContainer
     const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
-    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+    if (!Array.isArray(columnData)) {
       // handle error
       return [];
     }
@@ -222,4 +222,9 @@ export function getDataset(state: GeoDaState) {
   const datasets: KeplerTable[] = Object.values(state.keplerGl[MAP_ID]?.visState?.datasets);
   const dataset = datasets.find((dataset: KeplerTable) => dataset.label === tableName);
   return dataset;
+}
+
+// typeguard function to check if array is number[]
+export function isNumberArray(array: Array<number | string>): array is number[] {
+  return array.every(item => typeof item === 'number');
 }

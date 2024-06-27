@@ -7,7 +7,8 @@ import {getTableSummary} from '@/hooks/use-duckdb';
 import {
   checkIfFieldNameExists,
   getColumnDataFromKeplerLayer,
-  getColumnData
+  getColumnData,
+  isNumberArray
 } from '@/utils/data-utils';
 import {
   CHAT_FIELD_NAME_NOT_FOUND,
@@ -178,6 +179,10 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
     );
     if (!columnData || columnData.length === 0) {
       return createErrorResult('Error: column data is empty');
+    }
+    // check the type of columnData is an array of numbers
+    if (!isNumberArray(columnData)) {
+      return createErrorResult('Error: column data is not an array of numbers');
     }
     // run LISA analysis
     const lm = await localMoran({

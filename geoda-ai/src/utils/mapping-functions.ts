@@ -44,6 +44,9 @@ export function createUniqueValuesMap({
   // get colors, colorMap, colorLegend to create colorRange
   const colors = hexColors;
 
+  // get colorField type number or string by checking values in uniqueValues
+  const colorFieldType = uniqueValues.every(value => typeof value === 'number') ? 'real' : 'string';
+
   const colorMap = colors?.map((color, index) => {
     return [uniqueValues[index], color];
   });
@@ -80,7 +83,7 @@ export function createUniqueValuesMap({
       colorScale: 'ordinal',
       colorField: {
         name: `${colorFieldName}`,
-        type: 'real'
+        type: colorFieldType
       },
       visConfig: {
         ...layer?.config.visConfig,

@@ -3,9 +3,14 @@ import {HexColor} from '@kepler.gl/types';
 import colorbrewer from 'colorbrewer';
 import interpolate from 'color-interpolate';
 
+const MAX_COLOR_RANGE_LENGTH = 20;
+
 export function getDefaultColorRange(numberOfColors: number) {
   return ALL_COLOR_RANGES.find(colorRange => {
-    return colorRange.colors.length === numberOfColors;
+    return (
+      colorRange.colors.length ===
+      (numberOfColors > MAX_COLOR_RANGE_LENGTH ? MAX_COLOR_RANGE_LENGTH : numberOfColors)
+    );
   });
 }
 
@@ -45,9 +50,8 @@ export function hexToRgb(hex: string): number[] {
 export function updateColorRanges(): ColorRange[] {
   // update the COLOR_RANGES array by adding missing color ranges with length of colors that are not in the array
   const colorRanges = COLOR_RANGES;
-  const maxColorRangeLength = 20;
   const missingColorStartIndex = 13; // colorbrewer schemes have at most 12 colors
-  for (let i = missingColorStartIndex; i <= maxColorRangeLength; i++) {
+  for (let i = missingColorStartIndex; i <= MAX_COLOR_RANGE_LENGTH; i++) {
     for (const [keyName, colorScheme] of Object.entries(colorbrewer)) {
       if (keyName !== 'schemeGroups') {
         const originalColors = colorScheme[8]; // all colorbrewer schemes have at least 8 colors

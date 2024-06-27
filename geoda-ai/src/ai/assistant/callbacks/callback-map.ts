@@ -1,4 +1,8 @@
-import {checkIfFieldNameExists, getColumnDataFromKeplerLayer} from '@/utils/data-utils';
+import {
+  checkIfFieldNameExists,
+  getColumnDataFromKeplerLayer,
+  isNumberArray
+} from '@/utils/data-utils';
 import {createErrorResult, CustomFunctionContext, ErrorOutput} from '../custom-functions';
 import {CHAT_COLUMN_DATA_NOT_FOUND, CHAT_FIELD_NAME_NOT_FOUND, MappingTypes} from '@/constants';
 import {createMapBreaks} from '@/utils/mapping-functions';
@@ -20,7 +24,7 @@ type CreateMapCallbackProps = {
 type MapCallbackOutput = {
   type: 'mapping';
   name: string;
-  result: number[];
+  result: Array<number | string>;
 };
 
 export async function createMapCallback(
@@ -37,28 +41,48 @@ export async function createMapCallback(
     return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
   }
 
-  let result: number[] | null = null;
+  let result: Array<number | string> | null = null;
+
+  // special case for unique values
+  if (method === 'unique values') {
+    const uniqueValues = Array.from(new Set(columnData));
+    result = uniqueValues;
+    // check if the number of unique values is more than 100
+    if (uniqueValues.length > 100) {
+      return createErrorResult(
+        'Error: unique values are more than 100. Please use another method for map creation.'
+      );
+    }
+    // return the result
+    if (result) {
+      return {type: 'mapping', name: method, result};
+    }
+  }
+
+  // for all other map classification methods, column data should be numeric
+  if (!isNumberArray(columnData)) {
+    return createErrorResult('Error: column data should be numeric for map creation.');
+  }
 
   // need the value of k
   if (['quantile', 'natural breaks', 'equal interval'].includes(method)) {
     if (!k || k < 2) {
       return createErrorResult(`Error: k value should be greater than 1 for ${method} map.`);
-    } else {
-      if (method === 'quantile') {
-        result = await createMapBreaks({mappingType: MappingTypes.QUANTILE, k, values: columnData});
-      } else if (method === 'natural breaks') {
-        result = await createMapBreaks({
-          mappingType: MappingTypes.NATURAL_BREAK,
-          k,
-          values: columnData
-        });
-      } else if (method === 'equal interval') {
-        result = await createMapBreaks({
-          mappingType: MappingTypes.EQUAL_INTERVAL,
-          k,
-          values: columnData
-        });
-      }
+    }
+    if (method === 'quantile') {
+      result = await createMapBreaks({mappingType: MappingTypes.QUANTILE, k, values: columnData});
+    } else if (method === 'natural breaks') {
+      result = await createMapBreaks({
+        mappingType: MappingTypes.NATURAL_BREAK,
+        k,
+        values: columnData
+      });
+    } else if (method === 'equal interval') {
+      result = await createMapBreaks({
+        mappingType: MappingTypes.EQUAL_INTERVAL,
+        k,
+        values: columnData
+      });
     }
   }
   // no need the value of k
@@ -77,9 +101,6 @@ export async function createMapCallback(
       mappingType: MappingTypes.STD_MAP,
       values: columnData
     });
-  } else if (method === 'unique values') {
-    const uniqueValues = Array.from(new Set(columnData));
-    result = uniqueValues;
   }
 
   // return the result
