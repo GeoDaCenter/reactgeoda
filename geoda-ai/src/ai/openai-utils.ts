@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
-import {ImageURLContentBlock} from 'openai/resources/beta/threads/messages.mjs';
 import {ReactNode} from 'react';
+import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from './assistant/geoda-assistant';
 
 export interface MessageImageContentProps {
   src?: string;
@@ -22,14 +22,28 @@ export interface MessageModel {
   payload?: MessagePayload;
 }
 
-const ASSISTANT_ID = 'asst_nowaCi4DNY6SwLJIiLtDOuLG';
-
 // declare global openai variable
 let openai: OpenAI | null = null;
 // global openai assistant
-let assistant: OpenAI.Beta.Assistants.Assistant | null = null;
+let assistant: OpenAI.Beta.Assistants.Assistant | undefined = undefined;
 // global openai thread
 let thread: OpenAI.Beta.Threads.Thread | null = null;
+
+/**
+ * Find if the assistant with name 'geoda.ai-openai-agent' exists
+ */
+export async function findAssistant(openai: OpenAI): Promise<OpenAI.Beta.Assistant | undefined> {
+  const assistants = await openai.beta.assistants.list();
+  return assistants.data.find(assistant => assistant.name === 'geoda.ai-openai-agent');
+}
+
+/**
+ * Create a new GeoDa.AI assistant
+ */
+export async function createAssistant(openai: OpenAI): Promise<OpenAI.Beta.Assistant | undefined> {
+  const assistant = await openai.beta.assistants.create(GEODA_AI_ASSISTANT_BODY);
+  return assistant;
+}
 
 /**
  * Initialize ChatGPT assistant by passing the summary of the table from duckdb
@@ -38,8 +52,29 @@ let thread: OpenAI.Beta.Threads.Thread | null = null;
 export async function initOpenAI(apiKey: string) {
   if (!openai) {
     openai = new OpenAI({apiKey, dangerouslyAllowBrowser: true});
-    // retrive assistant
-    assistant = await openai.beta.assistants.retrieve(ASSISTANT_ID || '');
+    // find GeoDa.Ai assistant
+    assistant = await findAssistant(openai);
+
+    // create or update GeoDa.Ai assistant if needed
+    if (!assistant) {
+      // create a new assistant
+      assistant = await createAssistant(openai);
+    } else {
+      // check if assistant is latest
+      const assistantId = assistant.id;
+      if (
+        assistant.metadata &&
+        typeof assistant.metadata === 'object' &&
+        'version' in assistant.metadata
+      ) {
+        const version = assistant.metadata.version;
+        if (version !== GEODA_AI_ASSISTANT_VERSION) {
+          // update assistant
+          assistant = await openai.beta.assistants.update(assistantId, GEODA_AI_ASSISTANT_BODY);
+        }
+      }
+    }
+
     // create a thread
     thread = await openai.beta.threads.create();
   }
@@ -104,7 +139,7 @@ export async function processMessage({
 
   // pass in the user question into the existing thread
   if (imageMessage) {
-    const imageMessageContent: ImageURLContentBlock = {
+    const imageMessageContent: OpenAI.Beta.Threads.ImageURLContentBlock = {
       type: 'image_url',
       image_url: {
         url: imageMessage || '',
