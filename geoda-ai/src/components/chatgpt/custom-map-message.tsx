@@ -54,7 +54,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
                 return [color[0], selectedColorRange.colors[index]];
               }
             ),
-            colorLegend: existingLayer.config.visConfig.colorRange.colorLegend.map(
+            colorLegend: existingLayer.config.visConfig.colorRange.colorLegend?.map(
               (color: any, index: number) => {
                 return {...color, color: selectedColorRange.colors[index]};
               }

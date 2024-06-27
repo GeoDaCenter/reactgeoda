@@ -80,6 +80,35 @@ export async function initOpenAI(apiKey: string) {
   }
 }
 
+/**
+ * Cancel the openai assistant run
+ */
+export async function cancelOpenAI() {
+  if (openai && thread) {
+    const runs = await openai.beta.threads.runs.list(thread.id);
+    runs.data.forEach(async run => {
+      if (openai && thread) {
+        await openai.beta.threads.runs.cancel(thread.id, run.id);
+      }
+    });
+  }
+}
+
+/**
+ * Close the openai assistant
+ */
+export async function closeOpenAI() {
+  if (openai && thread) {
+    await cancelOpenAI();
+    await openai.beta.threads.del(thread.id);
+  }
+  assistant = undefined;
+  thread = null;
+}
+
+/**
+ * Type of Custom function output props
+ */
 export type CustomFunctionOutputProps =
   | {
       type: string;

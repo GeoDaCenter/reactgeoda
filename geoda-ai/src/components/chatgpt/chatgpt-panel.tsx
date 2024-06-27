@@ -18,7 +18,7 @@ export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Setti
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const DEFAULT_WELCOME_MESSAGE =
-  "Hello, I'm GeoDa.AI chatbot! Let's do spatial analysis! Ask me anything about your data.";
+  "Hello, I'm GeoDa.AI agent! Let's do spatial analysis! Ask me anything about your data.";
 
 const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
   const intl = useIntl();
@@ -65,11 +65,11 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
     <RightPanelContainer
       title={intl.formatMessage({
         id: 'chatGpt.title',
-        defaultMessage: 'GeoDa.AI ChatBot'
+        defaultMessage: 'GeoDa.AI Agent'
       })}
       description={intl.formatMessage({
         id: 'chatGpt.description',
-        defaultMessage: 'Powered by OpenAI'
+        defaultMessage: 'Powered by GeoDa and LLM'
       })}
     >
       {!openAIKey ? (

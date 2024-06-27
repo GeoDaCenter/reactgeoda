@@ -13,6 +13,9 @@ import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {setScreenCaptured} from '@/actions';
+import {IconStop} from '../icons/stop';
+import {IconReport} from '../icons/report';
+import {cancelOpenAI} from '@/ai/openai-utils';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
@@ -184,6 +187,24 @@ export const ChatGPTComponent = ({
     onStartCapture();
   };
 
+  // handle stop running chat
+  const stopRunningChat = () => {
+    setIsTyping(false);
+    // calll to stop openai runs
+    cancelOpenAI();
+  };
+
+  // handle report question
+  const reportQuestion = (messageIndex: number) => {
+    // report the question
+    // get the current question from the message by index
+    const question = messages[messageIndex].message;
+    // create an email with the question
+    const email = `mailto: spatial@uchicago.edu?subject=Help:%20chat%20questio%20not%20working&body=${question}`;
+    // open the email client
+    window.open(email);
+  };
+
   return (
     <MainContainer className="pl-4">
       <ChatContainer>
@@ -222,7 +243,26 @@ export const ChatGPTComponent = ({
                     })
                   )
                 }
-              />
+              >
+                {true && (
+                  <Message.Footer>
+                    <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
+                      <div
+                        className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
+                        onClick={stopRunningChat}
+                      >
+                        Stop <IconStop />
+                      </div>
+                      <div
+                        className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
+                        onClick={() => reportQuestion(i)}
+                      >
+                        Report <IconReport />
+                      </div>
+                    </div>
+                  </Message.Footer>
+                )}
+              </Message>
             );
           })}
         </MessageList>
