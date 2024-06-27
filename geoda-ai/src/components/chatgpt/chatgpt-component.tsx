@@ -244,7 +244,7 @@ export const ChatGPTComponent = ({
                   )
                 }
               >
-                {true && (
+                {isTyping && i === messages.length - 2 && (
                   <Message.Footer>
                     <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
                       <div
