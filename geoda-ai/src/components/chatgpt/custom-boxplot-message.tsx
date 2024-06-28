@@ -1,5 +1,4 @@
 import {Button} from '@nextui-org/react';
-import Typewriter from 'typewriter-effect';
 import {useState} from 'react';
 
 import {BoxPlotProps, addPlot} from '@/actions/plot-actions';
@@ -59,14 +58,7 @@ export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => 
         startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
         isDisabled={hide}
       >
-        <Typewriter
-          options={{
-            strings: `Click to Add This Box Plot`,
-            autoStart: true,
-            loop: false,
-            delay: 10
-          }}
-        />
+        Click to Add This Box Plot
       </Button>
     </div>
   );

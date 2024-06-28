@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 
 import {CustomFunctionNames} from '@/ai/assistant/custom-functions';
 import {CustomWeightsMessage} from './custom-weights-message';
@@ -31,23 +31,31 @@ export function isCustomMessagePayload(payload: MessagePayload): payload is Cust
  * Create a custom message component contains a confirm button with text "Click to Create a Quantile Map"
  */
 export function CustomMessage({props}: {props: MessagePayload}) {
-  return (
-    isCustomMessagePayload(props) &&
-    'type' in props.output && (
-      <>
-        {props.output.type === 'mapping' && <CustomMapMessage props={props} />}
-        {props.output.type === 'weights' && <CustomWeightsMessage props={props} />}
-        {props.output.type === 'lisa' && <CustomLocalMoranMessage props={props} />}
-        {props.output.type === 'histogram' && <CustomHistogramMessage props={props} />}
-        {props.output.type === 'scatter' && <CustomScatterplotMessage props={props} />}
-        {props.output.type === 'bubble' && <CustomBubbleChartMessage props={props} />}
-        {props.output.type === 'boxplot' && <CustomBoxplotMessage props={props} />}
-        {props.output.type === 'parallel-coordinate' && (
+  return useMemo(
+    () =>
+      isCustomMessagePayload(props) && 'type' in props.output ? (
+        props.output.type === 'mapping' ? (
+          <CustomMapMessage props={props} />
+        ) : props.output.type === 'weights' ? (
+          <CustomWeightsMessage props={props} />
+        ) : props.output.type === 'lisa' ? (
+          <CustomLocalMoranMessage props={props} />
+        ) : props.output.type === 'histogram' ? (
+          <CustomHistogramMessage props={props} />
+        ) : props.output.type === 'scatter' ? (
+          <CustomScatterplotMessage props={props} />
+        ) : props.output.type === 'bubble' ? (
+          <CustomBubbleChartMessage props={props} />
+        ) : props.output.type === 'boxplot' ? (
+          <CustomBoxplotMessage props={props} />
+        ) : props.output.type === 'parallel-coordinate' ? (
           <CustomParallelCoordinateMessage props={props} />
-        )}
-        {props.output.type === 'linearRegression' && <CustomSpregMessage props={props} />}
-        {props.output.type === 'createVariable' && <CustomCreateVariableMessage props={props} />}
-      </>
-    )
+        ) : props.output.type === 'linearRegression' ? (
+          <CustomSpregMessage props={props} />
+        ) : props.output.type === 'createVariable' ? (
+          <CustomCreateVariableMessage props={props} />
+        ) : null
+      ) : null,
+    [props]
   );
 }

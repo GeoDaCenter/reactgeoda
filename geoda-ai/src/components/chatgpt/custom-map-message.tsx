@@ -54,7 +54,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
                 return [color[0], selectedColorRange.colors[index]];
               }
             ),
-            colorLegend: existingLayer.config.visConfig.colorRange.colorLegend.map(
+            colorLegend: existingLayer.config.visConfig.colorRange.colorLegend?.map(
               (color: any, index: number) => {
                 return {...color, color: selectedColorRange.colors[index]};
               }
@@ -73,7 +73,8 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
           hexColors: selectedColorRange?.colors || [],
           mappingType,
           colorFieldName,
-          layerOrder
+          layerOrder,
+          isPreview: true
         });
         return newLayer.id;
       } else {
@@ -83,9 +84,9 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
           colorFieldName,
           dispatch,
           layer,
-          isPreview: true,
           colorRange: selectedColorRange,
-          layerOrder
+          layerOrder,
+          isPreview: true
         });
         return newLayer.id;
       }

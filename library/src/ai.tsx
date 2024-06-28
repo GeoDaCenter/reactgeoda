@@ -132,11 +132,11 @@ const ChatGPTPanel = () => {
       <RightPanelContainer
         title={intl.formatMessage({
           id: 'chatGpt.title',
-          defaultMessage: 'GeoDa.AI ChatBot'
+          defaultMessage: 'GeoDa.AI Agent'
         })}
         description={intl.formatMessage({
           id: 'chatGpt.description',
-          defaultMessage: 'Powered by OpenAI'
+          defaultMessage: 'Powered by GeoDa'
         })}
       >
         {!openAIKey ? (

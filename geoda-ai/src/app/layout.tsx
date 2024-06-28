@@ -7,7 +7,7 @@ import StyledComponentsRegistry from '../lib/registry';
 
 export const metadata = {
   title: 'GeoDa.AI',
-  description: 'Powered by GeoDa'
+  description: 'Powered by GeoDa and LLM'
 };
 
 // for <Providers> see https://nextui.org/docs/frameworks/nextjs

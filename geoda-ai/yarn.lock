@@ -8444,7 +8444,6 @@ __metadata:
     ts-node-dev: ^2.0.0
     type-analyzer: ^0.4.0
     typescript: ^5
-    typewriter-effect: ^2.21.0
   languageName: unknown
   linkType: soft
 
@@ -12500,15 +12499,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raf@npm:^3.4.1":
-  version: 3.4.1
-  resolution: "raf@npm:3.4.1"
-  dependencies:
-    performance-now: ^2.1.0
-  checksum: 50ba284e481c8185dbcf45fc4618ba3aec580bb50c9121385d5698cb6012fe516d2015b1df6dd407a7b7c58d44be8086108236affbce1861edd6b44637c8cd52
-  languageName: node
-  linkType: hard
-
 "randombytes@npm:^2.1.0":
   version: 2.1.0
   resolution: "randombytes@npm:2.1.0"
@@ -14505,19 +14495,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 3a62fe90aa79d68c9ce38ea5edb2957e62801c733b99f0e5a2b8b50922761f68f7d9a40d28c544b449866e81185cddb93cba2496d0ff3fa52ef5b1f8bcace38c
-  languageName: node
-  linkType: hard
-
-"typewriter-effect@npm:^2.21.0":
-  version: 2.21.0
-  resolution: "typewriter-effect@npm:2.21.0"
-  dependencies:
-    prop-types: ^15.8.1
-    raf: ^3.4.1
-  peerDependencies:
-    react: ^17.x || ^18.x
-    react-dom: ^17.x || ^18.x
-  checksum: bd2fe63bfa84880a1be4b3e812d3e264ea641097dd54f4d06e62998e307b54388a826fe3c7512c094aa3893de7ed6f3d99d8b90fb23411dfe424df2f799c8ad8
   languageName: node
   linkType: hard
 
