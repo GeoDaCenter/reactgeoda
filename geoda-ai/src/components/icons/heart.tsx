@@ -1,9 +1,9 @@
 export const HeartIcon = ({
   fill = 'currentColor',
   filled = true,
-  size = 24,
-  height = 24,
-  width = 24,
+  size = 20,
+  height = 20,
+  width = 20,
   ...props
 }) => {
   return (

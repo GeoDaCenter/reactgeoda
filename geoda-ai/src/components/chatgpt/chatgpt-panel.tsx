@@ -7,7 +7,6 @@ import {GeoDaState} from '../../store';
 import {useChatGPT} from '@/hooks/use-chatgpt';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {CustomMessage} from './custom-messages';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {setMessages, setPropertyPanel} from '@/actions';
@@ -85,7 +84,6 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
           openAIKey={openAIKey}
           initOpenAI={initOpenAI}
           processMessage={processChatGPTMessage}
-          getCustomMessageComponent={() => CustomMessage}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
           setMessages={updateMessages}
           onStartCapture={onStartCapture}

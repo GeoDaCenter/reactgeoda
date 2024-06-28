@@ -73,7 +73,8 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
           hexColors: selectedColorRange?.colors || [],
           mappingType,
           colorFieldName,
-          layerOrder
+          layerOrder,
+          isPreview: true
         });
         return newLayer.id;
       } else {
@@ -83,9 +84,9 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
           colorFieldName,
           dispatch,
           layer,
-          isPreview: true,
           colorRange: selectedColorRange,
-          layerOrder
+          layerOrder,
+          isPreview: true
         });
         return newLayer.id;
       }
