@@ -4,7 +4,7 @@ import {useState} from 'react';
 import {BoxPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {BoxplotOutput} from '@/ai/assistant/custom-functions';
+import {BoxplotOutput} from '@/ai/assistant/callbacks/callback-box';
 import {BoxPlot} from '../plots/box-plot';
 import {useDispatch, useSelector} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
