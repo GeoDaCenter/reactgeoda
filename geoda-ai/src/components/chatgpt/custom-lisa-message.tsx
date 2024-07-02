@@ -5,7 +5,7 @@ import {Field} from '@kepler.gl/types';
 import {addTableColumn} from '@kepler.gl/actions';
 
 import {CustomMessagePayload} from './custom-messages';
-import {UniLocalMoranOutput} from '@/ai/assistant/custom-functions';
+import {UniLocalMoranOutput} from '@/ai/assistant/callbacks/callback-localmoran';
 import {LISA_COLORS, LISA_LABELS} from '@/constants';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {useDispatch, useSelector} from 'react-redux';

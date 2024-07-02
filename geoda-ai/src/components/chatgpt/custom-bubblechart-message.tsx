@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {BubbleChartProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
-import {BubbleChartOutput} from '@/ai/assistant/custom-functions';
+import {BubbleChartOutput} from '@/ai/assistant/callbacks/callback-bubble';
 import {BubbleChart} from '../plots/bubble-chart-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';

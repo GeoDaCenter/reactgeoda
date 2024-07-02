@@ -1,11 +1,12 @@
 import {WeightsMeta} from 'geoda-wasm';
-import {createErrorResult, CustomFunctionContext, ErrorOutput} from '../custom-functions';
+import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {getKeplerLayer} from '@/utils/data-utils';
 import {
   createContiguityWeights,
   createDistanceWeights,
   createKNNWeights
 } from '@/utils/weights-utils';
+import {VisState} from '@kepler.gl/schemas';
 
 export type WeightsOutput = {
   type: 'weights';
@@ -32,7 +33,7 @@ export async function createWeightsCallback(
     precisionThreshold,
     distanceThreshold
   }: CreateWeightsCallbackProps,
-  {tableName, visState}: CustomFunctionContext
+  {tableName, visState}: {tableName: string; visState: VisState}
 ): Promise<WeightsOutput | ErrorOutput> {
   if (type === 'knn' && k && k > 0) {
     return kNNWeights({k}, {tableName, visState});
@@ -49,7 +50,7 @@ export async function createWeightsCallback(
 
 async function kNNWeights(
   {k}: {k: number},
-  {tableName, visState}: CustomFunctionContext
+  {tableName, visState}: {tableName: string; visState: VisState}
 ): Promise<WeightsOutput | ErrorOutput> {
   if (!tableName) {
     return createErrorResult('Error: table name is empty');
@@ -93,7 +94,7 @@ async function contiguityWeights(
     includeLowerOrder,
     precisionThreshold
   }: ContiguityWeightsCallbackProps,
-  {tableName, visState}: CustomFunctionContext
+  {tableName, visState}: {tableName: string; visState: VisState}
 ): Promise<WeightsOutput | ErrorOutput> {
   if (!tableName) {
     return createErrorResult('Error: table name is empty');
@@ -134,7 +135,7 @@ async function contiguityWeights(
 
 async function distanceWeights(
   {distanceThreshold}: {distanceThreshold: number},
-  {tableName, visState}: CustomFunctionContext
+  {tableName, visState}: {tableName: string; visState: VisState}
 ): Promise<WeightsOutput | ErrorOutput> {
   if (!tableName) {
     return createErrorResult('Error: table name is empty');

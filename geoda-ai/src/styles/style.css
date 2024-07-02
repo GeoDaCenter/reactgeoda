@@ -149,7 +149,7 @@ div[mapboxgl-children] {
 }
 .cs-message--outgoing .cs-message__content {
   color: #ffffff !important;
-  background-color: #800000 !important;
+  background-color: #6a3b3b !important;
 }
 .cs-message__html-content {
   font-size: var(--text-sm-regular-font-size);
@@ -165,7 +165,10 @@ div[mapboxgl-children] {
 }
 .cs-typing-indicator {
   background-color: transparent !important;
+  padding: 0 !important;
+  left: -5px!important;
 }
+
 .geoda-custom-message {
   margin-top: -12px!important;
 }

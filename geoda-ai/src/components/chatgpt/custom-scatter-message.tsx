@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {ScatterPlotProps, addPlot} from '@/actions/plot-actions';
-import {ScatterplotOutput} from '@/ai/assistant/custom-functions';
+import {ScatterplotOutput} from '@/ai/assistant/callbacks/callback-scatter';
 import {Scatterplot} from '../plots/scatter-plot';
 import {CustomMessagePayload} from './custom-messages';
 import {CustomCreateButton} from '../common/custom-create-button';

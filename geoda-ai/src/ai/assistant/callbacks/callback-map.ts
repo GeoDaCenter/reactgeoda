@@ -3,9 +3,10 @@ import {
   getColumnDataFromKeplerLayer,
   isNumberArray
 } from '@/utils/data-utils';
-import {createErrorResult, CustomFunctionContext, ErrorOutput} from '../custom-functions';
+import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {CHAT_COLUMN_DATA_NOT_FOUND, CHAT_FIELD_NAME_NOT_FOUND, MappingTypes} from '@/constants';
 import {createMapBreaks} from '@/utils/mapping-functions';
+import {VisState} from '@kepler.gl/schemas';
 
 type CreateMapCallbackProps = {
   method:
@@ -29,7 +30,7 @@ type MapCallbackOutput = {
 
 export async function createMapCallback(
   {method, variableName, k = 5, hinge}: CreateMapCallbackProps,
-  {tableName, visState}: CustomFunctionContext
+  {tableName, visState}: {tableName: string; visState: VisState}
 ): Promise<MapCallbackOutput | ErrorOutput> {
   if (!checkIfFieldNameExists(tableName, variableName, visState)) {
     return createErrorResult(

@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {HistogramPlotProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
-import {HistogramOutput} from '@/ai/assistant/custom-functions';
+import {HistogramOutput} from '@/ai/assistant/callbacks/callback-histogram';
 import {HistogramPlot} from '../plots/histogram-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';

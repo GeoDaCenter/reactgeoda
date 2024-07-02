@@ -209,6 +209,7 @@ export async function processMessage({
     content: question
   });
 
+  let lastMessage = '';
   // create a run with stream
   const run = await openai.beta.threads.runs
     .stream(thread.id, {
@@ -216,9 +217,11 @@ export async function processMessage({
     })
     .on('textDelta', (textDelta, snapshot) => {
       streamMessageCallback(snapshot.value || '');
+      lastMessage = snapshot.value || '';
     })
     .on('end', async () => {
       await processRequiresAction(
+        lastMessage,
         customFunctions,
         customFunctionContext,
         customMessageCallback,
@@ -231,6 +234,7 @@ export async function processMessage({
 }
 
 async function processRequiresAction(
+  lastMessage: string,
   customFunctions: CustomFunctions,
   customFunctionContext: Object,
   customMessageCallback: CustomMessageCallback,
@@ -282,11 +286,11 @@ async function processRequiresAction(
               ]
             }
           );
-          let lastMessage = '\n\n';
+          // streaming what openai responses
           responseStream
-            .on('textDelta', (textDelta, snapshot) => {
-              lastMessage = snapshot.value || '';
-              streamMessageCallback(snapshot.value || '');
+            .on('textDelta', textDelta => {
+              lastMessage = lastMessage + textDelta.value || '';
+              streamMessageCallback(lastMessage);
             })
             .on('end', async () => {
               if (error === null && output) {
@@ -294,6 +298,7 @@ async function processRequiresAction(
                 const lastCustomFunctionCall = {functionName, functionArgs: args, output};
                 const customReponseMsg = customMessageCallback(lastCustomFunctionCall);
                 if (customReponseMsg) {
+                  if (lastMessage.length === 0) lastMessage = '\n';
                   streamMessageCallback(lastMessage, customReponseMsg);
                 }
               } else {

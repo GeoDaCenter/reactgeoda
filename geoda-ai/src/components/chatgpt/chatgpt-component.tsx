@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import {
   MainContainer,
@@ -50,38 +50,13 @@ export const ChatGPTComponent = ({
   const intl = useIntl();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    // set initial message
-    // setMessages([
-    //   // test any custom message
-    //   {
-    //     type: 'custom',
-    //     message: '',
-    //     sender: 'ChatGPT',
-    //     direction: 'incoming',
-    //     position: 'normal',
-    //     payload: {
-    //       type: 'custom',
-    //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
-    //       functionArgs: {
-    //         variable: 'HR60',
-    //         k: 5
-    //       },
-    //       output: {
-    //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
-    //       }
-    //     }
-    //   }
-    // ]);
-    if (openAIKey) {
-      initOpenAI(openAIKey);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const [isTyping, setIsTyping] = useState(false);
+  const [value, setValue] = useState('');
+  const [sendDisabled, setSendDisabled] = useState(true);
 
   const lastQuestionIndex = messages.length - 2;
+
+  const lastAnswerIndex = messages.length - 1;
 
   // if in dashboard mode, the message should be draggable
   const isMessageDraggable = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
@@ -103,6 +78,7 @@ export const ChatGPTComponent = ({
       const newMessages: Array<MessageModel> = [...messages, newMessage];
       setMessages(newMessages);
       setIsTyping(true);
+      setValue('');
 
       // add an empty return message to show typing indicator
       setMessages([
@@ -148,6 +124,41 @@ export const ChatGPTComponent = ({
     },
     [dispatch, messages, processMessage, setMessages]
   );
+
+  // initialize OpenAI client
+  useEffect(() => {
+    // set initial message
+    // setMessages([
+    //   // test any custom message
+    //   {
+    //     type: 'custom',
+    //     message: '',
+    //     sender: 'ChatGPT',
+    //     direction: 'incoming',
+    //     position: 'normal',
+    //     payload: {
+    //       type: 'custom',
+    //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
+    //       functionArgs: {
+    //         variable: 'HR60',
+    //         k: 5
+    //       },
+    //       output: {
+    //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
+    //       }
+    //     }
+    //   }
+    // ]);
+    if (openAIKey) {
+      initOpenAI(openAIKey);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // workaround to enable send button when message is not empty
+  useEffect(() => {
+    setSendDisabled(value.length === 0);
+  }, [value]);
 
   // scroll to bottom when new message is added
   useEffect(() => {
@@ -206,90 +217,106 @@ export const ChatGPTComponent = ({
       // report the question
       // get the current question from the message by index
       const question = messages[messageIndex].message;
-      // create an email with the question
-      const email = `mailto: spatial@uchicago.edu?subject=Help:%20chat%20questio%20not%20working&body=${question}`;
-      // open the email client
-      window.open(email);
+      // open this link in a new tab
+      const url = `https://github.com/orgs/geodaai/discussions/new?category=bugs&title=[AI Assistant Issue]Your Title&body=[Your Report]%0A%0A>${question}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
     },
     [messages]
   );
 
-  return useMemo(
-    () => (
-      <MainContainer className="pl-4">
-        <ChatContainer>
-          <MessageList
-            id="chat-message-list"
-            autoScrollToBottom={true}
-            autoScrollToBottomOnMount={false}
-            scrollBehavior="smooth"
-            typingIndicator={isTyping ? <TypingIndicator content="" /> : null}
-          >
-            {messages.map((message, i) => {
-              return message.type === 'custom' ? (
-                <Message
-                  key={i}
-                  model={{direction: 'incoming', type: 'custom', position: 'normal'}}
-                  className="geoda-custom-message"
-                >
-                  <Message.CustomContent>
-                    <CustomMessage props={message.payload ?? {}} />
-                  </Message.CustomContent>
-                </Message>
-              ) : (
-                <Message
-                  key={i}
-                  model={message}
-                  style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
-                  draggable={isMessageDraggable}
-                  unselectable="on"
-                  onDragStart={e =>
-                    e.dataTransfer.setData(
-                      'text/plain',
-                      JSON.stringify({
-                        id: `message-${i}`,
-                        type: 'text',
-                        message: message.message || ''
-                      })
-                    )
-                  }
-                >
-                  {isTyping && i === lastQuestionIndex && (
-                    <Message.Footer>
-                      <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
-                        <div
-                          className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
-                          onClick={stopRunningChat}
-                        >
-                          Stop <IconStop />
-                        </div>
-                        <div
-                          className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
-                          onClick={() => reportQuestion(i)}
-                        >
-                          Report <IconReport />
-                        </div>
+  // handle input message change
+  const onInputMessageChange = useCallback(
+    (val: string) => {
+      setValue(val);
+    },
+    [setValue]
+  );
+
+  // handle paste to input message
+  const onPasteToInputMessage = useCallback(
+    (evt: React.ClipboardEvent) => {
+      evt.preventDefault();
+      setValue(value + evt.clipboardData.getData('text'));
+    },
+    [value]
+  );
+
+  return (
+    <MainContainer className="pl-4">
+      <ChatContainer>
+        <MessageList
+          id="chat-message-list"
+          autoScrollToBottom={true}
+          autoScrollToBottomOnMount={false}
+          scrollBehavior="smooth"
+          typingIndicator={isTyping ? <TypingIndicator content="" /> : null}
+        >
+          {messages.map((message, i) => {
+            return message.type === 'custom' ? (
+              <Message
+                key={i}
+                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
+                className="geoda-custom-message"
+              >
+                <Message.CustomContent>
+                  <CustomMessage props={message.payload ?? {}} />
+                </Message.CustomContent>
+              </Message>
+            ) : (
+              <Message
+                key={i}
+                model={message}
+                style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
+                draggable={isMessageDraggable}
+                unselectable="on"
+                onDragStart={e =>
+                  e.dataTransfer.setData(
+                    'text/plain',
+                    JSON.stringify({
+                      id: `message-${i}`,
+                      type: 'text',
+                      message: message.message || ''
+                    })
+                  )
+                }
+              >
+                {((isTyping && i === lastQuestionIndex) || i === lastAnswerIndex) && (
+                  <Message.Footer>
+                    <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
+                      <div
+                        className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
+                        onClick={stopRunningChat}
+                      >
+                        Stop <IconStop />
                       </div>
-                    </Message.Footer>
-                  )}
-                </Message>
-              );
-            })}
-          </MessageList>
-          <MessageInput
-            placeholder={intl.formatMessage({
-              id: 'chatGpt.inputPlaceholder',
-              defaultMessage: 'Type your question here'
-            })}
-            onSend={handleSend}
-            className="fill-current text-black dark:text-white"
-            onAttachClick={onScreenshotClick}
-            attachButton={false}
-          />
-        </ChatContainer>
-      </MainContainer>
-    ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isMessageDraggable, messages]
+                      <div
+                        className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
+                        onClick={() => reportQuestion(i)}
+                      >
+                        Report <IconReport />
+                      </div>
+                    </div>
+                  </Message.Footer>
+                )}
+              </Message>
+            );
+          })}
+        </MessageList>
+        <MessageInput
+          placeholder={intl.formatMessage({
+            id: 'chatGpt.inputPlaceholder',
+            defaultMessage: 'Type your question here'
+          })}
+          onSend={handleSend}
+          className="fill-current text-black dark:text-white"
+          onAttachClick={onScreenshotClick}
+          attachButton={false}
+          sendDisabled={sendDisabled}
+          onPaste={onPasteToInputMessage}
+          onChange={onInputMessageChange}
+          value={value}
+        />
+      </ChatContainer>
+    </MainContainer>
   );
 };
