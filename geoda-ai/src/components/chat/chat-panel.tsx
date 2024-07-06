@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useIntl} from 'react-intl';
 import {ScrollShadow} from '@nextui-org/react';
 
@@ -36,7 +36,7 @@ function ChatComponent({
       message: assistantMessages[1]
     }
   ];
-  const onSendMessage = async (message: string) => {};
+  const onSendMessage = async () => {};
 
   return (
     <div className={cn('flex h-full w-full max-w-full flex-col gap-8 p-2', className)}>

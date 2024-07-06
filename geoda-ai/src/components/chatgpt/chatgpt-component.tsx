@@ -1,23 +1,11 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import {
-  MainContainer,
-  ChatContainer,
-  MessageList,
-  Message,
-  MessageInput,
-  MessageModel,
-  TypingIndicator
-} from '@chatscope/chat-ui-kit-react';
-import {useIntl} from 'react-intl';
+import {MessageModel} from '@chatscope/chat-ui-kit-react';
+// import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {setScreenCaptured} from '@/actions';
-import {IconStop} from '../icons/stop';
-import {IconReport} from '../icons/report';
 import {cancelOpenAI} from '@/ai/openai-utils';
-import {CustomMessage} from './custom-messages';
-import {cn} from '../chat/cn';
 import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
 import MessageCard from '../chat/message-card';
 
@@ -48,20 +36,17 @@ export const ChatGPTComponent = ({
   initOpenAI,
   processMessage,
   messages,
-  setMessages,
-  onStartCapture,
-  className
+  setMessages
 }: ChatGPTComponentProps) => {
-  const intl = useIntl();
+  // const intl = useIntl();
   const dispatch = useDispatch();
 
   const [isTyping, setIsTyping] = useState(false);
-  const [value, setValue] = useState('');
-  const [sendDisabled, setSendDisabled] = useState(true);
+  // const [value, setValue] = useState('');
+  // const [sendDisabled, setSendDisabled] = useState(true);
 
-  const lastQuestionIndex = messages.length - 2;
-
-  const lastAnswerIndex = messages.length - 1;
+  // const lastQuestionIndex = messages.length - 2;
+  // const lastAnswerIndex = messages.length - 1;
 
   // if in dashboard mode, the message should be draggable
   const isMessageDraggable = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
@@ -83,7 +68,6 @@ export const ChatGPTComponent = ({
       const newMessages: Array<MessageModel> = [...messages, newMessage];
       setMessages(newMessages);
       setIsTyping(true);
-      setValue('');
 
       // add an empty return message to show typing indicator
       setMessages([
@@ -161,9 +145,9 @@ export const ChatGPTComponent = ({
   }, []);
 
   // workaround to enable send button when message is not empty
-  useEffect(() => {
-    setSendDisabled(value.length === 0);
-  }, [value]);
+  // useEffect(() => {
+  //   setSendDisabled(value.length === 0);
+  // }, [value]);
 
   // scroll to bottom when new message is added
   useEffect(() => {
@@ -205,9 +189,9 @@ export const ChatGPTComponent = ({
   }, [screenCaptured]);
 
   // handle on screenshot click
-  const onScreenshotClick = useCallback(() => {
-    onStartCapture();
-  }, [onStartCapture]);
+  // const onScreenshotClick = useCallback(() => {
+  //   onStartCapture();
+  // }, [onStartCapture]);
 
   // handle stop running chat
   const stopRunningChat = () => {

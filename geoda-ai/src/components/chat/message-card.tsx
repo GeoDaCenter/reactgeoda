@@ -1,10 +1,8 @@
 'use client';
 
 // import Markdown from 'markdown-to-jsx';
-import {Spinner} from '@nextui-org/react';
-
 import React from 'react';
-import {Avatar, Badge, Button, Link, Tooltip} from '@nextui-org/react';
+import {Avatar, Badge, Button, Link, Tooltip, Spinner} from '@nextui-org/react';
 import {useClipboard} from '@nextui-org/use-clipboard';
 import {Icon} from '@iconify/react';
 
@@ -118,7 +116,7 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
     const handleStopChat = React.useCallback(() => {
       // stop chat
       if (stopChat) stopChat();
-    }, []);
+    }, [stopChat]);
 
     return (
       <div {...props} ref={ref} className={cn('flex gap-3', className)}>
