@@ -151,7 +151,7 @@ export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps)
   return useMemo(
     () => (
       <div className="h-full w-full rounded-xl  bg-white  dark:bg-black">
-        <AutoSizer defaultHeight={280} defaultWidth={300}>
+        <AutoSizer defaultHeight={280} defaultWidth={280}>
           {({height, width}) => {
             // get center and zoom from bounds for preview map
             const bounds = findMapBounds(mapFields.visState.layers);

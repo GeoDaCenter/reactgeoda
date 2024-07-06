@@ -15,7 +15,7 @@ export function CustomCreateButton({
   return (
     <Button
       radius="full"
-      className="mt-2 h-6 bg-gradient-to-tr from-pink-300 to-yellow-200 text-white shadow-none"
+      className="m-2 h-8 bg-gradient-to-tr from-pink-300 to-yellow-200 text-white shadow-none"
       onClick={onClick}
       startContent={hide ? <GreenCheckIcon /> : <HeartIcon />}
       isDisabled={hide}

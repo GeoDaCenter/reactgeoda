@@ -134,7 +134,7 @@ const OpenFileComponent = () => {
   const {getRootProps, getInputProps} = useDropzone({onDrop});
 
   return (
-    <Card className="bg-gray-100 dark:bg-gray-700">
+    <Card className="bg-gray-100 dark:bg-stone-900">
       <CardBody>
         <div
           className="flex h-[200px] w-full place-content-center"
@@ -255,7 +255,7 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
       onClose={onCloseModal}
       size="3xl"
       placement="center"
-      className="min-w-80 bg-gray-50 dark:bg-gray-900"
+      className="min-w-80 bg-gray-50 dark:bg-stone-700"
       isDismissable={false}
     >
       <ModalContent>

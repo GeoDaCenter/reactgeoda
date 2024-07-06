@@ -22,13 +22,14 @@ export default function Component({messages}: {messages: Message[]}) {
       {messages.map(({role, message}, index) => (
         <MessageCard
           key={index}
-          attempts={index === 1 ? 2 : 1}
+          index={index}
+          // attempts={index === 1 ? 2 : 1}
+          // currentAttempt={index === 1 ? 2 : 1}
           avatar={
             role === 'assistant'
               ? 'https://www.iemoji.com/view/emoji/1855/smileys-people/robot-face'
               : 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatar_ai.png'
           }
-          currentAttempt={index === 1 ? 2 : 1}
           message={message}
           messageClassName={role === 'user' ? 'bg-content3 text-content3-foreground' : ''}
           showFeedback={role === 'assistant'}

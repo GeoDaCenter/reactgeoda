@@ -198,8 +198,16 @@ export const ChatGPTComponent = ({
     setIsTyping(false);
     // calll to stop openai runs
     cancelOpenAI();
-    // remove last message
-    setMessages(messages.slice(0, messages.length - 1));
+    // set status of last message to failed
+    setMessages([
+      ...messages.slice(0, messages.length - 1),
+      {
+        message: messages[messages.length - 1].message,
+        direction: 'incoming',
+        sender: 'Error',
+        position: 'normal'
+      }
+    ]);
   };
 
   // handle report question
@@ -233,9 +241,9 @@ export const ChatGPTComponent = ({
   // );
 
   return (
-    <div className="order-1 m-2 flex h-full flex-grow flex-col space-y-4 overflow-auto">
+    <div className="order-1 m-2 flex h-full flex-grow flex-col space-y-4 overflow-y-auto overflow-x-hidden">
       <div
-        className="relative flex h-full flex-col gap-4 overflow-auto px-1"
+        className="relative flex h-full flex-col gap-4 overflow-y-auto overflow-x-hidden px-1"
         id="chat-message-list"
       >
         <div className="overscroll-behavior-y-auto overflow-anchor-auto touch-action-none absolute bottom-0 left-0 right-0 top-0 flex h-full flex-col gap-4 px-1">
@@ -246,7 +254,7 @@ export const ChatGPTComponent = ({
                 index={i}
                 avatar={
                   message.direction === 'incoming'
-                    ? 'https://geoda.ai/img/geoda-ai-logo.png'
+                    ? '/img/geoda-ai-chat.png'
                     : 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatar_ai.png'
                 }
                 currentAttempt={i === 1 ? 2 : 1}
@@ -256,7 +264,13 @@ export const ChatGPTComponent = ({
                   message.direction == 'outgoing' ? 'bg-content3 text-content3-foreground' : ''
                 }
                 showFeedback={message.direction === 'incoming'}
-                status={isTyping && i === messages.length - 1 ? 'pending' : 'success'}
+                status={
+                  isTyping && i === messages.length - 1
+                    ? 'pending'
+                    : message.sender === 'Error'
+                      ? 'failed'
+                      : 'success'
+                }
                 stopChat={stopRunningChat}
                 onFeedback={reportQuestion}
                 draggable={isMessageDraggable}

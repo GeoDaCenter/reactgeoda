@@ -1,4 +1,7 @@
 /* adjust kepler.gl map and table height */
+.side-bar__close {
+  display: none !important;
+}
 .default-kepler-map {
   height: 100% !important;
 }

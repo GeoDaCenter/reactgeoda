@@ -119,7 +119,7 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
     <div className="w-full">
       {!hide && (
         <>
-          <div className="h-[180px] w-full">
+          <div className="pointer-events-none h-[180px] w-full">
             {updateLayer && <KeplerMapContainer layerId={updateLayer} mapIndex={1} />}
           </div>
           <ColorSelector

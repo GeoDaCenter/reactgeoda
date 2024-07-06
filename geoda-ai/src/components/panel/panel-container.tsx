@@ -66,7 +66,7 @@ export const PanelContainer = ({onStartCapture}: {onStartCapture: () => null}) =
 
   return showPropertyPanel ? (
     <div
-      className="relative flex h-screen flex-row bg-gray-50 dark:bg-gray-900"
+      className="relative flex h-screen flex-row bg-gray-50 dark:bg-stone-900"
       style={{width: panelWidth}}
     >
       <Splitter
