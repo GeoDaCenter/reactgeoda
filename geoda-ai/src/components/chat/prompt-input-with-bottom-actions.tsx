@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import {AudioRecorder, useAudioRecorder} from 'react-audio-voice-recorder';
+
 import {Button, Tooltip, ScrollShadow, Badge} from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 
@@ -10,17 +12,17 @@ import PromptInput from './prompt-input';
 
 type PromptInputWithBottomActionsProps = {
   onSendMessage: (message: string) => void;
+  onVoiceMessage: (voice: Blob) => Promise<string>;
   onScreenshotClick?: () => void;
   enableAttachFile?: boolean;
-  enableVoiceCommand?: boolean;
   screenCaptured?: string;
 };
 
 export default function Component({
   onSendMessage,
+  onVoiceMessage,
   onScreenshotClick,
   enableAttachFile,
-  enableVoiceCommand,
   screenCaptured
 }: PromptInputWithBottomActionsProps) {
   const ideas = [
@@ -57,6 +59,19 @@ export default function Component({
   const onRemoveImage = () => {
     // // dispatch action to set screenCaptured to empty
     // dispatch(setScreenCaptured(''));
+  };
+
+  const recorderControls = useAudioRecorder(
+    {
+      noiseSuppression: true,
+      echoCancellation: true
+    },
+    err => console.table(err) // onNotAllowedOrFound
+  );
+
+  const addAudioElement = async (blob: Blob) => {
+    const voice = await onVoiceMessage(blob);
+    setPrompt(voice);
   };
 
   return (
@@ -108,21 +123,13 @@ export default function Component({
             input: 'pt-1 pl-2 pb-6 !pr-10 text-medium'
           }}
           startContent={
-            <Tooltip showArrow content="Add Screenshot">
-              <Button
-                onClick={onScreenshotClick}
-                isIconOnly
-                radius="full"
-                size="sm"
-                variant="light"
-              >
-                <Icon
-                  className="text-default-500"
-                  icon="solar:gallery-minimalistic-linear"
-                  width={20}
-                />
-              </Button>
-            </Tooltip>
+            <AudioRecorder
+              onRecordingComplete={blob => addAudioElement(blob)}
+              recorderControls={recorderControls}
+              // downloadOnSavePress={true}
+              // downloadFileExtension="mp3"
+              showVisualizer={false}
+            />
           }
           endContent={
             <div className="flex items-end gap-2">
@@ -156,6 +163,20 @@ export default function Component({
         />
         <div className="flex w-full items-center justify-between  gap-2 overflow-scroll px-4 pb-4">
           <div className="flex w-full gap-1 md:gap-3">
+            <Button
+              size="sm"
+              startContent={
+                <Icon
+                  className="text-default-500"
+                  icon="solar:gallery-minimalistic-linear"
+                  width={18}
+                />
+              }
+              variant="flat"
+              onClick={onScreenshotClick}
+            >
+              Take a Screenshot to Ask
+            </Button>
             {enableAttachFile && (
               <Button
                 size="sm"
@@ -165,17 +186,6 @@ export default function Component({
                 variant="flat"
               >
                 Attach
-              </Button>
-            )}
-            {enableVoiceCommand && (
-              <Button
-                size="sm"
-                startContent={
-                  <Icon className="text-default-500" icon="solar:soundwave-linear" width={18} />
-                }
-                variant="flat"
-              >
-                Voice Commands
               </Button>
             )}
           </div>

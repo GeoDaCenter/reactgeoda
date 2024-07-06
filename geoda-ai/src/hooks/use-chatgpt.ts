@@ -5,7 +5,12 @@ import {GeoDaState} from '@/store';
 import {useSelector} from 'react-redux';
 import {MAP_ID} from '@/constants';
 import {getDataContainer} from '@/utils/data-utils';
-import {CustomFunctionOutputProps, initOpenAI, processMessage} from '@/ai/openai-utils';
+import {
+  CustomFunctionOutputProps,
+  initOpenAI,
+  processMessage,
+  translateVoiceToText
+} from '@/ai/openai-utils';
 import {useDuckDB} from './use-duckdb';
 
 /**
@@ -119,8 +124,13 @@ export function useChatGPT() {
     });
   }
 
+  async function speechToText(audioBlob: Blob) {
+    // implement speech to text
+    return translateVoiceToText(audioBlob);
+  }
+
   // registerFunction({functionName: 'summarizeData', functionArgs: {tableName}, input: {}})
   // registerFunctionContext({var1, var2}), variables will be accessible by registered functions
   // registerFunctionMessage({functionName: 'summarizeData', functionArgs: {tableName}, output: {result: {}}}), return React.JSX.Element
-  return {initOpenAI, processChatGPTMessage};
+  return {initOpenAI, processChatGPTMessage, speechToText};
 }

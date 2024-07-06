@@ -143,6 +143,24 @@ export type CustomFunctionCall = {
   output: CustomFunctionOutputProps;
 };
 
+export async function translateVoiceToText(audioBlob: Blob): Promise<string> {
+  if (!openai || !thread || !assistant) {
+    return 'Sorry, I cannot process the audio at the moment. Connection to the server is lost.';
+  }
+  // create FsReadStream from the audioBlob
+  const file = new File([audioBlob], 'audio.wav');
+
+  // create a translation from audio to text
+  const translation = await openai.audio.translations.create({
+    model: 'whisper-1',
+    file: file
+  });
+
+  // return the translated text
+  const response = translation.text;
+  return response;
+}
+
 export type ProcessMessageProps = {
   question: string;
   imageMessage?: string;

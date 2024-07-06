@@ -1,3 +1,34 @@
+/* adjust screenshot-react */
+.crosshairs::before {
+  background: #ffffff !important;
+}
+.crosshairs::after {
+  background: #ffffff !important;
+}
+/* adjust voice recorder */
+.audio-recorder {
+  margin-top: 2px !important;
+  width: 48px !important;
+}
+.audio-recorder-mic {
+  /* display: none !important; */
+}
+.audio-recorder-timer {
+  display: none !important;
+}
+.audio-recorder-status  {
+  /* display: none !important; */
+}
+.recording {
+  height: 26px !important;
+  width: 500px !important;
+}
+.audio-recorder-visualizer canvas {
+  width: 100px !important;
+}
+.audio-recorder-options~.audio-recorder-options {
+  height: 14px !important;
+}
 /* adjust kepler.gl map and table height */
 .side-bar__close {
   display: none !important;

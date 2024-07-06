@@ -23,6 +23,8 @@ export type ChatGPTComponentProps = {
     streamMessage: (delta: string, customMessage?: MessageModel) => void,
     imageMessage?: string
   ) => void;
+  // the function
+  speechToText: (voice: Blob) => Promise<string>;
   // initial messages
   messages: Array<MessageModel>;
   // update message callback function
@@ -35,6 +37,7 @@ export const ChatGPTComponent = ({
   openAIKey,
   initOpenAI,
   processMessage,
+  speechToText,
   messages,
   setMessages,
   onStartCapture
@@ -43,12 +46,6 @@ export const ChatGPTComponent = ({
   const dispatch = useDispatch();
 
   const [isTyping, setIsTyping] = useState(false);
-  // const [value, setValue] = useState('');
-  // const [sendDisabled, setSendDisabled] = useState(true);
-
-  // const lastQuestionIndex = messages.length - 2;
-  // const lastAnswerIndex = messages.length - 1;
-
   // if in dashboard mode, the message should be draggable
   const isMessageDraggable = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
@@ -138,11 +135,6 @@ export const ChatGPTComponent = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // workaround to enable send button when message is not empty
-  // useEffect(() => {
-  //   setSendDisabled(value.length === 0);
-  // }, [value]);
-
   // scroll to bottom when new message is added
   useEffect(() => {
     // hack to scroll to bottom
@@ -160,27 +152,6 @@ export const ChatGPTComponent = ({
       element.innerHTML = `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.6667 4.00033H10.4C8.15979 4.00033 7.03969 4.00033 6.18404 4.4363C5.43139 4.81979 4.81947 5.43172 4.43597 6.18436C4 7.04001 4 8.16012 4 10.4003V21.6003C4 23.8405 4 24.9606 4.43597 25.8163C4.81947 26.5689 5.43139 27.1809 6.18404 27.5644C7.03969 28.0003 8.15979 28.0003 10.4 28.0003H22.6667C23.9066 28.0003 24.5266 28.0003 25.0353 27.864C26.4156 27.4942 27.4938 26.416 27.8637 25.0356C28 24.5269 28 23.907 28 22.667M25.3333 10.667V2.66699M21.3333 6.66699H29.3333M14 11.3337C14 12.8064 12.8061 14.0003 11.3333 14.0003C9.86057 14.0003 8.66667 12.8064 8.66667 11.3337C8.66667 9.8609 9.86057 8.66699 11.3333 8.66699C12.8061 8.66699 14 9.8609 14 11.3337ZM19.9867 15.8912L8.7082 26.1444C8.07382 26.7211 7.75663 27.0095 7.72857 27.2593C7.70425 27.4758 7.78727 27.6905 7.95091 27.8344C8.13971 28.0003 8.56837 28.0003 9.42571 28.0003H21.9413C23.8602 28.0003 24.8196 28.0003 25.5732 27.678C26.5193 27.2733 27.2729 26.5196 27.6776 25.5736C28 24.82 28 23.8605 28 21.9416C28 21.296 28 20.9732 27.9294 20.6725C27.8407 20.2947 27.6706 19.9408 27.431 19.6355C27.2403 19.3926 26.9883 19.1909 26.4841 18.7876L22.7544 15.8039C22.2499 15.4002 21.9976 15.1984 21.7197 15.1271C21.4748 15.0644 21.2172 15.0725 20.9767 15.1506C20.7039 15.2392 20.4648 15.4565 19.9867 15.8912Z" stroke="#475467" stroke-width="2.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     }
   }, []);
-
-  // useEffect to check if localStorage['screenshot'] is changed
-  // useEffect(() => {
-  //   const element = document.querySelector('.cs-button--attachment');
-  //   if (element && screenCaptured.length > 0) {
-  //     // remove children from element
-  //     element.innerHTML = `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.6667 4.00033H10.4C8.15979 4.00033 7.03969 4.00033 6.18404 4.4363C5.43139 4.81979 4.81947 5.43172 4.43597 6.18436C4 7.04001 4 8.16012 4 10.4003V21.6003C4 23.8405 4 24.9606 4.43597 25.8163C4.81947 26.5689 5.43139 27.1809 6.18404 27.5644C7.03969 28.0003 8.15979 28.0003 10.4 28.0003H22.6667C23.9066 28.0003 24.5266 28.0003 25.0353 27.864C26.4156 27.4942 27.4938 26.416 27.8637 25.0356C28 24.5269 28 23.907 28 22.667M25.3333 10.667V2.66699M21.3333 6.66699H29.3333M14 11.3337C14 12.8064 12.8061 14.0003 11.3333 14.0003C9.86057 14.0003 8.66667 12.8064 8.66667 11.3337C8.66667 9.8609 9.86057 8.66699 11.3333 8.66699C12.8061 8.66699 14 9.8609 14 11.3337ZM19.9867 15.8912L8.7082 26.1444C8.07382 26.7211 7.75663 27.0095 7.72857 27.2593C7.70425 27.4758 7.78727 27.6905 7.95091 27.8344C8.13971 28.0003 8.56837 28.0003 9.42571 28.0003H21.9413C23.8602 28.0003 24.8196 28.0003 25.5732 27.678C26.5193 27.2733 27.2729 26.5196 27.6776 25.5736C28 24.82 28 23.8605 28 21.9416C28 21.296 28 20.9732 27.9294 20.6725C27.8407 20.2947 27.6706 19.9408 27.431 19.6355C27.2403 19.3926 26.9883 19.1909 26.4841 18.7876L22.7544 15.8039C22.2499 15.4002 21.9976 15.1984 21.7197 15.1271C21.4748 15.0644 21.2172 15.0725 20.9767 15.1506C20.7039 15.2392 20.4648 15.4565 19.9867 15.8912Z" stroke="#475467" stroke-width="2.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  //     // append a div element which contains the image
-  //     if (localStorage.getItem('screenshot')) {
-  //       const screenshotDiv = document.createElement('div');
-  //       screenshotDiv.id = 'screenshot-image';
-  //       const thumbnail = document.createElement('img');
-  //       thumbnail.src = localStorage.getItem('screenshot') || '';
-  //       screenshotDiv.appendChild(thumbnail);
-  //       element.appendChild(screenshotDiv);
-  //     } else {
-  //       // remove children from element
-  //       element.innerHTML = `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.6667 4.00033H10.4C8.15979 4.00033 7.03969 4.00033 6.18404 4.4363C5.43139 4.81979 4.81947 5.43172 4.43597 6.18436C4 7.04001 4 8.16012 4 10.4003V21.6003C4 23.8405 4 24.9606 4.43597 25.8163C4.81947 26.5689 5.43139 27.1809 6.18404 27.5644C7.03969 28.0003 8.15979 28.0003 10.4 28.0003H22.6667C23.9066 28.0003 24.5266 28.0003 25.0353 27.864C26.4156 27.4942 27.4938 26.416 27.8637 25.0356C28 24.5269 28 23.907 28 22.667M25.3333 10.667V2.66699M21.3333 6.66699H29.3333M14 11.3337C14 12.8064 12.8061 14.0003 11.3333 14.0003C9.86057 14.0003 8.66667 12.8064 8.66667 11.3337C8.66667 9.8609 9.86057 8.66699 11.3333 8.66699C12.8061 8.66699 14 9.8609 14 11.3337ZM19.9867 15.8912L8.7082 26.1444C8.07382 26.7211 7.75663 27.0095 7.72857 27.2593C7.70425 27.4758 7.78727 27.6905 7.95091 27.8344C8.13971 28.0003 8.56837 28.0003 9.42571 28.0003H21.9413C23.8602 28.0003 24.8196 28.0003 25.5732 27.678C26.5193 27.2733 27.2729 26.5196 27.6776 25.5736C28 24.82 28 23.8605 28 21.9416C28 21.296 28 20.9732 27.9294 20.6725C27.8407 20.2947 27.6706 19.9408 27.431 19.6355C27.2403 19.3926 26.9883 19.1909 26.4841 18.7876L22.7544 15.8039C22.2499 15.4002 21.9976 15.1984 21.7197 15.1271C21.4748 15.0644 21.2172 15.0725 20.9767 15.1506C20.7039 15.2392 20.4648 15.4565 19.9867 15.8912Z" stroke="#475467" stroke-width="2.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  //     }
-  //   }
-  // }, [screenCaptured]);
 
   // handle on screenshot click
   const onScreenshotClick = useCallback(() => {
@@ -216,23 +187,6 @@ export const ChatGPTComponent = ({
     },
     [messages]
   );
-
-  // // handle input message change
-  // const onInputMessageChange = useCallback(
-  //   (val: string) => {
-  //     setValue(val);
-  //   },
-  //   [setValue]
-  // );
-
-  // // handle paste to input message
-  // const onPasteToInputMessage = useCallback(
-  //   (evt: React.ClipboardEvent) => {
-  //     evt.preventDefault();
-  //     setValue(value + evt.clipboardData.getData('text'));
-  //   },
-  //   [value]
-  // );
 
   return (
     <div className="order-1 m-2 flex h-full flex-grow flex-col space-y-4 overflow-y-auto overflow-x-hidden">
@@ -280,42 +234,6 @@ export const ChatGPTComponent = ({
                   )
                 }
               />
-              // <Message
-              //   key={i}
-              //   model={message}
-              //   style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
-              //   draggable={isMessageDraggable}
-              //   unselectable="on"
-              //   onDragStart={e =>
-              //     e.dataTransfer.setData(
-              //       'text/plain',
-              //       JSON.stringify({
-              //         id: `message-${i}`,
-              //         type: 'text',
-              //         message: message.message || ''
-              //       })
-              //     )
-              //   }
-              // >
-              //   {((isTyping && i === lastQuestionIndex) || i === lastAnswerIndex) && (
-              //     <Message.Footer>
-              //       <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
-              //         <div
-              //           className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
-              //           onClick={stopRunningChat}
-              //         >
-              //           Stop <IconStop />
-              //         </div>
-              //         <div
-              //           className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
-              //           onClick={() => reportQuestion(i)}
-              //         >
-              //           Report <IconReport />
-              //         </div>
-              //       </div>
-              //     </Message.Footer>
-              //   )}
-              // </Message>
             );
           })}
         </div>
@@ -325,6 +243,7 @@ export const ChatGPTComponent = ({
           onSendMessage={handleSend}
           onScreenshotClick={onScreenshotClick}
           screenCaptured={screenCaptured}
+          onVoiceMessage={speechToText}
         />
         <p className="px-2 text-tiny text-default-400">
           GeoDa.AI can make mistakes. Consider checking information.

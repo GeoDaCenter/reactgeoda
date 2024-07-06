@@ -53,7 +53,7 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
   // );
 
   // useChatGPT hook
-  const {initOpenAI, processChatGPTMessage} = useChatGPT();
+  const {initOpenAI, processChatGPTMessage, speechToText} = useChatGPT();
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
@@ -84,6 +84,7 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
           openAIKey={openAIKey}
           initOpenAI={initOpenAI}
           processMessage={processChatGPTMessage}
+          speechToText={speechToText}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
           setMessages={updateMessages}
           onStartCapture={onStartCapture}
