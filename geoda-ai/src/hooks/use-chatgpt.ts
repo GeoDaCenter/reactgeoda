@@ -119,5 +119,8 @@ export function useChatGPT() {
     });
   }
 
+  // registerFunction({functionName: 'summarizeData', functionArgs: {tableName}, input: {}})
+  // registerFunctionContext({var1, var2}), variables will be accessible by registered functions
+  // registerFunctionMessage({functionName: 'summarizeData', functionArgs: {tableName}, output: {result: {}}}), return React.JSX.Element
   return {initOpenAI, processChatGPTMessage};
 }
