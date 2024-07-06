@@ -17,6 +17,9 @@ import {IconStop} from '../icons/stop';
 import {IconReport} from '../icons/report';
 import {cancelOpenAI} from '@/ai/openai-utils';
 import {CustomMessage} from './custom-messages';
+import {cn} from '../chat/cn';
+import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
+import MessageCard from '../chat/message-card';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
@@ -37,6 +40,7 @@ export type ChatGPTComponentProps = {
   // update message callback function
   setMessages: (messages: MessageModel[]) => void;
   onStartCapture: () => null;
+  className?: string;
 };
 
 export const ChatGPTComponent = ({
@@ -45,7 +49,8 @@ export const ChatGPTComponent = ({
   processMessage,
   messages,
   setMessages,
-  onStartCapture
+  onStartCapture,
+  className
 }: ChatGPTComponentProps) => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -165,7 +170,7 @@ export const ChatGPTComponent = ({
     // hack to scroll to bottom
     const element = document.getElementById('chat-message-list');
     if (element?.firstElementChild) {
-      element.firstElementChild.scrollTop = element.firstElementChild.scrollHeight;
+      element.scrollTop = element.firstElementChild.scrollHeight + 100;
     }
   }, [messages]);
 
@@ -209,6 +214,8 @@ export const ChatGPTComponent = ({
     setIsTyping(false);
     // calll to stop openai runs
     cancelOpenAI();
+    // remove last message
+    setMessages(messages.slice(0, messages.length - 1));
   };
 
   // handle report question
@@ -224,49 +231,50 @@ export const ChatGPTComponent = ({
     [messages]
   );
 
-  // handle input message change
-  const onInputMessageChange = useCallback(
-    (val: string) => {
-      setValue(val);
-    },
-    [setValue]
-  );
+  // // handle input message change
+  // const onInputMessageChange = useCallback(
+  //   (val: string) => {
+  //     setValue(val);
+  //   },
+  //   [setValue]
+  // );
 
-  // handle paste to input message
-  const onPasteToInputMessage = useCallback(
-    (evt: React.ClipboardEvent) => {
-      evt.preventDefault();
-      setValue(value + evt.clipboardData.getData('text'));
-    },
-    [value]
-  );
+  // // handle paste to input message
+  // const onPasteToInputMessage = useCallback(
+  //   (evt: React.ClipboardEvent) => {
+  //     evt.preventDefault();
+  //     setValue(value + evt.clipboardData.getData('text'));
+  //   },
+  //   [value]
+  // );
 
   return (
-    <MainContainer className="pl-4">
-      <ChatContainer>
-        <MessageList
-          id="chat-message-list"
-          autoScrollToBottom={true}
-          autoScrollToBottomOnMount={false}
-          scrollBehavior="smooth"
-          typingIndicator={isTyping ? <TypingIndicator content="" /> : null}
-        >
+    <div className="order-1 m-2 flex h-full flex-grow flex-col space-y-4 overflow-auto">
+      <div
+        className="relative flex h-full flex-col gap-4 overflow-auto px-1"
+        id="chat-message-list"
+      >
+        <div className="overscroll-behavior-y-auto overflow-anchor-auto touch-action-none absolute bottom-0 left-0 right-0 top-0 flex h-full flex-col gap-4 px-1">
           {messages.map((message, i) => {
-            return message.type === 'custom' ? (
-              <Message
+            return (
+              <MessageCard
                 key={i}
-                model={{direction: 'incoming', type: 'custom', position: 'normal'}}
-                className="geoda-custom-message"
-              >
-                <Message.CustomContent>
-                  <CustomMessage props={message.payload ?? {}} />
-                </Message.CustomContent>
-              </Message>
-            ) : (
-              <Message
-                key={i}
-                model={message}
-                style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
+                index={i}
+                avatar={
+                  message.direction === 'incoming'
+                    ? 'https://geoda.ai/img/geoda-ai-logo.png'
+                    : 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatar_ai.png'
+                }
+                currentAttempt={i === 1 ? 2 : 1}
+                message={message.message}
+                customMessage={message.payload}
+                messageClassName={
+                  message.direction == 'outgoing' ? 'bg-content3 text-content3-foreground' : ''
+                }
+                showFeedback={message.direction === 'incoming'}
+                status={isTyping && i === messages.length - 1 ? 'pending' : 'success'}
+                stopChat={stopRunningChat}
+                onFeedback={reportQuestion}
                 draggable={isMessageDraggable}
                 unselectable="on"
                 onDragStart={e =>
@@ -279,44 +287,53 @@ export const ChatGPTComponent = ({
                     })
                   )
                 }
-              >
-                {((isTyping && i === lastQuestionIndex) || i === lastAnswerIndex) && (
-                  <Message.Footer>
-                    <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
-                      <div
-                        className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
-                        onClick={stopRunningChat}
-                      >
-                        Stop <IconStop />
-                      </div>
-                      <div
-                        className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
-                        onClick={() => reportQuestion(i)}
-                      >
-                        Report <IconReport />
-                      </div>
-                    </div>
-                  </Message.Footer>
-                )}
-              </Message>
+              />
+              // <Message
+              //   key={i}
+              //   model={message}
+              //   style={{display: `${message.message?.length || 0 > 0 ? 'block' : 'none'}`}}
+              //   draggable={isMessageDraggable}
+              //   unselectable="on"
+              //   onDragStart={e =>
+              //     e.dataTransfer.setData(
+              //       'text/plain',
+              //       JSON.stringify({
+              //         id: `message-${i}`,
+              //         type: 'text',
+              //         message: message.message || ''
+              //       })
+              //     )
+              //   }
+              // >
+              //   {((isTyping && i === lastQuestionIndex) || i === lastAnswerIndex) && (
+              //     <Message.Footer>
+              //       <div className="ml-2 mt-0.5 flex flex-row gap-2 text-black dark:text-white">
+              //         <div
+              //           className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
+              //           onClick={stopRunningChat}
+              //         >
+              //           Stop <IconStop />
+              //         </div>
+              //         <div
+              //           className="flex cursor-pointer flex-row items-center justify-center gap-1 opacity-40 hover:opacity-80"
+              //           onClick={() => reportQuestion(i)}
+              //         >
+              //           Report <IconReport />
+              //         </div>
+              //       </div>
+              //     </Message.Footer>
+              //   )}
+              // </Message>
             );
           })}
-        </MessageList>
-        <MessageInput
-          placeholder={intl.formatMessage({
-            id: 'chatGpt.inputPlaceholder',
-            defaultMessage: 'Type your question here'
-          })}
-          onSend={handleSend}
-          className="fill-current text-black dark:text-white"
-          onAttachClick={onScreenshotClick}
-          attachButton={false}
-          sendDisabled={sendDisabled}
-          onPaste={onPasteToInputMessage}
-          onChange={onInputMessageChange}
-          value={value}
-        />
-      </ChatContainer>
-    </MainContainer>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <PromptInputWithBottomActions onSendMessage={handleSend} />
+        <p className="px-2 text-tiny text-default-400">
+          GeoDa.AI can make mistakes. Consider checking information.
+        </p>
+      </div>
+    </div>
   );
 };

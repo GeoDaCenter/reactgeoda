@@ -8,7 +8,7 @@ export type UiAction = {
 };
 
 const initialState = {
-  theme: 'light',
+  theme: 'dark',
   showOpenFileModal: false,
   showSaveProjectModal: false,
   showKeplerTableModal: false,

@@ -69,7 +69,7 @@ const customizedKeplerGlReducer = keplerGlReducer
       longitude: -87.85179027000271
     },
     mapStyle: {
-      styleType: 'voyager'
+      // styleType: 'voyager'
     },
     uiState: {
       // hide side panel and data input window to disallow user customize the map
