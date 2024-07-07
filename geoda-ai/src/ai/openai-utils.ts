@@ -148,7 +148,7 @@ export async function translateVoiceToText(audioBlob: Blob): Promise<string> {
     return 'Sorry, I cannot process the audio at the moment. Connection to the server is lost.';
   }
   // create FsReadStream from the audioBlob
-  const file = new File([audioBlob], 'audio.wav');
+  const file = new File([audioBlob], 'audio.webm');
 
   // create a translation from audio to text
   const translation = await openai.audio.translations.create({
