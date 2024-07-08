@@ -46,6 +46,20 @@ export async function createAssistant(openai: OpenAI): Promise<OpenAI.Beta.Assis
 }
 
 /**
+ * Test the openai connection
+ */
+export async function testOpenAIKey(apiKey: string): Promise<boolean> {
+  const test = new OpenAI({apiKey, dangerouslyAllowBrowser: true});
+  try {
+    await test.models.list();
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+  return true;
+}
+
+/**
  * Initialize ChatGPT assistant by passing the summary of the table from duckdb
  * @param apiKey
  */
