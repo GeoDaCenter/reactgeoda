@@ -17,7 +17,7 @@ export const RegressionReport = ({
   width?: number;
 }) => {
   const regReport = regression.data.result;
-  return (
+  return regReport ? (
     <Card key={regression.id} className="p-0">
       <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
         <p className="text-xs font-bold uppercase">{regReport.title}</p>
@@ -30,12 +30,12 @@ export const RegressionReport = ({
           <div className="flex w-[800px] flex-col gap-2 rounded-none">
             <div className="p-4 font-mono text-tiny">
               <Markdown remarkPlugins={[remarkGfm]}>
-                {printLinearRegressionResultUsingMarkdown(regression.data.result)}
+                {printLinearRegressionResultUsingMarkdown(regReport)}
               </Markdown>
             </div>
           </div>
         </ScrollShadow>
       </CardBody>
     </Card>
-  );
+  ) : null;
 };
