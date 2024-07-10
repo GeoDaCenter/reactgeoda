@@ -1,4 +1,4 @@
-import {LinearRegressionResult} from 'geoda-wasm';
+import {LinearRegressionResult, SpatialErrorResult, SpatialLagResult} from 'geoda-wasm';
 
 export enum REGRESSION_ACTIONS {
   ADD_REGRESSION = 'ADD_REGRESSION',
@@ -11,7 +11,7 @@ export type RegressionDataProps = {
   weights?: string;
   dependentVariableData?: number[];
   independentVariablesData?: number[][];
-  result: LinearRegressionResult;
+  result: LinearRegressionResult | SpatialLagResult | SpatialErrorResult | null;
 };
 
 export type RegressionProps = {

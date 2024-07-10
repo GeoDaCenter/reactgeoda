@@ -56,10 +56,10 @@ export function getDuckDB() {
   return db;
 }
 
-// initial the global duckdb instance, delay 100ms to avoid blocking loading default page
+// initial the global duckdb instance, delay 200ms to avoid blocking loading default page
 setTimeout(async () => {
   db = await initDuckDB();
-}, 100);
+}, 200);
 
 // wait until the page is loaded
 // window.onload = async () => {

@@ -24,6 +24,7 @@ import {runRegression} from '@/utils/regression-utils';
 import {RegressionReport} from './spreg-report';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
+import {WeightsSelector} from '../weights/weights-management';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
@@ -65,9 +66,9 @@ export function SpregPanel() {
   };
 
   // handle select weights
-  const onSelectWeights = (value: any) => {
-    const selectValue = value.currentKey;
-    setSelectedWeight(selectValue);
+  const onSelectWeights = (id: string) => {
+    const selectedW = weights.find(w => w.weightsMeta.id === id);
+    setSelectedWeight(selectedW?.weightsMeta.id || '');
   };
 
   // handle onRunRegression callback
@@ -80,7 +81,7 @@ export function SpregPanel() {
     const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === selectedWeight);
     const w = selectedWeightData?.weights;
     // run regression analysis
-    const regression = await runRegression({
+    const regression = await runRegression(model, {
       x: xData,
       y: yData,
       weights: w,
@@ -161,27 +162,15 @@ export function SpregPanel() {
                       setVariables={setXVariables}
                       label="Select Independent Variables"
                     />
-                    <Select
-                      label="Select Spatial Weights"
-                      className="max-w"
-                      isDisabled={weights.length === 0}
-                      onSelectionChange={onSelectWeights}
-                      selectedKeys={[
-                        selectedWeight ?? weights[weights.length - 1].weightsMeta.id ?? ''
-                      ]}
-                    >
-                      {weights.map(({weightsMeta}, i) => (
-                        <SelectItem key={weightsMeta.id ?? i} value={weightsMeta.id}>
-                          {weightsMeta.id}
-                        </SelectItem>
-                      ))}
-                    </Select>
+                    <WeightsSelector weights={weights} onSelectWeights={onSelectWeights} />
                     <RadioGroup
                       label="Select model"
                       size="sm"
                       className="ml-2"
                       value={model}
-                      onValueChange={setModel}
+                      onValueChange={value => {
+                        setModel(value);
+                      }}
                     >
                       <Radio value="classic" defaultChecked={true}>
                         Classic
