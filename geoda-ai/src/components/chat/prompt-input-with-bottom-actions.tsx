@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import {Button, Tooltip, ScrollShadow} from '@nextui-org/react';
+import {AudioRecorder, useAudioRecorder} from 'react-audio-voice-recorder';
+
+import {Button, Tooltip, ScrollShadow, Badge} from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 
 import {cn} from './cn';
@@ -10,14 +12,18 @@ import PromptInput from './prompt-input';
 
 type PromptInputWithBottomActionsProps = {
   onSendMessage: (message: string) => void;
+  onVoiceMessage: (voice: Blob) => Promise<string>;
+  onScreenshotClick?: () => void;
   enableAttachFile?: boolean;
-  enableVoiceCommand?: boolean;
+  screenCaptured?: string;
 };
 
 export default function Component({
   onSendMessage,
+  onVoiceMessage,
+  onScreenshotClick,
   enableAttachFile,
-  enableVoiceCommand
+  screenCaptured
 }: PromptInputWithBottomActionsProps) {
   const ideas = [
     {
@@ -50,6 +56,24 @@ export default function Component({
     setPrompt(textContent || '');
   };
 
+  const onRemoveImage = () => {
+    // // dispatch action to set screenCaptured to empty
+    // dispatch(setScreenCaptured(''));
+  };
+
+  const recorderControls = useAudioRecorder(
+    {
+      noiseSuppression: true,
+      echoCancellation: true
+    },
+    err => console.table(err) // onNotAllowedOrFound
+  );
+
+  const addAudioElement = async (blob: Blob) => {
+    const voice = await onVoiceMessage(blob);
+    setPrompt(voice);
+  };
+
   return (
     <div className="flex w-full flex-col gap-4">
       <ScrollShadow hideScrollBar className="flex flex-nowrap gap-2" orientation="horizontal">
@@ -68,12 +92,45 @@ export default function Component({
         </div>
       </ScrollShadow>
       <form className="flex w-full flex-col items-start rounded-medium bg-default-100 transition-colors hover:bg-default-200/70">
+        <div className="group flex gap-2 px-4 pt-4">
+          {screenCaptured && screenCaptured.length > 0 && (
+            <Badge
+              isOneChar
+              className="opacity-0 group-hover:opacity-100"
+              content={
+                <Button
+                  isIconOnly
+                  radius="full"
+                  size="sm"
+                  variant="light"
+                  onPress={() => onRemoveImage()}
+                >
+                  <Icon className="text-foreground" icon="iconamoon:close-thin" width={16} />
+                </Button>
+              }
+            >
+              <img
+                className="h-14 w-14 rounded-small border-small border-default-200/50 object-cover"
+                src={screenCaptured}
+              />
+            </Badge>
+          )}
+        </div>
         <PromptInput
           classNames={{
             inputWrapper: '!bg-transparent shadow-none',
             innerWrapper: 'relative',
             input: 'pt-1 pl-2 pb-6 !pr-10 text-medium'
           }}
+          startContent={
+            <AudioRecorder
+              onRecordingComplete={blob => addAudioElement(blob)}
+              recorderControls={recorderControls}
+              // downloadOnSavePress={true}
+              // downloadFileExtension="mp3"
+              showVisualizer={false}
+            />
+          }
           endContent={
             <div className="flex items-end gap-2">
               <Tooltip showArrow content="Send message">
@@ -106,6 +163,20 @@ export default function Component({
         />
         <div className="flex w-full items-center justify-between  gap-2 overflow-scroll px-4 pb-4">
           <div className="flex w-full gap-1 md:gap-3">
+            <Button
+              size="sm"
+              startContent={
+                <Icon
+                  className="text-default-500"
+                  icon="solar:gallery-minimalistic-linear"
+                  width={18}
+                />
+              }
+              variant="flat"
+              onClick={onScreenshotClick}
+            >
+              Take a Screenshot to Ask
+            </Button>
             {enableAttachFile && (
               <Button
                 size="sm"
@@ -115,17 +186,6 @@ export default function Component({
                 variant="flat"
               >
                 Attach
-              </Button>
-            )}
-            {enableVoiceCommand && (
-              <Button
-                size="sm"
-                startContent={
-                  <Icon className="text-default-500" icon="solar:soundwave-linear" width={18} />
-                }
-                variant="flat"
-              >
-                Voice Commands
               </Button>
             )}
           </div>

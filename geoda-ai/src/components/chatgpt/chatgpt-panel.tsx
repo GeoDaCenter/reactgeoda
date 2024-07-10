@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
 import {useIntl} from 'react-intl';
@@ -11,13 +11,17 @@ import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {setMessages, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
+import {testOpenAIKey} from '@/ai/openai-utils';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
+export const INVALID_OPENAI_KEY_MESSAGE =
+  'The OpenAI API key is invalid. Please change your OpenAI API key in Settings.';
+export const CONNECT_OPENAI_API = 'Connecting...';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const DEFAULT_WELCOME_MESSAGE =
-  "Hello, I'm GeoDa.AI agent! Let's do spatial analysis! Ask me anything about your data.";
+  "Hello, I'm GeoDa.AI agent! Let's do spatial analysis! How can I help you today?";
 
 const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
   const intl = useIntl();
@@ -39,6 +43,19 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
   // get api key from state.root
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
 
+  // check if openAIKey is valid
+  const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
+    'checking'
+  );
+
+  useEffect(() => {
+    if (openAIKey) {
+      testOpenAIKey(openAIKey).then((isValid: boolean) => {
+        setOpenAIKeyValid(isValid ? 'success' : 'failed');
+      });
+    }
+  }, [openAIKey, dispatch]);
+
   // get messages from state.root
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
 
@@ -53,7 +70,7 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
   // );
 
   // useChatGPT hook
-  const {initOpenAI, processChatGPTMessage} = useChatGPT();
+  const {initOpenAI, processChatGPTMessage, speechToText} = useChatGPT();
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
@@ -77,6 +94,12 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
           type={WarningType.WARNING}
           onClick={onNoOpenAIKeyMessageClick}
         />
+      ) : openAIKeyValid !== 'success' ? (
+        <WarningBox
+          message={openAIKeyValid === 'checking' ? CONNECT_OPENAI_API : INVALID_OPENAI_KEY_MESSAGE}
+          type={openAIKeyValid === 'checking' ? WarningType.WAIT : WarningType.WARNING}
+          onClick={onNoOpenAIKeyMessageClick}
+        />
       ) : !tableName ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
@@ -84,6 +107,7 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
           openAIKey={openAIKey}
           initOpenAI={initOpenAI}
           processMessage={processChatGPTMessage}
+          speechToText={speechToText}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
           setMessages={updateMessages}
           onStartCapture={onStartCapture}

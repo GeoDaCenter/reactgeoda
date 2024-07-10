@@ -62,7 +62,11 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
       <p>
         Something went wrong, if the issue persists please contact us through our help center
         at&nbsp;
-        <Link href="https://github.com/orgs/geodaai/discussions/categories/bugs" size="sm">
+        <Link
+          target="_blank"
+          href="https://github.com/orgs/geodaai/discussions/categories/bugs"
+          size="sm"
+        >
           Github/geodaai
         </Link>
       </p>

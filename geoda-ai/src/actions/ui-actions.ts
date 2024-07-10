@@ -47,7 +47,7 @@ export const setPropertyPanel = (payload: string) => ({
   payload
 });
 
-export const setOpenAIKey = (payload: string) => ({
+export const setOpenAIKey = (payload: string | undefined) => ({
   type: UI_ACTIONS.SET_OPENAI_KEY,
   payload
 });

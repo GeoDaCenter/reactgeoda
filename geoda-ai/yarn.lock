@@ -603,6 +603,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ffmpeg/ffmpeg@npm:^0.11.6":
+  version: 0.11.6
+  resolution: "@ffmpeg/ffmpeg@npm:0.11.6"
+  dependencies:
+    is-url: ^1.2.4
+    node-fetch: ^2.6.1
+    regenerator-runtime: ^0.13.7
+    resolve-url: ^0.2.1
+  checksum: 496950c148dd16154f127106ddb533c4c84252abba875bc00c8cb1dabfaa21ba030b4fda954b7ec583b1af17fc362216d7a0c8a8ab5d346f871425cfaf392dfd
+  languageName: node
+  linkType: hard
+
 "@formatjs/ecma402-abstract@npm:1.18.2":
   version: 1.18.2
   resolution: "@formatjs/ecma402-abstract@npm:1.18.2"
@@ -8461,6 +8473,7 @@ __metadata:
     prettier-eslint: ^16.2.0
     prettier-plugin-tailwindcss: ^0.5.10
     react: 18.2.0
+    react-audio-voice-recorder: ^2.2.0
     react-dom: 18.2.0
     react-dropzone: ^14.2.3
     react-grid-layout: ^1.4.4
@@ -9482,6 +9495,13 @@ __metadata:
   version: 1.0.0
   resolution: "is-typedarray@npm:1.0.0"
   checksum: 3508c6cd0a9ee2e0df2fa2e9baabcdc89e911c7bd5cf64604586697212feec525aa21050e48affb5ffc3df20f0f5d2e2cf79b08caa64e1ccc9578e251763aef7
+  languageName: node
+  linkType: hard
+
+"is-url@npm:^1.2.4":
+  version: 1.2.4
+  resolution: "is-url@npm:1.2.4"
+  checksum: 100e74b3b1feab87a43ef7653736e88d997eb7bd32e71fd3ebc413e58c1cbe56269699c776aaea84244b0567f2a7d68dfaa512a062293ed2f9fdecb394148432
   languageName: node
   linkType: hard
 
@@ -12563,6 +12583,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-audio-visualize@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "react-audio-visualize@npm:1.1.3"
+  peerDependencies:
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: aa75a3712f83da2c58bd34e73a7bf3d99a78f7579d3c9b0a270a05a36717b3e2f66f00c342a923c21f471e6bdb9c86478b569bdba62afa81274139fedd1ee35b
+  languageName: node
+  linkType: hard
+
+"react-audio-voice-recorder@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "react-audio-voice-recorder@npm:2.2.0"
+  dependencies:
+    "@ffmpeg/ffmpeg": ^0.11.6
+    react-audio-visualize: ^1.1.3
+  peerDependencies:
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: e24c7680f7727628e1c7b618ce9ce9366c6da453097bb020600be4953dd2b72104ff4d9097a8d2a7cbf35b2897c79e861a42601aa48157ea6b2fec51694e48f6
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
@@ -12941,7 +12984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:^0.13.3":
+"regenerator-runtime@npm:^0.13.3, regenerator-runtime@npm:^0.13.7":
   version: 0.13.11
   resolution: "regenerator-runtime@npm:0.13.11"
   checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
@@ -13130,6 +13173,13 @@ __metadata:
   dependencies:
     protocol-buffers-schema: ^3.3.1
   checksum: 88fffab2a3757888884a36f9aa4e24be5186b01820a8c26297dc1ce406b9daf776594926bdf524c2c8e8e5b0aba8ac48362b6584cdecc9a7083215ebca01c599
+  languageName: node
+  linkType: hard
+
+"resolve-url@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "resolve-url@npm:0.2.1"
+  checksum: 7b7035b9ed6e7bc7d289e90aef1eab5a43834539695dac6416ca6e91f1a94132ae4796bbd173cdacfdc2ade90b5f38a3fb6186bebc1b221cd157777a23b9ad14
   languageName: node
   linkType: hard
 

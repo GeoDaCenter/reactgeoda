@@ -69,7 +69,7 @@ export const uiReducer = (state = initialState, action: UiAction) => {
     case UI_ACTIONS.SET_OPENAI_KEY:
       return {
         ...state,
-        openAIKey: action.payload
+        openAIKey: action.payload || ''
       };
     case UI_ACTIONS.SET_SHOW_QUERY_BUILDER:
       return {

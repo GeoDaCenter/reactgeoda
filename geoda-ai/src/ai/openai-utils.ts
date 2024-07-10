@@ -46,6 +46,20 @@ export async function createAssistant(openai: OpenAI): Promise<OpenAI.Beta.Assis
 }
 
 /**
+ * Test the openai connection
+ */
+export async function testOpenAIKey(apiKey: string): Promise<boolean> {
+  const test = new OpenAI({apiKey, dangerouslyAllowBrowser: true});
+  try {
+    await test.models.list();
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+  return true;
+}
+
+/**
  * Initialize ChatGPT assistant by passing the summary of the table from duckdb
  * @param apiKey
  */
@@ -142,6 +156,24 @@ export type CustomFunctionCall = {
   functionArgs: {};
   output: CustomFunctionOutputProps;
 };
+
+export async function translateVoiceToText(audioBlob: Blob): Promise<string> {
+  if (!openai || !thread || !assistant) {
+    return 'Sorry, I cannot process the audio at the moment. Connection to the server is lost.';
+  }
+  // create FsReadStream from the audioBlob
+  const file = new File([audioBlob], 'audio.webm');
+
+  // create a translation from audio to text
+  const translation = await openai.audio.translations.create({
+    model: 'whisper-1',
+    file: file
+  });
+
+  // return the translated text
+  const response = translation.text;
+  return response;
+}
 
 export type ProcessMessageProps = {
   question: string;
