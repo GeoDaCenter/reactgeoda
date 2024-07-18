@@ -21,6 +21,7 @@ import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
+import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
 
 // Register the required ECharts components
 echarts.use([
@@ -43,12 +44,12 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
 
   // use selector to get theme and table name
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const dataId = useSelector(mainDataIdSelector);
 
   // use selector to get sourceId of interaction
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );

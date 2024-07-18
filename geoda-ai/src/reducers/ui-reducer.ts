@@ -7,22 +7,40 @@ export type UiAction = {
   payload: string | boolean;
 };
 
-const initialState = {
-  theme: 'dark',
-  showOpenFileModal: false,
-  showSaveProjectModal: false,
-  showKeplerTableModal: false,
-  showGridView: false,
-  showPropertyPanel: false,
-  propertyPanelName: '',
-  openAIKey: LOCAL_API_KEY,
-  screenCaptured: '',
-  table: {
-    showQueryBuilder: true
-  }
-};
+const LOCAL_STORAGE_KEY_UI_STATE = 'geoda-ai-ui';
 
-export const uiReducer = (state = initialState, action: UiAction) => {
+// get initial state
+function getInitialState() {
+  const initialState = {
+    theme: 'dark',
+    showOpenFileModal: false,
+    showSaveProjectModal: false,
+    showKeplerTableModal: false,
+    showGridView: false,
+    showPropertyPanel: false,
+    propertyPanelName: '',
+    openAIKey: LOCAL_API_KEY,
+    screenCaptured: '',
+    table: {
+      showQueryBuilder: true
+    }
+  };
+  // update from LocalStorage
+  const uiLocalStorage = localStorage.getItem(LOCAL_STORAGE_KEY_UI_STATE);
+  if (uiLocalStorage) {
+    const uiObject = JSON.parse(uiLocalStorage);
+    return {
+      ...initialState,
+      ...('theme' in uiObject ? {theme: uiObject.theme} : {}),
+      ...('openAIKey' in uiObject ? {openAIKey: uiObject.openAIKey} : {})
+    };
+  }
+  return initialState;
+}
+
+const INITIAL_UI_STATE = getInitialState();
+
+function uiUpdater(state: any, action: UiAction) {
   switch (action.type) {
     case UI_ACTIONS.SET_THEME:
       return {
@@ -90,4 +108,12 @@ export const uiReducer = (state = initialState, action: UiAction) => {
     default:
       return state;
   }
+}
+export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
+  const updateState = uiUpdater(state, action);
+
+  // save uiState to LocalStorage when it changes
+  localStorage.setItem(LOCAL_STORAGE_KEY_UI_STATE, JSON.stringify(updateState));
+
+  return updateState;
 };

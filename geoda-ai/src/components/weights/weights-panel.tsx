@@ -11,6 +11,7 @@ import {GeoDaState} from '@/store';
 import {MAP_ID} from '@/constants';
 import {getIntegerAndStringFieldNames, getKeplerLayer} from '@/utils/data-utils';
 import {WeightsProps} from '@/actions/weights-actions';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE =
   'Please load a map first before creating and managing spatial weights.';
@@ -18,7 +19,7 @@ const NO_MAP_LOADED_MESSAGE =
 export function WeightsPanel() {
   const intl = useIntl();
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
 
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
 
@@ -83,7 +84,7 @@ export function WeightsPanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             classNames={{}}
             size="md"
             selectedKey={showWeightsManagement ? 'weights-management' : 'weights-creation'}

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useIntl} from 'react-intl';
 import {Accordion, AccordionItem, Input} from '@nextui-org/react';
@@ -28,17 +28,6 @@ export function SettingsPanel() {
   // define useState for key
   const [key, setKey] = React.useState(openAIKey || '');
 
-  // load the openAIKey from local storage if openAIKey is not set
-  useEffect(() => {
-    if (!openAIKey) {
-      const key = localStorage.getItem('openAIKey');
-      if (key) {
-        setKey(key);
-        dispatch(setOpenAIKey(key));
-      }
-    }
-  }, [openAIKey, dispatch]);
-
   const onOpenAIKeyChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const keyValue = event.target.value;
     setKey(keyValue);
@@ -65,8 +54,6 @@ export function SettingsPanel() {
     dispatch(setOpenAIKey(key));
     // dispatch action to show chatgpt panel
     dispatch(setPropertyPanel(PanelName.CHAT_GPT));
-    // save the key to local storage
-    localStorage.setItem('openAIKey', key);
   }, [dispatch, key]);
 
   const onNoOpenAIKeyMessageClick = () => {

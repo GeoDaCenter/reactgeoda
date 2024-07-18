@@ -12,6 +12,7 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {setMessages, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 export const INVALID_OPENAI_KEY_MESSAGE =
@@ -38,7 +39,7 @@ const ChatGPTPanel = ({onStartCapture}: {onStartCapture: () => null}) => {
     position: 'first'
   };
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
 
   // get api key from state.root
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);

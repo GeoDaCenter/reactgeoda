@@ -14,6 +14,7 @@ import {SQLEditor} from './sql-editor';
 import {SpatialLagValueComponent} from './column-spatial-lag-component';
 import {RateValueComponent} from '../common/rate-component';
 import {CreateButton} from '../common/create-button';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export function AddColumn() {
   const [columnName, setColumnName] = useState('');
@@ -26,7 +27,7 @@ export function AddColumn() {
   const {addColumn, addColumnWithValues} = useDuckDB();
   const dispatch = useDispatch();
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   const numberOfRows = dataset?.dataContainer.numRows() || 0;

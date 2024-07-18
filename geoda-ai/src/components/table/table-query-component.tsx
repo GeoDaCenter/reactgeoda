@@ -11,6 +11,7 @@ import MonacoEditor from '@monaco-editor/react';
 
 import 'react-querybuilder/dist/query-builder.css';
 import {geodaBrushLink, setQueryCode} from '@/actions';
+import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
 
 // const initialQuery: RuleGroupType = {combinator: 'and', rules: []};
 
@@ -30,8 +31,8 @@ export function TableQueryComponent() {
   const {query} = useDuckDB();
 
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const tableName = useSelector(mainTableNameSelector);
+  const dataId = useSelector(mainDataIdSelector);
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
   const queryCode = useSelector((state: GeoDaState) => state.root.uiState.table.queryCode);
 
@@ -119,7 +120,7 @@ export function TableQueryComponent() {
         </CardBody>
       </Card>
       <div className="m-2 flex w-full flex-row items-start space-x-4">
-        <Button onClick={onQueryClick} size="sm" color="primary" className="bg-rose-900">
+        <Button onClick={onQueryClick} size="sm" color="danger" className="bg-rose-900">
           Query
         </Button>
         <Button onClick={onResetClick} size="sm" color="default">

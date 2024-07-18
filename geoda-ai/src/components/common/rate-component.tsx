@@ -7,6 +7,7 @@ import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export type RateValueProps = {
   // call back function to handle values and label change
@@ -16,7 +17,7 @@ export type RateValueProps = {
 export function RateValueComponent({onValuesChange}: RateValueProps) {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   // use selector to get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)

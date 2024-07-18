@@ -13,6 +13,7 @@ import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getDataset, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {CreateButton} from '../common/create-button';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export type RunAnalysisProps = {
   tableName: string;
@@ -31,7 +32,7 @@ export type UnivariateLisaConfigProps = {
 };
 
 export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const dataset = useSelector((state: GeoDaState) => getDataset(state));

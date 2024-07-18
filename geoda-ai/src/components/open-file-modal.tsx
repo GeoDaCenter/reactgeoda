@@ -122,11 +122,11 @@ const OpenFileComponent = () => {
     [dispatch, importArrowFile]
   );
 
-  // Component to refresh the page after 10 second if error occurs
+  // Hide the error message after 10 second if error occurs
   useEffect(() => {
     if (error) {
       setTimeout(() => {
-        window.location.reload();
+        setError(null);
       }, 10000);
     }
   }, [error]);

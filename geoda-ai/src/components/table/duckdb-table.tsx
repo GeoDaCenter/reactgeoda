@@ -18,6 +18,7 @@ import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {GeoDaState} from '../../store';
 import {useTheme} from 'styled-components';
 import {getDataset} from '@/utils/data-utils';
+import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
 
 export const MIN_STATS_CELL_SIZE = 122;
 
@@ -59,8 +60,8 @@ export function DuckDBTableComponent() {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const tableName = useSelector(mainTableNameSelector);
+  const dataId = useSelector(mainDataIdSelector);
 
   // get Kepler state from redux store
   const dataset = useSelector((state: GeoDaState) => getDataset(state));

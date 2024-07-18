@@ -1,20 +1,20 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
 import {Tabs, Tab, Card, CardBody} from '@nextui-org/react';
 
 import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox} from '../common/warning-box';
-import {GeoDaState} from '@/store';
 import {TableQueryComponent} from './table-query-component';
 import {AddColumn} from './column-add-component';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before querying and editing data.';
 
 function TablePanel() {
   const intl = useIntl();
-  const [selectedTab, setSelectedTab] = React.useState('table-query');
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const [selectedTab, setSelectedTab] = useState('table-query');
+  const tableName = useSelector(mainTableNameSelector);
 
   const onTabChange = (key: React.Key) => {
     if (key === 'table-query') {
@@ -42,7 +42,7 @@ function TablePanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             classNames={{}}
             size="md"
             selectedKey={selectedTab}

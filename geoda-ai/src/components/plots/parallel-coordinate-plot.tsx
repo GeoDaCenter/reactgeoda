@@ -12,6 +12,7 @@ import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {getPCPChartOption} from '@/utils/plots/parallel-coordinate-utils';
 import {EChartsUpdater} from './echarts-updater';
 import {geodaBrushLink} from '@/actions';
+import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
 
 // Register the required components
 echarts.use([CanvasRenderer, ParallelChart]);
@@ -26,13 +27,13 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const dataId = useSelector(mainDataIdSelector);
 
   // use selector to get sourceId of interaction
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
 
   // use selector to get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>

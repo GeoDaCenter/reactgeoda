@@ -22,6 +22,7 @@ export function getScatterChartOption(
     },
     yAxis: {
       type: 'value',
+      splitLine: {show: false},
       axisLabel: {
         formatter: numericFormatter
       }

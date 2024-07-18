@@ -28,6 +28,7 @@ import {ClassificationPanel, ClassificationOnValuesChange} from '../common/class
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {addKeplerColumn} from '@/utils/table-utils';
 import {CreateButton} from '../common/create-button';
+import {mainTableNameSelector} from '@/store/selectors';
 // import {DndContext} from '@dnd-kit/core';
 
 // const MapContainer = KeplerInjector.get(MapContainerFactory);
@@ -52,7 +53,7 @@ function MappingPanel() {
   );
 
   // use selector to get tableName from redux store
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
@@ -156,7 +157,7 @@ function MappingPanel() {
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
-          <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
+          <Tabs aria-label="Options" variant="solid" color="danger" classNames={{}} size="md">
             <Tab
               key="map-creation"
               title={

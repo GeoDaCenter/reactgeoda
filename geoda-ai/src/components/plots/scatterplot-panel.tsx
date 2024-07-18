@@ -10,6 +10,7 @@ import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -21,7 +22,7 @@ export function ScatterplotPanel() {
   const [variableX, setVariableX] = useState<string | undefined>(undefined);
   const [variableY, setVariableY] = useState<string | undefined>(undefined);
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // Function to handle creation of scatterplot
@@ -66,7 +67,7 @@ export function ScatterplotPanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             selectedKey={showPlotsManagement ? 'plot-management' : 'scatterplot-creation'}
             onSelectionChange={key => setShowPlotsManagement(key === 'plot-management')}
           >

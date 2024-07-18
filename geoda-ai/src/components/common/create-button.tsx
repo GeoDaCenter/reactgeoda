@@ -13,7 +13,7 @@ export function CreateButton({
   return (
     <Button
       radius="sm"
-      color="primary"
+      color="danger"
       className="bg-rose-900"
       onClick={onClick}
       isDisabled={isDisabled}

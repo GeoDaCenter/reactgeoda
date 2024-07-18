@@ -10,6 +10,7 @@ import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {RateValueComponent} from './rate-component';
 import {getDefaultColorRange, findColorRange} from '@/utils/color-utils';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export const ClassificationTypes = [
   {
@@ -79,7 +80,7 @@ export function ClassificationPanel({props, onValuesChange}: ClassificationPanel
   // useSelector to get layer from redux store
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   // use selector to get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)

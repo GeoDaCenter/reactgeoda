@@ -10,6 +10,7 @@ import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export function BubbleChartPanel() {
   const intl = useIntl();
@@ -23,7 +24,7 @@ export function BubbleChartPanel() {
   // boolean variable to check if variables are selected for bubble chart
   const isVariablesSelected = variableX && variableY && variableSize;
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   const onCreateBubbleChart = () => {
@@ -85,7 +86,7 @@ export function BubbleChartPanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             selectedKey={showPlotsManagement ? 'plot-management' : 'bubblechart-creation'}
             onSelectionChange={onTabChange}
           >

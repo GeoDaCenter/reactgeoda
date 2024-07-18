@@ -16,6 +16,7 @@ import {Layer} from '@kepler.gl/layers';
 import {themeLT, theme} from '@kepler.gl/styles';
 import {wrapTo} from '@kepler.gl/actions';
 import {getCenterAndZoomFromBounds, hexToRgb} from '@kepler.gl/utils';
+import {mainTableNameSelector} from '@/store/selectors';
 
 // For inject customized component to kepler.gl
 // const KeplerInjector = provideRecipesToInjector([], appInjector);
@@ -50,7 +51,7 @@ export function KeplerMapContainer({mapIndex, layerId}: KeplerMapContainerProps)
   const dispatchKepler = (action: any) => dispatch(wrapTo(NO_MAP_ID, action));
 
   // get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
 
   // keplerStateSelector
   const keplerState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]);

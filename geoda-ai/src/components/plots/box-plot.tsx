@@ -22,8 +22,9 @@ import {CreateBoxplotProps, getBoxPlotChartOption} from '@/utils/plots/boxplot-u
 import {GeoDaState} from '@/store';
 import {BoxPlotProps} from '@/actions/plot-actions';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {MAP_ID} from '@/constants';
+import {getColumnData} from '@/utils/data-utils';
+import {keplerDataContainerSelector, mainDataIdSelector} from '@/store/selectors';
+import {ECHARTS_DARK_THEME} from './echarts-theme';
 
 // Register the required components
 echarts.use([
@@ -38,6 +39,7 @@ echarts.use([
   ScatterChart,
   CanvasRenderer
 ]);
+echarts.registerTheme('dark', ECHARTS_DARK_THEME);
 
 /**
  * The react component of a box plot using eCharts
@@ -51,14 +53,10 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const dataId = useSelector(mainDataIdSelector);
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
-  // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
   // use selector to get dataContainer
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
+  const dataContainer = useSelector(keplerDataContainerSelector);
 
   const seriesIndex = variables.map((_, i) => i);
 
@@ -73,9 +71,10 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     return getBoxPlotChartOption({
       rawData,
       boxData: boxPlotData.boxData,
-      meanPoint: boxPlotData.meanPoint
+      meanPoint: boxPlotData.meanPoint,
+      theme: theme
     });
-  }, [boxPlotData.boxData, boxPlotData.meanPoint, dataContainer, variables]);
+  }, [boxPlotData.boxData, boxPlotData.meanPoint, dataContainer, variables, theme]);
 
   const bindEvents = useMemo(
     () => ({

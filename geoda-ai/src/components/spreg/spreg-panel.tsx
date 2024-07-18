@@ -25,6 +25,7 @@ import {RegressionReport} from './spreg-report';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
 import {WeightsSelector} from '../weights/weights-management';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
@@ -38,7 +39,7 @@ export function SpregPanel() {
   const layer = useSelector((state: GeoDaState) => getLayer(state));
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
   const newRegressionCount = regressions?.filter((reg: any) => reg.isNew).length || 0;
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );
@@ -130,7 +131,7 @@ export function SpregPanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             classNames={{}}
             size="md"
             selectedKey={showRegressionManagement ? 'regression-management' : 'regression-creation'}

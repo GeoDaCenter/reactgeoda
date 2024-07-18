@@ -61,11 +61,6 @@ setTimeout(async () => {
   db = await initDuckDB();
 }, 200);
 
-// wait until the page is loaded
-// window.onload = async () => {
-//   db = await initDuckDB();
-// };
-
 /**
  * Get the summary of a table by passing the table name
  * @param tableName

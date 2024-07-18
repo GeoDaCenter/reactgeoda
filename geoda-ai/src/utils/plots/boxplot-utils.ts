@@ -52,12 +52,14 @@ export type BoxPlotChartOptionProps = {
   rawData: {[key: string]: number[]};
   boxData: Array<{name: string; value: [number, number, number, number, number]}>;
   meanPoint: [string, number][];
+  theme: 'light' | 'dark';
 };
 
 export function getBoxPlotChartOption({
   rawData,
   boxData,
-  meanPoint
+  meanPoint,
+  theme
 }: BoxPlotChartOptionProps): EChartsOption {
   // build scatter plot data using rawData in the form of [0, value]
   const pointsData = Object.values(rawData)?.map(
@@ -85,14 +87,13 @@ export function getBoxPlotChartOption({
         }
       }
     })) || [];
-
   const series = [
     ...scatterSeries,
     {
       type: 'boxplot',
       data: boxData,
       itemStyle: {
-        borderColor: 'black',
+        borderColor: theme === 'dark' ? 'white' : 'black',
         color: '#DB631C',
         opacity: 1
       }
@@ -132,7 +133,11 @@ export function getBoxPlotChartOption({
       axisLabel: {
         formatter: numericFormatter
       },
-      splitLine: {show: true, interval: 'auto', lineStyle: {color: '#f3f3f3'}},
+      splitLine: {
+        show: true,
+        interval: 'auto',
+        lineStyle: {color: theme === 'dark' ? '#333' : '#f3f3f3'}
+      },
       splitArea: {show: false},
       axisTick: {show: true},
       axisLine: {show: true}

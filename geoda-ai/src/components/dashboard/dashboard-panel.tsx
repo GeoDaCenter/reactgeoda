@@ -126,7 +126,7 @@ export function DashboardPanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             classNames={{}}
             size="md"
             selectedKey={showSettings ? 'dashboard-settings' : 'dashboard-widgets'}
@@ -164,7 +164,7 @@ export function DashboardPanel() {
                     <Button
                       onClick={onAddTextClick}
                       radius="sm"
-                      color="primary"
+                      color="danger"
                       className="bg-blue-900"
                       size="sm"
                     >

@@ -6,6 +6,7 @@ import {GeoDaState} from '@/store';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
 import {useState} from 'react';
+import {mainTableNameSelector} from '@/store/selectors';
 
 export type SpatialLagValueProps = {
   setValues: (values: unknown | unknown[]) => void;
@@ -17,7 +18,7 @@ export type SpatialLagValueProps = {
 export function SpatialLagValueComponent({setValues}: SpatialLagValueProps) {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   // use selector to get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)

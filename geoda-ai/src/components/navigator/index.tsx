@@ -29,6 +29,7 @@ import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 import {ThemeSwitcher} from '../buttons/theme-switch';
 import {DashboardSwitcher} from '../buttons/dashboard-switch';
+import {IconAdd} from '../icons/add';
 
 export function Navigator() {
   const dispatch = useDispatch();
@@ -101,6 +102,11 @@ export function Navigator() {
     },
     [dispatch, showSaveProjectModal]
   );
+
+  const onAddCallback = useCallback((event: React.MouseEvent) => {
+    // dispatch(setOpenFileModal(!showOpenModal));
+    event.stopPropagation();
+  }, []);
 
   const onTableCallback = useCallback(
     (event: React.MouseEvent) => {
@@ -177,6 +183,17 @@ export function Navigator() {
             onClick={onSaveCallback}
           >
             <IconSave />
+          </Button>
+        </Tooltip>
+        <Tooltip key="addFileTooltip" placement="right" content="Add Dataset">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            onClick={onAddCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconAdd />
           </Button>
         </Tooltip>
         <Tooltip key="tableTooltip" placement="right" content="Table">

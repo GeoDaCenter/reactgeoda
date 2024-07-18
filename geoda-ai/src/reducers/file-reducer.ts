@@ -17,6 +17,7 @@ export type FileAction = {
 type SetFileDataActionPayload = {
   payload: ProcessorResult[];
 };
+
 // create a reduce function to handle SET_FILE_DATA action
 function setFileDataUpdater(
   state: FileStateProps,

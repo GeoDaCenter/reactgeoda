@@ -9,6 +9,7 @@ import {getDataset} from '@/utils/data-utils';
 import {PreviewDataTable} from '../table/preview-data-table';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {CustomMessagePayload} from './custom-messages';
+import {mainTableNameSelector} from '@/store/selectors';
 
 /**
  * Custom Create Variable Message
@@ -20,7 +21,7 @@ export const CustomCreateVariableMessage = ({props}: {props: CustomMessagePayloa
   const dispatch = useDispatch();
   const {addColumn} = useDuckDB();
 
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
   const numberOfRows = dataset?.dataContainer.numRows() || 0;
 

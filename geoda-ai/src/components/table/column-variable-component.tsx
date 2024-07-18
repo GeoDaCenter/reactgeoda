@@ -27,6 +27,7 @@ import {
 } from './sql-constant';
 import {SearchIcon} from '../icons/search';
 import {useDuckDB} from '@/hooks/use-duckdb';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const AVAILABLE_FUNCTIONS = [
   ...DUCKDB_NUMERIC_FUNCTIONS,
@@ -46,7 +47,7 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
     useState<DuckDBFunctionProps[]>(AVAILABLE_FUNCTIONS);
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
 
   const {queryValues} = useDuckDB();
 

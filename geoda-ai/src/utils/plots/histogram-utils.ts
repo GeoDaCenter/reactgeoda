@@ -139,7 +139,10 @@ export function getHistogramChartOption(
         axisTick: {show: false},
         axisLabel: {show: false},
         axisLine: {show: false},
-        position: 'bottom'
+        position: 'bottom',
+        splitLine: {
+          show: true
+        }
       },
       {
         scale: true,
@@ -165,7 +168,7 @@ export function getHistogramChartOption(
         formatter: numericFormatter
       },
       splitLine: {
-        show: true
+        show: false
       },
       axisTick: {show: false},
       axisLine: {show: false}

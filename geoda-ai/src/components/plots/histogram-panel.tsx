@@ -13,6 +13,7 @@ import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -27,7 +28,7 @@ export function HistogramPanel() {
   // use state for intervals
   const [intervals, setIntervals] = useState(7);
   // use selector to get tableName
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   // use selector to get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
@@ -87,7 +88,7 @@ export function HistogramPanel() {
           <Tabs
             aria-label="Options"
             variant="solid"
-            color="warning"
+            color="danger"
             classNames={{}}
             size="md"
             selectedKey={showPlotsManagement ? 'plot-management' : 'histogram-creation'}

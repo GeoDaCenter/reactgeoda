@@ -18,6 +18,7 @@ import {BubbleChartProps} from '@/actions/plot-actions';
 import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
+import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
 
 // Register the required ECharts components
 echarts.use([
@@ -36,9 +37,9 @@ export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
   const [rendered, setRendered] = useState(false);
 
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const dataId = useSelector(mainDataIdSelector);
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   // get dataContainer
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)

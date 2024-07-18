@@ -1,4 +1,9 @@
-import {legacy_createStore as createStore, combineReducers, applyMiddleware} from 'redux';
+import {
+  legacy_createStore as createStore,
+  combineReducers,
+  applyMiddleware,
+  Middleware
+} from 'redux';
 import {createLogger} from 'redux-logger';
 import {Layout} from 'react-grid-layout';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
@@ -23,7 +28,6 @@ export type GeoDaState = {
     file: {
       rawFileData: RawFileDataProps;
       fileData: any;
-      id: string;
     };
     language: string;
     uiState: {
@@ -116,7 +120,7 @@ export const reducers = combineReducers({
 });
 
 // Customize logger
-const loggerMiddleware = createLogger({
+const loggerMiddleware: Middleware = createLogger({
   predicate: (_getState: any, action: any) => {
     const skipLogging = [
       '@@kepler.gl/LAYER_HOVER',
@@ -128,11 +132,18 @@ const loggerMiddleware = createLogger({
   }
 });
 
+// @ts-ignore FIXME
 export const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
 
+const initialState = {};
+
 // create store with initial state and reducers and middlewares
-// @ts-ignore FIXME
-const store = createStore(reducers, {}, applyMiddleware(...middlewares));
+const store = createStore(
+  reducers,
+  initialState,
+  // @ts-ignore FIXME
+  applyMiddleware(...middlewares)
+);
 // const store = configureStore({reducer: reducers, middleware: middlewares});
 
 export default store;

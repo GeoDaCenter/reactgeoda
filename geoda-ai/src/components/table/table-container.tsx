@@ -4,6 +4,7 @@ import {useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
 import {DEFAULT_TABLE_HEIGHT} from '@/constants';
 import {Splitter} from '../common/splitter';
+import {mainTableNameSelector} from '@/store/selectors';
 
 const DuckDBTable = dynamic(() => import('./duckdb-table'), {ssr: false});
 
@@ -14,7 +15,7 @@ export const TableContainer = () => {
   const showTable = useSelector((state: GeoDaState) => state.root.uiState.showKeplerTableModal);
 
   // get table name
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
 
   return showTable && tableName ? (
     <div className="relative flex-grow-0 p-0" style={{height: tableHeight}}>

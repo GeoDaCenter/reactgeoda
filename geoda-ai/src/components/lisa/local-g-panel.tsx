@@ -107,7 +107,7 @@ export function LocalGPanel() {
       <Tabs
         aria-label="Options"
         variant="solid"
-        color="warning"
+        color="danger"
         classNames={{}}
         size="md"
         onSelectionChange={onSelectionChange}

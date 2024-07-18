@@ -75,6 +75,7 @@ import {getHistogramChartOption, HistogramDataProps} from '@/utils/plots/histogr
 import {geodaBrushLink} from '@/actions';
 import {getColumnData, getDataContainer, getDataset} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
+import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
 
 // Register the required components
 echarts.use([
@@ -138,11 +139,11 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.dataId) || '';
+  const dataId = useSelector(mainDataIdSelector);
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
 
   // use selector to get tableName, dataContainer
-  const tableName = useSelector((state: GeoDaState) => state.root.file?.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const dataContainer = useSelector((state: GeoDaState) =>
     getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
   );

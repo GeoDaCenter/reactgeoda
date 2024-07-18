@@ -96,7 +96,7 @@ export function LocalMoranPanel() {
 
   return (
     <>
-      <Tabs aria-label="Options" variant="solid" color="warning" classNames={{}} size="md">
+      <Tabs aria-label="Options" variant="solid" color="danger" classNames={{}} size="md">
         <Tab
           key="uni-localmoran"
           title={

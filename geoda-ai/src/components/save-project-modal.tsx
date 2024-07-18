@@ -148,7 +148,7 @@ const SaveProjectComponent = () => {
       </Card>
       <Button
         className="text-tiny"
-        color="primary"
+        color="danger"
         size="sm"
         onClick={onSaveClick}
         isDisabled={!isValid}
