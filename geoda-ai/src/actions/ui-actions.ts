@@ -10,7 +10,8 @@ export enum UI_ACTIONS {
   SET_OPENAI_KEY = 'SET_OPENAI_KEY',
   SET_SHOW_QUERY_BUILDER = 'SET_SHOW_QUERY_BUILDER',
   SET_QUERY_CODE = 'SET_QUERY_CODE',
-  SET_SCREEN_CAPTURED = 'SET_SCREEN_CAPTURED'
+  SET_SCREEN_CAPTURED = 'SET_SCREEN_CAPTURED',
+  SET_START_SCREEN_CAPTURE = 'SET_START_SCREEN_CAPTURE'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -70,5 +71,10 @@ export const setQueryCode = (payload: string) => ({
 
 export const setScreenCaptured = (payload: string) => ({
   type: UI_ACTIONS.SET_SCREEN_CAPTURED,
+  payload
+});
+
+export const setStartScreenCapture = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_START_SCREEN_CAPTURE,
   payload
 });

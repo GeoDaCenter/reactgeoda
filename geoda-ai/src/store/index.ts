@@ -39,6 +39,7 @@ export type GeoDaState = {
       showGridView: boolean;
       openAIKey: string;
       screenCaptured: string;
+      startScreenCapture: boolean;
       table: {
         queryBuilder?: RuleGroupType;
         queryCode?: string;

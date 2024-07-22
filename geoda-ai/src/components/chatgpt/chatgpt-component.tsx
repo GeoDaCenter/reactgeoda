@@ -4,7 +4,7 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 // import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {setScreenCaptured} from '@/actions';
+import {setScreenCaptured, setStartScreenCapture} from '@/actions';
 import {cancelOpenAI} from '@/ai/openai-utils';
 import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
 import MessageCard from '../chat/message-card';
@@ -29,7 +29,6 @@ export type ChatGPTComponentProps = {
   messages: Array<MessageModel>;
   // update message callback function
   setMessages: (messages: MessageModel[]) => void;
-  onStartCapture: () => null;
   className?: string;
 };
 
@@ -39,8 +38,7 @@ export const ChatGPTComponent = ({
   processMessage,
   speechToText,
   messages,
-  setMessages,
-  onStartCapture
+  setMessages
 }: ChatGPTComponentProps) => {
   // const intl = useIntl();
   const dispatch = useDispatch();
@@ -155,8 +153,9 @@ export const ChatGPTComponent = ({
 
   // handle on screenshot click
   const onScreenshotClick = useCallback(() => {
-    onStartCapture();
-  }, [onStartCapture]);
+    // dispatch to set startScreenCapture to true
+    dispatch(setStartScreenCapture(true));
+  }, [dispatch]);
 
   // handle stop running chat
   const stopRunningChat = () => {
