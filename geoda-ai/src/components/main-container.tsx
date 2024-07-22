@@ -168,10 +168,10 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
           const dataURL = croppedCanvas.toDataURL();
           dispatch(setScreenCaptured(dataURL));
           // save the image to file
-          const link = document.createElement('a');
-          link.download = 'screenshot.png';
-          link.href = dataURL;
-          link.click();
+          // const link = document.createElement('a');
+          // link.download = 'screenshot.png';
+          // link.href = dataURL;
+          // link.click();
         }
       });
     }
@@ -194,7 +194,6 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
         <AddDatasetModal />
         <SaveProjectModal />
       </div>
-      (
       {startScreenCapture && (
         <>
           <div
@@ -207,7 +206,6 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
           />
         </>
       )}
-      )
     </div>
   );
 }

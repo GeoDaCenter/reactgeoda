@@ -341,7 +341,7 @@ async function processRequiresAction(
                 try {
                   await openai.beta.threads.runs.cancel(thread.id, curr_run?.id || '');
                 } catch (err) {
-                  console.error(err);
+                  // console.error(err);
                 }
               }
             })
