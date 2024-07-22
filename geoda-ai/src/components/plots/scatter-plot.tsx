@@ -22,6 +22,7 @@ import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
 import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {ChartInsightButton} from '../common/chart-insight';
 
 // Register the required ECharts components
 echarts.use([
@@ -73,15 +74,19 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
 
   const title = `${variableX} vs ${variableY}`;
 
+  // generate a unique id for the chart
+  const chartId = `scatterplot-${id}`;
+
   return useMemo(
     () => (
       <AutoSizer>
         {({height, width}) => (
           <div style={{height, width}}>
-            <Card className="h-full w-full" shadow="none">
+            <Card className="h-full w-full" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">Scatter Plot</p>
                 <small className="text-default-500">{title}</small>
+                <ChartInsightButton parentElementId={chartId} />
               </CardHeader>
               <CardBody className="py-2">
                 <ReactEChartsCore
@@ -106,6 +111,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [title, option, theme, bindEvents, rendered, sourceId, id, dataId]
+    [chartId, title, option, theme, bindEvents, rendered, sourceId, id, dataId]
   );
 };

@@ -19,6 +19,7 @@ import {MAP_ID} from '@/constants';
 import {getColumnData, getDataContainer} from '@/utils/data-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {ChartInsightButton} from '../common/chart-insight';
 
 // Register the required ECharts components
 echarts.use([
@@ -72,15 +73,19 @@ export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
 
   const title = `${variableX} vs ${variableY} by ${variableSize}`;
 
+  // generate a unique id for the chart
+  const chartId = `bubble-chart-${id}`;
+
   return useMemo(
     () => (
       <AutoSizer>
         {({height, width}) => (
           <div style={{height, width}}>
-            <Card className="h-full w-full" shadow="none">
+            <Card className="h-full w-full" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">Bubble Chart</p>
                 <small className="text-default-500">{title}</small>
+                <ChartInsightButton parentElementId={chartId} />
               </CardHeader>
               <CardBody className="py-2">
                 <ReactEChartsCore
@@ -105,6 +110,6 @@ export const BubbleChart = ({props}: {props: BubbleChartProps}) => {
         )}
       </AutoSizer>
     ),
-    [title, option, theme, bindEvents, rendered, sourceId, id, dataId]
+    [chartId, title, option, theme, bindEvents, rendered, sourceId, id, dataId]
   );
 };

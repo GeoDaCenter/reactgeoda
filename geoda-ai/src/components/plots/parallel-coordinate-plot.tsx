@@ -13,6 +13,7 @@ import {getPCPChartOption} from '@/utils/plots/parallel-coordinate-utils';
 import {EChartsUpdater} from './echarts-updater';
 import {geodaBrushLink} from '@/actions';
 import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {ChartInsightButton} from '../common/chart-insight';
 
 // Register the required components
 echarts.use([CanvasRenderer, ParallelChart]);
@@ -82,12 +83,16 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
   const height =
     DEFAULT_PCP_HEIGHT + Math.min(props.variables.length - 2, 3) * PCP_HEIGHT_PER_VARIABLE;
 
+  // generate a unique id for the chart
+  const chartId = `parallel-coordinate-${props.id}`;
+
   return useMemo(
     () => (
       <Card className="my-4" shadow="none">
-        <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
+        <CardHeader className="flex-col items-start px-4 pb-0 pt-2" id={chartId}>
           <p className="text-tiny font-bold uppercase">{props.type}</p>
           <small className="text-default-500">{props.variables.join(',')}</small>
+          <ChartInsightButton parentElementId={chartId} />
         </CardHeader>
         <CardBody className="w-full py-2">
           <ReactEChartsCore
@@ -107,6 +112,7 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateProps}
       </Card>
     ),
     [
+      chartId,
       props.type,
       props.variables,
       props.id,

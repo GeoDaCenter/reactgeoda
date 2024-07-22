@@ -76,6 +76,7 @@ import {geodaBrushLink} from '@/actions';
 import {getColumnData, getDataContainer, getDataset} from '@/utils/data-utils';
 import {MAP_ID} from '@/constants';
 import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {ChartInsightButton} from '../common/chart-insight';
 
 // Register the required components
 echarts.use([
@@ -204,15 +205,19 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
     };
   }, [barDataIndexes, dataId, dispatch, histogramData, id]);
 
+  // generate a unique id for the chart
+  const chartId = `histogram-${id}`;
+
   return useMemo(
     () => (
       <AutoSizer>
         {({height, width}) => (
           <div style={{height, width}}>
-            <Card className="h-full w-full" shadow="none">
+            <Card className="h-full w-full" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">{type}</p>
                 <small className="text-default-500">{variable}</small>
+                <ChartInsightButton parentElementId={chartId} />
               </CardHeader>
               <CardBody className="py-2">
                 <ReactEChartsCore
@@ -246,6 +251,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
     [
       barDataIndexes,
       bindEvents,
+      chartId,
       dataId,
       histogramData,
       id,

@@ -47,9 +47,7 @@ export const RightPanelContainer = ({
   const dispatch = useDispatch();
 
   const askAIForHelp = async () => {
-    console.log('Ask AI for help');
     // get the element with id 'config-panel' and take a snapshot
-    // of the element
     const configPanel = document.getElementById('config-panel');
     if (configPanel) {
       const screenshot = await takeSnapshot(configPanel);
