@@ -167,6 +167,11 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
         if (croppedCanvas.toDataURL) {
           const dataURL = croppedCanvas.toDataURL();
           dispatch(setScreenCaptured(dataURL));
+          // save the image to file
+          const link = document.createElement('a');
+          link.download = 'screenshot.png';
+          link.href = dataURL;
+          link.click();
         }
       });
     }

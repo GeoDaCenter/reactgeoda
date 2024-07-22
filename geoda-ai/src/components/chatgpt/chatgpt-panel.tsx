@@ -9,7 +9,7 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {setMessages, setPropertyPanel} from '@/actions';
+import {setIsOpenAIKeyChecked, setMessages, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {mainTableNameSelector} from '@/store/selectors';
@@ -44,18 +44,23 @@ const ChatGPTPanel = () => {
   // get api key from state.root
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
 
+  const isKeyChecked = useSelector((state: GeoDaState) => state.root.uiState.isOpenAIKeyChecked);
+
   // check if openAIKey is valid
   const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
-    'checking'
+    isKeyChecked ? 'success' : 'checking'
   );
 
   useEffect(() => {
     if (openAIKey) {
       testOpenAIKey(openAIKey).then((isValid: boolean) => {
         setOpenAIKeyValid(isValid ? 'success' : 'failed');
+        if (isValid) {
+          dispatch(setIsOpenAIKeyChecked(true));
+        }
       });
     }
-  }, [openAIKey, dispatch]);
+  }, [dispatch, openAIKey]);
 
   // get messages from state.root
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);

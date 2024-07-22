@@ -38,8 +38,10 @@ export type GeoDaState = {
       showKeplerTableModal: boolean;
       showGridView: boolean;
       openAIKey: string;
+      isOpenAIKeyChecked: boolean;
       screenCaptured: string;
       startScreenCapture: boolean;
+      defaultPromptText: string;
       table: {
         queryBuilder?: RuleGroupType;
         queryCode?: string;

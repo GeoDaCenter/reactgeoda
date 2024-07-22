@@ -8,10 +8,12 @@ export enum UI_ACTIONS {
   SET_SHOW_PROPERTY_PANEL = 'SET_SHOW_PROPERTY_PANEL',
   SET_PROPERTY_PANEL = 'SET_PROPERTY_PANEL',
   SET_OPENAI_KEY = 'SET_OPENAI_KEY',
+  SET_IS_OPENAI_KEY_CHECKED = 'SET_IS_OPENAI_KEY_CHECKED',
   SET_SHOW_QUERY_BUILDER = 'SET_SHOW_QUERY_BUILDER',
   SET_QUERY_CODE = 'SET_QUERY_CODE',
   SET_SCREEN_CAPTURED = 'SET_SCREEN_CAPTURED',
-  SET_START_SCREEN_CAPTURE = 'SET_START_SCREEN_CAPTURE'
+  SET_START_SCREEN_CAPTURE = 'SET_START_SCREEN_CAPTURE',
+  SET_DEFAULT_PROMPT_TEXT = 'SET_DEFAULT_PROMPT_TEXT'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -59,6 +61,11 @@ export const setOpenAIKey = (payload: string | undefined) => ({
   payload
 });
 
+export const setIsOpenAIKeyChecked = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_IS_OPENAI_KEY_CHECKED,
+  payload
+});
+
 export const setShowQueryBuilder = (payload: boolean) => ({
   type: UI_ACTIONS.SET_SHOW_QUERY_BUILDER,
   payload
@@ -76,5 +83,10 @@ export const setScreenCaptured = (payload: string) => ({
 
 export const setStartScreenCapture = (payload: boolean) => ({
   type: UI_ACTIONS.SET_START_SCREEN_CAPTURE,
+  payload
+});
+
+export const setDefaultPromptText = (payload: string) => ({
+  type: UI_ACTIONS.SET_DEFAULT_PROMPT_TEXT,
   payload
 });

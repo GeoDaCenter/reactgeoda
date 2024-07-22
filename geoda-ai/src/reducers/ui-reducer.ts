@@ -17,8 +17,10 @@ export const INITIAL_UI_STATE = {
   showPropertyPanel: false,
   propertyPanelName: '',
   openAIKey: LOCAL_API_KEY,
+  isOpenAIKeyChecked: false,
   screenCaptured: '',
   startScreenCapture: false,
+  defaultPromptText: '',
   table: {
     showQueryBuilder: true
   }
@@ -40,6 +42,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
       return {
         ...state,
         startScreenCapture: action.payload
+      };
+    case UI_ACTIONS.SET_DEFAULT_PROMPT_TEXT:
+      return {
+        ...state,
+        defaultPromptText: action.payload
       };
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {
@@ -82,6 +89,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
       return {
         ...state,
         openAIKey: action.payload || ''
+      };
+    case UI_ACTIONS.SET_IS_OPENAI_KEY_CHECKED:
+      return {
+        ...state,
+        isOpenAIKeyChecked: action.payload
       };
     case UI_ACTIONS.SET_SHOW_QUERY_BUILDER:
       return {

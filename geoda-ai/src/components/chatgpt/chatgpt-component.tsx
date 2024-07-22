@@ -4,7 +4,7 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 // import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {setScreenCaptured, setStartScreenCapture} from '@/actions';
+import {setDefaultPromptText, setScreenCaptured, setStartScreenCapture} from '@/actions';
 import {cancelOpenAI} from '@/ai/openai-utils';
 import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
 import MessageCard from '../chat/message-card';
@@ -49,6 +49,11 @@ export const ChatGPTComponent = ({
 
   // use selector to get screenCaptured flag
   const screenCaptured = useSelector((state: GeoDaState) => state.root.uiState.screenCaptured);
+
+  // get default prompt text
+  const defaultPromptText = useSelector(
+    (state: GeoDaState) => state.root.uiState.defaultPromptText
+  );
 
   // handle send message
   const handleSend = useCallback(
@@ -99,6 +104,14 @@ export const ChatGPTComponent = ({
         },
         screenshotImage
       );
+
+      // if last message is not a custom message and is empty, remove it
+      if (newMessages.length > 0 && newMessages[newMessages.length - 1].message === '') {
+        newMessages.pop();
+      }
+
+      // reset default prompt text
+      dispatch(setDefaultPromptText(''));
     },
     [dispatch, messages, processMessage, setMessages, screenCaptured]
   );
@@ -243,6 +256,7 @@ export const ChatGPTComponent = ({
           onScreenshotClick={onScreenshotClick}
           screenCaptured={screenCaptured}
           onVoiceMessage={speechToText}
+          defaultPromptText={defaultPromptText}
         />
         <p className="px-2 text-tiny text-default-400">
           GeoDa.AI can make mistakes. Consider checking information.

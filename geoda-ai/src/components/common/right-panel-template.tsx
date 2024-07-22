@@ -1,5 +1,10 @@
-import {Divider} from '@nextui-org/react';
+import {Button, Divider, Tooltip} from '@nextui-org/react';
 import React from 'react';
+import {Icon} from '@iconify/react';
+import {takeSnapshot} from '@/utils/ui-utils';
+import {useDispatch} from 'react-redux';
+import {setDefaultPromptText, setPropertyPanel, setScreenCaptured} from '@/actions';
+import {PanelName} from '../panel/panel-container';
 
 /**
  * Create a svg icon with a gear icon.
@@ -39,8 +44,26 @@ export const RightPanelContainer = ({
   icon?: React.ReactNode;
   children: React.ReactNode;
 }) => {
+  const dispatch = useDispatch();
+
+  const askAIForHelp = async () => {
+    console.log('Ask AI for help');
+    // get the element with id 'config-panel' and take a snapshot
+    // of the element
+    const configPanel = document.getElementById('config-panel');
+    if (configPanel) {
+      const screenshot = await takeSnapshot(configPanel);
+      // dispatch the screenshot to the AI
+      dispatch(setScreenCaptured(screenshot));
+      // dispatch to set default prompt message in chat panel
+      dispatch(setDefaultPromptText('Can you tell me how to use this?'));
+      // switch to the AI panel
+      dispatch(setPropertyPanel(PanelName.CHAT_GPT));
+    }
+  };
+
   return (
-    <div className="h-scree h-full">
+    <div className="h-scree h-full" id="config-panel">
       <div className="w-full">
         <div className="space-y-1 p-4">
           <h4 className="text-medium font-medium">{title}</h4>
@@ -48,7 +71,18 @@ export const RightPanelContainer = ({
         </div>
         <Divider className="my-2" />
       </div>
-      <div className="flex flex-col" style={{height: 'calc(100% - 97px)'}}>
+      <div className="relative flex flex-col" style={{height: 'calc(100% - 97px)'}}>
+        <Tooltip content="Ask AI for help" size="sm">
+          <Button
+            className="absolute -top-12 right-1 z-10"
+            isIconOnly={true}
+            radius="full"
+            size="sm"
+            onClick={askAIForHelp}
+          >
+            <Icon icon="hugeicons:ai-book" width={18} />
+          </Button>
+        </Tooltip>
         {children}
       </div>
     </div>
