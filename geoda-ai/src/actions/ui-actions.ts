@@ -1,6 +1,7 @@
 export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
+  SET_ADD_DATASET_MODAL = 'SET_ADD_DATASET_MODAL',
   SET_SAVE_PROJECT_MODAL = 'SET_SAVE_PROJECT_MODAL',
   SET_KEPLER_TABLE_MODAL = 'SET_KEPLER_TABLE_MODAL',
   SET_GRID_VIEW = 'SET_GRID_VIEW',
@@ -19,6 +20,11 @@ export const setTheme = (payload: 'dark' | 'light') => ({
 
 export const setOpenFileModal = (payload: boolean) => ({
   type: UI_ACTIONS.SET_OPEN_FILE_MODAL,
+  payload
+});
+
+export const setAddDatasetModal = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_ADD_DATASET_MODAL,
   payload
 });
 

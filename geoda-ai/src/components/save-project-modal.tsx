@@ -13,16 +13,15 @@ import {
   CardFooter,
   Button
 } from '@nextui-org/react';
-import {tableToIPC} from 'apache-arrow';
 
 import {GeoDaState} from '../store';
 import {setSaveProjectModal} from '../actions';
-import {arrayBufferToBase64, downloadStringToFile} from '@/utils/file-utils';
+import {downloadStringToFile} from '@/utils/file-utils';
 import {MAP_ID} from '@/constants';
 import KeplerGLSchemaManager from '@kepler.gl/schemas';
-import {saveGeoDaConfig} from '@/utils/project-utils';
+import {getArrowTableAsBase64, saveGeoDaConfig} from '@/utils/project-utils';
 
-const ARROW_TABLE_CONTENT_PLACEHOLDER = '[arrow Object]';
+const ARROW_TABLE_CONTENT_PLACEHOLDER = '[arrow Object][]';
 const WEIGHTS_CONTENT_PLACEHOLDER = '[weights Object][]';
 
 const SaveProjectComponent = () => {
@@ -34,18 +33,15 @@ const SaveProjectComponent = () => {
   // get the root from redux store
   const root = useSelector((state: GeoDaState) => state.root);
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  // get raw file data from redux store
-  const rawFileData = useMemo(() => root.file.rawFileData, [root.file.rawFileData]);
 
-  // get the base64 string of the arrow table
-  const arrowTableString = useMemo(() => {
-    if (rawFileData && rawFileData.arrowTable) {
-      const bufferArray = tableToIPC(rawFileData.arrowTable);
-      return arrayBufferToBase64(bufferArray.buffer);
-    }
-    console.error('arrow table is not available');
-    return '';
-  }, [rawFileData]);
+  // get the datasets to save
+  const datasets = root.datasets.map(d => {
+    return {
+      fileName: d.fileName,
+      dataId: d.dataId,
+      arrowTable: getArrowTableAsBase64(d.arrowTable)
+    };
+  });
 
   // get the kepler config to save
   const savedKeplerConfig = useMemo(() => {
@@ -62,12 +58,11 @@ const SaveProjectComponent = () => {
   // create a project json string
   const projectJson = useMemo(() => {
     return {
-      fileName: rawFileData.fileName,
-      arrowTable: arrowTableString,
+      datasets,
       keplerConfig: savedKeplerConfig,
       geodaConfig: savedGeoDaConfig
     };
-  }, [arrowTableString, rawFileData.fileName, savedGeoDaConfig, savedKeplerConfig]);
+  }, [datasets, savedGeoDaConfig, savedKeplerConfig]);
 
   // create a preview of the project json string
   const projectPreview = useMemo(() => {
@@ -75,7 +70,7 @@ const SaveProjectComponent = () => {
     // replace projectJson.geodaConfig.weighs with '[weights Object]'
     const preview = {
       ...projectJson,
-      arrowTable: ARROW_TABLE_CONTENT_PLACEHOLDER,
+      datasets: ARROW_TABLE_CONTENT_PLACEHOLDER,
       geodaConfig: {
         ...projectJson.geodaConfig,
         weights: WEIGHTS_CONTENT_PLACEHOLDER
@@ -108,10 +103,10 @@ const SaveProjectComponent = () => {
   // handle save button click
   const onSaveClick = () => {
     // save the project
-    // replace ARROW_TABLE_CONTENT_PLACEHOLDER with arrowTableString
+    // replace ARROW_TABLE_CONTENT_PLACEHOLDER with datasets
     // replace WEIGHTS_CONTENT_PLACEHOLDER with weights
     const project = code
-      .replace(ARROW_TABLE_CONTENT_PLACEHOLDER, arrowTableString)
+      .replace(`"${ARROW_TABLE_CONTENT_PLACEHOLDER}"`, JSON.stringify(datasets))
       .replace(`"${WEIGHTS_CONTENT_PLACEHOLDER}"`, JSON.stringify(savedGeoDaConfig.weights));
 
     // create a file name 'geoda-[current date and time].json'

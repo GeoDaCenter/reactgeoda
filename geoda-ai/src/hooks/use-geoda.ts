@@ -22,7 +22,7 @@ export function useGeoDa() {
     const neighbors = [[1], [0], [], [4, 5], [3, 5], [3, 4]];
     const perm = 99;
 
-    const result = await localMoran(data, neighbors, perm);
+    const result = await localMoran({data, neighbors, permutation: perm});
     console.log('local moran result:', result, geodawasm);
     return result;
   }, []);

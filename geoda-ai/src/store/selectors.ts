@@ -6,10 +6,10 @@ import {getDataContainer} from '@/utils/data-utils';
 type StateSelector<R> = Selector<GeoDaState, R>;
 
 export const mainTableNameSelector: StateSelector<string> = (state: GeoDaState) =>
-  state.root.file?.rawFileData?.fileName;
+  state.root.datasets?.length > 0 ? state.root.datasets[0].fileName : '';
 
 export const mainDataIdSelector: StateSelector<string> = (state: GeoDaState) =>
-  state.root.file?.rawFileData?.dataId || '';
+  state.root.datasets?.length > 0 ? state.root.datasets[0].dataId || '' : '';
 
 export const geodaUIStateSelector: StateSelector<GeoDaState['root']['uiState']> = (
   state: GeoDaState
@@ -17,7 +17,9 @@ export const geodaUIStateSelector: StateSelector<GeoDaState['root']['uiState']> 
 
 // create a memoized selector to get kepler data container
 export const keplerDataContainerSelector = createSelector(
-  (state: GeoDaState) => state.root.file.rawFileData?.fileName,
-  (state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets,
-  (tableName, dataContainer) => getDataContainer(tableName, dataContainer)
+  [
+    (state: GeoDaState) => state.root.datasets[0].fileName,
+    (state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets
+  ],
+  (tableName, datasets) => getDataContainer(tableName, datasets)
 );

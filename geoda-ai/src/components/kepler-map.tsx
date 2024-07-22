@@ -1,15 +1,13 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
 import KeplerGl from '@kepler.gl/components';
 import {themeLT, theme as themeDK} from '@kepler.gl/styles';
+import {useTheme as useNextTheme} from 'next-themes';
 
 import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
-import {useSelector} from 'react-redux';
-import {GeoDaState} from '@/store';
 
 const KeplerMap = () => {
-  // use selector to get theme
-  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
+  const {theme} = useNextTheme();
 
   // trigger use hooks to load wasm files
   useGeoDa();

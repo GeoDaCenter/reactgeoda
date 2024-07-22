@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Badge, Button, Tooltip, Avatar} from '@nextui-org/react';
 
@@ -7,7 +7,6 @@ import {
   IconBoxplot,
   IconBubbleChart,
   IconChatgpt,
-  IconChoropleth,
   IconHistogram,
   IconLisa,
   IconMap,
@@ -17,9 +16,11 @@ import {
   IconTable,
   IconWeights,
   IconSpreg,
-  IconSave
+  IconSave,
+  IconSpatialJoin
 } from './navitagor-icons';
 import {
+  setAddDatasetModal,
   setKeplerTableModal,
   setOpenFileModal,
   setPropertyPanel,
@@ -29,7 +30,7 @@ import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
 import {ThemeSwitcher} from '../buttons/theme-switch';
 import {DashboardSwitcher} from '../buttons/dashboard-switch';
-import {IconAdd} from '../icons/add';
+import {IconAddDataset} from '../icons/add';
 
 export function Navigator() {
   const dispatch = useDispatch();
@@ -38,14 +39,10 @@ export function Navigator() {
   const showSaveProjectModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showSaveProjectModal
   );
-  const fileName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
-
-  const [isFileLoaded, setIsFileLoaded] = useState(Boolean(fileName));
-
-  // monitor fileName and set isFileLoaded state
-  useEffect(() => {
-    setIsFileLoaded(Boolean(fileName));
-  }, [fileName]);
+  const showAddDatasetModal = useSelector(
+    (state: GeoDaState) => state.root.uiState.showAddDatasetModal
+  );
+  const isFileLoaded = useSelector((state: GeoDaState) => state.root.datasets?.length > 0);
 
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
@@ -103,10 +100,13 @@ export function Navigator() {
     [dispatch, showSaveProjectModal]
   );
 
-  const onAddCallback = useCallback((event: React.MouseEvent) => {
-    // dispatch(setOpenFileModal(!showOpenModal));
-    event.stopPropagation();
-  }, []);
+  const onAddCallback = useCallback(
+    (event: React.MouseEvent) => {
+      dispatch(setAddDatasetModal(!showAddDatasetModal));
+      event.stopPropagation();
+    },
+    [dispatch, showAddDatasetModal]
+  );
 
   const onTableCallback = useCallback(
     (event: React.MouseEvent) => {
@@ -193,7 +193,7 @@ export function Navigator() {
             onClick={onAddCallback}
             isDisabled={!isFileLoaded}
           >
-            <IconAdd />
+            <IconAddDataset />
           </Button>
         </Tooltip>
         <Tooltip key="tableTooltip" placement="right" content="Table">
@@ -240,7 +240,19 @@ export function Navigator() {
             </Button>
           </Tooltip>
         </Badge>
-        <Tooltip key="customMapTooltip" placement="right" content="Custom Map">
+        <Tooltip key="spatialJoinTooltip" placement="right" content="Spatial Join">
+          <Button
+            isIconOnly
+            size="sm"
+            className="bg-transparent"
+            id="icon-spatial-join"
+            onClick={onClickIconCallback}
+            isDisabled={!isFileLoaded}
+          >
+            <IconSpatialJoin />
+          </Button>
+        </Tooltip>
+        {/* <Tooltip key="customMapTooltip" placement="right" content="Custom Map">
           <Button
             isIconOnly
             size="sm"
@@ -251,7 +263,7 @@ export function Navigator() {
           >
             <IconChoropleth />
           </Button>
-        </Tooltip>
+        </Tooltip> */}
         <Badge
           color="danger"
           content={newHistogramCount}

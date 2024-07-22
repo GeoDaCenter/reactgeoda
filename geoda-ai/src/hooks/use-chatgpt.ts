@@ -12,6 +12,7 @@ import {
   translateVoiceToText
 } from '@/ai/openai-utils';
 import {useDuckDB} from './use-duckdb';
+import {mainTableNameSelector} from '@/store/selectors';
 
 /**
  * Create a message from custom function call
@@ -60,7 +61,7 @@ function createMessageFromCustomFunctionCall({
  * custom hook to use ChatGPT
  */
 export function useChatGPT() {
-  const tableName = useSelector((state: GeoDaState) => state.root.file.rawFileData?.fileName);
+  const tableName = useSelector(mainTableNameSelector);
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
   // use selector to get dataContainer

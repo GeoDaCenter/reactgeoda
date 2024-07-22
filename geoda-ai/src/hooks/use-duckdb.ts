@@ -5,7 +5,7 @@ import * as duckdb from '@duckdb/duckdb-wasm';
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
 // @ts-expect-error
 import duckdb_wasm_next from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm';
-import {RawFileDataProps} from '@/actions';
+import {DatasetProps} from '@/actions';
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
@@ -222,40 +222,37 @@ export function useDuckDB() {
     }
   }, []);
 
-  const importArrowFile = useCallback(
-    async ({fileName: tableName, arrowTable}: RawFileDataProps) => {
-      if (db) {
-        const conn = await db.connect();
+  const importArrowFile = useCallback(async ({fileName: tableName, arrowTable}: DatasetProps) => {
+    if (db) {
+      const conn = await db.connect();
 
-        const arrowResult = await conn.query('select * from information_schema.tables');
-        const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
+      const arrowResult = await conn.query('select * from information_schema.tables');
+      const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
 
-        // check if tableName is already in the database
-        if (!allTables.some((table: any) => table.table_name === tableName)) {
-          try {
-            // file to ArrayBuffer
-            // const buffer = await file.arrayBuffer();
-            // create a arrow table from File object
-            // const arrowTable = tableFromIPC(buffer);
-            // create a table in the database from arrowTable
-            await conn.insertArrowTable(arrowTable, {name: tableName});
+      // check if tableName is already in the database
+      if (!allTables.some((table: any) => table.table_name === tableName)) {
+        try {
+          // file to ArrayBuffer
+          // const buffer = await file.arrayBuffer();
+          // create a arrow table from File object
+          // const arrowTable = tableFromIPC(buffer);
+          // create a table in the database from arrowTable
+          await conn.insertArrowTable(arrowTable, {name: tableName});
 
-            // add a new column to the table for the row index
-            await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
-            // generate an ascending sequence starting from 1
-            await conn.query('CREATE SEQUENCE serial');
-            // Use nextval to update the row_index column
-            await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
-          } catch (error) {
-            console.error(error);
-          }
+          // add a new column to the table for the row index
+          await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
+          // generate an ascending sequence starting from 1
+          await conn.query('CREATE SEQUENCE serial');
+          // Use nextval to update the row_index column
+          await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
+        } catch (error) {
+          console.error(error);
         }
-        // close the connection
-        await conn.close();
       }
-    },
-    []
-  );
+      // close the connection
+      await conn.close();
+    }
+  }, []);
 
   return {query, queryValues, addColumn, importArrowFile, addColumnWithValues};
 }

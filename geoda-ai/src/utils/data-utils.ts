@@ -4,6 +4,7 @@ import {KeplerTable, Datasets} from '@kepler.gl/table';
 import {DataContainerInterface} from '../../../../csds_kepler/src/utils/src/data-container-interface';
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
+import {mainTableNameSelector} from '@/store/selectors';
 
 /**
  * Get the names of the integer and string fields from the kepler.gl layer
@@ -211,14 +212,14 @@ export function getDataContainer(
 }
 
 export function getLayer(state: GeoDaState) {
-  const tableName = state.root.file?.rawFileData?.fileName;
+  const tableName = mainTableNameSelector(state);
   return state.keplerGl[MAP_ID]?.visState?.layers.find((layer: Layer) =>
     tableName.startsWith(layer.config.label)
   );
 }
 
 export function getDataset(state: GeoDaState) {
-  const tableName = state.root.file?.rawFileData?.fileName;
+  const tableName = mainTableNameSelector(state);
   const datasets: KeplerTable[] = Object.values(state.keplerGl[MAP_ID]?.visState?.datasets);
   const dataset = datasets.find((dataset: KeplerTable) => dataset.label === tableName);
   return dataset;

@@ -11,6 +11,7 @@ import {SaveProjectModal} from '@/components/save-project-modal';
 
 import dynamic from 'next/dynamic';
 const OpenFileModal = dynamic(() => import('@/components/open-file-modal'), {ssr: false});
+import {AddDatasetModal} from '@/components/open-file-modal';
 
 function MainConatinerWrapper({
   projectUrl,
@@ -31,6 +32,7 @@ function MainConatinerWrapper({
         </div>
         <PanelContainer onStartCapture={onStartCapture} />
         <OpenFileModal projectUrl={projectUrl} />
+        <AddDatasetModal />
         <SaveProjectModal />
       </div>
     ),
@@ -39,7 +41,7 @@ function MainConatinerWrapper({
   );
 }
 
-export function MainConatiner({projectUrl}: {projectUrl: string | null}) {
+export default function MainConatiner({projectUrl}: {projectUrl: string | null}) {
   const dispatch = useDispatch();
 
   const onScreenCapture = (url: string) => {

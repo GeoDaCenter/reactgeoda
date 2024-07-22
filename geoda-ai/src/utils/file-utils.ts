@@ -22,7 +22,7 @@ import {
   RecordBatch as ArrowRecordBatch
 } from 'apache-arrow';
 import {generateHashIdFromString} from '@kepler.gl/utils';
-import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
+import {_BrowserFileSystem as BrowserFileSystem, parseInBatches} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {_GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
@@ -30,9 +30,12 @@ import {
   FileCacheItem,
   ProcessFileDataContent,
   isArrowData,
+  makeProgressIterator,
   processFileData,
+  readBatch,
   readFileInBatches
 } from '@kepler.gl/processors';
+import {ProcessDropFilesOutput} from './project-utils';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -59,16 +62,17 @@ const SHAPEFILE_LOADER_OPTIONS = {
 };
 
 export async function loadArrowFile(file: File) {
+  // const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
   const loadOptions = {
     arrow: ARROW_LOADER_OPTIONS,
     metadata: true,
     gis: {reproject: true}
   };
-
-  const fileCache: FileCacheItem[] = [];
   const loaders = [ArrowLoader];
+  const batchIterator = await parseInBatches(file, loaders, loadOptions);
+  const progressIterator = makeProgressIterator(batchIterator, {size: file.size});
+  const batches = readBatch(progressIterator, file.name);
 
-  const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
   let result = await batches.next();
   let content: ProcessFileDataContent = {data: [], fileName: ''};
   let parsedData: FileCacheItem[] = [];
@@ -94,7 +98,13 @@ export async function loadArrowFile(file: File) {
   };
 }
 
-export async function loadDroppedFile(files: File[]) {
+/**
+ * Handle dropped files, and return the file name, arrowTable and arrowFormatData
+ * We assume that only one dataset will be dropped at a time
+ * @param files The files dropped by user
+ * @returns
+ */
+export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOutput> {
   const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
   const fileCache: FileCacheItem[] = [];
   const droppedFilesFS = new BrowserFileSystem(files);
@@ -145,13 +155,17 @@ export async function loadDroppedFile(files: File[]) {
 
   if (isArrowData(content.data)) {
     const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
-    return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+    return {datasets: [{fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]}]};
   }
 
   // convert other spatial data format e.g. GeoJSON, Shapefile to arrow table
   return {
-    fileName: content.fileName,
-    ...convertFileCacheItemToArrowTable(parsedData[0])
+    datasets: [
+      {
+        fileName: content.fileName,
+        ...convertFileCacheItemToArrowTable(parsedData[0])
+      }
+    ]
   };
 }
 
@@ -206,7 +220,6 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   // generate unique id using fileName string
   const id = generateHashIdFromString(fileCacheItem.info.label);
   fileCacheItem.info.id = id;
-  console.log('fileCacheItem:', fileCacheItem);
   // fileCacheItem.data.fields = [fileCacheItem.data.fields[0]];
   return {arrowTable, arrowFormatData: fileCacheItem};
 }

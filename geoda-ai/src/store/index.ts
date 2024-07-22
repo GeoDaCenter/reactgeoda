@@ -9,11 +9,11 @@ import {Layout} from 'react-grid-layout';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 
 import keplerLanguageMiddleware from './language-middleware';
-import rootReducer from '../reducers/index';
+import geodaReducer from '../reducers/index';
 import {WeightsProps} from '@/actions/weights-actions';
 import {PlotProps} from '@/actions/plot-actions';
 import {RegressionProps} from '@/actions/regression-actions';
-import {RawFileDataProps} from '@/actions';
+import {DatasetProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 import {RuleGroupType} from 'react-querybuilder';
@@ -25,16 +25,15 @@ import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
   root: {
-    file: {
-      rawFileData: RawFileDataProps;
-      fileData: any;
-    };
+    defaultDatasetId: string;
+    datasets: Array<DatasetProps>;
     language: string;
     uiState: {
       theme: 'light' | 'dark';
       showPropertyPanel: boolean;
       propertyPanelName: string;
       showOpenFileModal: boolean;
+      showAddDatasetModal: boolean;
       showSaveProjectModal: boolean;
       showKeplerTableModal: boolean;
       showGridView: boolean;
@@ -116,7 +115,7 @@ const customizedKeplerGlReducer = keplerGlReducer
 
 export const reducers = combineReducers({
   keplerGl: customizedKeplerGlReducer,
-  root: rootReducer
+  root: geodaReducer
 });
 
 // Customize logger
