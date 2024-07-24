@@ -1,13 +1,20 @@
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {datasetsSelector} from '@/store/selectors';
 import {WarningBox, WarningType} from '../common/warning-box';
 import React from 'react';
 import {Card, CardBody, Tab, Tabs} from '@nextui-org/react';
 import {SpatialCountPanel} from './spatial-count-panel';
+import {setAddDatasetModal} from '../../actions';
 
 export function SpatialJoinPanel() {
   const datasets = useSelector(datasetsSelector);
+  const dispatch = useDispatch();
+
+  const onClickWarningBox = () => {
+    // dispatch to show add dataset modal
+    dispatch(setAddDatasetModal(true));
+  };
 
   return (
     <RightPanelContainer
@@ -18,6 +25,7 @@ export function SpatialJoinPanel() {
         <WarningBox
           message="Please load at least two datasets to perform spatial count."
           type={WarningType.WARNING}
+          onClick={onClickWarningBox}
         />
       ) : (
         <div className="flex h-full w-full flex-col overflow-y-auto p-4">
