@@ -7,8 +7,6 @@ import {
   Float64 as ArrowFloat,
   Int32 as ArrowInteger,
   Bool as ArrowBool,
-  Date_ as ArrowDate,
-  DateUnit as ArrowDateUnit,
   List as ArrowList,
   Utf8 as ArrowString,
   makeVector,
@@ -239,13 +237,14 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     const arrowField = new ArrowField(name, new ArrowBool());
     const arrowVector = makeVector(new Uint8Array(values as number[]));
     return {arrowField, arrowVector};
-  } else if (type === ALL_FIELD_TYPES.date) {
-    const arrowField = new ArrowField(name, new ArrowDate(ArrowDateUnit.DAY));
-    // @ts-ignore fix me
-    const arrowVector = vectorFromArray(values.map(v => new Date(v)));
-    return {arrowField, arrowVector};
+    // NOTE: kepler.gl use new Date(raw value) for date and timestamp type, so we need to store raw values here
+    // } else if (type === ALL_FIELD_TYPES.date) {
+    //   const arrowField = new ArrowField(name, new ArrowDate(ArrowDateUnit.DAY));
+    //   // @ts-ignore fix me
+    //   const arrowVector = vectorFromArray(values.map(v => new Date(v)));
+    //   return {arrowField, arrowVector};
     // } else if (type === ALL_FIELD_TYPES.timestamp) {
-    //   const arrowField = new ArrowField(name, new ArrowTimestamp(ArrowTimeUnit.SECOND));
+    //   const arrowField = new ArrowField(name, new TimestampSecond());
     //   const arrowVector = vectorFromArray(
     //     // @ts-ignore fix me
     //     values.map(v => new Date(v)),
