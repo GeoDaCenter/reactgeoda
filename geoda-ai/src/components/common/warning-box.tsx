@@ -135,3 +135,14 @@ export function WarningBox(props: WarningBoxProps) {
     </div>
   ) : null;
 }
+
+export function SuccessBox(props: WarningBoxProps) {
+  return (
+    <div className="warning-box flex flex-row bg-green-50 p-2 text-sm text-green-800 dark:bg-gray-800 dark:text-green-300">
+      <div className="warning-icon p-1">
+        <CheckIcon />
+      </div>
+      <div className="warning-message flex-grow p-1">{props.message}</div>
+    </div>
+  );
+}

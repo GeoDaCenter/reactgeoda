@@ -1,10 +1,13 @@
 import {VisState} from '@kepler.gl/schemas';
-import {GeojsonLayer, Layer} from '@kepler.gl/layers';
-import {KeplerTable, Datasets} from '@kepler.gl/table';
+import {GeojsonLayer, Layer, PointLayer} from '@kepler.gl/layers';
+import {KeplerTable, Datasets as KeplerDatasets} from '@kepler.gl/table';
 import {DataContainerInterface} from '../../../../csds_kepler/src/utils/src/data-container-interface';
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
-
+import {mainTableNameSelector} from '@/store/selectors';
+import {DatasetProps as GeoDaDataset} from '@/actions';
+import {BinaryFeatureCollection} from '@loaders.gl/schema';
+import {getBinaryGeometryTemplate} from '@loaders.gl/arrow';
 /**
  * Get the names of the integer and string fields from the kepler.gl layer
  * @param tableName the name of the table
@@ -52,6 +55,10 @@ export function isGeojsonLayer(layer: Layer): layer is GeojsonLayer {
   return layer.type === 'geojson';
 }
 
+export function isPointLayer(layer: Layer): layer is PointLayer {
+  return layer.type === 'point';
+}
+
 /**
  * Get the names of the numeric fields from the kepler.gl layer
  * @param tableName the name of the table
@@ -85,7 +92,7 @@ export function getNumericFieldNames(layer: Layer): Array<string> {
 export function getColumnDataFromKeplerLayer(
   tableName: string,
   columnName: string,
-  datasets: Datasets
+  datasets: KeplerDatasets
 ): Array<number | string> {
   // get dataset from datasets if dataset.label === tableName
   const dataset = Object.values(datasets).find(
@@ -187,21 +194,29 @@ export function getColumnData(
     }
 
     // get column data from dataContainer
-    const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
-    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
-      // handle error
-      return [];
-    }
-
-    return columnData;
+    return getColumnDataByIndex(columnIndex, dataContainer);
   }
 
   return [];
 }
 
+export function getColumnDataByIndex(
+  columnIndex: number,
+  dataContainer: DataContainerInterface | null
+) {
+  if (dataContainer) {
+    const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
+    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+      return [];
+    }
+    return columnData;
+  }
+  return [];
+}
+
 export function getDataContainer(
   tableName: string,
-  datasets: Datasets
+  datasets: KeplerDatasets
 ): DataContainerInterface | null {
   // get dataset from datasets if dataset.label === tableName
   const dataset = Object.values(datasets).find(
@@ -211,14 +226,14 @@ export function getDataContainer(
 }
 
 export function getLayer(state: GeoDaState) {
-  const tableName = state.root.file?.rawFileData?.fileName;
+  const tableName = mainTableNameSelector(state);
   return state.keplerGl[MAP_ID]?.visState?.layers.find((layer: Layer) =>
     tableName.startsWith(layer.config.label)
   );
 }
 
 export function getDataset(state: GeoDaState) {
-  const tableName = state.root.file?.rawFileData?.fileName;
+  const tableName = mainTableNameSelector(state);
   const datasets: KeplerTable[] = Object.values(state.keplerGl[MAP_ID]?.visState?.datasets);
   const dataset = datasets.find((dataset: KeplerTable) => dataset.label === tableName);
   return dataset;
@@ -227,4 +242,77 @@ export function getDataset(state: GeoDaState) {
 // typeguard function to check if array is number[]
 export function isNumberArray(array: Array<number | string>): array is number[] {
   return array.every(item => typeof item === 'number');
+}
+
+export function getDatasetName(datasets: GeoDaDataset[], dataId: string): string {
+  const dataset = datasets.find(dataset => dataset.dataId === dataId);
+  return dataset ? dataset.fileName : '';
+}
+
+export function getBinaryGeometryTypeFromPointLayer() {
+  return {
+    point: true,
+    line: false,
+    polygon: false
+  };
+}
+
+export function getBinaryGeometriesFromPointLayer(
+  layer: PointLayer,
+  dataset: KeplerTable
+): BinaryFeatureCollection[] {
+  const {lat, lng} = layer.config.columns;
+
+  // get column data from the kepler.gl dataset
+  const latData = getColumnDataByIndex(lat.fieldIdx, dataset.dataContainer);
+  const lngData = getColumnDataByIndex(lng.fieldIdx, dataset.dataContainer);
+
+  // compose positions by combining lat and lng into a Float64Array
+  const positions = new Float64Array(latData.length * 2);
+  for (let i = 0; i < latData.length; i++) {
+    positions[i * 2] = lngData[i];
+    positions[i * 2 + 1] = latData[i];
+  }
+
+  // create featureIds
+  const featureIds = new Uint32Array(latData.length);
+  const globalFeatureIds = new Uint32Array(latData.length);
+  for (let i = 0; i < latData.length; i++) {
+    featureIds[i] = i;
+    globalFeatureIds[i] = i;
+  }
+
+  // create properties
+  const properties = new Array(latData.length).fill({index: 0});
+  for (let i = 0; i < latData.length; i++) {
+    properties[i].index = i;
+  }
+
+  return [
+    {
+      shape: 'binary-feature-collection',
+      points: {
+        ...getBinaryGeometryTemplate(),
+        type: 'Point',
+        globalFeatureIds: {value: globalFeatureIds, size: 1},
+        positions: {
+          value: positions,
+          size: 2
+        },
+        properties,
+        featureIds: {value: featureIds, size: 1}
+      },
+      lines: {
+        ...getBinaryGeometryTemplate(),
+        type: 'LineString',
+        pathIndices: {value: new Uint16Array(0), size: 1}
+      },
+      polygons: {
+        ...getBinaryGeometryTemplate(),
+        type: 'Polygon',
+        polygonIndices: {value: new Uint16Array(0), size: 1},
+        primitivePolygonIndices: {value: new Uint16Array(0), size: 1}
+      }
+    }
+  ];
 }

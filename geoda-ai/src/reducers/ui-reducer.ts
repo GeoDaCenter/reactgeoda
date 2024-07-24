@@ -7,40 +7,26 @@ export type UiAction = {
   payload: string | boolean;
 };
 
-const LOCAL_STORAGE_KEY_UI_STATE = 'geoda-ai-ui';
-
-// get initial state
-function getInitialState() {
-  const initialState = {
-    theme: 'dark',
-    showOpenFileModal: false,
-    showSaveProjectModal: false,
-    showKeplerTableModal: false,
-    showGridView: false,
-    showPropertyPanel: false,
-    propertyPanelName: '',
-    openAIKey: LOCAL_API_KEY,
-    screenCaptured: '',
-    table: {
-      showQueryBuilder: true
-    }
-  };
-  // update from LocalStorage
-  const uiLocalStorage = localStorage.getItem(LOCAL_STORAGE_KEY_UI_STATE);
-  if (uiLocalStorage) {
-    const uiObject = JSON.parse(uiLocalStorage);
-    return {
-      ...initialState,
-      ...('theme' in uiObject ? {theme: uiObject.theme} : {}),
-      ...('openAIKey' in uiObject ? {openAIKey: uiObject.openAIKey} : {})
-    };
+export const INITIAL_UI_STATE = {
+  theme: 'dark',
+  showOpenFileModal: false,
+  showAddDatasetModal: false,
+  showSaveProjectModal: false,
+  showKeplerTableModal: false,
+  showGridView: false,
+  showPropertyPanel: false,
+  propertyPanelName: '',
+  openAIKey: LOCAL_API_KEY,
+  isOpenAIKeyChecked: false,
+  screenCaptured: '',
+  startScreenCapture: false,
+  defaultPromptText: '',
+  table: {
+    showQueryBuilder: true
   }
-  return initialState;
-}
+};
 
-const INITIAL_UI_STATE = getInitialState();
-
-function uiUpdater(state: any, action: UiAction) {
+export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
   switch (action.type) {
     case UI_ACTIONS.SET_THEME:
       return {
@@ -52,10 +38,25 @@ function uiUpdater(state: any, action: UiAction) {
         ...state,
         screenCaptured: action.payload
       };
+    case UI_ACTIONS.SET_START_SCREEN_CAPTURE:
+      return {
+        ...state,
+        startScreenCapture: action.payload
+      };
+    case UI_ACTIONS.SET_DEFAULT_PROMPT_TEXT:
+      return {
+        ...state,
+        defaultPromptText: action.payload
+      };
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {
         ...state,
         showOpenFileModal: action.payload
+      };
+    case UI_ACTIONS.SET_ADD_DATASET_MODAL:
+      return {
+        ...state,
+        showAddDatasetModal: action.payload
       };
     case UI_ACTIONS.SET_SAVE_PROJECT_MODAL:
       return {
@@ -89,6 +90,11 @@ function uiUpdater(state: any, action: UiAction) {
         ...state,
         openAIKey: action.payload || ''
       };
+    case UI_ACTIONS.SET_IS_OPENAI_KEY_CHECKED:
+      return {
+        ...state,
+        isOpenAIKeyChecked: action.payload
+      };
     case UI_ACTIONS.SET_SHOW_QUERY_BUILDER:
       return {
         ...state,
@@ -108,12 +114,4 @@ function uiUpdater(state: any, action: UiAction) {
     default:
       return state;
   }
-}
-export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
-  const updateState = uiUpdater(state, action);
-
-  // save uiState to LocalStorage when it changes
-  localStorage.setItem(LOCAL_STORAGE_KEY_UI_STATE, JSON.stringify(updateState));
-
-  return updateState;
 };

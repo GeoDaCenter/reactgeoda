@@ -6,7 +6,7 @@ import {AudioRecorder, useAudioRecorder} from 'react-audio-voice-recorder';
 import {Button, Tooltip, ScrollShadow, Badge} from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 
-import {cn} from './cn';
+import {cn} from '../common/cn';
 
 import PromptInput from './prompt-input';
 
@@ -16,6 +16,7 @@ type PromptInputWithBottomActionsProps = {
   onScreenshotClick?: () => void;
   enableAttachFile?: boolean;
   screenCaptured?: string;
+  defaultPromptText?: string;
 };
 
 export default function Component({
@@ -23,7 +24,8 @@ export default function Component({
   onVoiceMessage,
   onScreenshotClick,
   enableAttachFile,
-  screenCaptured
+  screenCaptured,
+  defaultPromptText = ''
 }: PromptInputWithBottomActionsProps) {
   const ideas = [
     {
@@ -44,7 +46,7 @@ export default function Component({
     }
   ];
 
-  const [prompt, setPrompt] = React.useState<string>('');
+  const [prompt, setPrompt] = React.useState<string>(defaultPromptText);
 
   const onSendClick = () => {
     onSendMessage(prompt);

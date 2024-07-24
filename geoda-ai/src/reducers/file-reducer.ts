@@ -1,56 +1,22 @@
-import {ProcessorResult} from '@kepler.gl/types';
-import {FILE_ACTIONS} from '../actions';
+import {FILE_ACTIONS, DatasetProps} from '../actions';
 
-export type FileStateProps = {
-  fileData: Array<ProcessorResult>;
-  rawFileData: any;
+export type DatasetsAction = {
+  type: string;
+  payload: DatasetProps;
 };
 
-export type FileAction = {
-  type: FILE_ACTIONS;
-  payload: {
-    processedData: ProcessorResult;
-    rawData: any;
-  };
-};
+const INITIAL_DATASETS_STATE: DatasetProps[] = [];
 
-type SetFileDataActionPayload = {
-  payload: ProcessorResult[];
-};
-
-// create a reduce function to handle SET_FILE_DATA action
-function setFileDataUpdater(
-  state: FileStateProps,
-  action: SetFileDataActionPayload
-): FileStateProps {
-  const fileData = action.payload;
-
-  return {
-    ...state,
-    fileData
-  };
+// updater function to set dataset
+export function addDatasetUpdater(state: DatasetProps[], action: {payload: DatasetProps}) {
+  // state should be empty, when setting a new dataset, it should be the only dataset
+  return [...state, action.payload];
 }
 
-function saveProjectUpdater(state: FileStateProps): FileStateProps {
-  return state;
-}
-
-const initialState: FileStateProps = {
-  fileData: [],
-  rawFileData: null
-};
-
-const fileReducer = (state = initialState, action: any) => {
+const fileReducer = (state = INITIAL_DATASETS_STATE, action: DatasetsAction) => {
   switch (action.type) {
-    case FILE_ACTIONS.SET_FILE_DATA:
-      return setFileDataUpdater(state, action);
-    case FILE_ACTIONS.SET_RAW_FILE_DATA:
-      return {
-        ...state,
-        rawFileData: action.payload
-      };
-    case FILE_ACTIONS.SAVE_PROJECT:
-      return saveProjectUpdater(state);
+    case FILE_ACTIONS.ADD_DATASET:
+      return addDatasetUpdater(state, action);
     default:
       return state;
   }

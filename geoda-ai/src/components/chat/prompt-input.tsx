@@ -6,7 +6,7 @@ import React from 'react';
 // eslint-disable-next-line no-duplicate-imports
 import {Textarea} from '@nextui-org/react';
 
-import {cn} from './cn';
+import {cn} from '../common/cn';
 
 const PromptInput = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ({classNames = {}, ...props}, ref) => {

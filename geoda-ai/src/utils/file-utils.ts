@@ -9,8 +9,6 @@ import {
   Bool as ArrowBool,
   Date_ as ArrowDate,
   DateUnit as ArrowDateUnit,
-  Timestamp as ArrowTimestamp,
-  TimeUnit as ArrowTimeUnit,
   List as ArrowList,
   Utf8 as ArrowString,
   makeVector,
@@ -22,7 +20,7 @@ import {
   RecordBatch as ArrowRecordBatch
 } from 'apache-arrow';
 import {generateHashIdFromString} from '@kepler.gl/utils';
-import {_BrowserFileSystem as BrowserFileSystem} from '@loaders.gl/core';
+import {_BrowserFileSystem as BrowserFileSystem, parseInBatches} from '@loaders.gl/core';
 import {ShapefileLoader} from '@loaders.gl/shapefile';
 import {CSVLoader} from '@loaders.gl/csv';
 import {_GeoJSONLoader as GeoJSONLoader} from '@loaders.gl/json';
@@ -30,9 +28,12 @@ import {
   FileCacheItem,
   ProcessFileDataContent,
   isArrowData,
+  makeProgressIterator,
   processFileData,
+  readBatch,
   readFileInBatches
 } from '@kepler.gl/processors';
+import {ProcessDropFilesOutput} from './project-utils';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -59,16 +60,17 @@ const SHAPEFILE_LOADER_OPTIONS = {
 };
 
 export async function loadArrowFile(file: File) {
+  // const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
   const loadOptions = {
     arrow: ARROW_LOADER_OPTIONS,
     metadata: true,
     gis: {reproject: true}
   };
-
-  const fileCache: FileCacheItem[] = [];
   const loaders = [ArrowLoader];
+  const batchIterator = await parseInBatches(file, loaders, loadOptions);
+  const progressIterator = makeProgressIterator(batchIterator, {size: file.size});
+  const batches = readBatch(progressIterator, file.name);
 
-  const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
   let result = await batches.next();
   let content: ProcessFileDataContent = {data: [], fileName: ''};
   let parsedData: FileCacheItem[] = [];
@@ -94,7 +96,13 @@ export async function loadArrowFile(file: File) {
   };
 }
 
-export async function loadDroppedFile(files: File[]) {
+/**
+ * Handle dropped files, and return the file name, arrowTable and arrowFormatData
+ * We assume that only one dataset will be dropped at a time
+ * @param files The files dropped by user
+ * @returns
+ */
+export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOutput> {
   const loaders = [ShapefileLoader, CSVLoader, ArrowLoader, GeoJSONLoader];
   const fileCache: FileCacheItem[] = [];
   const droppedFilesFS = new BrowserFileSystem(files);
@@ -145,13 +153,17 @@ export async function loadDroppedFile(files: File[]) {
 
   if (isArrowData(content.data)) {
     const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
-    return {fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]};
+    return {datasets: [{fileName: content.fileName, arrowTable, arrowFormatData: parsedData[0]}]};
   }
 
   // convert other spatial data format e.g. GeoJSON, Shapefile to arrow table
   return {
-    fileName: content.fileName,
-    ...convertFileCacheItemToArrowTable(parsedData[0])
+    datasets: [
+      {
+        fileName: content.fileName,
+        ...convertFileCacheItemToArrowTable(parsedData[0])
+      }
+    ]
   };
 }
 
@@ -173,6 +185,7 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   // get field and vector from data.fields and columnValues
   const fields: ArrowField[] = [];
   const vectors: {[key: string]: ArrowVector} = {};
+  // const arrowColumns: {[key: string]: ArrowData} = {};
 
   for (let i = 0; i < data.fields.length; i++) {
     const field: Field = data.fields[i];
@@ -180,10 +193,13 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
     const {arrowField, arrowVector} = KeplerFieldTypeToArrowFieldType(name, type, columnValues[i]);
     fields.push(arrowField);
     vectors[name] = arrowVector;
+    // arrowColumns[name] = arrowVector.data[0];
   }
   // make a new ArrowTable
   const schema = new ArrowSchema(fields);
-  // @ts-ignore TODO FIXME
+  // construct arrow Batches from vectors
+  // const batches = new ArrowRecordBatch(arrowColumns);
+  // @ts-ignore TODO fix me
   const arrowTable = new ArrowTable(schema, vectors);
   // append metadata from geoarrow fields to fileCacheItem.data.fields for geometry field
   for (let i = 0; i < fields.length; i++) {
@@ -206,7 +222,6 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   // generate unique id using fileName string
   const id = generateHashIdFromString(fileCacheItem.info.label);
   fileCacheItem.info.id = id;
-  console.log('fileCacheItem:', fileCacheItem);
   // fileCacheItem.data.fields = [fileCacheItem.data.fields[0]];
   return {arrowTable, arrowFormatData: fileCacheItem};
 }
@@ -226,12 +241,17 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.date) {
     const arrowField = new ArrowField(name, new ArrowDate(ArrowDateUnit.DAY));
-    const arrowVector = vectorFromArray(values);
+    // @ts-ignore fix me
+    const arrowVector = vectorFromArray(values.map(v => new Date(v)));
     return {arrowField, arrowVector};
-  } else if (type === ALL_FIELD_TYPES.timestamp) {
-    const arrowField = new ArrowField(name, new ArrowTimestamp(ArrowTimeUnit.SECOND));
-    const arrowVector = vectorFromArray(values);
-    return {arrowField, arrowVector};
+    // } else if (type === ALL_FIELD_TYPES.timestamp) {
+    //   const arrowField = new ArrowField(name, new ArrowTimestamp(ArrowTimeUnit.SECOND));
+    //   const arrowVector = vectorFromArray(
+    //     // @ts-ignore fix me
+    //     values.map(v => new Date(v)),
+    //     new TimestampSecond()
+    //   );
+    //   return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.array) {
     const arrowField = new ArrowField(
       name,

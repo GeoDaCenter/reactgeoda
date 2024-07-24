@@ -18,6 +18,7 @@ import {BubbleChartPanel} from '../plots/bubble-chart-panel';
 import {DashboardPanel} from '../dashboard/dashboard-panel';
 import {Splitter} from '../common/splitter';
 import {DEFAULT_PANEL_WIDTH} from '@/constants';
+import {SpatialJoinPanel} from '../spatial-operations/spatial-join-panel';
 
 const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
@@ -37,10 +38,11 @@ export enum PanelName {
   SPREG = 'Spatial Regression',
   PARALLEL_COORDINATE = 'Parallel Coordinate',
   BUBBLE_CHART = 'Bubble Chart',
-  DASHBOARD = 'Dashboard'
+  DASHBOARD = 'Dashboard',
+  SPATIAL_JOIN = 'Spatial Join'
 }
 
-export const PanelContainer = ({onStartCapture}: {onStartCapture: () => null}) => {
+export const PanelContainer = () => {
   const dispatch = useDispatch();
 
   const [panelWidth, setPanelWidth] = React.useState<number>(DEFAULT_PANEL_WIDTH);
@@ -80,9 +82,7 @@ export const PanelContainer = ({onStartCapture}: {onStartCapture: () => null}) =
           <IconXClose />
         </div>
         <div className="h-full" style={{width: `${panelWidth}px`}}>
-          {propertyPanelName === PanelName.CHAT_GPT && (
-            <ChatGPTPanel onStartCapture={onStartCapture} />
-          )}
+          {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
           {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
           {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
           {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}
@@ -95,6 +95,7 @@ export const PanelContainer = ({onStartCapture}: {onStartCapture: () => null}) =
           {propertyPanelName === PanelName.BUBBLE_CHART && <BubbleChartPanel />}
           {propertyPanelName === PanelName.DASHBOARD && <DashboardPanel />}
           {propertyPanelName === PanelName.TABLE && <TablePanel />}
+          {propertyPanelName === PanelName.SPATIAL_JOIN && <SpatialJoinPanel />}
         </div>
       </div>
     </div>

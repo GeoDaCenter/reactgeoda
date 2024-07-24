@@ -1,4 +1,5 @@
 'use client';
+
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import 'react-responsive-modal/styles.css';
@@ -16,7 +17,9 @@ import store from '@/store';
 import IntlProviderWrapper from '@/components/intl-provider-wrapper';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {useSearchParams} from 'next/navigation';
-import {MainConatiner} from '@/components/main-container';
+import dynamic from 'next/dynamic';
+const MainConatiner = dynamic(() => import('@/components/main-container'), {ssr: false});
+// import MainConatiner from '@/components/main-container';
 
 export default function Home() {
   const rootNode = useRef<HTMLDivElement>(null);

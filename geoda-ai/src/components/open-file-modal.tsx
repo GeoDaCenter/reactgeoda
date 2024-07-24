@@ -18,26 +18,26 @@ import {FormattedMessage} from 'react-intl';
 import {addDataToMap, wrapTo} from '@kepler.gl/actions';
 
 import {GeoDaState} from '../store';
-import {setOpenFileModal} from '../actions';
+import {setAddDatasetModal, setOpenFileModal} from '../actions';
 import {IconUpload} from './icons/upload';
-import {setRawFileData, RawFileDataProps} from '../actions/file-actions';
+import {addDataset} from '../actions/file-actions';
 import {MAP_ID} from '@/constants';
 import {loadDroppedFile} from '@/utils/file-utils';
-import {LoadedGeoDaConfig, loadGeoDaProject} from '@/utils/project-utils';
-import {SavedConfigV1} from '@kepler.gl/schemas';
-import {getDuckDB, useDuckDB} from '@/hooks/use-duckdb';
+import {loadGeoDaProject, ProcessDropFilesOutput} from '@/utils/project-utils';
+import {useDuckDB} from '@/hooks/use-duckdb';
 import {ProtoDataset} from '@kepler.gl/types';
 import {WarningBox, WarningType} from './common/warning-box';
 
-type ProcessDropFilesOutput = RawFileDataProps & {
-  keplerConfig?: SavedConfigV1['config'];
-  geodaConfig?: LoadedGeoDaConfig;
-};
-
-async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> {
+async function processDropFiles(
+  files: File[],
+  isAddingDataset = false
+): Promise<ProcessDropFilesOutput> {
   // check if there is a file with extension .geoda
   const geodaFile = files.find(file => file.name.endsWith('.geoda'));
   if (geodaFile) {
+    if (isAddingDataset === true) {
+      throw new Error('GeoDa project file cannot be added to the current project.');
+    }
     // process project file
     return await loadGeoDaProject(geodaFile);
   }
@@ -50,7 +50,13 @@ async function processDropFiles(files: File[]): Promise<ProcessDropFilesOutput> 
  * Open File Component
  * @returns JSX.Element
  */
-const OpenFileComponent = () => {
+const OpenFileComponent = ({
+  onCloseModal,
+  isAddingDataset = false
+}: {
+  onCloseModal: () => void;
+  isAddingDataset?: boolean;
+}) => {
   const dispatch = useDispatch();
   const {importArrowFile} = useDuckDB();
 
@@ -67,42 +73,37 @@ const OpenFileComponent = () => {
 
       try {
         // process dropped files, and return the file name, arrowTable and arrowFormatData
-        const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
-          await processDropFiles(acceptedFiles);
+        const {datasets, keplerConfig, geodaConfig} = await processDropFiles(
+          acceptedFiles,
+          isAddingDataset
+        );
+        const keplerDatasets: ProtoDataset[] = [];
+        for (let i = 0; i < datasets.length; i++) {
+          const {fileName, arrowTable, arrowFormatData} = datasets[i];
+          // add arrowTable to duckdb
+          await importArrowFile({fileName, arrowTable});
+          // append duckdb instance to arrowFormatData
+          const keplerDataset: ProtoDataset | undefined = arrowFormatData;
+          if (keplerDataset) {
+            keplerDatasets.push(keplerDataset);
+          }
+          // dispatch action to set file data, update redux state state.fileData
+          dispatch(addDataset({fileName, dataId: keplerDataset?.info.id, arrowTable}));
+        }
 
-        // add arrowTable to duckdb
-        await importArrowFile({fileName, arrowTable});
-
-        // append duckdb instance to arrowFormatData
-        const datasets: ProtoDataset | undefined = arrowFormatData
-          ? {
-              ...arrowFormatData,
-              data: {
-                ...arrowFormatData.data,
-                db: getDuckDB()
-              }
-            }
-          : arrowFormatData;
-
-        // dispatch addDataToMap action to default kepler.gl instance
-        if (arrowFormatData) {
+        if (keplerDatasets.length > 0) {
+          // dispatch addDataToMap action to default kepler.gl instance
           dispatch(
             wrapTo(
               MAP_ID,
               addDataToMap({
-                datasets: datasets || [],
+                datasets: keplerDatasets || [],
                 options: {centerMap: true},
                 ...(keplerConfig && {config: keplerConfig})
               })
             )
           );
         }
-
-        // dispatch action to close modal, update redux state state.root.uiState.showOpenFileModal
-        dispatch(setOpenFileModal(false));
-
-        // dispatch action to set file data, update redux state state.fileData
-        dispatch(setRawFileData({fileName, dataId: datasets?.info.id, arrowTable}));
 
         if (geodaConfig) {
           // dispatch action to set geoda config, update redux state state.root
@@ -111,6 +112,9 @@ const OpenFileComponent = () => {
 
         // set selection mode
         // dispatch(setEditorMode('DRAW_RECTANGLE'));
+
+        // close modal
+        onCloseModal();
       } catch (e) {
         // load file failed, show error message
         setError((e as Error).message);
@@ -119,7 +123,7 @@ const OpenFileComponent = () => {
       // set loading to true to show loading bar
       setLoading(false);
     },
-    [dispatch, importArrowFile]
+    [dispatch, importArrowFile, isAddingDataset, onCloseModal]
   );
 
   // Hide the error message after 10 second if error occurs
@@ -182,8 +186,10 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
   // get the state showOpenModal from the redux store
   const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
 
-  const rawFileData = useSelector((state: GeoDaState) => state.root.file.rawFileData);
+  // check if there is a default dataset
+  const hasDefaultDataset = useSelector((state: GeoDaState) => state.root.datasets.length > 0);
 
+  // handle close modal event
   const onCloseModal = () => {
     dispatch(setOpenFileModal(false));
   };
@@ -202,23 +208,25 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
         type: 'application/json'
       });
       // process dropped files, and return the file name, arrowTable and arrowFormatData
-      const {fileName, arrowTable, arrowFormatData, keplerConfig, geodaConfig} =
-        await processDropFiles([file]);
-      // dispatch addDataToMap action to default kepler.gl instance
-      if (arrowFormatData) {
-        dispatch(
-          wrapTo(
-            MAP_ID,
-            addDataToMap({
-              datasets: arrowFormatData,
-              options: {centerMap: true},
-              ...(keplerConfig && {config: keplerConfig})
-            })
-          )
-        );
+      const {datasets, keplerConfig, geodaConfig} = await processDropFiles([file]);
+      for (let i = 0; i < datasets.length; ++i) {
+        const {fileName, arrowTable, arrowFormatData} = datasets[i];
+        // dispatch addDataToMap action to default kepler.gl instance
+        if (arrowFormatData) {
+          dispatch(
+            wrapTo(
+              MAP_ID,
+              addDataToMap({
+                datasets: arrowFormatData,
+                options: {centerMap: true},
+                ...(keplerConfig && {config: keplerConfig})
+              })
+            )
+          );
+        }
+        // dispatch action to set file data, update redux state state.fileData
+        dispatch(addDataset({fileName, arrowTable}));
       }
-      // dispatch action to set file data, update redux state state.fileData
-      dispatch(setRawFileData({fileName, arrowTable}));
       // dispatch action to set geoda config, update redux state state.root
       if (geodaConfig) {
         setTimeout(() => {
@@ -228,11 +236,11 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
     })();
   }, [dispatch, projectUrl]);
 
-  if (rawFileData === null && projectUrl !== null) {
+  if (hasDefaultDataset === false && projectUrl !== null) {
     // showing loading project modal
     return (
       <Modal
-        isOpen={rawFileData === null && projectUrl !== null}
+        isOpen={hasDefaultDataset === false && projectUrl !== null}
         size="3xl"
         placement="center"
         className="min-w-60"
@@ -255,13 +263,13 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
       onClose={onCloseModal}
       size="3xl"
       placement="center"
-      className="min-w-80 bg-gray-50 dark:bg-stone-700"
+      className="min-w-80 bg-gray-50 dark:bg-stone-800"
       isDismissable={false}
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">Open File</ModalHeader>
         <ModalBody>
-          <OpenFileComponent />
+          <OpenFileComponent onCloseModal={onCloseModal} />
         </ModalBody>
         <ModalFooter />
       </ModalContent>
@@ -270,3 +278,37 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
 }
 
 export default OpenFileModal;
+
+/**
+ * Add Dataset Modal
+ */
+export function AddDatasetModal() {
+  // get the dispatch function from the redux store
+  const dispatch = useDispatch();
+
+  // get the state showOpenModal from the redux store
+  const showModal = useSelector((state: GeoDaState) => state.root.uiState.showAddDatasetModal);
+
+  const onCloseModal = () => {
+    dispatch(setAddDatasetModal(false));
+  };
+
+  return showModal ? (
+    <Modal
+      isOpen={showModal}
+      onClose={onCloseModal}
+      size="3xl"
+      placement="center"
+      className="min-w-80 bg-gray-50 dark:bg-stone-800"
+      isDismissable={false}
+    >
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1">Add Dataset</ModalHeader>
+        <ModalBody>
+          <OpenFileComponent onCloseModal={onCloseModal} isAddingDataset={true} />
+        </ModalBody>
+        <ModalFooter />
+      </ModalContent>
+    </Modal>
+  ) : null;
+}

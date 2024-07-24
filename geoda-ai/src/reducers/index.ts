@@ -15,7 +15,7 @@ import {interactionReducer} from './interaction-reducer';
  */
 const rootReducer = combineReducers({
   language: languageReducer,
-  file: fileReducer,
+  datasets: fileReducer,
   uiState: uiReducer,
   weights: weightsReducer,
   plots: plotReducer,
@@ -36,6 +36,14 @@ const rootReducerWithLoadProject = (state: any, action: any) => {
     default:
       return rootReducer(state, action);
   }
+};
+
+// add function initialState to rootReducerWithLoadProject
+rootReducerWithLoadProject.initialState = (initialState: any) => {
+  // return a reducer function that use the initialState as the initial state
+  return (state = initialState, action: any) => {
+    return rootReducerWithLoadProject(state, action);
+  };
 };
 
 export default rootReducerWithLoadProject;

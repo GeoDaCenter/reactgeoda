@@ -679,3 +679,31 @@ export const IconSpreg = () => {
     </svg>
   );
 };
+
+export const IconSpatialJoin = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 48 48">
+      <path
+        fill="none"
+        stroke="#BDBDBD"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5.5 24h7.899v1.297a4 4 0 1 0 3 0V24H24m0 18.5v-7.899h1.297a4 4 0 1 0 0-3H24V24m18.5 0h-7.899v-1.297a4 4 0 1 0-3 0V24H24m0-18.5v7.899h-1.297a4 4 0 1 0 0 3H24V24"
+      ></path>
+      <rect
+        width={37}
+        height={37}
+        x={5.5}
+        y={5.5}
+        fill="none"
+        strokeWidth="3"
+        stroke="#BDBDBD"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        rx={4}
+        ry={4}
+      ></rect>
+    </svg>
+  );
+};

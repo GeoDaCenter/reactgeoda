@@ -1,8 +1,10 @@
 import {arrayBufferToBase64, base64ToArrayBuffer, loadArrowFile} from './file-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
 import {GeoDaState} from '@/store';
-import {WeightsProps} from '@/actions';
+import {DatasetProps, WeightsProps} from '@/actions';
 import {WeightsMeta} from 'geoda-wasm';
+import {Table as ArrowTable, tableToIPC} from 'apache-arrow';
+import {DATASET_FORMATS} from '@kepler.gl/constants';
 
 type SavedWeightsProps = {
   weightsMeta: WeightsMeta;
@@ -30,33 +32,78 @@ export type SavedGeoDaConfig = {
 };
 
 export type GeoDaProject = {
-  fileName: string;
-  arrowTable: string;
+  datasets: Array<{
+    fileName: string;
+    arrowTable: string;
+    dataId: string;
+  }>;
   keplerConfig: SavedConfigV1['config'];
   geodaConfig: SavedGeoDaConfig;
 };
 
-export async function loadGeoDaProject(geodaFile: File) {
+export type ProcessDropFilesOutput = {
+  datasets: Array<DatasetProps>;
+  keplerConfig?: SavedConfigV1['config'];
+  geodaConfig?: LoadedGeoDaConfig;
+};
+
+function getDataFormat(fileName: string) {
+  const suffix = fileName.split('.').pop()?.toLocaleLowerCase();
+
+  if (suffix === 'arrow') {
+    return DATASET_FORMATS.arrow;
+  } else if (suffix === 'geojson') {
+    return DATASET_FORMATS.geojson;
+  } else if (suffix === 'shp') {
+    return DATASET_FORMATS.arrow;
+  } else if (suffix === 'csv') {
+    return DATASET_FORMATS.csv;
+  }
+  return '';
+}
+
+export async function loadGeoDaProject(geodaFile: File): Promise<ProcessDropFilesOutput> {
   const geodaFileContent = await geodaFile.text();
   const geodaFileData: GeoDaProject = JSON.parse(geodaFileContent);
 
-  // convert arrowTable from base64 string to ArrayBuffer
-  const arrowTableBuffer = Buffer.from(geodaFileData.arrowTable, 'base64').buffer;
-  // TODO: this could be simplified as
-  // const apacheArrowTable = arrow.tableFromIPC([new Uint8Array(arrayBuffer)]);
-  // create a File object from the ArrayBuffer
-  const arrowFile = new File([arrowTableBuffer], geodaFileData.fileName);
-  // load arrow file
-  const {fileName, dataId, arrowTable, arrowFormatData} = await loadArrowFile(arrowFile);
+  // process datasets
+  const datasets: Array<DatasetProps> = [];
+  for (let i = 0; i < geodaFileData.datasets.length; i++) {
+    const dataset = geodaFileData.datasets[i];
+    // convert arrowTable from base64 string to ArrayBuffer
+    const arrowTableBuffer = Buffer.from(dataset.arrowTable, 'base64').buffer;
+    // TODO: this could be simplified as
+    // const apacheArrowTable = arrow.tableFromIPC([new Uint8Array(arrayBuffer)]);
+    // update the file name if it is not ended with .arrow, otherwise the kepler.gl will read it according to the file suffix
+    const fileName = dataset.fileName.endsWith('.arrow')
+      ? dataset.fileName
+      : `${dataset.fileName}.arrow`;
+    // create a File object from the ArrayBuffer
+    const arrowFile = new File([arrowTableBuffer], fileName);
+    // load arrow file
+    const {arrowTable, arrowFormatData} = await loadArrowFile(arrowFile);
+    datasets.push({
+      fileName: dataset.fileName,
+      dataId: dataset.dataId,
+      arrowTable,
+      arrowFormatData: {
+        ...arrowFormatData,
+        info: {
+          ...arrowFormatData.info,
+          // restore the original file name if it is not ended with .arrow
+          label: dataset.fileName,
+          id: dataset.dataId,
+          format: getDataFormat(dataset.fileName)
+        }
+      }
+    });
+  }
 
   // load geodaConfig
   const geodaConfig = loadGeoDaConfig(geodaFileData.geodaConfig);
 
   return {
-    fileName,
-    dataId,
-    arrowTable,
-    arrowFormatData,
+    datasets,
     keplerConfig: geodaFileData.keplerConfig,
     geodaConfig
   };
@@ -111,9 +158,8 @@ function loadWeights(savedWeights: SavedWeightsProps[]): WeightsProps[] {
 }
 
 export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
-  // remove the file from the geodaConfig, since it will be reconstructed in open-file-modal
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {file, ...geodaConfig} = root;
+  const {datasets, ...geodaConfig} = root;
 
   // save the weights as ArrayBuffer in format of base64 string
   const savedWeights = saveWeights(geodaConfig.weights);
@@ -158,4 +204,14 @@ export function loadGeoDaConfig(geodaConfig: SavedGeoDaConfig): LoadedGeoDaConfi
       ...(updatedTextItems ? {textItems: updatedTextItems} : {})
     }
   };
+}
+
+/**
+ * Convert the Apache Arrow table to base64 string
+ * @param arrowTable Apache Arrow table
+ * @returns Base64 string of the Apache Arrow table
+ */
+export function getArrowTableAsBase64(arrowTable: ArrowTable) {
+  const bufferArray = tableToIPC(arrowTable);
+  return arrayBufferToBase64(bufferArray.buffer);
 }

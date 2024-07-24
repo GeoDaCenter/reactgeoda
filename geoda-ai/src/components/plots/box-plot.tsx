@@ -25,6 +25,7 @@ import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 import {getColumnData} from '@/utils/data-utils';
 import {keplerDataContainerSelector, mainDataIdSelector} from '@/store/selectors';
 import {ECHARTS_DARK_THEME} from './echarts-theme';
+import {ChartInsightButton} from '../common/chart-insight';
 
 // Register the required components
 echarts.use([
@@ -88,12 +89,16 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     [dispatch, dataId, id]
   );
 
+  // generate a unique id for the chart
+  const chartId = `box-plot-${id}`;
+
   return useMemo(
     () => (
-      <Card className="my-4" shadow="none">
+      <Card className="my-4" shadow="none" id={chartId}>
         <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
           <p className="text-tiny font-bold uppercase">{type}</p>
           <small className="text-default-500">{variables.join(',')}</small>
+          <ChartInsightButton parentElementId={chartId} />
         </CardHeader>
         <CardBody className="w-full py-2">
           <ReactEChartsCore
@@ -115,6 +120,18 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
         </CardBody>
       </Card>
     ),
-    [type, variables, option, theme, bindEvents, rendered, sourceId, id, dataId, seriesIndex]
+    [
+      chartId,
+      type,
+      variables,
+      option,
+      theme,
+      bindEvents,
+      rendered,
+      sourceId,
+      id,
+      dataId,
+      seriesIndex
+    ]
   );
 };
