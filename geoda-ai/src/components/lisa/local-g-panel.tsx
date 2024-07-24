@@ -8,9 +8,11 @@ import {localG} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {RunAnalysisProps, UnivariateLisaConfig} from './univariate-lisa-config';
 import {Key, useState} from 'react';
+import {useDuckDB} from '@/hooks/use-duckdb';
 
 export function LocalGPanel() {
   const dispatch = useDispatch();
+  const {addColumnWithValues} = useDuckDB();
 
   const [selectedTab, setSelectedTab] = useState('uni-localg');
 
@@ -88,6 +90,9 @@ export function LocalGPanel() {
     };
     // Add a new column without data first, so it can avoid error from deduceTypeFromArray()
     dispatch(addTableColumn(dataset.id, newField, clusters));
+
+    // add new column to duckdb
+    addColumnWithValues(tableName, newFieldName, clusters);
 
     // create custom scale map
     createUniqueValuesMap({

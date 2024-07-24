@@ -139,10 +139,14 @@ export function useDuckDB() {
           const arrowTable = tableFromArrays({[columnName]: columnValues});
           // create a temporary duckdb table using the arrow table
           await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
-          // add a new column from the temporary table to the main table
-          await conn.query(
-            `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" NUMERIC DEFAULT 0`
-          );
+          try {
+            // add a new column from the temporary table to the main table
+            await conn.query(
+              `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" NUMERIC DEFAULT 0`
+            );
+          } catch (error) {
+            // do nothing if can't add a new column since it might already exist
+          }
           // update the new column with the values from the temporary table
           await conn.query(
             `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
@@ -153,6 +157,31 @@ export function useDuckDB() {
         } catch (error) {
           console.error(error);
           throw new Error("Can't add a new column with values to the table, Error: " + error);
+        }
+      }
+    },
+    []
+  );
+
+  const updateColumnWidthValues = useCallback(
+    async (tableName: string, columnName: string, columnValues: number[]) => {
+      if (db) {
+        try {
+          const conn = await db.connect();
+          // create a temporary arrow table with the column name and values
+          const arrowTable = tableFromArrays({[columnName]: columnValues});
+          // create a temporary duckdb table using the arrow table
+          await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
+          // update the new column with the values from the temporary table
+          await conn.query(
+            `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
+          );
+          // drop the temporary table
+          await conn.query(`DROP TABLE "temp_${columnName}"`);
+          await conn.close();
+        } catch (error) {
+          console.error(error);
+          throw new Error("Can't update the column with values to the table, Error: " + error);
         }
       }
     },
@@ -254,5 +283,12 @@ export function useDuckDB() {
     }
   }, []);
 
-  return {query, queryValues, addColumn, importArrowFile, addColumnWithValues};
+  return {
+    query,
+    queryValues,
+    addColumn,
+    importArrowFile,
+    addColumnWithValues,
+    updateColumnWidthValues
+  };
 }

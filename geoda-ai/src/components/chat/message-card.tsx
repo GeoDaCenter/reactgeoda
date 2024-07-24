@@ -6,7 +6,7 @@ import {Avatar, Badge, Button, Link, Tooltip, Spinner} from '@nextui-org/react';
 import {useClipboard} from '@nextui-org/use-clipboard';
 import {Icon} from '@iconify/react';
 
-import {cn} from './cn';
+import {cn} from '../common/cn';
 import {CustomMessage} from '../chatgpt/custom-messages';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
 

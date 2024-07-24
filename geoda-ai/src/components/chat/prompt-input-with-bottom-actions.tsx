@@ -6,7 +6,7 @@ import {AudioRecorder, useAudioRecorder} from 'react-audio-voice-recorder';
 import {Button, Tooltip, ScrollShadow, Badge} from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 
-import {cn} from './cn';
+import {cn} from '../common/cn';
 
 import PromptInput from './prompt-input';
 

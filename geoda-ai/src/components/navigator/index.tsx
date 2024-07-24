@@ -153,6 +153,10 @@ export function Navigator() {
           break;
         case 'icon-pcp':
           dispatch(setPropertyPanel(PanelName.PARALLEL_COORDINATE));
+          break;
+        case 'icon-spatial-join':
+          dispatch(setPropertyPanel(PanelName.SPATIAL_JOIN));
+          break;
       }
       event.stopPropagation();
     },

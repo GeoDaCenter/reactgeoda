@@ -9,8 +9,6 @@ import {
   Bool as ArrowBool,
   Date_ as ArrowDate,
   DateUnit as ArrowDateUnit,
-  Timestamp as ArrowTimestamp,
-  TimeUnit as ArrowTimeUnit,
   List as ArrowList,
   Utf8 as ArrowString,
   makeVector,
@@ -187,6 +185,7 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   // get field and vector from data.fields and columnValues
   const fields: ArrowField[] = [];
   const vectors: {[key: string]: ArrowVector} = {};
+  // const arrowColumns: {[key: string]: ArrowData} = {};
 
   for (let i = 0; i < data.fields.length; i++) {
     const field: Field = data.fields[i];
@@ -194,10 +193,13 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
     const {arrowField, arrowVector} = KeplerFieldTypeToArrowFieldType(name, type, columnValues[i]);
     fields.push(arrowField);
     vectors[name] = arrowVector;
+    // arrowColumns[name] = arrowVector.data[0];
   }
   // make a new ArrowTable
   const schema = new ArrowSchema(fields);
-  // @ts-ignore TODO FIXME
+  // construct arrow Batches from vectors
+  // const batches = new ArrowRecordBatch(arrowColumns);
+  // @ts-ignore TODO fix me
   const arrowTable = new ArrowTable(schema, vectors);
   // append metadata from geoarrow fields to fileCacheItem.data.fields for geometry field
   for (let i = 0; i < fields.length; i++) {
@@ -239,12 +241,17 @@ function KeplerFieldTypeToArrowFieldType(name: string, type: string, values: unk
     return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.date) {
     const arrowField = new ArrowField(name, new ArrowDate(ArrowDateUnit.DAY));
-    const arrowVector = vectorFromArray(values);
+    // @ts-ignore fix me
+    const arrowVector = vectorFromArray(values.map(v => new Date(v)));
     return {arrowField, arrowVector};
-  } else if (type === ALL_FIELD_TYPES.timestamp) {
-    const arrowField = new ArrowField(name, new ArrowTimestamp(ArrowTimeUnit.SECOND));
-    const arrowVector = vectorFromArray(values);
-    return {arrowField, arrowVector};
+    // } else if (type === ALL_FIELD_TYPES.timestamp) {
+    //   const arrowField = new ArrowField(name, new ArrowTimestamp(ArrowTimeUnit.SECOND));
+    //   const arrowVector = vectorFromArray(
+    //     // @ts-ignore fix me
+    //     values.map(v => new Date(v)),
+    //     new TimestampSecond()
+    //   );
+    //   return {arrowField, arrowVector};
   } else if (type === ALL_FIELD_TYPES.array) {
     const arrowField = new ArrowField(
       name,
