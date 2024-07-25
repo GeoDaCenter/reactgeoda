@@ -131,7 +131,17 @@ export function useDuckDB() {
    * Using a temporary table to store the values and then update the main table
    */
   const addColumnWithValues = useCallback(
-    async (tableName: string, columnName: string, columnValues: number[]) => {
+    async ({
+      tableName,
+      columnName,
+      columnType,
+      columnValues
+    }: {
+      tableName: string;
+      columnName: string;
+      columnType: 'NUMERIC' | 'VARCHAR';
+      columnValues: unknown[];
+    }) => {
       if (db) {
         try {
           const conn = await db.connect();
@@ -141,9 +151,7 @@ export function useDuckDB() {
           await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
           try {
             // add a new column from the temporary table to the main table
-            await conn.query(
-              `ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" NUMERIC DEFAULT 0`
-            );
+            await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnType}`);
           } catch (error) {
             // do nothing if can't add a new column since it might already exist
           }

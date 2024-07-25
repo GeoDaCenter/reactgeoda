@@ -103,7 +103,12 @@ export function QuantileLisaPanel() {
     dispatch(addTableColumn(dataset.id, newField, clusters));
 
     // add new column to duckdb
-    addColumnWithValues(tableName, newFieldName, clusters);
+    addColumnWithValues({
+      tableName,
+      columnName: newFieldName,
+      columnType: 'NUMERIC',
+      columnValues: clusters
+    });
 
     // create custom scale map
     createUniqueValuesMap({

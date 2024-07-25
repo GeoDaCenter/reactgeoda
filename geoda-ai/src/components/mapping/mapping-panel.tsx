@@ -96,7 +96,12 @@ function MappingPanel() {
 
     if (rateValues) {
       // in case of rate mapping, add rate values to a new column first
-      await addColumnWithValues(tableName, variable, rateValues);
+      await addColumnWithValues({
+        tableName,
+        columnName: variable,
+        columnValues: rateValues,
+        columnType: 'NUMERIC'
+      });
       // add column to kepler.gl
       addKeplerColumn({
         dataset,

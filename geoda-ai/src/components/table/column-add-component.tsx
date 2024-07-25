@@ -74,7 +74,14 @@ export function AddColumn() {
   const handleAddColumnClick = () => {
     // add column to duckdb
     if (Array.isArray(values)) {
-      addColumnWithValues(tableName, columnName, values);
+      // check if values are array of string
+      const isStringArray = values.some(v => typeof v === 'string');
+      addColumnWithValues({
+        tableName,
+        columnName,
+        columnValues: values,
+        columnType: isStringArray ? 'VARCHAR' : 'NUMERIC'
+      });
     } else {
       addColumn(code);
     }

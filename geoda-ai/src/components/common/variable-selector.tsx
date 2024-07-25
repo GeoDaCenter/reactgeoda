@@ -16,6 +16,7 @@ type VariableSelectorProps = {
   label?: string;
   size?: 'sm' | 'md' | 'lg';
   optional?: boolean; // for optional vars
+  isInvalid?: boolean;
 };
 
 export function VariableSelector({
@@ -23,7 +24,8 @@ export function VariableSelector({
   variableType = 'numeric',
   setVariable,
   label,
-  size
+  size,
+  isInvalid
 }: VariableSelectorProps) {
   const dataset = useSelector(selectKeplerDataset(dataId));
 
@@ -60,6 +62,7 @@ export function VariableSelector({
       onSelectionChange={onVariableSelectionChange}
       size={size || 'md'}
       selectedKey={localVariable}
+      isInvalid={isInvalid}
     >
       {columnNames.map(column => (
         <AutocompleteItem key={column} value={column}>

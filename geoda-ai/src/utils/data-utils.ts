@@ -171,6 +171,10 @@ export function checkIfFieldNameExists(
   return isExisted;
 }
 
+export function getKeplerField(dataset: KeplerTable, fieldName: string) {
+  return dataset.fields.find(field => field.name === fieldName);
+}
+
 // get data type of a specific column
 export function getColumnDataType(
   columnName: string,
@@ -230,7 +234,7 @@ export function getColumnDataByIndex(
 ) {
   if (dataContainer) {
     const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
-    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+    if (!Array.isArray(columnData)) {
       return [];
     }
     return columnData;

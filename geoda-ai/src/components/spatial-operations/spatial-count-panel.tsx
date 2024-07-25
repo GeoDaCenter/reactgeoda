@@ -18,6 +18,7 @@ import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {addTableColumn} from '@kepler.gl/actions';
 import {Field} from '@kepler.gl/types';
+import {getBinaryGeometriesFromLayer, getBinaryGeometryTypeFromLayer} from './spatial-join-utils';
 
 export function SpatialCountPanel() {
   const {addColumnWithValues} = useDuckDB();
@@ -39,28 +40,21 @@ export function SpatialCountPanel() {
 
   const onSetFirstDatasetId = (datasetId: string) => {
     setFirstDatasetId(datasetId);
-    setCurrentStep(datasetId?.length > 0 ? 1 : 0);
+    setCurrentStep(1);
     // reset
     resetRunningState();
   };
 
   const onSetSecondDatasetId = (datasetId: string) => {
-    if (currentStep > 0) {
-      setSecondDatasetId(datasetId);
-      setCurrentStep(datasetId?.length > 0 ? 2 : firstDatasetId?.length > 0 ? 1 : 0);
-      resetRunningState();
-    }
+    setSecondDatasetId(datasetId);
+    setCurrentStep(2);
+    resetRunningState();
   };
 
   const onNewColumnNameChange = (value: string) => {
-    if (currentStep > 1) {
-      setNewColumnName(value);
-      // check if column name not existed in first dataset
-      setCurrentStep(
-        value?.length > 0 ? 3 : secondDatasetId?.length > 0 ? 2 : firstDatasetId?.length > 0 ? 1 : 0
-      );
-      resetRunningState();
-    }
+    setNewColumnName(value);
+    setCurrentStep(3);
+    resetRunningState();
   };
 
   const leftLayer = useSelector(selectKeplerLayer(firstDatasetId));
@@ -72,16 +66,11 @@ export function SpatialCountPanel() {
     setIsRunning(true);
     if (leftLayer && rightLayer && leftDataset) {
       try {
-        const left = leftLayer.dataToFeature;
-        const leftGeometryType = leftLayer.meta.featureTypes;
-
-        // right layer could be GeojsonLayer or PointLayer
-        const right = isPointLayer(rightLayer)
-          ? getBinaryGeometriesFromPointLayer(rightLayer, rightDataset)
-          : rightLayer.dataToFeature;
-        const rightGeometryType = isPointLayer(rightLayer)
-          ? getBinaryGeometryTypeFromPointLayer()
-          : rightLayer.meta.featureTypes;
+        // layer could be GeojsonLayer or PointLayer
+        const left = getBinaryGeometriesFromLayer(leftLayer, leftDataset);
+        const leftGeometryType = getBinaryGeometryTypeFromLayer(leftLayer);
+        const right = getBinaryGeometriesFromLayer(rightLayer, rightDataset);
+        const rightGeometryType = getBinaryGeometryTypeFromLayer(rightLayer);
 
         if (!right || !left) {
           throw new Error('Invalid dataset for spatial count.');
@@ -96,7 +85,12 @@ export function SpatialCountPanel() {
         // get the table name from first dataset
         const tableName = getDatasetName(datasets, firstDatasetId);
         // add new column to duckdb
-        addColumnWithValues(tableName, newColumnName, values);
+        addColumnWithValues({
+          tableName,
+          columnName: newColumnName,
+          columnValues: values,
+          columnType: 'NUMERIC'
+        });
         // add new column to keplergl
         const newField: Field = {
           id: newColumnName,
@@ -178,11 +172,7 @@ export function SpatialCountPanel() {
         />
       </section>
       {counts.length > 0 ? (
-        <WarningBox
-          message="Spatial count applied successfully"
-          type={WarningType.SUCCESS}
-          dismissAfter={1000}
-        />
+        <WarningBox message="Spatial count applied successfully" type={WarningType.SUCCESS} />
       ) : (
         isRunning &&
         errorMessage.length > 0 && <WarningBox message={errorMessage} type={WarningType.ERROR} />
