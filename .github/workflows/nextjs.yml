@@ -60,7 +60,7 @@ jobs:
           cd ..
           git clone https://github.com/visgl/loaders.gl.git --branch=xli/geoarrow-fix-in-mem-table loaders.gl
           cd loaders.gl
-          yarn install-fast
+          PUPPETEER_SKIP_DOWNLOAD=true yarn
           cd ..
       - name: Run Lint
         run: |
