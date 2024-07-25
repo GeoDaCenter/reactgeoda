@@ -60,6 +60,7 @@ jobs:
           cd ..
           git clone https://github.com/visgl/loaders.gl.git --branch=xli/geoarrow-fix-in-mem-table loaders.gl
           cd loaders.gl
+          yarn add --ignore-scripts puppeteer
           yarn
           cd ..
       - name: Run Lint

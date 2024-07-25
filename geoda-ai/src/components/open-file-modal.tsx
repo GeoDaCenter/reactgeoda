@@ -145,9 +145,9 @@ const OpenFileComponent = ({
           {...getRootProps()}
           style={{
             backgroundColor: '#eeeeee',
-            opacity: 0.8,
-            backgroundImage: 'radial-gradient(#444cf7 0.5px, #eeeeee 0.5px)',
-            backgroundSize: '10px 10px'
+            opacity: 0.8
+            // backgroundImage: 'radial-gradient(#444cf7 0.5px, #eeeeee 0.5px)',
+            // backgroundSize: '10px 10px'
           }}
         >
           <input {...getInputProps()} />

@@ -9,7 +9,7 @@ export type UiAction = {
 
 export const INITIAL_UI_STATE = {
   theme: 'dark',
-  showOpenFileModal: false,
+  showOpenFileModal: true,
   showAddDatasetModal: false,
   showSaveProjectModal: false,
   showKeplerTableModal: false,
