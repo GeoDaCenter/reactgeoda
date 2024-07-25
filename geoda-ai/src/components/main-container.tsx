@@ -7,6 +7,7 @@ import {Navigator} from '@/components/navigator';
 import {TableContainer} from '@/components/table/table-container';
 import {PanelContainer} from '@/components/panel/panel-container';
 import {SaveProjectModal} from '@/components/save-project-modal';
+import {ChatPanelContainer} from '@/components/panel/chat-panel';
 
 import dynamic from 'next/dynamic';
 const OpenFileModal = dynamic(() => import('@/components/open-file-modal'), {ssr: false});
@@ -181,15 +182,18 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
 
   return (
     <div onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMoouseUp}>
-      <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
+      <div className="min-w-100 relative flex h-screen w-screen flex-row items-start border-none">
         <Navigator />
+        <div className="shadow-[rgba(0,0,15,0.5)_10px_0px_10px_0px]">
+          <PanelContainer />
+        </div>
         <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
           <div className="flex-1 flex-grow p-0">
             <GridLayout />
           </div>
           <TableContainer />
         </div>
-        <PanelContainer />
+        <ChatPanelContainer />
         <OpenFileModal projectUrl={projectUrl} />
         <AddDatasetModal />
         <SaveProjectModal />
@@ -206,24 +210,6 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
           />
         </>
       )}
-    </div>
-  );
-}
-
-export function MainConatinerWrapper({projectUrl}: {projectUrl: string | null}) {
-  return (
-    <div className="min-w-100 flex h-screen w-screen flex-row items-start border-none">
-      <Navigator />
-      <div className="flex h-screen flex-1 flex-grow flex-col overflow-auto">
-        <div className="flex-1 flex-grow p-0">
-          <GridLayout />
-        </div>
-        <TableContainer />
-      </div>
-      <PanelContainer />
-      <OpenFileModal projectUrl={projectUrl} />
-      <AddDatasetModal />
-      <SaveProjectModal />
     </div>
   );
 }

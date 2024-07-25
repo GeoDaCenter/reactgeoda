@@ -82,6 +82,30 @@ export function getNumericFieldNames(layer: Layer): Array<string> {
   return [];
 }
 
+export function getAllFieldNames(dataset: KeplerTable): Array<string> {
+  return dataset.fields.map(field => field.name);
+}
+
+export function getNumericFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields
+    .filter(field => field.type === 'integer' || field.type === 'real')
+    .map(field => field.name);
+}
+
+export function getIntegerFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields.filter(field => field.type === 'integer').map(field => field.name);
+}
+
+export function getStringFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields.filter(field => field.type === 'string').map(field => field.name);
+}
+
+export function getIntegerAndStringFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields
+    .filter(field => field.type === 'integer' || field.type === 'string')
+    .map(field => field.name);
+}
+
 /**
  * Get the column data from the kepler.gl layer using the table name and column name
  * @param tableName the name of the table
@@ -147,6 +171,10 @@ export function checkIfFieldNameExists(
   return isExisted;
 }
 
+export function getKeplerField(dataset: KeplerTable, fieldName: string) {
+  return dataset.fields.find(field => field.name === fieldName);
+}
+
 // get data type of a specific column
 export function getColumnDataType(
   columnName: string,
@@ -206,7 +234,7 @@ export function getColumnDataByIndex(
 ) {
   if (dataContainer) {
     const columnData = dataContainer.column ? [...dataContainer.column(columnIndex)] : [];
-    if (!Array.isArray(columnData) || columnData.some(item => typeof item !== 'number')) {
+    if (!Array.isArray(columnData)) {
       return [];
     }
     return columnData;

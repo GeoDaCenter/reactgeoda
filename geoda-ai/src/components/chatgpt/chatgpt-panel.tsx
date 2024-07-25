@@ -93,6 +93,7 @@ const ChatGPTPanel = () => {
         id: 'chatGpt.description',
         defaultMessage: 'Powered by GeoDa and LLM'
       })}
+      showAIHelp={false}
     >
       {!openAIKey ? (
         <WarningBox

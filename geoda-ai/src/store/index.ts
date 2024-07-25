@@ -31,6 +31,7 @@ export type GeoDaState = {
     uiState: {
       theme: 'light' | 'dark';
       showPropertyPanel: boolean;
+      showChatPanel: boolean;
       propertyPanelName: string;
       showOpenFileModal: boolean;
       showAddDatasetModal: boolean;

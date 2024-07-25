@@ -1,10 +1,10 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import dynamic from 'next/dynamic';
+import {Icon} from '@iconify/react';
 
 import {GeoDaState} from '../../store';
 import {SettingsPanel} from './settings-panel';
-import {IconXClose} from '../icons/xclose';
 import {setShowPropertyPanel} from '@/actions';
 
 import {WeightsPanel} from '../weights/weights-panel';
@@ -19,14 +19,13 @@ import {DashboardPanel} from '../dashboard/dashboard-panel';
 import {Splitter} from '../common/splitter';
 import {DEFAULT_PANEL_WIDTH} from '@/constants';
 import {SpatialJoinPanel} from '../spatial-operations/spatial-join-panel';
+import {Button} from '@nextui-org/react';
 
-const ChatGPTPanel = dynamic(() => import('../chatgpt/chatgpt-panel'), {ssr: false});
 const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
 const MappingPanel = dynamic(() => import('../mapping/mapping-panel'), {ssr: false});
 
 // define enum for panel names
 export enum PanelName {
-  CHAT_GPT = 'ChatGpt',
   SETTINGS = 'Settings',
   TABLE = 'Table',
   MAPPING = 'Mapping',
@@ -77,12 +76,17 @@ export const PanelContainer = () => {
         onSplitterChange={setPanelWidth}
         minimumSize={DEFAULT_PANEL_WIDTH}
       />
-      <div className="flex flex-grow flex-col">
-        <div className="absolute right-2 top-2 z-[99] cursor-pointer" onClick={onCloseClick}>
-          <IconXClose />
-        </div>
+      <div className="relative flex flex-grow flex-col">
+        <Button
+          className="absolute right-1 top-1 z-10"
+          isIconOnly={true}
+          variant="light"
+          size="sm"
+          onClick={onCloseClick}
+        >
+          <Icon icon="system-uicons:window-collapse-left" width={18} />
+        </Button>
         <div className="h-full" style={{width: `${panelWidth}px`}}>
-          {propertyPanelName === PanelName.CHAT_GPT && <ChatGPTPanel />}
           {propertyPanelName === PanelName.SETTINGS && <SettingsPanel />}
           {propertyPanelName === PanelName.MAPPING && <MappingPanel />}
           {propertyPanelName === PanelName.WEIGHTS && <WeightsPanel />}

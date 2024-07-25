@@ -1,47 +1,70 @@
-import {GeoDaState} from '@/store';
-import {getLayer, getNumericFieldNames} from '@/utils/data-utils';
+import {selectKeplerDataset} from '@/store/selectors';
+import {
+  getIntegerAndStringFieldNamesFromDataset,
+  getIntegerFieldNamesFromDataset,
+  getNumericFieldNamesFromDataset,
+  getStringFieldNamesFromDataset
+} from '@/utils/data-utils';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
 import {Key, useMemo, useState} from 'react';
 import {useSelector} from 'react-redux';
 
 type VariableSelectorProps = {
-  variable?: string;
+  dataId?: string;
+  variableType?: 'numeric' | 'integer' | 'string' | 'integer_or_string';
   setVariable: (variable: string) => void;
   label?: string;
   size?: 'sm' | 'md' | 'lg';
   optional?: boolean; // for optional vars
+  isInvalid?: boolean;
 };
 
-export function VariableSelector(props: VariableSelectorProps) {
-  // use selector to get layer from redux store
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
+export function VariableSelector({
+  dataId,
+  variableType = 'numeric',
+  setVariable,
+  label,
+  size,
+  isInvalid
+}: VariableSelectorProps) {
+  const dataset = useSelector(selectKeplerDataset(dataId));
 
   // state for variable
-  const [variable, setVariable] = useState<string>('');
+  const [localVariable, setLocalVariable] = useState<string>('');
 
   // get numeric columns from redux store
-  const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(layer);
+  const columnNames = useMemo(() => {
+    let fieldNames: string[] = [];
+    if (variableType === 'numeric') {
+      fieldNames = getNumericFieldNamesFromDataset(dataset);
+    } else if (variableType === 'integer') {
+      fieldNames = getIntegerFieldNamesFromDataset(dataset);
+    } else if (variableType === 'string') {
+      fieldNames = getStringFieldNamesFromDataset(dataset);
+    } else if (variableType === 'integer_or_string') {
+      fieldNames = getIntegerAndStringFieldNamesFromDataset(dataset);
+    }
     return fieldNames;
-  }, [layer]);
+  }, [dataset, variableType]);
 
   // handle variable change
   const onVariableSelectionChange = (value: Key) => {
     const selectValue = value as string;
-    props.setVariable(selectValue);
-    // update variable in state
     setVariable(selectValue);
+    // update variable in state
+    setLocalVariable(selectValue);
   };
 
   return (
     <Autocomplete
-      label={props.label || 'Select a variable'}
+      label={label || 'Select a variable'}
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
-      size={props.size || 'md'}
-      selectedKey={variable}
+      size={size || 'md'}
+      selectedKey={localVariable}
+      isInvalid={isInvalid}
     >
-      {numericColumns.map(column => (
+      {columnNames.map(column => (
         <AutocompleteItem key={column} value={column}>
           {column}
         </AutocompleteItem>

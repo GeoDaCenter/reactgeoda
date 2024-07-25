@@ -15,6 +15,7 @@ export const INITIAL_UI_STATE = {
   showKeplerTableModal: false,
   showGridView: false,
   showPropertyPanel: false,
+  showChatPanel: false,
   propertyPanelName: '',
   openAIKey: LOCAL_API_KEY,
   isOpenAIKeyChecked: false,
@@ -84,6 +85,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
         // always show property panel when changing property panel
         showPropertyPanel: true,
         propertyPanelName: action.payload
+      };
+    case UI_ACTIONS.SET_SHOW_CHAT_PANEL:
+      return {
+        ...state,
+        showChatPanel: action.payload
       };
     case UI_ACTIONS.SET_OPENAI_KEY:
       return {

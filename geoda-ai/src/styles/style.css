@@ -1,3 +1,8 @@
+/* adjust next-ui */
+/* fix z-index of modal for add dataset dialog */
+.backdrop-opacity-disabled + div{
+  z-index: 1000 !important;
+}
 /* adjust screenshot-react */
 .crosshairs::before {
   background: #ffffff !important;

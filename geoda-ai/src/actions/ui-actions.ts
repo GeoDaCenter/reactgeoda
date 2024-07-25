@@ -7,6 +7,7 @@ export enum UI_ACTIONS {
   SET_GRID_VIEW = 'SET_GRID_VIEW',
   SET_SHOW_PROPERTY_PANEL = 'SET_SHOW_PROPERTY_PANEL',
   SET_PROPERTY_PANEL = 'SET_PROPERTY_PANEL',
+  SET_SHOW_CHAT_PANEL = 'SET_SHOW_CHAT_PANEL',
   SET_OPENAI_KEY = 'SET_OPENAI_KEY',
   SET_IS_OPENAI_KEY_CHECKED = 'SET_IS_OPENAI_KEY_CHECKED',
   SET_SHOW_QUERY_BUILDER = 'SET_SHOW_QUERY_BUILDER',
@@ -53,6 +54,11 @@ export const setShowPropertyPanel = (payload: boolean) => ({
 
 export const setPropertyPanel = (payload: string) => ({
   type: UI_ACTIONS.SET_PROPERTY_PANEL,
+  payload
+});
+
+export const setShowChatPanel = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_SHOW_CHAT_PANEL,
   payload
 });
 
