@@ -31,17 +31,18 @@ export const keplerDataContainerSelector = createSelector(
 );
 
 // create a memorized selector to get kepler layer based on input parameter: dataId
-export const selectKeplerLayer = (dataId: string) =>
+export const selectKeplerLayer = (dataId?: string) =>
   createSelector([(state: GeoDaState) => state.keplerGl[MAP_ID].visState.layers], layers => {
+    // assume only one layer for now
     const layer = layers.find((layer: Layer) => layer.config.dataId === dataId);
     // assume all layers are GeojsonLayer in Kepler.gl in GeoDa.Ai
     return layer;
   });
 
-export const selectKeplerDataset = (dataId: string) =>
+export const selectKeplerDataset = (dataId?: string) =>
   createSelector(
     [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],
     (datasets: KeplerDatasets) => {
-      return datasets[dataId];
+      return dataId ? datasets[dataId] : Object.values(datasets)[0];
     }
   );

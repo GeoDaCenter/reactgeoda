@@ -1,4 +1,4 @@
-import {Card, CardBody, CardHeader, Input, Spacer} from '@nextui-org/react';
+import {Input, Spacer} from '@nextui-org/react';
 import {DatasetSelector} from '../common/dataset-selector';
 import VerticalSteps from '../common/vertical-steps';
 import {CreateButton} from '../common/create-button';
@@ -18,8 +18,9 @@ import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {addTableColumn} from '@kepler.gl/actions';
 import {Field} from '@kepler.gl/types';
+import {VariableSelector} from '../common/variable-selector';
 
-export function SpatialCountPanel() {
+export function SpatialAssignPanel() {
   const {addColumnWithValues} = useDuckDB();
   const dispatch = useDispatch();
   const datasets = useSelector(datasetsSelector);
@@ -68,7 +69,13 @@ export function SpatialCountPanel() {
   const leftDataset = useSelector(selectKeplerDataset(firstDatasetId));
   const rightDataset = useSelector(selectKeplerDataset(secondDatasetId));
 
-  const onSpatialCount = async () => {
+  const onSelectSecondVariable = (variable: string) => {
+    setNewColumnName(variable);
+    setCurrentStep(3);
+    resetRunningState();
+  };
+
+  const onSpatialAssign = async () => {
     setIsRunning(true);
     if (leftLayer && rightLayer && leftDataset) {
       try {
@@ -123,10 +130,9 @@ export function SpatialCountPanel() {
     <div className="flex h-full flex-col gap-2 overflow-y-auto">
       <section className="max-w-sm">
         <p className="mb-5 text-small text-default-500">
-          Spatial count is a spatial operation that counts the number of geometries (e.g. points) in
-          one dataset that intersect with geometries (e.g. polygons) in another dataset. For
-          example, count how many events occurred in each zipcode area and save the counts in a new
-          column.
+          Spatial assign operation assigns the value (e.g. the zipcode) from one dataset (e.g.
+          zipcode areas) to another dataset (e.g. crime event) based on the spatial relationship
+          between the two datasets.
         </p>
         <VerticalSteps
           hideProgressBars
@@ -138,7 +144,7 @@ export function SpatialCountPanel() {
             {
               title: 'Select the first dataset',
               description:
-                'The first dataset with geometries (e.g. polygons) that contain/intersect geometries from the second dataset.',
+                'The first dataset contains geometries (e.g. points) to which the values (e.g. zipcode or city name) from the second dataset will be assigned.',
               element: (
                 <DatasetSelector
                   setDatasetId={onSetFirstDatasetId}
@@ -150,7 +156,7 @@ export function SpatialCountPanel() {
             {
               title: 'Select the second dataset',
               description:
-                'The second dataset with geometries (e.g. points) that will be counted by the geometries in the first dataset.',
+                'The second dataset contains geometries (e.g. polygons) and values (e.g. zip codes or city names) that will be assigned to the geometries in the first dataset.',
               element: (
                 <DatasetSelector
                   setDatasetId={onSetSecondDatasetId}
@@ -160,9 +166,21 @@ export function SpatialCountPanel() {
               )
             },
             {
+              title: 'Select the column in the second dataset',
+              description:
+                'The column in the second dataset that contains the values (e.g. zip codes or city names) to be assigned to the geometries in the first dataset.',
+              element: (
+                <VariableSelector
+                  dataId={secondDatasetId}
+                  setVariable={onSelectSecondVariable}
+                  variableType="integer_or_string"
+                />
+              )
+            },
+            {
               title: 'Input the new column name',
               description:
-                'The new column name that will be created in the first dataset with the count values.',
+                'The new column name that will be created in the first dataset with the assigned value.',
               element: (
                 <Input
                   type="text"
@@ -179,7 +197,7 @@ export function SpatialCountPanel() {
       </section>
       {counts.length > 0 ? (
         <WarningBox
-          message="Spatial count applied successfully"
+          message="Spatial assign applied successfully"
           type={WarningType.SUCCESS}
           dismissAfter={1000}
         />
@@ -189,29 +207,22 @@ export function SpatialCountPanel() {
       )}
       <Spacer y={2} />
       <CreateButton
-        onClick={onSpatialCount}
+        onClick={onSpatialAssign}
         isDisabled={
           newColumnName?.length === 0 ||
           secondDatasetId?.length === 0 ||
           firstDatasetId?.length === 0
         }
       >
-        Apply Spatial Count
+        Apply Spatial Assign
       </CreateButton>
       {counts.length > 0 && (
-        <Card className="m-1">
-          <CardHeader>
-            <p className="text-tiny">Column Preview</p>
-          </CardHeader>
-          <CardBody>
-            <PreviewDataTable
-              fieldName={newColumnName}
-              fieldType={ALL_FIELD_TYPES.integer}
-              columnData={counts}
-              numberOfRows={counts.length}
-            />
-          </CardBody>
-        </Card>
+        <PreviewDataTable
+          fieldName={newColumnName}
+          fieldType={ALL_FIELD_TYPES.integer}
+          columnData={counts}
+          numberOfRows={counts.length}
+        />
       )}
     </div>
   );

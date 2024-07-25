@@ -6,6 +6,7 @@ import React from 'react';
 import {Card, CardBody, Tab, Tabs} from '@nextui-org/react';
 import {SpatialCountPanel} from './spatial-count-panel';
 import {setAddDatasetModal} from '../../actions';
+import {SpatialAssignPanel} from './spatial-assign-panel';
 
 export function SpatialJoinPanel() {
   const datasets = useSelector(datasetsSelector);
@@ -40,7 +41,7 @@ export function SpatialJoinPanel() {
             <Tab key="spatial-assign" title="Spatial Assign">
               <Card>
                 <CardBody>
-                  <div>Content</div>
+                  <SpatialAssignPanel />
                 </CardBody>
               </Card>
             </Tab>

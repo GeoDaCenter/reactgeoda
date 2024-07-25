@@ -82,6 +82,30 @@ export function getNumericFieldNames(layer: Layer): Array<string> {
   return [];
 }
 
+export function getAllFieldNames(dataset: KeplerTable): Array<string> {
+  return dataset.fields.map(field => field.name);
+}
+
+export function getNumericFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields
+    .filter(field => field.type === 'integer' || field.type === 'real')
+    .map(field => field.name);
+}
+
+export function getIntegerFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields.filter(field => field.type === 'integer').map(field => field.name);
+}
+
+export function getStringFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields.filter(field => field.type === 'string').map(field => field.name);
+}
+
+export function getIntegerAndStringFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
+  return dataset.fields
+    .filter(field => field.type === 'integer' || field.type === 'string')
+    .map(field => field.name);
+}
+
 /**
  * Get the column data from the kepler.gl layer using the table name and column name
  * @param tableName the name of the table
