@@ -14,6 +14,19 @@ import {CustomMapMessage} from './custom-map-message';
 import {CustomCreateVariableMessage} from './custom-create-variable-message';
 import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 
+export const CUSTOM_MESSAGE_TYPE = [
+  'mapping',
+  'weights',
+  'lisa',
+  'histogram',
+  'scatter',
+  'bubble',
+  'boxplot',
+  'parallel-coordinate',
+  'linearRegression',
+  'createVariable'
+];
+
 export type CustomMessagePayload = {
   type: string;
   // one of the CustomFunctionNames
