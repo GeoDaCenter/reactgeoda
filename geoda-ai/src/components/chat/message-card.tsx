@@ -9,7 +9,6 @@ import {Icon} from '@iconify/react';
 import {cn} from '../common/cn';
 import {CUSTOM_MESSAGE_TYPE, CustomMessage} from '../chatgpt/custom-messages';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
-import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
 
 export type MessageCardProps = React.HTMLAttributes<HTMLDivElement> & {
   index: number;
