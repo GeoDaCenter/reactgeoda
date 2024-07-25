@@ -166,7 +166,7 @@ export function Navigator() {
   );
 
   return (
-    <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-gradient-to-b from-amber-950 via-danger-100 to-secondary-100">
+    <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-gradient-to-b from-amber-950 via-amber-900 to-gray-800">
       <GeoDaLogo />
       <div className="justify-top mt-4 flex w-full grow flex-col items-center">
         <Tooltip key="openFileTooltip" placement="right" content="Open File">
@@ -414,7 +414,7 @@ export function Navigator() {
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
           >
-            <Icon icon="hugeicons:ai-chat-02" width={24} />
+            <Icon icon="hugeicons:ai-chat-02" width={24} style={{color: '#fff'}} />
           </Button>
         </Tooltip>
         <DashboardSwitcher isDisabled={!isFileLoaded} />
