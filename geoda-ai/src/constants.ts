@@ -4,7 +4,9 @@ export const PREVIEW_MAP_ID = 'preview_map';
 
 export const DEFAULT_RANDOM_SEED = 123456789;
 
-export const DEFAULT_PANEL_WIDTH = 480;
+export const DEFAULT_PANEL_WIDTH = 380;
+
+export const DEFAULT_CHATPANEL_WIDTH = 480;
 
 export const DEFAULT_TABLE_HEIGHT = 300;
 

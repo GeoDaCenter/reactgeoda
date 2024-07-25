@@ -1,12 +1,11 @@
 import React, {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Badge, Button, Tooltip, Avatar} from '@nextui-org/react';
-
+import {Icon} from '@iconify/react';
 import {GeoDaLogo} from './geoda-logo';
 import {
   IconBoxplot,
   IconBubbleChart,
-  IconChatgpt,
   IconHistogram,
   IconLisa,
   IconMap,
@@ -24,7 +23,8 @@ import {
   setKeplerTableModal,
   setOpenFileModal,
   setPropertyPanel,
-  setSaveProjectModal
+  setSaveProjectModal,
+  setShowChatPanel
 } from '../../actions';
 import {GeoDaState} from '../../store';
 import {PanelName} from '../panel/panel-container';
@@ -47,6 +47,8 @@ export function Navigator() {
   const showKeplerTableModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showKeplerTableModal
   );
+
+  const showChatPanel = useSelector((state: GeoDaState) => state.root.uiState.showChatPanel);
 
   // get number of newly added weights from state.root.weights
   const newWeightsCount = useSelector(
@@ -128,7 +130,7 @@ export function Navigator() {
           dispatch(setPropertyPanel(PanelName.MAPPING));
           break;
         case 'icon-chatgpt':
-          dispatch(setPropertyPanel(PanelName.CHAT_GPT));
+          dispatch(setShowChatPanel(!showChatPanel));
           break;
         case 'icon-settings':
           dispatch(setPropertyPanel(PanelName.SETTINGS));
@@ -160,11 +162,11 @@ export function Navigator() {
       }
       event.stopPropagation();
     },
-    [dispatch]
+    [dispatch, showChatPanel]
   );
 
   return (
-    <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-amber-950">
+    <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-gradient-to-b from-amber-950 via-danger-100 to-secondary-100">
       <GeoDaLogo />
       <div className="justify-top mt-4 flex w-full grow flex-col items-center">
         <Tooltip key="openFileTooltip" placement="right" content="Open File">
@@ -401,6 +403,8 @@ export function Navigator() {
             </Button>
           </Tooltip>
         </Badge>
+      </div>
+      <div className="justify-top mb-4 mt-4 flex w-full flex-none flex-col items-center gap-2">
         <Tooltip key="chatgptTooltip" placement="right" content="GeoDa.AI ChatBot">
           <Button
             isIconOnly
@@ -410,11 +414,9 @@ export function Navigator() {
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
           >
-            <IconChatgpt />
+            <Icon icon="hugeicons:ai-chat-02" width={24} />
           </Button>
         </Tooltip>
-      </div>
-      <div className="justify-top mb-4 mt-4 flex w-full flex-none flex-col items-center gap-2">
         <DashboardSwitcher isDisabled={!isFileLoaded} />
         <ThemeSwitcher />
         <Button

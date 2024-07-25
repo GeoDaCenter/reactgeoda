@@ -45,13 +45,13 @@ export function SpatialJoinPanel() {
                 </CardBody>
               </Card>
             </Tab>
-            <Tab key="spatial-dissolve" title="Spatial Dissolve">
+            {/* <Tab key="spatial-dissolve" title="Spatial Dissolve">
               <Card>
                 <CardBody>
                   <div>Content</div>
                 </CardBody>
               </Card>
-            </Tab>
+            </Tab> */}
           </Tabs>
         </div>
       )}

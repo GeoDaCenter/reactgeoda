@@ -3,8 +3,7 @@ import React from 'react';
 import {Icon} from '@iconify/react';
 import {takeSnapshot} from '@/utils/ui-utils';
 import {useDispatch} from 'react-redux';
-import {setDefaultPromptText, setPropertyPanel, setScreenCaptured} from '@/actions';
-import {PanelName} from '../panel/panel-container';
+import {setDefaultPromptText, setScreenCaptured} from '@/actions';
 
 /**
  * Create a svg icon with a gear icon.
@@ -37,10 +36,12 @@ export function GearIcon() {
 export const RightPanelContainer = ({
   title,
   description,
+  showAIHelp = true,
   children
 }: {
   title: string;
   description: string;
+  showAIHelp?: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
 }) => {
@@ -55,8 +56,6 @@ export const RightPanelContainer = ({
       dispatch(setScreenCaptured(screenshot));
       // dispatch to set default prompt message in chat panel
       dispatch(setDefaultPromptText('Can you tell me how to use this?'));
-      // switch to the AI panel
-      dispatch(setPropertyPanel(PanelName.CHAT_GPT));
     }
   };
 
@@ -70,17 +69,19 @@ export const RightPanelContainer = ({
         <Divider className="my-2" />
       </div>
       <div className="relative flex flex-col" style={{height: 'calc(100% - 97px)'}}>
-        <Tooltip content="Ask AI for help" size="sm">
-          <Button
-            className="absolute -top-12 right-1 z-10"
-            isIconOnly={true}
-            radius="full"
-            size="sm"
-            onClick={askAIForHelp}
-          >
-            <Icon icon="hugeicons:ai-book" width={18} />
-          </Button>
-        </Tooltip>
+        {showAIHelp && (
+          <Tooltip content="Ask AI for help" size="sm" placement="right">
+            <Button
+              className="absolute -top-12 right-1 z-10"
+              isIconOnly={true}
+              variant="light"
+              size="sm"
+              onClick={askAIForHelp}
+            >
+              <Icon icon="hugeicons:ai-book" width={18} />
+            </Button>
+          </Tooltip>
+        )}
         {children}
       </div>
     </div>

@@ -7,12 +7,7 @@ import {datasetsSelector, selectKeplerDataset, selectKeplerLayer} from '@/store/
 import React from 'react';
 import {spatialJoin} from 'geoda-wasm';
 import {useDuckDB} from '@/hooks/use-duckdb';
-import {
-  getBinaryGeometriesFromPointLayer,
-  getBinaryGeometryTypeFromPointLayer,
-  getDatasetName,
-  isPointLayer
-} from '@/utils/data-utils';
+import {getDatasetName} from '@/utils/data-utils';
 import {PreviewDataTable} from '../table/preview-data-table';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {WarningBox, WarningType} from '../common/warning-box';

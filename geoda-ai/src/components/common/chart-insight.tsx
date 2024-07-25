@@ -4,8 +4,7 @@ import {useDispatch} from 'react-redux';
 import {Icon} from '@iconify/react';
 
 import {takeSnapshot} from '../../utils/ui-utils';
-import {setDefaultPromptText, setPropertyPanel, setScreenCaptured} from '../../actions';
-import {PanelName} from '../panel/panel-container';
+import {setDefaultPromptText, setScreenCaptured} from '../../actions';
 
 export function ChartInsightButton({parentElementId}: {parentElementId: string}) {
   const dispatch = useDispatch();
@@ -19,8 +18,6 @@ export function ChartInsightButton({parentElementId}: {parentElementId: string})
       dispatch(setScreenCaptured(screenshot));
       // dispatch to set default prompt message in chat panel
       dispatch(setDefaultPromptText('Can you get some insights from this chart?'));
-      // switch to the AI panel
-      dispatch(setPropertyPanel(PanelName.CHAT_GPT));
     }
   };
 
