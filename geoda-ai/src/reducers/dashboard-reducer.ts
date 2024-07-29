@@ -11,7 +11,7 @@ import {EditorState} from 'lexical';
 import {Layout} from 'react-grid-layout';
 
 export type DashboardStateProps = {
-  mode: 'edit' | 'view';
+  mode: 'edit' | 'display';
   gridLayout?: Layout[];
   gridItems?: Array<{id: string; show: boolean}>;
   textItems?: Array<{id: string; content: EditorState}>;

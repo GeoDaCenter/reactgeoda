@@ -16,7 +16,6 @@ import {SQLEditor, SQLEditorRefProps} from './sql-editor';
 import {useSelector} from 'react-redux';
 import {Key, useEffect, useMemo, useRef, useState} from 'react';
 import {GeoDaState} from '@/store';
-import {getDataset} from '@/utils/data-utils';
 import {
   DUCKDB_AGGREGATE_FUNCTIONS,
   DUCKDB_DATE_FUNCTIONS,
@@ -27,7 +26,7 @@ import {
 } from './sql-constant';
 import {SearchIcon} from '../icons/search';
 import {useDuckDB} from '@/hooks/use-duckdb';
-import {mainTableNameSelector} from '@/store/selectors';
+import KeplerTable from '@kepler.gl/table';
 
 const AVAILABLE_FUNCTIONS = [
   ...DUCKDB_NUMERIC_FUNCTIONS,
@@ -38,16 +37,20 @@ const AVAILABLE_FUNCTIONS = [
 ];
 
 export type TableVariableValueProps = {
+  tableName: string;
+  keplerDataset: KeplerTable;
   setValues: (values: unknown | unknown[]) => void;
 };
 
-export function TableVariableValueComponent({setValues}: TableVariableValueProps) {
+export function TableVariableValueComponent({
+  tableName,
+  keplerDataset,
+  setValues
+}: TableVariableValueProps) {
   const [code, setCode] = useState('');
   const [filteredFunctions, setFilteredFunctions] =
     useState<DuckDBFunctionProps[]>(AVAILABLE_FUNCTIONS);
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const tableName = useSelector(mainTableNameSelector);
 
   const {queryValues} = useDuckDB();
 
@@ -74,10 +77,10 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
     (async () => {
       // when code changes, update the values
       // replace any aggregate function with select_agg function using regex
-      const updatedCode = code.replace(
-        aggregateFuncNamesRegex,
-        `(select $1($2) from "${tableName}")`
-      );
+      const updatedCode =
+        code.length === 0
+          ? '0'
+          : code.replace(aggregateFuncNamesRegex, `(select $1($2) from "${tableName}")`);
       const sql = `SELECT ${updatedCode} FROM "${tableName}";`;
       const result = await queryValues(sql);
       setValues(Array.from(result));
@@ -86,7 +89,7 @@ export function TableVariableValueComponent({setValues}: TableVariableValueProps
 
   // get suggest keys from dataset fields
   const suggestKeys = [
-    ...(dataset?.fields.map(field => field.name) || []),
+    ...(keplerDataset?.fields.map(field => field.name) || []),
     ...AVAILABLE_FUNCTIONS.map(func => func.name.replace(/\(.*\)/g, ''))
   ];
 

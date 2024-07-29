@@ -10,6 +10,7 @@ import {PreviewDataTable} from '../table/preview-data-table';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {CustomMessagePayload} from './custom-messages';
 import {mainTableNameSelector} from '@/store/selectors';
+import {addTableColumn} from '@kepler.gl/actions';
 
 /**
  * Custom Create Variable Message
@@ -38,17 +39,17 @@ export const CustomCreateVariableMessage = ({props}: {props: CustomMessagePayloa
 
   // handle click event
   const onClick = () => {
-    if (createVariableData) {
+    if (createVariableData && dataset) {
       // add column to duckdb
       addColumn(sql);
       // add column to kepler.gl
-      addKeplerColumn({
+      const {newField, values} = addKeplerColumn({
         dataset,
         newFieldName: createVariableData.newColumn,
         fieldType: createVariableData.columnType,
-        columnData: createVariableData.values,
-        dispatch
+        columnData: createVariableData.values
       });
+      dispatch(addTableColumn(dataset.id, newField, values));
 
       // hide the button once clicked
       setHide(true);

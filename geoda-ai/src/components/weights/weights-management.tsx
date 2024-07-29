@@ -85,6 +85,7 @@ export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}): Rea
 
 export type WeightsSelectorProps = {
   weights: {weightsMeta: WeightsMeta}[];
+  weightsId?: string;
   onSelectWeights: (value: any) => void;
   label?: string;
   showWarningBox?: boolean;
@@ -92,12 +93,13 @@ export type WeightsSelectorProps = {
 
 export function WeightsSelector({
   weights,
+  weightsId,
   onSelectWeights,
   label,
   showWarningBox = true
 }: WeightsSelectorProps) {
   const dispatch = useDispatch();
-  const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
+  const [selectedWeight, setSelectedWeight] = useState(weightsId);
 
   // handle select weights
   const onSelectionChange = (value: any) => {

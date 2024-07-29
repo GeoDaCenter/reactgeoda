@@ -18,12 +18,12 @@ const initialState: KeplerStateProps = {
   brushLink: {}
 };
 
-export type KeplerAction = {
+export type InteractionAction = {
   type: string;
   payload: KeplerBrushLinkPayloadProps | GeoDaBrushLinkPayloadProps;
 };
 
-export const interactionReducer = (state = initialState, action: KeplerAction) => {
+export const interactionReducer = (state = initialState, action: InteractionAction) => {
   switch (action.type) {
     case INTERACTION_ACTIONS.BRUSH_LINK_FROM_KEPLER:
       return keplerBrushLinkUpdater(state, action.payload as KeplerBrushLinkPayloadProps);

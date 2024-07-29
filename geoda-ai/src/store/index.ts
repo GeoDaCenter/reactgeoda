@@ -1,9 +1,11 @@
 import {
   legacy_createStore as createStore,
-  combineReducers,
   applyMiddleware,
-  Middleware
+  Middleware,
+  UnknownAction,
+  Dispatch
 } from 'redux';
+import {thunk} from 'redux-thunk';
 import {createLogger} from 'redux-logger';
 import {Layout} from 'react-grid-layout';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
@@ -18,6 +20,7 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 import {RuleGroupType} from 'react-querybuilder';
 import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
+import {MapProps} from '@/reducers/maps-reducer';
 
 /**
  * Define the State of the Redux store
@@ -27,6 +30,7 @@ export type GeoDaState = {
   root: {
     defaultDatasetId: string;
     datasets: Array<DatasetProps>;
+    maps: Array<MapProps>;
     language: string;
     uiState: {
       theme: 'light' | 'dark';
@@ -117,14 +121,21 @@ const customizedKeplerGlReducer = keplerGlReducer
     }
   });
 
-export const reducers = combineReducers({
-  keplerGl: customizedKeplerGlReducer,
-  root: geodaReducer
-});
+// export const reducers = combineReducers({
+//   keplerGl: customizedKeplerGlReducer,
+//   root: geodaReducer
+// });
+
+export const reducers = (state: any, action: any) => {
+  return {
+    keplerGl: customizedKeplerGlReducer(state.keplerGl, action),
+    root: geodaReducer(state.root, action, state.keplerGl)
+  };
+};
 
 // Customize logger
-const loggerMiddleware: Middleware = createLogger({
-  predicate: (_getState: any, action: any) => {
+const loggerMiddleware: Middleware<{}, any, Dispatch<any>> = createLogger({
+  predicate: (_getState: any, action: UnknownAction) => {
     const skipLogging = [
       '@@kepler.gl/LAYER_HOVER',
       '@@kepler.gl/MOUSE_MOVE',
@@ -135,8 +146,7 @@ const loggerMiddleware: Middleware = createLogger({
   }
 });
 
-// @ts-ignore FIXME
-export const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
+export const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware]) as Middleware[];
 
 const initialState = {};
 
@@ -144,8 +154,7 @@ const initialState = {};
 const store = createStore(
   reducers,
   initialState,
-  // @ts-ignore FIXME
-  applyMiddleware(...middlewares)
+  applyMiddleware(...middlewares, thunk, loggerMiddleware)
 );
 // const store = configureStore({reducer: reducers, middleware: middlewares});
 

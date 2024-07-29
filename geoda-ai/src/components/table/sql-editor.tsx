@@ -33,6 +33,13 @@ export type SQLEditorRefProps = {
 export const SQLEditor = forwardRef<SQLEditorRefProps, SQLEditorProps>(
   ({initContent, onChange, theme, suggestKeys, language, height}, ref) => {
     const [content, setContent] = useState(initContent || '');
+
+    // update content when initContent changes
+    if (content !== initContent && initContent) {
+      // see https://stackoverflow.com/questions/58818727/react-usestate-not-setting-initial-value
+      setContent(initContent);
+    }
+
     const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
     useImperativeHandle(ref, () => ({

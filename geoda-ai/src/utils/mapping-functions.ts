@@ -9,37 +9,89 @@ import {
   percentileBreaks,
   standardDeviationBreaks
 } from 'geoda-wasm';
-import {addLayer, reorderLayer} from '@kepler.gl/actions';
-import {Layer} from '@kepler.gl/layers';
-import {ColorRange} from '@kepler.gl/constants';
+import {LayerClasses} from '@kepler.gl/layers';
+import {ColorMap, ColorRange} from '@kepler.gl/constants';
 
 import {MappingTypes} from '@/constants';
 import {generateRandomId} from './ui-utils';
 import {getDefaultColorRange} from './color-utils';
 import {numericFormatter} from './plots/format-utils';
+import {findDefaultLayer} from '@kepler.gl/reducers';
+import KeplerTable from '@kepler.gl/table';
+
+function createKeplerLayer({
+  dataset,
+  colorFieldName,
+  colorFieldType,
+  colorRange,
+  colorScale,
+  colorDomain,
+  label
+}: {
+  dataset: KeplerTable;
+  colorFieldName: string;
+  colorFieldType: 'real' | 'string';
+  colorRange: ColorRange;
+  colorScale: 'ordinal' | 'custom';
+  colorDomain: number[];
+  label: string;
+}) {
+  const dataId = dataset.id;
+  const id = generateRandomId();
+  const defaultLayers = findDefaultLayer(dataset, LayerClasses);
+  if (!defaultLayers || defaultLayers.length === 0) {
+    throw new Error('Create Kepler layer failed: no default layer found');
+  }
+  const defaultLayer = defaultLayers[0];
+  // reconstruct columns from defaultLayer
+  const columns = Object.keys(defaultLayer.config.columns).reduce((acc, c) => {
+    return {...acc, [c]: defaultLayer.config.columns[c].value};
+  }, {});
+
+  const newLayer = {
+    id,
+    type: defaultLayer.type,
+    config: {
+      dataId,
+      columns,
+      label,
+      colorScale,
+      colorField: {
+        name: colorFieldName,
+        type: colorFieldType
+      },
+      visConfig: {
+        ...defaultLayer.config.visConfig,
+        colorRange,
+        colorDomain,
+        thickness: 0.2,
+        opacity: 1
+      },
+      isVisible: true
+    }
+  };
+  return newLayer;
+}
 
 type CreateUniqueValuesMapProps = {
-  dispatch: Dispatch<UnknownAction>;
-  layer: Layer;
+  dispatch?: Dispatch<UnknownAction>;
+  dataset: KeplerTable;
   uniqueValues: number[];
   hexColors: string[];
   legendLabels: string[];
   mappingType: string;
   colorFieldName: string;
-  layerOrder: string[];
+  layerOrder?: string[];
   isPreview?: boolean;
 };
 
 export function createUniqueValuesMap({
-  dispatch,
-  layer,
+  dataset,
   uniqueValues,
   legendLabels,
   hexColors,
   mappingType,
-  colorFieldName,
-  layerOrder,
-  isPreview
+  colorFieldName
 }: CreateUniqueValuesMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   const colors = hexColors;
@@ -59,72 +111,49 @@ export function createUniqueValuesMap({
     {} as {[key: string]: string}
   ); // Add index signature to allow indexing with a string
 
-  const colorRange = {
+  const customColorRange: ColorRange = {
     category: 'ordinal',
     type: 'diverging',
     name: 'ColorBrewer RdBu-5',
     colors,
-    colorMap,
+    colorMap: colorMap as ColorMap,
     colorLegends
   };
 
-  // get dataId
-  const dataId = layer?.config.dataId;
-  // generate random id for a new layer
-  const id = generateRandomId();
+  const label = `${mappingType}-${colorFieldName}`;
   // create a new Layer
-  const newLayer = {
-    id,
-    type: 'geojson',
-    config: {
-      dataId,
-      columns: {geojson: layer?.config.columns.geojson.value},
-      label: `${mappingType}-${colorFieldName}`,
-      colorScale: 'ordinal',
-      colorField: {
-        name: `${colorFieldName}`,
-        type: colorFieldType
-      },
-      visConfig: {
-        ...layer?.config.visConfig,
-        colorRange,
-        colorDomain: uniqueValues,
-        thickness: 0.2,
-        opacity: 1
-      },
-      isVisible: true
-    }
-  };
-
-  // dispatch action to add new layer in kepler
-  dispatch(addLayer(newLayer, dataId));
-  // dispatch action to reorder layer
-  if (isPreview) {
-    dispatch(reorderLayer([...layerOrder, newLayer.id]));
-  }
+  const newLayer = createKeplerLayer({
+    dataset,
+    colorFieldName,
+    colorFieldType,
+    colorRange: customColorRange,
+    colorScale: 'ordinal',
+    colorDomain: uniqueValues,
+    label
+  });
+  // // dispatch action to add new layer in kepler
+  // dispatch(addLayer(newLayer, dataset.id));
+  // // dispatch action to reorder layer
+  // if (isPreview) {
+  //   dispatch(reorderLayer([...layerOrder, newLayer.id]));
+  // }
   return newLayer;
 }
 
 type CreateCustomScaleMapProps = {
-  dispatch: Dispatch<UnknownAction>;
-  layer: Layer;
+  dataset: KeplerTable;
   breaks: number[];
   mappingType: string;
   colorFieldName: string;
-  isPreview?: boolean;
   colorRange?: ColorRange;
-  layerOrder: string[];
 };
 
 export function createCustomScaleMap({
-  dispatch,
-  layer,
+  dataset,
   breaks,
   mappingType,
   colorFieldName,
-  isPreview,
-  colorRange,
-  layerOrder
+  colorRange
 }: CreateCustomScaleMapProps) {
   // get colors, colorMap, colorLegend to create colorRange
   let colors = getDefaultColorRange(breaks.length + 1)?.colors;
@@ -150,54 +179,37 @@ export function createCustomScaleMap({
     {} as {[key: string]: string}
   ); // Add index signature to allow indexing with a string
 
-  const customColorRange = {
+  const customColorRange: ColorRange = {
     category: 'custom',
     type: 'diverging',
     name: 'ColorBrewer RdBu-5',
-    colors,
-    colorMap,
+    colors: colors || [],
+    colorMap: colorMap as ColorMap,
     colorLegends,
     ...(colorRange || {})
   };
 
-  // get dataId
-  const dataId = layer?.config.dataId;
-  // generate random id for a new layer
+  // generate label for a new layer
   const label = `${mappingType}-${colorFieldName}-${breaks.length + 1}`;
-  // check if there is already a layer with the same label
+
+  // todo: check if there is already a layer with the same label
 
   // create a new Layer
-  const id = generateRandomId();
-  const newLayer = {
-    id,
-    type: 'geojson',
-    config: {
-      dataId,
-      columns: {geojson: layer?.config.columns.geojson.value},
-      label,
-      colorScale: 'custom',
-      colorField: {
-        name: `${colorFieldName}`,
-        type: 'real'
-      },
-      visConfig: {
-        ...layer?.config.visConfig,
-        colorRange: customColorRange,
-        colorDomain: breaks,
-        thickness: 0.2,
-        opacity: 1
-      },
-      isVisible: true
-    }
-  };
+  const newLayer = createKeplerLayer({
+    dataset,
+    colorFieldName,
+    colorFieldType: 'real',
+    colorRange: customColorRange,
+    colorScale: 'custom',
+    colorDomain: breaks,
+    label
+  });
 
   // dispatch action to add new layer in kepler
-  dispatch(addLayer(newLayer, dataId));
-  // dispatch action to reorder layer
-  if (isPreview) {
-    // dispatch(reorderLayer([...layerOrder, newLayer.id]));
-    dispatch(reorderLayer([...layerOrder]));
-  }
+  // dispatch(addLayer(newLayer, dataset.id));
+  // if (isPreview) {
+  //   dispatch(reorderLayer([...layerOrder, newLayer.id]));
+  // }
   return newLayer;
 }
 

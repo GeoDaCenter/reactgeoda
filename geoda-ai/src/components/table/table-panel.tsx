@@ -4,17 +4,20 @@ import {useSelector} from 'react-redux';
 import {Tabs, Tab, Card, CardBody} from '@nextui-org/react';
 
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {TableQueryComponent} from './table-query-component';
 import {AddColumn} from './column-add-component';
-import {mainTableNameSelector} from '@/store/selectors';
+import {selectKeplerDataset} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before querying and editing data.';
 
 function TablePanel() {
   const intl = useIntl();
   const [selectedTab, setSelectedTab] = useState('table-query');
-  const tableName = useSelector(mainTableNameSelector);
+
+  const [datasetId, setDatasetId] = useState('');
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
+  const tableName = keplerDataset.label;
 
   const onTabChange = (key: React.Key) => {
     if (key === 'table-query') {
@@ -36,7 +39,7 @@ function TablePanel() {
       })}
     >
       {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto  p-1">
           <Tabs
@@ -58,7 +61,12 @@ function TablePanel() {
             >
               <Card>
                 <CardBody>
-                  <TableQueryComponent />
+                  <TableQueryComponent
+                    datasetId={datasetId}
+                    setDatasetId={setDatasetId}
+                    keplerDataset={keplerDataset}
+                    tableName={tableName}
+                  />
                 </CardBody>
               </Card>
             </Tab>
@@ -72,7 +80,12 @@ function TablePanel() {
             >
               <Card>
                 <CardBody>
-                  <AddColumn />
+                  <AddColumn
+                    datasetId={datasetId}
+                    setDatasetId={setDatasetId}
+                    keplerDataset={keplerDataset}
+                    tableName={tableName}
+                  />
                 </CardBody>
               </Card>
             </Tab>

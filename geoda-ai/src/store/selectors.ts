@@ -43,6 +43,6 @@ export const selectKeplerDataset = (dataId?: string) =>
   createSelector(
     [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],
     (datasets: KeplerDatasets) => {
-      return dataId ? datasets[dataId] : Object.values(datasets)[0];
+      return dataId && dataId in datasets ? datasets[dataId] : Object.values(datasets)[0];
     }
   );

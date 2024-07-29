@@ -1,6 +1,6 @@
 import {useIntl} from 'react-intl';
 import {Tabs, Tab, Card, CardBody, Spacer} from '@nextui-org/react';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   appInjector,
@@ -13,22 +13,15 @@ import {
 import {LayerClasses} from '@kepler.gl/layers';
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
-import {
-  createMapBreaks,
-  createCustomScaleMap,
-  createUniqueValuesMap
-} from '@/utils/mapping-functions';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {getColumnData, getDataset, getLayer} from '@/utils/data-utils';
 import {wrapTo} from '@kepler.gl/actions';
 import {SIDEBAR_PANELS} from '@kepler.gl/constants';
 import {getDefaultColorRange} from '@/utils/color-utils';
-import {ClassificationPanel, ClassificationOnValuesChange} from '../common/classification-panel';
-import {useDuckDB} from '@/hooks/use-duckdb';
-import {addKeplerColumn} from '@/utils/table-utils';
+import {ClassificationPanel} from '../common/classification-panel';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {createMapAsync, createRatesMapAsync} from '@/actions';
+import {RatesOptions} from 'geoda-wasm';
 // import {DndContext} from '@dnd-kit/core';
 
 // const MapContainer = KeplerInjector.get(MapContainerFactory);
@@ -40,8 +33,7 @@ const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and manag
 
 function MappingPanel() {
   const intl = useIntl();
-  const dispatch = useDispatch();
-  const {addColumnWithValues} = useDuckDB();
+  const dispatch = useDispatch<any>();
 
   // get kepler actions
   const dispatchKepler = (action: any) => dispatch(wrapTo(MAP_ID, action));
@@ -51,11 +43,6 @@ function MappingPanel() {
     dispatchKepler,
     keplerOwnProps
   );
-
-  // use selector to get tableName from redux store
-  const tableName = useSelector(mainTableNameSelector);
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
 
   // get datasets from redux store
   const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
@@ -68,83 +55,62 @@ function MappingPanel() {
   const mapStyle = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.mapStyle);
 
   // handle classification config changes
+  const [isRatesMap, setIsRatesMap] = useState(false);
   const [k, setK] = useState(5);
   const [variable, setVariable] = useState('');
-  const [mappingType, setMappingType] = useState<string>(MappingTypes.QUANTILE);
+  const [baseVariable, setBaseVariable] = useState('');
+  const [eventVariable, setEventVariable] = useState('');
+  const [weightsId, setWeightsId] = useState('');
+  const [datasetId, setDatasetId] = useState('');
+  const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
-  const [rateValues, setRateValues] = useState<number[] | undefined>(undefined);
-
-  const onClassficationValueChange = ({
-    method,
-    variable,
-    k,
-    colorRange,
-    rateValues
-  }: ClassificationOnValuesChange) => {
-    setMappingType(method);
-    setVariable(variable);
-    setK(k);
-    setSelectedColorRange(colorRange);
-    setRateValues(rateValues);
-  };
+  const [ratesMethod, setRatesMethod] = useState(RatesOptions.RawRates);
 
   // handle onCreateMap
   const onCreateMap = async () => {
-    if (!tableName) {
+    if (!datasetId) {
       return;
     }
 
-    if (rateValues) {
-      // in case of rate mapping, add rate values to a new column first
-      await addColumnWithValues({
-        tableName,
-        columnName: variable,
-        columnValues: rateValues,
-        columnType: 'NUMERIC'
-      });
-      // add column to kepler.gl
-      addKeplerColumn({
-        dataset,
-        newFieldName: variable,
-        fieldType: 'real',
-        columnData: rateValues,
-        dispatch
-      });
-    }
-
-    // get column data from dataContainer
-    const columnData = getColumnData(variable, layer.dataContainer);
-
-    if (mappingType === MappingTypes.UNIQUE_VALUES) {
-      const uniqueValues = Array.from(new Set(columnData));
-      const legendLabels = uniqueValues.map(v => v.toString());
-      // create unique values map in kepler.gl
-      createUniqueValuesMap({
-        dispatch,
-        layer,
-        uniqueValues,
-        legendLabels,
-        hexColors: selectedColorRange?.colors || [],
-        mappingType,
-        colorFieldName: variable,
-        layerOrder
-      });
-    } else {
-      // run map breaks
-      const breaks = await createMapBreaks({mappingType, k, values: columnData});
-
-      // create custom scale map in kepler.gl
-      createCustomScaleMap({
-        breaks,
-        mappingType,
-        colorFieldName: variable,
-        dispatch,
-        layer,
-        colorRange: selectedColorRange,
-        layerOrder
-      });
+    if (isRatesMap === false) {
+      dispatch(
+        createMapAsync({
+          dataId: datasetId,
+          variable,
+          classficationMethod: mappingType,
+          numberOfCategories: k,
+          colorRange: selectedColorRange
+        })
+      );
+    } else if (
+      eventVariable &&
+      baseVariable &&
+      eventVariable.length > 0 &&
+      baseVariable.length > 0 &&
+      ratesMethod &&
+      ratesMethod.length > 0
+    ) {
+      dispatch(
+        createRatesMapAsync({
+          dataId: datasetId,
+          method: ratesMethod,
+          eventVariable,
+          baseVariable,
+          classficationMethod: mappingType,
+          numberOfCategories: k,
+          colorRange: selectedColorRange,
+          weightsId
+        })
+      );
     }
   };
+
+  const isCreateButtonDisabled = useMemo(() => {
+    if (isRatesMap) {
+      return !baseVariable || !eventVariable || !mappingType || k <= 0;
+    }
+    return !variable || !mappingType || k <= 0;
+  }, [isRatesMap, baseVariable, eventVariable, variable, mappingType, k]);
 
   return (
     <RightPanelContainer
@@ -158,7 +124,7 @@ function MappingPanel() {
       })}
       icon={null}
     >
-      {!tableName ? (
+      {datasets.length === 0 ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
@@ -175,14 +141,30 @@ function MappingPanel() {
                 <CardBody>
                   <div className="flex flex-col gap-2">
                     <ClassificationPanel
-                      props={{k, variable, mappingType}}
-                      onValuesChange={onClassficationValueChange}
+                      props={{
+                        k,
+                        setK,
+                        datasetId,
+                        setDatasetId,
+                        variable,
+                        setVariable,
+                        mappingType,
+                        setMappingType,
+                        ratesMethod,
+                        setRatesMethod,
+                        selectedColorRange,
+                        setSelectedColorRange,
+                        weightsId,
+                        setWeightsId,
+                        baseVariable,
+                        setBaseVariable,
+                        eventVariable,
+                        setEventVariable,
+                        setIsRatesMap
+                      }}
                     />
                     <Spacer y={2} />
-                    <CreateButton
-                      onClick={onCreateMap}
-                      isDisabled={!variable || !mappingType || k <= 0}
-                    >
+                    <CreateButton onClick={onCreateMap} isDisabled={isCreateButtonDisabled}>
                       Create a New Map Layer
                     </CreateButton>
                   </div>

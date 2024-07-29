@@ -205,6 +205,13 @@ export function getColumnDataType(
   return 'string';
 }
 
+export function getColumnDataFromKeplerDataset(
+  columnName: string,
+  dataset: KeplerTable
+): Array<number> {
+  return getColumnData(columnName, dataset.dataContainer);
+}
+
 export function getColumnData(
   columnName: string,
   dataContainer: DataContainerInterface | null

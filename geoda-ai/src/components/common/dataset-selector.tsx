@@ -1,27 +1,23 @@
 import {datasetsSelector} from '@/store/selectors';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
-import {Key, useState} from 'react';
+import {Key} from 'react';
 import {useSelector} from 'react-redux';
 
 type DatasetSelectorProps = {
-  datasetId?: string;
+  datasetId: string;
   setDatasetId: (datasetName: string) => void;
   label?: string;
   size?: 'sm' | 'md' | 'lg';
-  optional?: boolean; // for optional vars
-  isInvalid?: boolean;
 };
 
 export function DatasetSelector(props: DatasetSelectorProps) {
+  const {datasetId, setDatasetId} = props;
   const datasets = useSelector(datasetsSelector);
-
-  const [dataId, setDataId] = useState<string>(props.datasetId || '');
 
   const onDatasetSelectionChange = (value: Key) => {
     const selectValue = value as string;
-    props.setDatasetId(selectValue);
     // update variable in state
-    setDataId(selectValue);
+    setDatasetId(selectValue);
   };
 
   return (
@@ -30,8 +26,8 @@ export function DatasetSelector(props: DatasetSelectorProps) {
       className="max-w"
       onSelectionChange={onDatasetSelectionChange}
       size={props.size || 'md'}
-      selectedKey={dataId}
-      isInvalid={props.isInvalid}
+      selectedKey={datasetId}
+      isInvalid={!datasetId || datasetId.length === 0}
     >
       {datasets.map((d, i) => (
         <AutocompleteItem key={d.dataId || i} value={d.dataId}>

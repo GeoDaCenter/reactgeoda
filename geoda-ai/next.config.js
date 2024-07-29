@@ -36,7 +36,7 @@ const nextConfig = {
       // type: 'webassembly/async'
       generator: {
         // specify the output location of the wasm files
-        filename: 'static/chunks/[name][ext]'
+        filename: 'static/chunks/app/mapland/[name][ext]'
       }
     });
 
