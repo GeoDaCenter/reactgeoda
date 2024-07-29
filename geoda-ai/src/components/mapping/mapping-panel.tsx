@@ -1,5 +1,5 @@
 import {useIntl} from 'react-intl';
-import {Tabs, Tab, Card, CardBody, Spacer} from '@nextui-org/react';
+import {Tabs, Tab, Card, CardBody, Spacer, CardHeader} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -7,6 +7,7 @@ import {
   DndContextFactory,
   KeplerGlContext,
   LayerListFactory,
+  DatasetSectionFactory,
   makeGetActionCreators,
   MapManagerFactory
 } from '@kepler.gl/components';
@@ -15,7 +16,7 @@ import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {wrapTo} from '@kepler.gl/actions';
+import {updateTableColor, wrapTo} from '@kepler.gl/actions';
 import {SIDEBAR_PANELS} from '@kepler.gl/constants';
 import {getDefaultColorRange} from '@/utils/color-utils';
 import {ClassificationPanel} from '../common/classification-panel';
@@ -24,7 +25,7 @@ import {createMapAsync, createRatesMapAsync} from '@/actions';
 import {RatesOptions} from 'geoda-wasm';
 // import {DndContext} from '@dnd-kit/core';
 
-// const MapContainer = KeplerInjector.get(MapContainerFactory);
+const DatasetSection = appInjector.get(DatasetSectionFactory);
 const LayerList = appInjector.get(LayerListFactory);
 const MapManager = appInjector.get(MapManagerFactory);
 const DndContext = appInjector.get(DndContextFactory);
@@ -112,6 +113,11 @@ function MappingPanel() {
     return !variable || !mappingType || k <= 0;
   }, [isRatesMap, baseVariable, eventVariable, variable, mappingType, k]);
 
+  const onUpdateDatasetColor = (datasetId: string, color: string) => {
+    console.log('update dataset color', datasetId, color);
+    dispatch(updateTableColor(datasetId, color));
+  };
+
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -180,20 +186,42 @@ function MappingPanel() {
               }
             >
               <Card>
-                <CardBody>
+                <CardBody className="flex flex-col gap-4">
                   <KeplerGlContext.Provider
                     value={{id: MAP_ID, selector: state => state.keplerGl[MAP_ID]}}
                   >
-                    <DndContext>
-                      <LayerList
-                        datasets={datasets}
-                        layers={layers}
-                        layerOrder={layerOrder}
-                        layerClasses={LayerClasses}
-                        uiStateActions={uiStateActions}
-                        visStateActions={visStateActions}
-                      />
-                    </DndContext>
+                    <Card>
+                      <CardBody>
+                        <DatasetSection
+                          datasets={datasets}
+                          showDatasetTable={false}
+                          showDeleteDataset={true}
+                          updateTableColor={onUpdateDatasetColor}
+                          removeDataset={uiStateActions.openDeleteModal}
+                          showDatasetList={true}
+                          showAddDataModal={uiStateActions.showAddDataModal}
+                        />
+                      </CardBody>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <p className="text-tiny tracking-[1.25px] text-[#A0A7B4] dark:text-[#6A7485]">
+                          Layers
+                        </p>
+                      </CardHeader>
+                      <CardBody>
+                        <DndContext>
+                          <LayerList
+                            datasets={datasets}
+                            layers={layers}
+                            layerOrder={layerOrder}
+                            layerClasses={LayerClasses}
+                            uiStateActions={uiStateActions}
+                            visStateActions={visStateActions}
+                          />
+                        </DndContext>
+                      </CardBody>
+                    </Card>
                   </KeplerGlContext.Provider>
                 </CardBody>
               </Card>
