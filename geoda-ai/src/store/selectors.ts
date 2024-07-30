@@ -50,7 +50,7 @@ export const keplerDatasetsSelector = (state: GeoDaState) =>
 export const selectDefaultKeplerDataset = createSelector(
   [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],
   (datasets: KeplerDatasets) => {
-    return Object.values(datasets)[0];
+    return Object.values(datasets).length > 0 ? Object.values(datasets)[0] : null;
   }
 );
 
@@ -61,3 +61,8 @@ export const selectKeplerDataset = (dataId?: string) =>
       return dataId && dataId in datasets ? datasets[dataId] : Object.values(datasets)[0];
     }
   );
+
+export const selectWeightsByDataId = (datasetId: string) =>
+  createSelector([(state: GeoDaState) => state.root.weights], weights => {
+    return weights.filter(weight => weight.datasetId === datasetId);
+  });

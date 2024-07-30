@@ -6,14 +6,14 @@ import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
 import {ChangeEvent, useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
-import {MAP_ID} from '@/constants';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/plots/histogram-utils';
 import {PlotProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -27,31 +27,17 @@ export function HistogramPanel() {
   const [variable, setVariable] = useState('');
   // use state for intervals
   const [intervals, setIntervals] = useState(7);
-  // use selector to get tableName
-  const tableName = useSelector(mainTableNameSelector);
-  // use selector to get dataContainer
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
+
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // on intervals change
   const onIntervalsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setIntervals(parseInt(e.target.value, 10));
-  };
-
-  // on create histogram
-  const onCreateHistogram = () => {
-    // get data from variable
-    const data = getColumnData(variable, dataContainer);
-    const histogram = createHistogram(data, 7);
-    // generate random id for histogram
-    const id = generateRandomId();
-    // dispatch action to create histogram and add to store
-    dispatch(addPlot({id, type: 'histogram', variable, data: histogram}));
-    // Show the plots management panel
-    setShowPlotsManagement(true);
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
@@ -69,6 +55,21 @@ export function HistogramPanel() {
     }
   }, [newPlotsCount, plots]);
 
+  // on create histogram
+  const onCreateHistogram = () => {
+    if (keplerDataset) {
+      // get data from variable
+      const data = getColumnDataFromKeplerDataset(variable, keplerDataset);
+      const histogram = createHistogram(data, 7);
+      // generate random id for histogram
+      const id = generateRandomId();
+      // dispatch action to create histogram and add to store
+      dispatch(addPlot({id, datasetId, type: 'histogram', variable, data: histogram}));
+      // Show the plots management panel
+      setShowPlotsManagement(true);
+    }
+  };
+
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -81,7 +82,7 @@ export function HistogramPanel() {
       })}
       icon={null}
     >
-      {!tableName ? (
+      {!keplerDataset ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full w-full overflow-y-auto p-4">
@@ -105,7 +106,8 @@ export function HistogramPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-2">
-                    <VariableSelector setVariable={setVariable} />
+                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <VariableSelector dataId={datasetId} setVariable={setVariable} />
                     <Input
                       type="number"
                       label="Intervals in histogram"

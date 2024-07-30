@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Table as ArrowTable, Field as ArrowField} from 'apache-arrow';
 // @ts-ignore
@@ -23,6 +23,7 @@ import {
 } from '@/store/selectors';
 import {wrapTo} from '@kepler.gl/actions';
 import {MAP_ID} from '@/constants';
+import {setDefaultDatasetId} from '@/actions';
 
 export const MIN_STATS_CELL_SIZE = 122;
 
@@ -62,13 +63,10 @@ export function DuckDBTableComponent() {
   const theme = useTheme();
 
   const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const [activeKeplerDatasetId, setActiveKeplerDatasetId] = useState<string>(
-    defaultDatasetId || ''
-  );
 
   // get Kepler state from redux store
   const keplerDatasets = useSelector(keplerDatasetsSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(activeKeplerDatasetId));
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
 
   const {fields, dataContainer, pinnedColumns, label: tableName, id: dataId} = keplerDataset;
 
@@ -135,9 +133,12 @@ export function DuckDBTableComponent() {
   const keplerOwnProps = {};
   const {visStateActions} = keplerActionSelector(dispatchKepler, keplerOwnProps);
 
-  const onShowDatasetTable = useCallback((datasetId: string) => {
-    setActiveKeplerDatasetId(datasetId);
-  }, []);
+  const onShowDatasetTable = useCallback(
+    (datasetId: string) => {
+      dispatch(setDefaultDatasetId(datasetId));
+    },
+    [dispatch]
+  );
 
   return useMemo(
     () => (

@@ -6,6 +6,7 @@ export enum WEIGHTS_ACTIONS {
 }
 
 export type WeightsProps = {
+  datasetId: string;
   weightsMeta: WeightsMeta;
   weights: number[][];
   weightsValues?: number[][];
@@ -17,6 +18,7 @@ export type RemoveWeightsProps = {
   id: string;
 };
 
+// action creators
 export const addWeights = (newWeights: WeightsProps) => ({
   type: WEIGHTS_ACTIONS.ADD_WEIGHS,
   payload: newWeights

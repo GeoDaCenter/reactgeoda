@@ -14,6 +14,7 @@ export type CreateWeightsOutputProps = {
 };
 
 export type CreateContiguityWeightsProps = {
+  weightsType: 'contiguity';
   contiguityType: string;
   binaryGeometryType: BinaryGeometryType;
   binaryGeometries: BinaryFeatureCollection[];
@@ -54,6 +55,7 @@ export async function createContiguityWeights({
 }
 
 export type CreateKNNWeightsProps = {
+  weightsType: 'knn';
   k: number;
   binaryGeometryType: BinaryGeometryType;
   binaryGeometries: BinaryFeatureCollection[];
@@ -80,6 +82,7 @@ export async function createKNNWeights({
 }
 
 export type CreateDistanceWeightsProps = {
+  weightsType: 'band';
   distanceThreshold: number;
   isMile: boolean;
   binaryGeometryType: BinaryGeometryType;
@@ -110,4 +113,47 @@ export async function createDistanceWeights({
     isMile
   };
   return {weights, weightsMeta};
+}
+
+export type CreateWeightsProps =
+  | CreateContiguityWeightsProps
+  | CreateKNNWeightsProps
+  | CreateDistanceWeightsProps;
+
+export async function createWeights(props: CreateWeightsProps) {
+  let result: CreateWeightsOutputProps | null = null;
+
+  if (props.weightsType === 'contiguity') {
+    result = await createContiguityWeights({
+      weightsType: props.weightsType,
+      contiguityType: props.contiguityType,
+      binaryGeometryType: props.binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries: props.binaryGeometries,
+      precisionThreshold: props.precisionThreshold,
+      orderOfContiguity: props.orderOfContiguity,
+      includeLowerOrder: props.includeLowerOrder
+    });
+  } else if (props.weightsType === 'knn') {
+    const k = props.k;
+    result = await createKNNWeights({
+      weightsType: props.weightsType,
+      k,
+      binaryGeometryType: props.binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries: props.binaryGeometries
+    });
+  } else if (props.weightsType === 'band') {
+    result = await createDistanceWeights({
+      weightsType: props.weightsType,
+      distanceThreshold: props.distanceThreshold,
+      isMile: props.isMile,
+      binaryGeometryType: props.binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries: props.binaryGeometries
+    });
+  }
+
+  // const {weights, weightsMeta} = result;
+  return result;
 }

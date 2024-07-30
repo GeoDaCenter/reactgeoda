@@ -7,11 +7,14 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {WeightsManagementComponent} from './weights-management';
 import {WeightsCreationComponent} from './weights-creation';
-import {GeoDaState} from '@/store';
-import {MAP_ID} from '@/constants';
-import {getIntegerAndStringFieldNames, getKeplerLayer} from '@/utils/data-utils';
+import {getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
 import {WeightsProps} from '@/actions/weights-actions';
-import {mainTableNameSelector} from '@/store/selectors';
+import {
+  selectDefaultKeplerDataset,
+  selectKeplerLayer,
+  selectWeightsByDataId
+} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
 
 const NO_MAP_LOADED_MESSAGE =
   'Please load a map first before creating and managing spatial weights.';
@@ -19,21 +22,17 @@ const NO_MAP_LOADED_MESSAGE =
 export function WeightsPanel() {
   const intl = useIntl();
 
-  const tableName = useSelector(mainTableNameSelector);
+  const keplerDataset = useSelector(selectDefaultKeplerDataset);
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
 
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState);
-
-  const weights = useSelector((state: GeoDaState) => state.root.weights);
+  const weights = useSelector(selectWeightsByDataId(datasetId));
 
   const validFieldNames = useMemo(() => {
-    const fieldNames = getIntegerAndStringFieldNames(tableName, visState);
+    const fieldNames = keplerDataset ? getIntegerAndStringFieldNamesFromDataset(keplerDataset) : [];
     return fieldNames.map(fieldName => ({label: fieldName, value: fieldName}));
-  }, [tableName, visState]);
+  }, [keplerDataset]);
 
-  const keplerLayer = useMemo(() => {
-    const layer = getKeplerLayer(tableName, visState);
-    return layer;
-  }, [tableName, visState]);
+  const keplerLayer = useSelector(selectKeplerLayer(datasetId));
 
   // check if there is any newly added weights, if there is, show weights management tab
   const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
@@ -77,7 +76,7 @@ export function WeightsPanel() {
         defaultMessage: 'Create and manage spatial weights'
       })}
     >
-      {!tableName ? (
+      {!keplerDataset ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="flex w-full flex-col p-4">
@@ -99,7 +98,8 @@ export function WeightsPanel() {
               }
             >
               <Card>
-                <CardBody>
+                <CardBody className="flex flex-col gap-4">
+                  <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
                   <WeightsCreationComponent
                     validFieldNames={validFieldNames}
                     keplerLayer={keplerLayer}
@@ -120,7 +120,8 @@ export function WeightsPanel() {
                 </div>
               }
             >
-              <WeightsManagementComponent />
+              <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+              <WeightsManagementComponent datasetId={datasetId} />
             </Tab>
           </Tabs>
         </div>

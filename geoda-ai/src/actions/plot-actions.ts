@@ -8,6 +8,7 @@ export enum PLOT_ACTIONS {
 
 type BasePlotProps = {
   id: string;
+  datasetId: string;
   type: string;
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
   isNew?: boolean;
