@@ -1,5 +1,6 @@
 export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
+  SET_DEFAULT_DATASET_ID = 'SET_DEFAULT_DATASET_ID',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
   SET_ADD_DATASET_MODAL = 'SET_ADD_DATASET_MODAL',
   SET_SAVE_PROJECT_MODAL = 'SET_SAVE_PROJECT_MODAL',
@@ -19,6 +20,11 @@ export enum UI_ACTIONS {
 
 export const setTheme = (payload: 'dark' | 'light') => ({
   type: UI_ACTIONS.SET_THEME,
+  payload
+});
+
+export const setDefaultDatasetId = (payload: string) => ({
+  type: UI_ACTIONS.SET_DEFAULT_DATASET_ID,
   payload
 });
 

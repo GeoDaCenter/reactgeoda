@@ -44,10 +44,6 @@ export function Navigator() {
   );
   const isFileLoaded = useSelector((state: GeoDaState) => state.root.datasets?.length > 0);
 
-  const showKeplerTableModal = useSelector(
-    (state: GeoDaState) => state.root.uiState.showKeplerTableModal
-  );
-
   const showChatPanel = useSelector((state: GeoDaState) => state.root.uiState.showChatPanel);
 
   // get number of newly added weights from state.root.weights
@@ -113,10 +109,10 @@ export function Navigator() {
   const onTableCallback = useCallback(
     (event: React.MouseEvent) => {
       dispatch(setPropertyPanel(PanelName.TABLE));
-      dispatch(setKeplerTableModal(!showKeplerTableModal));
+      dispatch(setKeplerTableModal(true));
       event.stopPropagation();
     },
-    [dispatch, showKeplerTableModal]
+    [dispatch]
   );
 
   const onClickIconCallback = useCallback(

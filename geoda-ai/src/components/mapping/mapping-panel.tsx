@@ -23,6 +23,8 @@ import {ClassificationPanel} from '../common/classification-panel';
 import {CreateButton} from '../common/create-button';
 import {createMapAsync, createRatesMapAsync} from '@/actions';
 import {RatesOptions} from 'geoda-wasm';
+import {RGBColor} from '@kepler.gl/types';
+import {defaultDatasetIdSelector} from '@/store/selectors';
 // import {DndContext} from '@dnd-kit/core';
 
 const DatasetSection = appInjector.get(DatasetSectionFactory);
@@ -52,6 +54,10 @@ function MappingPanel() {
     (state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layerOrder
   );
 
+  // get default datasetId
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const [datasetId, setDatasetId] = useState(defaultDatasetId);
+
   // get mapStyle from redux store
   const mapStyle = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.mapStyle);
 
@@ -62,7 +68,6 @@ function MappingPanel() {
   const [baseVariable, setBaseVariable] = useState('');
   const [eventVariable, setEventVariable] = useState('');
   const [weightsId, setWeightsId] = useState('');
-  const [datasetId, setDatasetId] = useState('');
   const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
   const [ratesMethod, setRatesMethod] = useState(RatesOptions.RawRates);
@@ -113,8 +118,7 @@ function MappingPanel() {
     return !variable || !mappingType || k <= 0;
   }, [isRatesMap, baseVariable, eventVariable, variable, mappingType, k]);
 
-  const onUpdateDatasetColor = (datasetId: string, color: string) => {
-    console.log('update dataset color', datasetId, color);
+  const onUpdateDatasetColor = (datasetId: string, color: RGBColor) => {
     dispatch(updateTableColor(datasetId, color));
   };
 

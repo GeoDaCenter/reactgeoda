@@ -231,7 +231,7 @@
             "theme": "light",
             "showOpenFileModal": false,
             "showSaveProjectModal": false,
-            "showKeplerTableModal": false,
+            "showKeplerTable": false,
             "showGridView": false,
             "showPropertyPanel": true,
             "propertyPanelName": "Weights",

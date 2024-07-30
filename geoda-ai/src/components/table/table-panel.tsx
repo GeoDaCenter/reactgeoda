@@ -7,7 +7,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {TableQueryComponent} from './table-query-component';
 import {AddColumn} from './column-add-component';
-import {selectKeplerDataset} from '@/store/selectors';
+import {selectDefaultKeplerDataset} from '@/store/selectors';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before querying and editing data.';
 
@@ -15,8 +15,9 @@ function TablePanel() {
   const intl = useIntl();
   const [selectedTab, setSelectedTab] = useState('table-query');
 
-  const [datasetId, setDatasetId] = useState('');
-  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
+  const keplerDataset = useSelector(selectDefaultKeplerDataset);
+  const [datasetId, setDatasetId] = useState(keplerDataset.id);
+  console.log('datasetId', datasetId);
   const tableName = keplerDataset.label;
 
   const onTabChange = (key: React.Key) => {

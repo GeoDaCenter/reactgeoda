@@ -28,19 +28,19 @@ import {MapProps} from '@/reducers/maps-reducer';
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
   root: {
-    defaultDatasetId: string;
     datasets: Array<DatasetProps>;
     maps: Array<MapProps>;
     language: string;
     uiState: {
       theme: 'light' | 'dark';
+      defaultDatasetId: string;
       showPropertyPanel: boolean;
       showChatPanel: boolean;
       propertyPanelName: string;
       showOpenFileModal: boolean;
       showAddDatasetModal: boolean;
       showSaveProjectModal: boolean;
-      showKeplerTableModal: boolean;
+      showKeplerTable: boolean;
       showGridView: boolean;
       openAIKey: string;
       isOpenAIKeyChecked: boolean;

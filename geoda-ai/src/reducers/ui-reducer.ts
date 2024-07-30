@@ -9,10 +9,11 @@ export type UiAction = {
 
 export const INITIAL_UI_STATE = {
   theme: 'dark',
+  defaultDatasetId: '',
   showOpenFileModal: true,
   showAddDatasetModal: false,
   showSaveProjectModal: false,
-  showKeplerTableModal: false,
+  showKeplerTable: false,
   showGridView: false,
   showPropertyPanel: false,
   showChatPanel: false,
@@ -33,6 +34,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
       return {
         ...state,
         theme: action.payload
+      };
+    case UI_ACTIONS.SET_DEFAULT_DATASET_ID:
+      return {
+        ...state,
+        defaultDatasetId: action.payload
       };
     case UI_ACTIONS.SET_SCREEN_CAPTURED:
       return {
@@ -67,7 +73,7 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
     case UI_ACTIONS.SET_KEPLER_TABLE_MODAL:
       return {
         ...state,
-        showKeplerTableModal: action.payload
+        showKeplerTable: action.payload
       };
     case UI_ACTIONS.SET_GRID_VIEW:
       return {

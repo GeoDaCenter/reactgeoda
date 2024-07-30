@@ -1,10 +1,51 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
-import KeplerGl from '@kepler.gl/components';
+import {
+  Icons,
+  MapControlFactory,
+  withState,
+  MapControlButton,
+  injectComponents
+} from '@kepler.gl/components';
 import {themeLT, theme as themeDK} from '@kepler.gl/styles';
 import {useTheme as useNextTheme} from 'next-themes';
 
 import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
+import {setKeplerTableModal} from '@/actions';
+
+function TableControl(props: {setKeplerTableModal: (flag: boolean) => void}) {
+  return (
+    <div className="ml-[10px] mr-[12px] mt-[20px]">
+      <MapControlButton
+        className="map-control-button info-panel"
+        onClick={e => {
+          e.preventDefault();
+          props.setKeplerTableModal(true);
+        }}
+      >
+        <Icons.DataTable height="18px" />
+      </MapControlButton>
+    </div>
+  );
+}
+
+CustomMapControlFactory.deps = MapControlFactory.deps;
+function CustomMapControlFactory(...deps: any[]) {
+  // @ts-ignore FIX type
+  const MapControl = MapControlFactory(...deps);
+
+  const CustomMapControl = (props: any) => (
+    <div className="absolute right-0 top-0 z-[1]">
+      <TableControl {...props} />
+      <MapControl {...props} top={0} />
+    </div>
+  );
+
+  return withState([], state => ({...state.keplerGl}), {setKeplerTableModal})(CustomMapControl);
+}
+
+// @ts-ignore Inject custom header into Kepler.gl,
+const KeplerGl = injectComponents([[MapControlFactory, CustomMapControlFactory]]);
 
 const KeplerMap = () => {
   const {theme} = useNextTheme();

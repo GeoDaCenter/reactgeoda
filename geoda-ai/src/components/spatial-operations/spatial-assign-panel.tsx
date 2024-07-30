@@ -13,7 +13,7 @@ import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {addTableColumn} from '@kepler.gl/actions';
 import {Field} from '@kepler.gl/types';
-import {VariableSelector} from '../common/variable-selector';
+import {VARIABLE_TYPE, VariableSelector} from '../common/variable-selector';
 import {getBinaryGeometriesFromLayer, getBinaryGeometryTypeFromLayer} from './spatial-join-utils';
 import {isNumber} from '@kepler.gl/utils';
 
@@ -143,11 +143,7 @@ export function SpatialAssignPanel() {
               description:
                 'The first dataset contains geometries (e.g. points) to which the values (e.g. zipcode or city name) from the second dataset will be assigned.',
               element: (
-                <DatasetSelector
-                  setDatasetId={onSetFirstDatasetId}
-                  datasetId={firstDatasetId}
-                  isInvalid={firstDatasetId === null || firstDatasetId.length === 0}
-                />
+                <DatasetSelector setDatasetId={onSetFirstDatasetId} datasetId={firstDatasetId} />
               )
             },
             {
@@ -155,11 +151,7 @@ export function SpatialAssignPanel() {
               description:
                 'The second dataset contains geometries (e.g. polygons) and values (e.g. zip codes or city names) that will be assigned to the geometries in the first dataset.',
               element: (
-                <DatasetSelector
-                  setDatasetId={onSetSecondDatasetId}
-                  datasetId={secondDatasetId}
-                  isInvalid={secondDatasetId === null || secondDatasetId.length === 0}
-                />
+                <DatasetSelector setDatasetId={onSetSecondDatasetId} datasetId={secondDatasetId} />
               )
             },
             {
@@ -170,7 +162,7 @@ export function SpatialAssignPanel() {
                 <VariableSelector
                   dataId={secondDatasetId}
                   setVariable={onSelectSecondVariable}
-                  variableType="integer_or_string"
+                  variableType={VARIABLE_TYPE.IntegerOrString}
                   isInvalid={secondVariable === null || secondVariable.length === 0}
                 />
               )

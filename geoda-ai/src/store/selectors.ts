@@ -7,6 +7,9 @@ import {Datasets as KeplerDatasets} from '@kepler.gl/table';
 
 type StateSelector<R> = Selector<GeoDaState, R>;
 
+export const defaultDatasetIdSelector: StateSelector<string> = (state: GeoDaState) =>
+  state.root.uiState.defaultDatasetId;
+
 export const datasetsSelector: StateSelector<GeoDaState['root']['datasets']> = (
   state: GeoDaState
 ) => state.root.datasets;
@@ -38,6 +41,18 @@ export const selectKeplerLayer = (dataId?: string) =>
     // assume all layers are GeojsonLayer in Kepler.gl in GeoDa.Ai
     return layer;
   });
+
+export const keplerUIStateSelector = (state: GeoDaState) => state.keplerGl[MAP_ID].uiState;
+
+export const keplerDatasetsSelector = (state: GeoDaState) =>
+  state.keplerGl[MAP_ID].visState.datasets;
+
+export const selectDefaultKeplerDataset = createSelector(
+  [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],
+  (datasets: KeplerDatasets) => {
+    return Object.values(datasets)[0];
+  }
+);
 
 export const selectKeplerDataset = (dataId?: string) =>
   createSelector(

@@ -129,11 +129,7 @@ export function SpatialCountPanel() {
               description:
                 'The first dataset with geometries (e.g. polygons) that contain/intersect geometries from the second dataset.',
               element: (
-                <DatasetSelector
-                  setDatasetId={onSetFirstDatasetId}
-                  datasetId={firstDatasetId}
-                  isInvalid={firstDatasetId?.length === 0}
-                />
+                <DatasetSelector setDatasetId={onSetFirstDatasetId} datasetId={firstDatasetId} />
               )
             },
             {
@@ -141,11 +137,7 @@ export function SpatialCountPanel() {
               description:
                 'The second dataset with geometries (e.g. points) that will be counted by the geometries in the first dataset.',
               element: (
-                <DatasetSelector
-                  setDatasetId={onSetSecondDatasetId}
-                  datasetId={secondDatasetId}
-                  isInvalid={secondDatasetId?.length === 0}
-                />
+                <DatasetSelector setDatasetId={onSetSecondDatasetId} datasetId={secondDatasetId} />
               )
             },
             {
