@@ -1,7 +1,7 @@
 import {Button} from '@nextui-org/react';
 import {useState} from 'react';
 
-import {BoxPlotProps, addPlot} from '@/actions/plot-actions';
+import {BoxPlotActionProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
 import {BoxplotOutput} from '@/ai/assistant/callbacks/callback-box';
@@ -29,7 +29,7 @@ export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => 
   const {id, variables} = output.result as BoxplotOutput['result'];
   const boxplot = output.data as BoxplotOutput['data'];
 
-  const boxPlotProps: BoxPlotProps = {
+  const boxPlotProps: BoxPlotActionProps = {
     id,
     type: 'boxplot',
     variables,

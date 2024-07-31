@@ -23,10 +23,10 @@ const rootReducer = (
   return {
     language: languageReducer(state?.language, action as LanguageAction),
     datasets: fileReducer(state?.datasets, action as DatasetsAction),
-    maps: mapsReducer(state?.maps, action as MapsAction, keplerState),
+    maps: mapsReducer(state?.maps, action as MapsAction),
     uiState: uiReducer(state?.uiState, action as UiAction),
     weights: weightsReducer(state?.weights, action as WeightsAction),
-    plots: plotReducer(state?.plots, action as PlotAction),
+    plots: plotReducer(state?.plots, action as PlotAction, keplerState),
     regressions: regressionReducer(state?.regressions, action as RegressionAction),
     ai: aiReducer(state?.ai, action as AiAction),
     dashboard: dashboardReducer(state?.dashboard, action as DashboardAction),

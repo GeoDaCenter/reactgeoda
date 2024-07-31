@@ -6,11 +6,8 @@ import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
 import {ChangeEvent, useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
-import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
-import {createHistogram} from '@/utils/plots/histogram-utils';
-import {PlotProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
-import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
@@ -41,13 +38,13 @@ export function HistogramPanel() {
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
-  const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
+  const newPlotsCount = plots.filter((plot: PlotActionProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
   // reset isNew flag of plots
   useEffect(() => {
     if (newPlotsCount > 0) {
-      plots.forEach((plot: PlotProps) => {
+      plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
           plot.isNew = false;
         }
@@ -57,14 +54,9 @@ export function HistogramPanel() {
 
   // on create histogram
   const onCreateHistogram = () => {
-    if (keplerDataset) {
-      // get data from variable
-      const data = getColumnDataFromKeplerDataset(variable, keplerDataset);
-      const histogram = createHistogram(data, 7);
-      // generate random id for histogram
-      const id = generateRandomId();
+    if (keplerDataset && variable && intervals > 0 && variable.length > 0) {
       // dispatch action to create histogram and add to store
-      dispatch(addPlot({id, datasetId, type: 'histogram', variable, data: histogram}));
+      dispatch(addPlot({datasetId, type: 'histogram', variable, intervals}));
       // Show the plots management panel
       setShowPlotsManagement(true);
     }

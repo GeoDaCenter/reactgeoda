@@ -1,5 +1,4 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
-import {HistogramPlotProps} from '@/actions/plot-actions';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 // Import the echarts core module, which provides the necessary interfaces for using echarts.
@@ -73,9 +72,10 @@ import {GeoDaState} from '@/store';
 import {RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import {getHistogramChartOption, HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {geodaBrushLink} from '@/actions';
-import {getColumnDataFromKeplerDataset, getDataset} from '@/utils/data-utils';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {selectKeplerDataset} from '@/store/selectors';
 import {ChartInsightButton} from '../common/chart-insight';
+import {HistogramPlotStateProps} from '@/reducers/plot-reducer';
 
 // Register the required components
 echarts.use([
@@ -108,8 +108,8 @@ const ChartsUpdater = ({
   );
 
   // get dataset from store
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const numberOfRows = dataset?.dataContainer.numRows() || 0;
+  const dataset = useSelector(selectKeplerDataset(dataId));
+  const numberOfRows = dataset?.length || 0;
 
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
@@ -129,7 +129,7 @@ const ChartsUpdater = ({
 /**
  * The react component of a histogram plot using Nivo bar chart
  */
-export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
+export const HistogramPlot = ({props}: {props: HistogramPlotStateProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
 

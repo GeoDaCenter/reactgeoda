@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {ParallelCoordinateProps, addPlot} from '@/actions/plot-actions';
+import {ParallelCoordinateActionProps, addPlot} from '@/actions/plot-actions';
 import {ParallelCoordinateOutput} from '@/ai/assistant/callbacks/callback-pcp';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
@@ -17,7 +17,7 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
 
   const {id, variables} = output.result as ParallelCoordinateOutput['result'];
 
-  const parallelCoordinateProps: ParallelCoordinateProps = {
+  const parallelCoordinateProps: ParallelCoordinateActionProps = {
     id,
     type: 'parallel-coordinate',
     variables

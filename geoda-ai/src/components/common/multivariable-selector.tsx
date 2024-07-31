@@ -8,6 +8,7 @@ type MultiVariableSelectorProps = {
   variables?: string[];
   setVariables: (variables: string[]) => void;
   label?: string;
+  isInvalid?: boolean;
 };
 
 export function MultiVariableSelector(props: MultiVariableSelectorProps) {
@@ -31,6 +32,7 @@ export function MultiVariableSelector(props: MultiVariableSelectorProps) {
       className="max-w"
       onSelectionChange={onVariableSelectionChange}
       selectionMode="multiple"
+      isInvalid={props.isInvalid}
     >
       {numericColumns.map(column => (
         <SelectItem key={column} value={column}>

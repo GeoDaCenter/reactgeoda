@@ -6,43 +6,43 @@ import {HistogramPlot} from './histogram-plot';
 import {BubbleChart} from './bubble-chart-plot';
 import {Scatterplot} from './scatter-plot';
 import {
-  HistogramPlotProps,
-  BoxPlotProps,
-  ParallelCoordinateProps,
-  PlotProps,
-  ScatterPlotProps,
-  BubbleChartProps
-} from '@/actions/plot-actions';
+  HistogramPlotStateProps,
+  BoxPlotStateProps,
+  ParallelCoordinateStateProps,
+  PlotStateProps,
+  ScatterPlotStateProps,
+  BubbleChartStateProps
+} from '@/reducers/plot-reducer';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
 
 // type guard function to check if the plot is a histogram plot
-export function isHistogramPlot(plot: PlotProps): plot is HistogramPlotProps {
+export function isHistogramPlot(plot: PlotStateProps): plot is HistogramPlotStateProps {
   return plot.type === 'histogram';
 }
 
 // type guard function to check if the plot is a boxplot
-export function isBoxPlot(plot: PlotProps): plot is BoxPlotProps {
+export function isBoxPlot(plot: PlotStateProps): plot is BoxPlotStateProps {
   return plot.type === 'boxplot';
 }
 
 // type guard function to check if the plot is a boxplot
-export function isParallelCoordinate(plot: PlotProps): plot is ParallelCoordinateProps {
+export function isParallelCoordinate(plot: PlotStateProps): plot is ParallelCoordinateStateProps {
   return plot.type === 'parallel-coordinate';
 }
 
 // type guard function to check if the plot is a scatter plot
-export function isScatterPlot(plot: PlotProps): plot is ScatterPlotProps {
+export function isScatterPlot(plot: PlotStateProps): plot is ScatterPlotStateProps {
   return plot.type === 'scatter';
 }
 
 // type guard function to check if the plot is a bubble chart
-export function isBubbleChart(plot: PlotProps): plot is BubbleChartProps {
+export function isBubbleChart(plot: PlotStateProps): plot is BubbleChartStateProps {
   return plot.type === 'bubble';
 }
 
 // PlotWrapper component with fixed height
-export function PlotWrapper(plot: PlotProps, isFixedHeight = true) {
+export function PlotWrapper(plot: PlotStateProps, isFixedHeight = true) {
   return (
     <div className={isFixedHeight ? 'h-[280px] w-full p-1' : 'h-full w-full'}>
       {isHistogramPlot(plot) ? (
@@ -60,7 +60,7 @@ export function PlotWrapper(plot: PlotProps, isFixedHeight = true) {
   );
 }
 
-const PlotsWrapper = ({plots, plotType}: {plots: PlotProps[]; plotType?: string}) => {
+const PlotsWrapper = ({plots, plotType}: {plots: PlotStateProps[]; plotType?: string}) => {
   const filteredPlots = plotType ? plots.filter(plot => plot.type === plotType) : plots;
   return (
     <div className="flow flow-col space-y-2">

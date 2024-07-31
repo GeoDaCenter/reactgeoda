@@ -6,33 +6,36 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {VariableSelector} from '../common/variable-selector';
 import {GeoDaState} from '@/store';
-import {PlotProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
-import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
 
 export function BubbleChartPanel() {
   const intl = useIntl();
   const dispatch = useDispatch();
 
-  const [variableX, setVariableX] = useState<string | undefined>(undefined);
-  const [variableY, setVariableY] = useState<string | undefined>(undefined);
-  const [variableSize, setVariableSize] = useState<string | undefined>(undefined);
-  const [variableColor, setVariableColor] = useState<string | undefined>(undefined);
+  const [variableX, setVariableX] = useState<string>('');
+  const [variableY, setVariableY] = useState<string>('');
+  const [variableSize, setVariableSize] = useState<string>('');
+  const [variableColor, setVariableColor] = useState<string>('');
 
   // boolean variable to check if variables are selected for bubble chart
-  const isVariablesSelected = variableX && variableY && variableSize;
+  const isVariablesSelected =
+    variableX.length > 0 && variableY.length > 0 && variableSize.length > 0;
 
-  const tableName = useSelector(mainTableNameSelector);
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   const onCreateBubbleChart = () => {
     if (isVariablesSelected) {
-      const id = generateRandomId();
       dispatch(
         addPlot({
-          id,
+          datasetId,
           type: 'bubble',
           variableX,
           variableY,
@@ -43,12 +46,12 @@ export function BubbleChartPanel() {
     }
   };
 
-  const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
+  const newPlotsCount = plots.filter((plot: PlotActionProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
   useEffect(() => {
     if (newPlotsCount > 0) {
-      plots.forEach((plot: PlotProps) => {
+      plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
           plot.isNew = false;
         }
@@ -76,7 +79,7 @@ export function BubbleChartPanel() {
       })}
       icon={null}
     >
-      {!tableName ? (
+      {!keplerDataset ? (
         <WarningBox
           message="Please load a map first before creating and managing your plots."
           type={WarningType.WARNING}
@@ -94,23 +97,24 @@ export function BubbleChartPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
+                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
                     <VariableSelector
-                      variable={variableX}
+                      dataId={datasetId}
                       setVariable={setVariableX}
                       label="Select variable for X-axis"
                     />
                     <VariableSelector
-                      variable={variableY}
+                      dataId={datasetId}
                       setVariable={setVariableY}
                       label="Select variable for Y-axis"
                     />
                     <VariableSelector
-                      variable={variableSize}
+                      dataId={datasetId}
                       setVariable={setVariableSize}
                       label="Select variable for bubble size"
                     />
                     <VariableSelector
-                      variable={variableColor}
+                      dataId={datasetId}
                       setVariable={setVariableColor}
                       label="Select variable for bubble color (optional)"
                       optional

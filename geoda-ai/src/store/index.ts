@@ -13,7 +13,6 @@ import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
 import keplerLanguageMiddleware from './language-middleware';
 import geodaReducer from '../reducers/index';
 import {WeightsProps} from '@/actions/weights-actions';
-import {PlotProps} from '@/actions/plot-actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {DatasetProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
@@ -21,6 +20,7 @@ import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 import {RuleGroupType} from 'react-querybuilder';
 import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
 import {MapProps} from '@/reducers/maps-reducer';
+import {PlotStateProps} from '@/reducers/plot-reducer';
 
 /**
  * Define the State of the Redux store
@@ -54,7 +54,7 @@ export type GeoDaState = {
       };
     };
     weights: Array<WeightsProps>;
-    plots: Array<PlotProps>;
+    plots: Array<PlotStateProps>;
     regressions: Array<RegressionProps>;
     ai: {
       messages: Array<MessageModel>;

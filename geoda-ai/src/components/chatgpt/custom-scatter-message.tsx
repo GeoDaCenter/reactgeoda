@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {ScatterPlotProps, addPlot} from '@/actions/plot-actions';
+import {ScatterPlotActionProps, addPlot} from '@/actions/plot-actions';
 import {ScatterplotOutput} from '@/ai/assistant/callbacks/callback-scatter';
 import {Scatterplot} from '../plots/scatter-plot';
 import {CustomMessagePayload} from './custom-messages';
@@ -31,7 +31,7 @@ export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload})
   }
   const {id, variableX, variableY} = output.result as ScatterplotOutput['result'];
 
-  const scatterPlotProps: ScatterPlotProps = {
+  const scatterPlotProps: ScatterPlotActionProps = {
     id,
     type: 'scatter',
     variableX: variableX,

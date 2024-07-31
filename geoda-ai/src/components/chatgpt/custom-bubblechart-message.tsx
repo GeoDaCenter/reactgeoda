@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {BubbleChartProps, addPlot} from '@/actions/plot-actions';
+import {BubbleChartActionProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {BubbleChartOutput} from '@/ai/assistant/callbacks/callback-bubble';
 import {BubbleChart} from '../plots/bubble-chart-plot';
@@ -33,7 +33,7 @@ export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload})
   const {id, variableX, variableY, variableSize, variableColor} =
     output.result as BubbleChartOutput['result'];
 
-  const bubbleChartProps: BubbleChartProps = {
+  const bubbleChartProps: BubbleChartActionProps = {
     id,
     type: 'bubble',
     variableX: variableX,

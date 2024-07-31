@@ -1,4 +1,4 @@
-import {ParallelCoordinateProps} from '@/actions';
+import {ParallelCoordinateActionProps} from '@/actions';
 import {EChartsOption} from 'echarts';
 import {numericFormatter} from './format-utils';
 
@@ -6,7 +6,7 @@ export type CreateParallelCoordinateProps = {
   data: {[key: string]: number[]};
 };
 
-export function getPCPChartOption(props: ParallelCoordinateProps, rawDataArray?: number[][]) {
+export function getPCPChartOption(props: ParallelCoordinateActionProps, rawDataArray?: number[][]) {
   const variableNames = props.variables;
   // get the longest length of variableNames
   const maxLabelLength = Math.max(...variableNames.map(variable => variable.length));

@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {HistogramPlotProps, addPlot} from '@/actions/plot-actions';
+import {HistogramPlotActionProps, addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HistogramOutput} from '@/ai/assistant/callbacks/callback-histogram';
 import {HistogramPlot} from '../plots/histogram-plot';
@@ -18,7 +18,7 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   const {id, variableName} = output.result as HistogramOutput['result'];
   const histogram = 'data' in output && (output.data as HistogramOutput['data']);
 
-  const histogramPlotProps: HistogramPlotProps = {
+  const histogramPlotProps: HistogramPlotActionProps = {
     id,
     type: 'histogram',
     variable: variableName,

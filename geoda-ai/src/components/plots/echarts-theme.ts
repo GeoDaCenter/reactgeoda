@@ -308,12 +308,15 @@ export const ECHARTS_DARK_THEME = {
   },
   tooltip: {
     axisPointer: {
+      label: {
+        color: '#333333'
+      },
       lineStyle: {
-        color: '#eeeeee',
+        color: '#cccccc',
         width: '1'
       },
       crossStyle: {
-        color: '#eeeeee',
+        color: '#cccccc',
         width: '1'
       }
     }
