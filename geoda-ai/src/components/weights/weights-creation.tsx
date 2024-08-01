@@ -12,7 +12,7 @@ import {
   RadioGroup,
   Radio
 } from '@nextui-org/react';
-import {GeojsonLayer} from '@kepler.gl/layers';
+import {Layer} from '@kepler.gl/layers';
 import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
 
 import {addWeights} from '@/actions';
@@ -20,13 +20,18 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {createWeights} from '@/utils/weights-utils';
 import {CreateButton} from '../common/create-button';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
-
+import {
+  getBinaryGeometryTypeFromLayer,
+  getBinaryGeometriesFromLayer
+} from '../spatial-operations/spatial-join-utils';
+import KeplerTable from '@kepler.gl/table';
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
-  keplerLayer: GeojsonLayer;
+  keplerLayer: Layer;
+  keplerDataset: KeplerTable;
 };
 
-export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
+export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCreationProps) {
   const dispatch = useDispatch<any>();
 
   const [error, setError] = useState<string | null>(null);
@@ -42,13 +47,16 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const [sliderValue, setSliderValue] = useState<number>(0);
 
   const binaryGeometryType: BinaryGeometryType = useMemo(
-    () => keplerLayer.meta.featureTypes || {point: false, line: false, polygon: true},
-    [keplerLayer.meta.featureTypes]
+    () => getBinaryGeometryTypeFromLayer(keplerLayer) as BinaryGeometryType,
+    [keplerLayer]
   );
+
   const binaryGeometries = useMemo(
-    () => keplerLayer.dataToFeature as BinaryFeatureCollection[],
-    [keplerLayer.dataToFeature]
+    () => getBinaryGeometriesFromLayer(keplerLayer, keplerDataset) as BinaryFeatureCollection[],
+    [keplerLayer, keplerDataset]
   );
+
+  const datasetId = keplerLayer.config.dataId;
 
   const isMile = false;
 
@@ -80,6 +88,7 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
     setError(null);
     try {
       const result = await createWeights({
+        datasetId,
         weightsType,
         contiguityType,
         binaryGeometryType,
@@ -96,7 +105,7 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
       }
       const {weights, weightsMeta} = result;
       // dispatch action to update redux state state.root.weights
-      dispatch(addWeights({weights, weightsMeta, datasetId: keplerLayer.config.dataId}));
+      dispatch(addWeights({weights, weightsMeta, datasetId}));
     } catch (e) {
       console.error(e);
       setError(`Create weights error: ${e}`);

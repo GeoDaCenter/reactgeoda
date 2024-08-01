@@ -11,6 +11,7 @@ import {getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
 import {WeightsProps} from '@/actions/weights-actions';
 import {
   selectDefaultKeplerDataset,
+  selectKeplerDataset,
   selectKeplerLayer,
   selectWeightsByDataId
 } from '@/store/selectors';
@@ -22,17 +23,16 @@ const NO_MAP_LOADED_MESSAGE =
 export function WeightsPanel() {
   const intl = useIntl();
 
-  const keplerDataset = useSelector(selectDefaultKeplerDataset);
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
-
+  const defaultKeplerDataset = useSelector(selectDefaultKeplerDataset);
+  const [datasetId, setDatasetId] = useState(defaultKeplerDataset?.id || '');
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
+  const keplerLayer = useSelector(selectKeplerLayer(datasetId));
   const weights = useSelector(selectWeightsByDataId(datasetId));
 
   const validFieldNames = useMemo(() => {
     const fieldNames = keplerDataset ? getIntegerAndStringFieldNamesFromDataset(keplerDataset) : [];
     return fieldNames.map(fieldName => ({label: fieldName, value: fieldName}));
   }, [keplerDataset]);
-
-  const keplerLayer = useSelector(selectKeplerLayer(datasetId));
 
   // check if there is any newly added weights, if there is, show weights management tab
   const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
@@ -103,6 +103,7 @@ export function WeightsPanel() {
                   <WeightsCreationComponent
                     validFieldNames={validFieldNames}
                     keplerLayer={keplerLayer}
+                    keplerDataset={keplerDataset}
                   />
                 </CardBody>
               </Card>

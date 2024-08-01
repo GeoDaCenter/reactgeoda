@@ -1,30 +1,26 @@
-import {
-  Select,
-  SelectItem,
-  Autocomplete,
-  AutocompleteItem,
-  Accordion,
-  AccordionItem,
-  Spacer
-} from '@nextui-org/react';
-import {Key, useMemo, useState} from 'react';
-import {MAP_ID, accordionItemClasses} from '@/constants';
+import {Autocomplete, AutocompleteItem, Accordion, AccordionItem} from '@nextui-org/react';
+import {Key, useState} from 'react';
+import {accordionItemClasses} from '@/constants';
 import {useSelector} from 'react-redux';
-import {GeoDaState} from '@/store';
-import {getDataset, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {
+  defaultDatasetIdSelector,
+  selectKeplerDataset,
+  selectWeightsByDataId
+} from '@/store/selectors';
+import KeplerTable from '@kepler.gl/table';
+import {WeightsProps} from '@/actions';
+import {DatasetSelector} from '../common/dataset-selector';
+import {WeightsSelector} from '../weights/weights-management';
+import {VariableSelector} from '../common/variable-selector';
 
 export type RunAnalysisProps = {
-  tableName: string;
-  dataset: any;
-  weights: any[];
+  dataset: KeplerTable;
+  weights: WeightsProps[];
   selectedWeight: string;
   variable: string;
   permValue: string;
   threshold: string;
-  layer: any;
-  layerOrder: any[];
 };
 
 export type UnivariateLisaConfigProps = {
@@ -32,50 +28,38 @@ export type UnivariateLisaConfigProps = {
 };
 
 export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
-  const tableName = useSelector(mainTableNameSelector);
-  const weights = useSelector((state: GeoDaState) => state.root.weights);
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const layerOrder =
-    useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder) || [];
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
 
+  const [isRunning, setIsRunning] = useState(false);
   // useState for variable name
   const [variable, setVariable] = useState('');
-  const [selectedWeight, setSelectedWeight] = useState<string>(
+
+  const weights = useSelector(selectWeightsByDataId(datasetId));
+  const [weightsId, setWeightsId] = useState<string>(
     weights.length > 0 ? weights[weights.length - 1].weightsMeta.id || '' : ''
   );
 
-  // get numeric columns from redux store
-  const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(layer);
-    return fieldNames;
-  }, [layer]);
-
-  // handle variable change
-  const onVariableSelectionChange = (value: any) => {
-    const selectValue = value.currentKey;
-    setVariable(selectValue);
-  };
-
   // handle select weights
-  const onSelectWeights = (value: any) => {
-    const selectValue = value.currentKey;
-    setSelectedWeight(selectValue);
+  const onSelectWeights = (id: string) => {
+    setWeightsId(id);
   };
 
   // handle onCreateMap
   const onCreateMap = async () => {
+    setIsRunning(true);
+    // wait for 0.1s to show loading spinner
+    await new Promise(resolve => setTimeout(resolve, 100));
     await runAnalysis({
-      tableName,
-      dataset,
+      dataset: keplerDataset,
       weights,
-      selectedWeight,
+      selectedWeight: weightsId,
       variable,
       permValue,
-      threshold,
-      layer,
-      layerOrder
+      threshold
     });
+    setIsRunning(false);
   };
 
   const data = [
@@ -114,30 +98,10 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
   ];
 
   return (
-    <>
-      <Select
-        label="Select Variable"
-        className="max-w mb-6"
-        onSelectionChange={onVariableSelectionChange}
-      >
-        {numericColumns.map((col: string) => (
-          <SelectItem key={col} value={col}>
-            {col}
-          </SelectItem>
-        ))}
-      </Select>
-      <Select
-        label="Select Spatial Weights"
-        className="max-w mb-6"
-        onSelectionChange={onSelectWeights}
-        selectedKeys={[selectedWeight ?? weights[weights.length - 1].weightsMeta.id ?? '']}
-      >
-        {weights.map(({weightsMeta}, i) => (
-          <SelectItem key={weightsMeta.id ?? i} value={weightsMeta.id}>
-            {weightsMeta.id}
-          </SelectItem>
-        ))}
-      </Select>
+    <div className="flex flex-col gap-4">
+      <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+      <VariableSelector dataId={datasetId} setVariable={setVariable} size="sm" />
+      <WeightsSelector weights={weights} weightsId={weightsId} onSelectWeights={onSelectWeights} />
       <Accordion
         className="w-full px-0.5 text-small shadow-none"
         variant="light"
@@ -175,10 +139,13 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
           </div>
         </AccordionItem>
       </Accordion>
-      <Spacer y={8} />
-      <CreateButton onClick={onCreateMap} isDisabled={variable === '' || selectedWeight === ''}>
+      <CreateButton
+        isRunning={isRunning}
+        onClick={onCreateMap}
+        isDisabled={variable === '' || weightsId === ''}
+      >
         Run Analysis
       </CreateButton>
-    </>
+    </div>
   );
 }

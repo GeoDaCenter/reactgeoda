@@ -1,18 +1,17 @@
 import {Tabs, Tab} from '@nextui-org/react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
-import {addTableColumn} from '@kepler.gl/actions';
+import {addLayer, addTableColumn} from '@kepler.gl/actions';
 import {useDispatch} from 'react-redux';
-import {getColumnData} from '@/utils/data-utils';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {localG} from 'geoda-wasm';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {RunAnalysisProps, UnivariateLisaConfig} from './univariate-lisa-config';
 import {Key, useState} from 'react';
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {addColumnWithValues} from '@/hooks/use-duckdb';
 
 export function LocalGPanel() {
   const dispatch = useDispatch();
-  const {addColumnWithValues} = useDuckDB();
 
   const [selectedTab, setSelectedTab] = useState('uni-localg');
 
@@ -22,27 +21,23 @@ export function LocalGPanel() {
 
   // handle onCreateMap
   const runLocalG = async ({
-    tableName,
     dataset,
     weights,
     selectedWeight,
     variable,
     permValue,
-    threshold,
-    layer,
-    layerOrder
+    threshold
   }: RunAnalysisProps) => {
-    if (!tableName || !dataset) return;
+    if (!dataset) return;
 
     // get selected weight
     const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === selectedWeight);
     if (!selectedWeightData) {
-      console.error('Selected weight not found');
-      return;
+      throw new Error('Selected weight not found');
     }
 
     // get column data from dataContainer
-    const columnData = getColumnData(variable, dataset.dataContainer);
+    const columnData = getColumnDataFromKeplerDataset(variable, dataset);
 
     // get permutation input
     const permutations = parseFloat(permValue) || 999;
@@ -53,7 +48,7 @@ export function LocalGPanel() {
     // run LISA analysis
     const lm = await localG({
       data: columnData,
-      neighbors: selectedWeightData?.weights,
+      neighbors: selectedWeightData.weights,
       permutation: permutations,
       significanceCutoff: sigCutoff,
       isGStar: selectedTab === 'uni-localgstart'
@@ -68,9 +63,7 @@ export function LocalGPanel() {
     });
 
     // add new column to kepler.gl
-    const newFieldName = `g_${variable}`;
-
-    // get dataset from kepler.gl if dataset.label === tableName
+    const newFieldName = selectedTab === 'uni-localgstart' ? `gstar_${variable}` : `g_${variable}`;
 
     const dataContainer = dataset.dataContainer;
     const fieldsLength = dataset.fields.length;
@@ -93,31 +86,32 @@ export function LocalGPanel() {
 
     // add new column to duckdb
     addColumnWithValues({
-      tableName,
+      tableName: dataset.label,
       columnName: newFieldName,
       columnType: 'NUMERIC',
       columnValues: clusters
     });
 
     // create custom scale map
-    createUniqueValuesMap({
+    const newLayer = createUniqueValuesMap({
+      dataset,
       uniqueValues: lm.labels.map((_l, i) => i),
       hexColors: lm.colors,
       legendLabels: lm.labels,
       mappingType: selectedTab === 'uni-localgstart' ? 'Local G*' : 'Local G',
-      colorFieldName: newFieldName,
-      dispatch,
-      layer,
-      layerOrder
+      colorFieldName: newFieldName
     });
+
+    // add new layer to keper.gl
+    dispatch(addLayer(newLayer, dataset.id));
   };
 
   return (
     <>
       <Tabs
         aria-label="Options"
-        variant="solid"
-        color="danger"
+        variant="underlined"
+        color="default"
         classNames={{}}
         size="md"
         onSelectionChange={onSelectionChange}
