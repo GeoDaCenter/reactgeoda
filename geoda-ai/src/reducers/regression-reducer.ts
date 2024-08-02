@@ -1,8 +1,22 @@
-import {
-  REGRESSION_ACTIONS,
-  RegressionProps,
-  RemoveRegressionProps
-} from '@/actions/regression-actions';
+import {LinearRegressionResult, SpatialErrorResult, SpatialLagResult} from 'geoda-wasm';
+import {REGRESSION_ACTIONS, RemoveRegressionProps} from '@/actions/regression-actions';
+
+export type RegressionDataProps = {
+  dependentVariable: string;
+  independentVariables: string[];
+  weights?: string;
+  dependentVariableData?: number[];
+  independentVariablesData?: number[][];
+  result: LinearRegressionResult | SpatialLagResult | SpatialErrorResult | null;
+};
+
+export type RegressionProps = {
+  id: string;
+  // isNew is used to determine if the regression are newly added by chatbot, so a number badge can be shown on the regression icon
+  isNew?: boolean;
+  type: string;
+  data: RegressionDataProps;
+};
 
 const initialState: Array<RegressionProps> = [];
 

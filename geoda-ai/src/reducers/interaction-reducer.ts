@@ -9,12 +9,13 @@ export type BrushLinkProps = {
   [key: string]: number[];
 };
 
-export type KeplerStateProps = {
+export type KeplerBrushLinkProps = {
   sourceId?: string;
+  // brushLink: key is the dataId used in kepler.gl, value is the filtered index
   brushLink: BrushLinkProps;
 };
 
-const initialState: KeplerStateProps = {
+const initialState: KeplerBrushLinkProps = {
   brushLink: {}
 };
 
@@ -40,9 +41,9 @@ function isGeoJsonLayer(layer: Layer): layer is GeojsonLayer {
 }
 
 function keplerBrushLinkUpdater(
-  state: KeplerStateProps,
+  state: KeplerBrushLinkProps,
   payload: KeplerBrushLinkPayloadProps
-): KeplerStateProps {
+): KeplerBrushLinkProps {
   const {layers, editFeature} = payload;
 
   // get layer ids been used in editFeature
@@ -67,9 +68,9 @@ function keplerBrushLinkUpdater(
 }
 
 function geodaBrushLinkUpdater(
-  state: KeplerStateProps,
+  state: KeplerBrushLinkProps,
   payload: GeoDaBrushLinkPayloadProps
-): KeplerStateProps {
+): KeplerBrushLinkProps {
   const {sourceId, dataId, filteredIndex} = payload;
   return {
     ...state,

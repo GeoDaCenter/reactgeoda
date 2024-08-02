@@ -5,7 +5,7 @@ import {DataContainerInterface} from '../../../../csds_kepler/src/utils/src/data
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
 import {mainTableNameSelector} from '@/store/selectors';
-import {DatasetProps as GeoDaDataset} from '@/actions';
+import {DatasetProps as GeoDaDataset} from '@/reducers/file-reducer';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
 import {getBinaryGeometryTemplate} from '@loaders.gl/arrow';
 /**
@@ -48,6 +48,10 @@ export function getKeplerLayer(tableName: string, visState: VisState): GeojsonLa
     return tableName.startsWith(layer.config.label);
   });
   return layer as GeojsonLayer;
+}
+
+export function getKeplerLayerByDataId(dataId: string, visState: VisState) {
+  return visState.layers.find((layer: Layer) => layer.config.dataId === dataId);
 }
 
 // type guard function checks if the layer is a GeojsonLayer

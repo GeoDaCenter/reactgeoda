@@ -6,15 +6,14 @@ import {
   AddTextGridItemActionPayload,
   UpdateTextGridContentPayload
 } from '@/actions/dashboard-actions';
-import {GRID_ITEM_TYPES} from '@/utils/grid-utils';
-import {EditorState} from 'lexical';
+import {GRID_ITEM_TYPES, GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
 import {Layout} from 'react-grid-layout';
 
 export type DashboardStateProps = {
   mode: 'edit' | 'display';
   gridLayout?: Layout[];
-  gridItems?: Array<{id: string; show: boolean}>;
-  textItems?: Array<{id: string; content: EditorState}>;
+  gridItems?: GridItemProps[];
+  textItems?: GridTextItemProps[];
 };
 
 const initialState: DashboardStateProps = {

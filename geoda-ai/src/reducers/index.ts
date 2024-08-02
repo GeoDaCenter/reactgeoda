@@ -1,26 +1,36 @@
 import {UnknownAction} from 'redux';
 
-import {GeoDaState} from '@/store';
 import languageReducer, {LanguageAction} from './language-reducer';
-import fileReducer, {DatasetsAction} from './file-reducer';
-import {UiAction, uiReducer} from './ui-reducer';
-import {WeightsAction, weightsReducer} from './weights-reducer';
-import {PlotAction, plotReducer} from './plot-reducer';
-import {RegressionAction, regressionReducer} from './regression-reducer';
-import {AiAction, aiReducer} from './ai-reducer';
-import {DashboardAction, dashboardReducer} from './dashboard-reducer';
-import {interactionReducer, InteractionAction} from './interaction-reducer';
-import {MapsAction, mapsReducer} from './maps-reducer';
-import {SpatialJoinAction, spatialJoinReducer} from './spatial-join-reducer';
+import fileReducer, {DatasetProps, DatasetsAction} from './file-reducer';
+import {UiAction, uiReducer, UiStateProps} from './ui-reducer';
+import {WeightsAction, WeightsProps, weightsReducer} from './weights-reducer';
+import {PlotAction, plotReducer, PlotStateProps} from './plot-reducer';
+import {RegressionAction, RegressionProps, regressionReducer} from './regression-reducer';
+import {AiAction, aiReducer, AiStateProps} from './ai-reducer';
+import {DashboardAction, dashboardReducer, DashboardStateProps} from './dashboard-reducer';
+import {interactionReducer, InteractionAction, KeplerBrushLinkProps} from './interaction-reducer';
+import {MapProps, MapsAction, mapsReducer} from './maps-reducer';
+import {SpatialJoinAction, spatialJoinReducer, SpatialJoinState} from './spatial-join-reducer';
+import {KeplerGlState} from '@kepler.gl/reducers';
+
+export type GeoDaRootState = {
+  datasets: Array<DatasetProps>;
+  maps: Array<MapProps>;
+  language: string;
+  uiState: UiStateProps;
+  weights: Array<WeightsProps>;
+  plots: Array<PlotStateProps>;
+  regressions: Array<RegressionProps>;
+  ai: AiStateProps;
+  dashboard: DashboardStateProps;
+  interaction: KeplerBrushLinkProps;
+  spatialJoin: SpatialJoinState;
+};
 
 /**
  * Combine all reducers into a single root reducer
  */
-const rootReducer = (
-  state: GeoDaState['root'],
-  action: UnknownAction,
-  keplerState: GeoDaState['keplerGl']
-) => {
+const rootReducer = (state: GeoDaRootState, action: UnknownAction, keplerState: KeplerGlState) => {
   return {
     language: languageReducer(state?.language, action as LanguageAction),
     datasets: fileReducer(state?.datasets, action as DatasetsAction),
@@ -37,9 +47,9 @@ const rootReducer = (
 };
 
 const rootReducerWithLoadProject = (
-  state: GeoDaState['root'],
+  state: GeoDaRootState,
   action: any,
-  keplerState: GeoDaState['keplerGl']
+  keplerState: KeplerGlState
 ) => {
   switch (action.type) {
     case 'LOAD_PROJECT':

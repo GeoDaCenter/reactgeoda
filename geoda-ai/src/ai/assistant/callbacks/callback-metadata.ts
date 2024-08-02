@@ -1,11 +1,13 @@
-import {getKeplerLayer} from '@/utils/data-utils';
+import {getDataContainer} from '@/utils/data-utils';
 import {ErrorOutput, createErrorResult} from '../custom-functions';
 import {VisState} from '@kepler.gl/schemas';
 
-type MetaDataCallbackOutput = {
+export type MetaDataCallbackOutput = {
   type: 'metadata';
   name: string;
   result: {
+    datasetName: string;
+    datasetId: string;
     numberOfRows: number;
     numberOfColumns: number;
     columnNames: string[];
@@ -13,21 +15,15 @@ type MetaDataCallbackOutput = {
   };
 };
 
-export async function getMetaDataCallback(
-  dataName: string,
+export function getMetaDataCallback(
+  {datasetName, datasetId}: {datasetName: string; datasetId: string},
   {tableName, visState}: {tableName: string; visState: VisState}
-): Promise<MetaDataCallbackOutput | ErrorOutput> {
+): MetaDataCallbackOutput | ErrorOutput {
   if (!tableName) {
     return createErrorResult('Error: table name is empty');
   }
 
-  // get kepler.gl layer using tableName
-  const keplerLayer = getKeplerLayer(tableName, visState);
-  if (!keplerLayer) {
-    return createErrorResult('Error: layer is empty');
-  }
-
-  const dataContainer = keplerLayer.dataContainer;
+  const dataContainer = getDataContainer(tableName, visState.datasets);
   if (!dataContainer) {
     return createErrorResult('Error: data container is empty');
   }
@@ -46,6 +42,8 @@ export async function getMetaDataCallback(
     type: 'metadata',
     name: 'metadata',
     result: {
+      datasetName,
+      datasetId,
       numberOfRows: dataContainer.numRows(),
       numberOfColumns: dataContainer.numColumns(),
       columnNames,

@@ -1,18 +1,9 @@
-import {WeightsMeta} from 'geoda-wasm';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 export enum WEIGHTS_ACTIONS {
   ADD_WEIGHS = 'ADD_WEIGHTS',
   REMOVE_WEIGHTS = 'REMOVE_WEIGHTS'
 }
-
-export type WeightsProps = {
-  datasetId: string;
-  weightsMeta: WeightsMeta;
-  weights: number[][];
-  weightsValues?: number[][];
-  // isNew is used to determine if the weights are newly added by chatbot, so a number badge can be shown on the weights icon
-  isNew?: boolean;
-};
 
 export type RemoveWeightsProps = {
   id: string;

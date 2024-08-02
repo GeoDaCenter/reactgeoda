@@ -1,9 +1,9 @@
 import {DataContainerInterface} from '@kepler.gl/utils';
 import {linearRegression, printLinearRegressionResult} from 'geoda-wasm';
 
-import {RegressionDataProps} from '@/actions/regression-actions';
+import {RegressionDataProps} from '@/reducers/regression-reducer';
 import {getColumnData} from '@/utils/data-utils';
-import {WeightsProps} from '@/actions';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 type LinearRegressionCallbackFuncProps = Pick<
   RegressionDataProps,

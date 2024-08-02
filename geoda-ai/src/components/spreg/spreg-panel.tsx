@@ -11,11 +11,7 @@ import {RegressionProps, runRegressionAsync, updateRegression} from '@/actions/r
 import {RegressionReport} from './spreg-report';
 import {CreateButton} from '../common/create-button';
 import {WeightsSelector} from '../weights/weights-management';
-import {
-  defaultDatasetIdSelector,
-  selectKeplerDataset,
-  selectWeightsByDataId
-} from '@/store/selectors';
+import {datasetsSelector, selectKeplerDataset, selectWeightsByDataId} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {VariableSelector} from '../common/variable-selector';
 
@@ -27,8 +23,8 @@ export function SpregPanel() {
   const dispatch = useDispatch<any>();
 
   // get data from redux store
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const [datasetId, setDatasetId] = useState(defaultDatasetId || '');
+  const datasets = useSelector(datasetsSelector);
+  const [datasetId, setDatasetId] = useState(datasets?.[0]?.dataId || '');
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
   const weights = useSelector(selectWeightsByDataId(datasetId));
 

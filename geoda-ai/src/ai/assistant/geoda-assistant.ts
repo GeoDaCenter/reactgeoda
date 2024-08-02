@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 export const GPT_MODEL = 'gpt-4o-2024-05-13';
 export const GEODA_AI_ASSISTANT_NAME = 'geoda.ai-openai-agent';
-export const GEODA_AI_ASSISTANT_VERSION = '0.0.2';
+export const GEODA_AI_ASSISTANT_VERSION = '0.0.3';
 
 export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   model: GPT_MODEL,
@@ -230,19 +230,6 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
             }
           },
           required: ['variableX', 'variableY', 'variableSize']
-        }
-      }
-    },
-    {
-      type: 'function',
-      function: {
-        name: 'metaData',
-        description:
-          'Get the meta data of the dataset, including the number of rows, the number of columns or variables, the column/variable names, and the data types of each column/variable.',
-        parameters: {
-          type: 'object',
-          properties: {},
-          required: []
         }
       }
     },

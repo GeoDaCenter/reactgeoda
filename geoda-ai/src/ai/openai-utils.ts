@@ -66,29 +66,30 @@ export async function testOpenAIKey(apiKey: string): Promise<boolean> {
 export async function initOpenAI(apiKey: string) {
   if (!openai) {
     openai = new OpenAI({apiKey, dangerouslyAllowBrowser: true});
-    // find GeoDa.Ai assistant
-    assistant = await findAssistant(openai);
+  }
+  // find GeoDa.Ai assistant
+  assistant = await findAssistant(openai);
 
-    // create or update GeoDa.Ai assistant if needed
-    if (!assistant) {
-      // create a new assistant
-      assistant = await createAssistant(openai);
-    } else {
-      // check if assistant is latest
-      const assistantId = assistant.id;
-      if (
-        assistant.metadata &&
-        typeof assistant.metadata === 'object' &&
-        'version' in assistant.metadata
-      ) {
-        const version = assistant.metadata.version;
-        if (version !== GEODA_AI_ASSISTANT_VERSION) {
-          // update assistant
-          assistant = await openai.beta.assistants.update(assistantId, GEODA_AI_ASSISTANT_BODY);
-        }
+  // create or update GeoDa.Ai assistant if needed
+  if (!assistant) {
+    // create a new assistant
+    assistant = await createAssistant(openai);
+  } else {
+    // check if assistant is latest
+    const assistantId = assistant.id;
+    if (
+      assistant.metadata &&
+      typeof assistant.metadata === 'object' &&
+      'version' in assistant.metadata
+    ) {
+      const version = assistant.metadata.version;
+      if (version !== GEODA_AI_ASSISTANT_VERSION) {
+        // update assistant
+        assistant = await openai.beta.assistants.update(assistantId, GEODA_AI_ASSISTANT_BODY);
       }
     }
-
+  }
+  if (!thread) {
     // create a thread
     thread = await openai.beta.threads.create();
   }
@@ -118,6 +119,25 @@ export async function closeOpenAI() {
   }
   assistant = undefined;
   thread = null;
+}
+
+/**
+ * set additional instructions
+ */
+export async function setAdditionalInstructions(message: string) {
+  if (openai && thread && assistant) {
+    await openai.beta.threads.messages.create(thread.id, {
+      role: 'user',
+      content: message
+    });
+    const run = await openai.beta.threads.runs.stream(thread.id, {
+      assistant_id: assistant.id
+    });
+    run.finalRun();
+    // deactivate the run
+    await cancelOpenAI();
+    console.log('additional instructions are set');
+  }
 }
 
 /**

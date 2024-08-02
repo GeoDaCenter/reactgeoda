@@ -157,6 +157,40 @@ export async function addColumnWithValues({
   }
 }
 
+export async function addColumnBySQL(sql: string) {
+  if (db) {
+    try {
+      // remove \n from sql
+      const sqlString = sql.replace(/\n/g, '');
+
+      const conn = await db.connect();
+      await conn.query(sqlString);
+      await conn.close();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+export async function queryValuesBySQL(queryString: string): Promise<unknown[]> {
+  if (!db) {
+    throw new Error('DuckDB is not initialized');
+  }
+  try {
+    // remove \n from sql
+    const sqlString = queryString.replace(/\n/g, '');
+
+    const conn = await db.connect();
+    const arrowResult = await conn.query<{v: any}>(sqlString);
+    const result = arrowResult.getChildAt(0)?.toArray();
+    await conn.close();
+    return result || [];
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error: can not query the values from the table. Details: ' + error);
+  }
+}
+
 /**
  * custom hook to use DuckDB
  *

@@ -11,7 +11,7 @@ import {
   processMessage,
   translateVoiceToText
 } from '@/ai/openai-utils';
-import {useDuckDB} from './use-duckdb';
+import {queryValuesBySQL} from './use-duckdb';
 import {mainTableNameSelector} from '@/store/selectors';
 
 /**
@@ -64,10 +64,7 @@ export function useChatGPT() {
   const tableName = useSelector(mainTableNameSelector);
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
-  // use selector to get dataContainer
   const dataContainer = useSelector(() => getDataContainer(tableName, visState?.datasets));
-
-  const {queryValues} = useDuckDB();
 
   /**
    * Upload sumary of the table to ChatGPT assistant
@@ -117,7 +114,7 @@ export function useChatGPT() {
       question,
       imageMessage,
       customFunctions: CUSTOM_FUNCTIONS,
-      customFunctionContext: {tableName, visState, weights, dataContainer, queryValues},
+      customFunctionContext: {tableName, visState, weights, dataContainer, queryValuesBySQL},
       customMessageCallback: createMessageFromCustomFunctionCall,
       streamMessageCallback: streamMessage
     });

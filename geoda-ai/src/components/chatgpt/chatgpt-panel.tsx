@@ -9,10 +9,10 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {setIsOpenAIKeyChecked, setMessages, setPropertyPanel} from '@/actions';
+import {addDatasetToAI, setIsOpenAIKeyChecked, setMessages, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
-import {mainTableNameSelector} from '@/store/selectors';
+import {datasetsSelector} from '@/store/selectors';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 export const INVALID_OPENAI_KEY_MESSAGE =
@@ -26,7 +26,7 @@ const DEFAULT_WELCOME_MESSAGE =
 
 const ChatGPTPanel = () => {
   const intl = useIntl();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<any>();
 
   const welcomeMessage: MessageModel = {
     message: intl.formatMessage({
@@ -39,28 +39,52 @@ const ChatGPTPanel = () => {
     position: 'first'
   };
 
-  const tableName = useSelector(mainTableNameSelector);
+  const datasets = useSelector(datasetsSelector);
 
-  // get api key from state.root
   const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
 
   const isKeyChecked = useSelector((state: GeoDaState) => state.root.uiState.isOpenAIKeyChecked);
+
+  const datasetMeta = useSelector((state: GeoDaState) => state.root.ai.datasetMeta);
 
   // check if openAIKey is valid
   const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
     isKeyChecked ? 'success' : 'checking'
   );
 
+  // useChatGPT hook
+  const {initOpenAI, processChatGPTMessage, speechToText} = useChatGPT();
+
   useEffect(() => {
     if (openAIKey) {
       testOpenAIKey(openAIKey).then((isValid: boolean) => {
-        setOpenAIKeyValid(isValid ? 'success' : 'failed');
-        if (isValid) {
-          dispatch(setIsOpenAIKeyChecked(true));
+        initOpenAI(openAIKey).then(() => {
+          setOpenAIKeyValid(isValid ? 'success' : 'failed');
+          if (isValid) {
+            dispatch(setIsOpenAIKeyChecked(true));
+          }
+        });
+      });
+    }
+  }, [dispatch, initOpenAI, openAIKey]);
+
+  useEffect(() => {
+    // check if datasets are processed as additional instructions for AI model
+    if (openAIKeyValid === 'success' && openAIKey) {
+      // find datasetIds from datasets that are not in datasetMeta
+      const datasetIds = datasets.map(dataset => dataset.dataId);
+      const datasetIdsNotInMeta = datasetIds.filter(
+        datasetId => !datasetMeta?.find(meta => meta.datasetId === datasetId)
+      );
+      // add dataset to AI
+      datasetIdsNotInMeta.forEach(datasetId => {
+        const datasetName = datasets.find(dataset => dataset.dataId === datasetId)?.fileName;
+        if (datasetName && datasetId) {
+          dispatch(addDatasetToAI(datasetId, datasetName));
         }
       });
     }
-  }, [dispatch, openAIKey]);
+  }, [datasetMeta, datasets, dispatch, initOpenAI, openAIKey, openAIKeyValid]);
 
   // get messages from state.root
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
@@ -74,9 +98,6 @@ const ChatGPTPanel = () => {
   // const [messages, setMessages] = useState<Array<MessageModel>>(
   //   initialMessages ?? [welcomeMessage]
   // );
-
-  // useChatGPT hook
-  const {initOpenAI, processChatGPTMessage, speechToText} = useChatGPT();
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
@@ -107,7 +128,7 @@ const ChatGPTPanel = () => {
           type={openAIKeyValid === 'checking' ? WarningType.WAIT : WarningType.WARNING}
           onClick={onNoOpenAIKeyMessageClick}
         />
-      ) : !tableName ? (
+      ) : datasets?.length === 0 ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <ChatGPTComponent

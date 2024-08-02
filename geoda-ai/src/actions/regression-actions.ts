@@ -1,6 +1,6 @@
+import {RegressionProps} from '@/reducers/regression-reducer';
 import {runRegression, RunRegressionProps} from '@/utils/regression-utils';
 import {generateRandomId} from '@/utils/ui-utils';
-import {LinearRegressionResult, SpatialErrorResult, SpatialLagResult} from 'geoda-wasm';
 import {Dispatch} from 'react';
 import {UnknownAction} from 'redux';
 
@@ -9,23 +9,6 @@ export enum REGRESSION_ACTIONS {
   REMOVE_REGRESSION = 'REMOVE_REGRESSION',
   UPDATE_REGRESSION = 'UPDATE_REGRESSION'
 }
-
-export type RegressionDataProps = {
-  dependentVariable: string;
-  independentVariables: string[];
-  weights?: string;
-  dependentVariableData?: number[];
-  independentVariablesData?: number[][];
-  result: LinearRegressionResult | SpatialLagResult | SpatialErrorResult | null;
-};
-
-export type RegressionProps = {
-  id: string;
-  // isNew is used to determine if the regression are newly added by chatbot, so a number badge can be shown on the regression icon
-  isNew?: boolean;
-  type: string;
-  data: RegressionDataProps;
-};
 
 export type RemoveRegressionProps = {
   id: string;

@@ -1,3 +1,4 @@
+import {RuleGroupType} from 'react-querybuilder';
 import {UI_ACTIONS} from '../actions';
 
 const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
@@ -5,6 +6,29 @@ const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 export type UiAction = {
   type: UI_ACTIONS;
   payload: string | boolean;
+};
+
+export type UiStateProps = {
+  theme: 'light' | 'dark';
+  defaultDatasetId: string;
+  showPropertyPanel: boolean;
+  showChatPanel: boolean;
+  propertyPanelName: string;
+  showOpenFileModal: boolean;
+  showAddDatasetModal: boolean;
+  showSaveProjectModal: boolean;
+  showKeplerTable: boolean;
+  showGridView: boolean;
+  openAIKey: string;
+  isOpenAIKeyChecked: boolean;
+  screenCaptured: string;
+  startScreenCapture: boolean;
+  defaultPromptText: string;
+  table: {
+    queryBuilder?: RuleGroupType;
+    queryCode?: string;
+    showQueryBuilder: boolean;
+  };
 };
 
 export const INITIAL_UI_STATE = {

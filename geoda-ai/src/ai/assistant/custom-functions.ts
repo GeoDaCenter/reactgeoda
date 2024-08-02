@@ -7,7 +7,6 @@ import {linearRegressionCallbackFunc} from './callbacks/callback-regression';
 import {createVariableCallBack} from './callbacks/callback-table';
 import {createWeightsCallback} from './callbacks/callback-weights';
 import {createMapCallback} from './callbacks/callback-map';
-import {getMetaDataCallback} from './callbacks/callback-metadata';
 import {boxplotCallback} from './callbacks/callback-box';
 import {parallelCoordinateCallback} from './callbacks/callback-pcp';
 import {bubbleCallback} from './callbacks/callback-bubble';
@@ -28,11 +27,11 @@ export enum CustomFunctionNames {
   LINEAR_REGRESSION = 'linearRegression',
   CREATE_VARIABLE = 'createVariable',
   CREATE_WEIGHTS = 'createWeights',
-  CREATE_MAP = 'createMap',
-  META_DATA = 'metaData'
+  CREATE_MAP = 'createMap'
 }
 
 export type ErrorOutput = {
+  type: 'error';
   result: {
     success: boolean;
     details: string;
@@ -41,6 +40,7 @@ export type ErrorOutput = {
 
 export function createErrorResult(result: string): ErrorOutput {
   return {
+    type: 'error',
     result: {
       success: false,
       details: result
@@ -63,6 +63,5 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   linearRegression: linearRegressionCallbackFunc,
   createVariable: createVariableCallBack,
   createWeights: createWeightsCallback,
-  createMap: createMapCallback,
-  metaData: getMetaDataCallback
+  createMap: createMapCallback
 };
