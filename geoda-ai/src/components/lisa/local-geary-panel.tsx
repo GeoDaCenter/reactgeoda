@@ -8,7 +8,7 @@ export function LocalGearyPanel() {
   const dispatch = useDispatch<any>();
 
   // handle onCreateMap
-  const runAnalysis = async ({
+  const runAnalysis = ({
     dataset,
     weights,
     selectedWeight,

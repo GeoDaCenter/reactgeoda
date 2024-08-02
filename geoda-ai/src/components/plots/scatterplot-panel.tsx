@@ -6,7 +6,7 @@ import {GeoDaState} from '@/store';
 import {useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {VariableSelector} from '../common/variable-selector';
-import {PlotActionProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
@@ -52,11 +52,11 @@ export function ScatterplotPanel() {
     if (newPlotsCount > 0) {
       plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   return (
     <RightPanelContainer

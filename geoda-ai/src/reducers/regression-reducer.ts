@@ -17,6 +17,16 @@ export const regressionReducer = (state = initialState, action: RegressionAction
       return [...state, action.payload];
     case REGRESSION_ACTIONS.REMOVE_REGRESSION:
       return state.filter(regression => regression.id !== action.payload.id);
+    case REGRESSION_ACTIONS.UPDATE_REGRESSION:
+      return state.map(regression => {
+        if (regression.id === action.payload.id) {
+          return {
+            ...regression,
+            ...action.payload
+          };
+        }
+        return regression;
+      });
     default:
       return state;
   }

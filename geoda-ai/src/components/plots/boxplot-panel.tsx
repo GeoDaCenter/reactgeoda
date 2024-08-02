@@ -6,7 +6,7 @@ import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {Key, useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Spacer, Tab, Tabs, RadioGroup, Radio} from '@nextui-org/react';
-import {PlotActionProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
@@ -54,11 +54,11 @@ export function BoxplotPanel() {
     if (newPlotsCount > 0) {
       plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   const onTabChange = (key: Key) => {
     setShowPlotsManagement(key === 'plot-management');
@@ -101,7 +101,7 @@ export function BoxplotPanel() {
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
                     <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
-                    <MultiVariableSelector setVariables={setVariables} />
+                    <MultiVariableSelector datasetId={datasetId} setVariables={setVariables} />
                     <RadioGroup
                       orientation="horizontal"
                       value={hingeValue}

@@ -66,3 +66,8 @@ export const selectWeightsByDataId = (datasetId: string) =>
   createSelector([(state: GeoDaState) => state.root.weights], weights => {
     return weights.filter(weight => weight.datasetId === datasetId);
   });
+
+export const selectSpatialAssignConfig = (state: GeoDaState) =>
+  state.root.spatialJoin.spatialAssign;
+
+export const selectSpatialCountConfig = (state: GeoDaState) => state.root.spatialJoin.spatialCount;

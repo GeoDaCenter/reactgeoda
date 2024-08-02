@@ -1,6 +1,7 @@
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
-  REMOVE_PLOT = 'REMOVE_PLOT'
+  REMOVE_PLOT = 'REMOVE_PLOT',
+  UPDATE_PLOT = 'UPDATE_PLOT'
 }
 
 type BasePlotActionProps = {
@@ -60,4 +61,9 @@ export const addPlot = (newPlot: PlotActionProps) => ({
 export const removePlot = (id: string) => ({
   type: PLOT_ACTIONS.REMOVE_PLOT,
   payload: {id}
+});
+
+export const updatePlot = (updatedPlot: PlotActionProps) => ({
+  type: PLOT_ACTIONS.UPDATE_PLOT,
+  payload: updatedPlot
 });

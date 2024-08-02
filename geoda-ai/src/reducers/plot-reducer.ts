@@ -59,6 +59,15 @@ export const plotReducer = (
       const payload = action.payload as RemovePlotActionProps;
       return state.filter(plot => plot.id !== payload.id);
     }
+    case PLOT_ACTIONS.UPDATE_PLOT: {
+      const payload = action.payload as PlotStateProps;
+      return state.map(plot => {
+        if (plot.id === payload.id) {
+          return {...plot, ...payload};
+        }
+        return plot;
+      });
+    }
     default:
       return state;
   }

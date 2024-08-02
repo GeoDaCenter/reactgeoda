@@ -11,6 +11,7 @@ import {AiAction, aiReducer} from './ai-reducer';
 import {DashboardAction, dashboardReducer} from './dashboard-reducer';
 import {interactionReducer, InteractionAction} from './interaction-reducer';
 import {MapsAction, mapsReducer} from './maps-reducer';
+import {SpatialJoinAction, spatialJoinReducer} from './spatial-join-reducer';
 
 /**
  * Combine all reducers into a single root reducer
@@ -30,7 +31,8 @@ const rootReducer = (
     regressions: regressionReducer(state?.regressions, action as RegressionAction),
     ai: aiReducer(state?.ai, action as AiAction),
     dashboard: dashboardReducer(state?.dashboard, action as DashboardAction),
-    interaction: interactionReducer(state?.interaction, action as InteractionAction)
+    interaction: interactionReducer(state?.interaction, action as InteractionAction),
+    spatialJoin: spatialJoinReducer(state?.spatialJoin, action as SpatialJoinAction)
   };
 };
 

@@ -6,7 +6,7 @@ import {RightPanelContainer} from '../common/right-panel-template';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {VariableSelector} from '../common/variable-selector';
 import {GeoDaState} from '@/store';
-import {PlotActionProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
@@ -53,11 +53,11 @@ export function BubbleChartPanel() {
     if (newPlotsCount > 0) {
       plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   const plotsLength = plots?.length;
   useEffect(() => {

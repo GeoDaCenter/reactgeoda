@@ -6,7 +6,7 @@ import {GeoDaState} from '@/store';
 import {VariableSelector} from '../common/variable-selector';
 import {ChangeEvent, useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react';
-import {PlotActionProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
@@ -46,11 +46,11 @@ export function HistogramPanel() {
     if (newPlotsCount > 0) {
       plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   // on create histogram
   const onCreateHistogram = () => {

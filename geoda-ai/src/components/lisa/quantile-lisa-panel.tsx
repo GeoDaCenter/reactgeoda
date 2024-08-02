@@ -24,7 +24,7 @@ export function QuantileLisaPanel() {
   };
 
   // handle onCreateMap
-  const runAnalysis = async ({
+  const runAnalysis = ({
     dataset,
     weights,
     selectedWeight,

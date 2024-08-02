@@ -15,7 +15,7 @@ export function LocalGPanel() {
   };
 
   // handle onCreateMap
-  const runLocalG = async ({
+  const runLocalG = ({
     dataset,
     weights,
     selectedWeight,

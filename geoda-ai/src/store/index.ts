@@ -21,6 +21,7 @@ import {RuleGroupType} from 'react-querybuilder';
 import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
 import {MapProps} from '@/reducers/maps-reducer';
 import {PlotStateProps} from '@/reducers/plot-reducer';
+import {SpatialJoinState} from '@/reducers/spatial-join-reducer';
 
 /**
  * Define the State of the Redux store
@@ -70,6 +71,7 @@ export type GeoDaState = {
       // brushLink: key is the dataId used in kepler.gl, value is the filtered index
       brushLink: {[key: string]: number[]};
     };
+    spatialJoin: SpatialJoinState;
   };
 };
 
