@@ -355,3 +355,17 @@ export function getBinaryGeometriesFromPointLayer(
     }
   ];
 }
+
+export function findKeplerDatasetByVariableName(
+  possibleDatasetName: string | undefined,
+  variableName: string,
+  datasets: KeplerDatasets
+): KeplerTable | undefined {
+  let keplerDataset = Object.values(datasets).find(d => d.label === possibleDatasetName);
+  if (!keplerDataset) {
+    keplerDataset = Object.values(datasets).find(dataset => {
+      return dataset.fields.find(field => field.name === variableName) ? true : false;
+    });
+  }
+  return keplerDataset;
+}

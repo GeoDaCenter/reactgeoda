@@ -1,12 +1,13 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {HistogramPlotActionProps, addPlot} from '@/actions/plot-actions';
+import {addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HistogramOutput} from '@/ai/assistant/callbacks/callback-histogram';
 import {HistogramPlot} from '../plots/histogram-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
+import {HistogramPlotStateProps} from '@/reducers/plot-reducer';
 
 /**
  * Custom Histogram Message
@@ -15,13 +16,15 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   const dispatch = useDispatch();
   const {output} = props;
 
-  const {id, variableName} = output.result as HistogramOutput['result'];
-  const histogram = 'data' in output && (output.data as HistogramOutput['data']);
+  const {id, datasetId, numberOfBins, variableName} = output.result as HistogramOutput['result'];
+  const histogram = 'data' in output ? (output.data as HistogramOutput['data']) : null;
 
-  const histogramPlotProps: HistogramPlotActionProps = {
+  const histogramPlotProps: HistogramPlotStateProps = {
     id,
+    datasetId,
     type: 'histogram',
     variable: variableName,
+    numberOfBins,
     data: histogram || []
   };
 
@@ -32,10 +35,8 @@ export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) =
   // handle click event
   const onClick = () => {
     if (histogram) {
-      // dispatch action to update redux state state.root.weights
-      dispatch(
-        addPlot({id, type: 'histogram', variable: variableName, data: histogram, isNew: true})
-      );
+      // dispatch action to add plot
+      dispatch(addPlot({...histogramPlotProps, isNew: true}));
       // hide the button once clicked
       setHide(true);
     }

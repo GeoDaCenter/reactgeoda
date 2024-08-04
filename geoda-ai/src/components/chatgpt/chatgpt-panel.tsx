@@ -13,6 +13,10 @@ import {addDatasetToAI, setIsOpenAIKeyChecked, setMessages, setPropertyPanel} fr
 import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {datasetsSelector} from '@/store/selectors';
+import {MAP_ID} from '@/constants';
+import {queryValuesBySQL} from '@/hooks/use-duckdb';
+import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
+import {DatasetProps} from '@/reducers/file-reducer';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 export const INVALID_OPENAI_KEY_MESSAGE =
@@ -47,13 +51,35 @@ const ChatGPTPanel = () => {
 
   const datasetMeta = useSelector((state: GeoDaState) => state.root.ai.datasetMeta);
 
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
+
+  const weights = useSelector((state: GeoDaState) => state.root.weights);
+
   // check if openAIKey is valid
   const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
     isKeyChecked ? 'success' : 'checking'
   );
 
   // useChatGPT hook
-  const {initOpenAI, processChatGPTMessage, speechToText} = useChatGPT();
+  const {initOpenAI, sendMessage, speechToText} = useChatGPT({
+    customFunctions: CUSTOM_FUNCTIONS,
+    customFunctionContext: {visState, weights, queryValuesBySQL}
+  });
+
+  function onDatasetsChange(datasets: DatasetProps[]) {
+    // find datasetIds from datasets that are not in datasetMeta
+    const datasetIds = datasets.map(dataset => dataset.dataId);
+    const datasetIdsNotInMeta = datasetIds.filter(
+      datasetId => !datasetMeta?.find(meta => meta.datasetId === datasetId)
+    );
+    // add dataset to AI
+    datasetIdsNotInMeta.forEach(datasetId => {
+      const datasetName = datasets.find(dataset => dataset.dataId === datasetId)?.fileName;
+      if (datasetName && datasetId) {
+        dispatch(addDatasetToAI(datasetId, datasetName));
+      }
+    });
+  }
 
   useEffect(() => {
     if (openAIKey) {
@@ -61,30 +87,22 @@ const ChatGPTPanel = () => {
         initOpenAI(openAIKey).then(() => {
           setOpenAIKeyValid(isValid ? 'success' : 'failed');
           if (isValid) {
+            onDatasetsChange(datasets);
             dispatch(setIsOpenAIKeyChecked(true));
           }
         });
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, initOpenAI, openAIKey]);
 
   useEffect(() => {
     // check if datasets are processed as additional instructions for AI model
     if (openAIKeyValid === 'success' && openAIKey) {
-      // find datasetIds from datasets that are not in datasetMeta
-      const datasetIds = datasets.map(dataset => dataset.dataId);
-      const datasetIdsNotInMeta = datasetIds.filter(
-        datasetId => !datasetMeta?.find(meta => meta.datasetId === datasetId)
-      );
-      // add dataset to AI
-      datasetIdsNotInMeta.forEach(datasetId => {
-        const datasetName = datasets.find(dataset => dataset.dataId === datasetId)?.fileName;
-        if (datasetName && datasetId) {
-          dispatch(addDatasetToAI(datasetId, datasetName));
-        }
-      });
+      onDatasetsChange(datasets);
     }
-  }, [datasetMeta, datasets, dispatch, initOpenAI, openAIKey, openAIKeyValid]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [datasets]);
 
   // get messages from state.root
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
@@ -134,7 +152,7 @@ const ChatGPTPanel = () => {
         <ChatGPTComponent
           openAIKey={openAIKey}
           initOpenAI={initOpenAI}
-          processMessage={processChatGPTMessage}
+          processMessage={sendMessage}
           speechToText={speechToText}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
           setMessages={updateMessages}

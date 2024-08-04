@@ -1,7 +1,5 @@
 // define a type of custom function that is an object contains key-value pairs
 
-import {getTableSummary} from '@/hooks/use-duckdb';
-
 import {CustomFunctions} from '../openai-utils';
 import {linearRegressionCallbackFunc} from './callbacks/callback-regression';
 import {createVariableCallBack} from './callbacks/callback-table';
@@ -17,8 +15,6 @@ import {univariateLocalMoranCallback} from './callbacks/callback-localmoran';
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
 export enum CustomFunctionNames {
-  SUMMARIZE_DATA = 'summarizeData',
-  LOCAL_MORAN = 'univariateLocalMoran',
   HISTOGRAM = 'histogram',
   SCATTERPLOT = 'scatter',
   BUBBLE_CHART = 'bubble',
@@ -27,7 +23,8 @@ export enum CustomFunctionNames {
   LINEAR_REGRESSION = 'linearRegression',
   CREATE_VARIABLE = 'createVariable',
   CREATE_WEIGHTS = 'createWeights',
-  CREATE_MAP = 'createMap'
+  CREATE_MAP = 'createMap',
+  LOCAL_MORAN = 'univariateLocalMoran'
 }
 
 export type ErrorOutput = {
@@ -49,12 +46,6 @@ export function createErrorResult(result: string): ErrorOutput {
 }
 
 export const CUSTOM_FUNCTIONS: CustomFunctions = {
-  summarizeData: async function ({tableName}) {
-    // dispatch summarize data action
-    const result = await getTableSummary();
-    return {tableName, result};
-  },
-  univariateLocalMoran: univariateLocalMoranCallback,
   histogram: histogramCallback,
   scatter: scatterCallback,
   bubble: bubbleCallback,
@@ -63,5 +54,6 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   linearRegression: linearRegressionCallbackFunc,
   createVariable: createVariableCallBack,
   createWeights: createWeightsCallback,
-  createMap: createMapCallback
+  createMap: createMapCallback,
+  univariateLocalMoran: univariateLocalMoranCallback
 };

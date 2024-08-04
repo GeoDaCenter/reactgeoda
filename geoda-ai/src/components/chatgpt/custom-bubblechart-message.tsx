@@ -1,46 +1,38 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {BubbleChartActionProps, addPlot} from '@/actions/plot-actions';
+import {addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {BubbleChartOutput} from '@/ai/assistant/callbacks/callback-bubble';
 import {BubbleChart} from '../plots/bubble-chart-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
+import {BubbleChartStateProps} from '@/reducers/plot-reducer';
 
 /**
  * Custom Bubble Chart Message
  */
 export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload}) => {
   const dispatch = useDispatch();
-  // get plot from redux store
-  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
-  const [hide, setHide] = useState(Boolean(plot) || false);
 
   const {output} = props;
 
-  if (!output || !output.result || typeof output.result !== 'object') {
-    console.error('Bubble chart data is unavailable or invalid.');
-    return null;
-  }
-
-  const bubbleChartData = output.result;
-
-  if (!bubbleChartData) {
-    console.error('Bubble chart data is unavailable or invalid.');
-    return null;
-  }
-  const {id, variableX, variableY, variableSize, variableColor} =
+  const {id, datasetId, variableX, variableY, variableSize, variableColor} =
     output.result as BubbleChartOutput['result'];
 
-  const bubbleChartProps: BubbleChartActionProps = {
+  const bubbleChartProps: BubbleChartStateProps = {
     id,
+    datasetId,
     type: 'bubble',
     variableX: variableX,
     variableY: variableY,
     variableSize: variableSize,
     variableColor: variableColor
   };
+
+  // get plot from redux store
+  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
+  const [hide, setHide] = useState(Boolean(plot) || false);
 
   // Handle click event
   const onClick = () => {

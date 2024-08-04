@@ -58,15 +58,15 @@ export const addDatasetToAI =
             ...(datasetMeta || []),
             newMetaData.result
           ];
-          const textDatasetMeta = JSON.stringify(updatedDatasetMeta);
+          const textDatasetMeta = JSON.stringify(newMetaData);
           const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}`;
+
+          // update datasetMeta in the store
+          dispatch(setDatasetMeta(updatedDatasetMeta));
 
           // add dataset metadata as additional instructions for AI model
           await initOpenAI(openAIKey);
           await setAdditionalInstructions(message);
-
-          // update datasetMeta in the store
-          dispatch(setDatasetMeta(updatedDatasetMeta));
         }
       }
     }

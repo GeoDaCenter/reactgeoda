@@ -1,7 +1,7 @@
 import {Button} from '@nextui-org/react';
 import {useState} from 'react';
 
-import {BoxPlotActionProps, addPlot} from '@/actions/plot-actions';
+import {addPlot} from '@/actions/plot-actions';
 import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
 import {BoxplotOutput} from '@/ai/assistant/callbacks/callback-box';
@@ -9,39 +9,41 @@ import {BoxPlot} from '../plots/box-plot';
 import {useDispatch, useSelector} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {GeoDaState} from '@/store';
+import {BoxPlotStateProps} from '@/reducers/plot-reducer';
 
 /**
  * Custom BoxPlot Message
  */
 export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => {
   const dispatch = useDispatch();
+  const {output} = props;
+
+  const {id, datasetId, variables, boundIQR} = output.result as BoxplotOutput['result'];
+  const boxplot = 'data' in output ? (output.data as BoxplotOutput['data']) : null;
+
   // get plot from redux store
   const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
   const [hide, setHide] = useState(Boolean(plot) || false);
 
-  const {output} = props;
-
-  if (!('data' in output)) {
-    console.error('Boxplot data is unavailable or invalid.');
-    return null;
-  }
-
-  const {id, variables} = output.result as BoxplotOutput['result'];
-  const boxplot = output.data as BoxplotOutput['data'];
-
-  const boxPlotProps: BoxPlotActionProps = {
-    id,
-    type: 'boxplot',
-    variables,
-    data: boxplot
-  };
-
   // handle click event
   const onClick = () => {
     // dispatch action to update redux state state.root.weights
-    dispatch(addPlot({id, type: 'boxplot', variables, data: boxplot, isNew: true}));
+    dispatch(addPlot({...boxPlotProps, isNew: true}));
     // hide the button once clicked
     setHide(true);
+  };
+
+  if (!boxplot) {
+    return null;
+  }
+
+  const boxPlotProps: BoxPlotStateProps = {
+    id,
+    datasetId,
+    type: 'boxplot',
+    variables,
+    boundIQR,
+    data: boxplot
   };
 
   return (

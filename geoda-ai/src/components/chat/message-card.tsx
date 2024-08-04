@@ -69,6 +69,7 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
         >
           Github/geodaai
         </Link>
+        &nbsp; or refresh the page and try again.
       </p>
     );
 

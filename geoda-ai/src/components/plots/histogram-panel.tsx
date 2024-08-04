@@ -56,7 +56,7 @@ export function HistogramPanel() {
   const onCreateHistogram = () => {
     if (keplerDataset && variable && intervals > 0 && variable.length > 0) {
       // dispatch action to create histogram and add to store
-      dispatch(addPlot({datasetId, type: 'histogram', variable, intervals}));
+      dispatch(addPlot({datasetId, type: 'histogram', variable, numberOfBins: intervals}));
       // Show the plots management panel
       setShowPlotsManagement(true);
     }

@@ -1,3 +1,6 @@
+import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
+import {HistogramDataProps} from '@/utils/plots/histogram-utils';
+
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
   REMOVE_PLOT = 'REMOVE_PLOT',
@@ -5,6 +8,7 @@ export enum PLOT_ACTIONS {
 }
 
 type BasePlotActionProps = {
+  id?: string;
   datasetId: string;
   type: string;
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
@@ -14,7 +18,8 @@ type BasePlotActionProps = {
 export type HistogramPlotActionProps = BasePlotActionProps & {
   type: 'histogram';
   variable: string;
-  intervals: number;
+  numberOfBins: number;
+  data?: HistogramDataProps[];
 };
 
 export type ScatterPlotActionProps = BasePlotActionProps & {
@@ -27,6 +32,7 @@ export type BoxPlotActionProps = BasePlotActionProps & {
   type: 'boxplot';
   variables: string[];
   boundIQR: number;
+  data?: BoxplotDataProps;
 };
 
 export type ParallelCoordinateActionProps = BasePlotActionProps & {

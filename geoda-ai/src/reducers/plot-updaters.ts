@@ -8,7 +8,14 @@ import {
   BubbleChartStateProps,
   ParallelCoordinateStateProps
 } from './plot-reducer';
-import {PlotActionProps} from '@/actions';
+import {
+  BoxPlotActionProps,
+  BubbleChartActionProps,
+  HistogramPlotActionProps,
+  ParallelCoordinateActionProps,
+  PlotActionProps,
+  ScatterPlotActionProps
+} from '@/actions';
 import {generateRandomId} from '@/utils/ui-utils';
 import KeplerTable from '@kepler.gl/table';
 import {MAP_ID} from '@/constants';
@@ -16,57 +23,119 @@ import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/plots/histogram-utils';
 import {createBoxplot, CreateBoxplotProps} from '@/utils/plots/boxplot-utils';
 
+function addHistogramPlotUpdater(
+  payload: HistogramPlotActionProps,
+  keplerDataset: KeplerTable,
+  state: PlotStateProps[]
+) {
+  // get kepler dataset
+  const {id, variable, numberOfBins: intervals, data} = payload;
+  let histogram = data;
+  if (!histogram) {
+    // compute histogram data if needed
+    const values = getColumnDataFromKeplerDataset(variable, keplerDataset);
+    histogram = createHistogram(values, intervals || 7);
+  }
+  // create histogram plot state
+  const plotState: HistogramPlotStateProps = {
+    ...payload,
+    id: id || generateRandomId(),
+    data: histogram
+  };
+
+  return [...state, plotState];
+}
+
+function addScatterPlotUpdater(
+  payload: ScatterPlotActionProps,
+  _keplerDataset: KeplerTable,
+  state: PlotStateProps[]
+) {
+  const {id} = payload;
+  // get data from variableX and variableY
+  // const dataX = getColumnDataFromKeplerDataset(variableX, keplerDataset);
+  // const dataY = getColumnDataFromKeplerDataset(variableY, keplerDataset);
+  // compute regression statistics for dataX and dataY
+
+  // create scatter plot state
+  const plotState: ScatterPlotStateProps = {...payload, id: id || generateRandomId()};
+  return [...state, plotState];
+}
+
+function addBoxPlotUpdater(
+  payload: BoxPlotActionProps,
+  keplerDataset: KeplerTable,
+  state: PlotStateProps[]
+) {
+  const {id, variables, boundIQR, data} = payload;
+  let boxplot = data;
+  if (!boxplot) {
+    const values = variables.reduce((prev: CreateBoxplotProps['data'], columnName: string) => {
+      const values = getColumnDataFromKeplerDataset(columnName, keplerDataset);
+      prev[columnName] = values;
+      return prev;
+    }, {});
+    boxplot = createBoxplot({data: values, boundIQR});
+  }
+  // create boxplot plot state
+  const plotState: BoxPlotStateProps = {...payload, id: id || generateRandomId(), data: boxplot};
+
+  return [...state, plotState];
+}
+
+function addParallelCoordinatePlotUpdater(
+  payload: ParallelCoordinateActionProps,
+  _keplerDataset: KeplerTable,
+  state: PlotStateProps[]
+) {
+  // get kepler dataset
+  const {id} = payload;
+
+  // get data from variables
+  // const data = variables.map((variable: string) => {
+  //   return getColumnDataFromKeplerDataset(variable, keplerDataset);
+  // });
+
+  // create parallel coordinate plot state
+  const plotState: ParallelCoordinateStateProps = {...payload, id: id || generateRandomId()};
+  return [...state, plotState];
+}
+
+function addBubbleChartUpdater(
+  payload: BubbleChartActionProps,
+  _keplerDataset: KeplerTable,
+  state: PlotStateProps[]
+) {
+  const {id} = payload;
+  // get data from variables
+  // const dataX = getColumnDataFromKeplerDataset(variableX, keplerDataset);
+  // const dataY = getColumnDataFromKeplerDataset(variableY, keplerDataset);
+  // const dataZ = getColumnDataFromKeplerDataset(variableZ, keplerDataset);
+  // create bubble chart plot state
+  const plotState: BubbleChartStateProps = {...payload, id: id || generateRandomId()};
+  return [...state, plotState];
+}
+
 export function addPlotUpdater(
   state: PlotStateProps[],
   action: PlotAction,
   keplerState: GeoDaState['keplerGl']
 ) {
   const payload = action.payload as PlotActionProps;
-  // generate random id for plot
-  const id = generateRandomId();
   const keplerDataset: KeplerTable = keplerState[MAP_ID].visState.datasets[payload.datasetId];
 
   if (payload.type === 'histogram') {
-    // get kepler dataset
-    const {variable, intervals} = payload;
-    // get data from variable
-    const data = getColumnDataFromKeplerDataset(variable, keplerDataset);
-    const histogram = createHistogram(data, intervals || 7);
-    // create histogram plot state
-    const plotState: HistogramPlotStateProps = {...payload, id, data: histogram};
-
-    return [...state, plotState];
+    return addHistogramPlotUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'scatter') {
-    // const {variableX, variableY} = payload;
-    // get data from variableX and variableY
-    // const dataX = getColumnDataFromKeplerDataset(variableX, keplerDataset);
-    // const dataY = getColumnDataFromKeplerDataset(variableY, keplerDataset);
-    // compute regression statistics for dataX and dataY
-
-    // create scatter plot state
-    const plotState: ScatterPlotStateProps = {...payload, id};
-    return [...state, plotState];
+    return addScatterPlotUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'boxplot') {
-    const {variables, boundIQR} = payload;
-    const data = variables.reduce((prev: CreateBoxplotProps['data'], columnName: string) => {
-      const values = getColumnDataFromKeplerDataset(columnName, keplerDataset);
-      prev[columnName] = values;
-      return prev;
-    }, {});
-    const boxplot = createBoxplot({data, boundIQR});
-    // create boxplot plot state
-    const plotState: BoxPlotStateProps = {...payload, id, data: boxplot};
-
-    return [...state, plotState];
+    return addBoxPlotUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'bubble') {
-    const plotState: BubbleChartStateProps = {...payload, id};
-    return [...state, plotState];
+    return addBubbleChartUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'parallel-coordinate') {
-    // TODO: add stats for each variable
-    const plotState: ParallelCoordinateStateProps = {...payload, id};
-    return [...state, plotState];
+    return addParallelCoordinatePlotUpdater(payload, keplerDataset, state);
   }
 
-  console.log('Plot type not supported');
+  console.error('Plot type not supported');
   return state;
 }
