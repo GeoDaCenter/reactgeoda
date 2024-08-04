@@ -1,18 +1,73 @@
-import {PLOT_ACTIONS, PlotProps, RemovePlotProps} from '@/actions/plot-actions';
+import {
+  BoxPlotActionProps,
+  BubbleChartActionProps,
+  HistogramPlotActionProps,
+  ParallelCoordinateActionProps,
+  PLOT_ACTIONS,
+  PlotActionProps,
+  RemovePlotActionProps,
+  ScatterPlotActionProps
+} from '@/actions/plot-actions';
+import {GeoDaState} from '@/store';
+import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
+import {HistogramDataProps} from '@/utils/plots/histogram-utils';
+import {addPlotUpdater} from './plot-updaters';
 
-const initialState: Array<any> = [];
+const initialState: Array<PlotStateProps> = [];
 
 export type PlotAction = {
   type: string;
-  payload: PlotProps | RemovePlotProps;
+  payload: PlotActionProps | RemovePlotActionProps;
 };
 
-export const plotReducer = (state = initialState, action: PlotAction) => {
+type BasePlotStateProps = {
+  id: string;
+};
+
+export type HistogramPlotStateProps = BasePlotStateProps &
+  HistogramPlotActionProps & {
+    data: HistogramDataProps[];
+  };
+
+export type ScatterPlotStateProps = BasePlotStateProps & ScatterPlotActionProps;
+
+export type BoxPlotStateProps = BasePlotStateProps &
+  BoxPlotActionProps & {
+    data: BoxplotDataProps;
+  };
+
+export type ParallelCoordinateStateProps = BasePlotStateProps & ParallelCoordinateActionProps;
+
+export type BubbleChartStateProps = BasePlotStateProps & BubbleChartActionProps;
+
+export type PlotStateProps =
+  | HistogramPlotStateProps
+  | ScatterPlotStateProps
+  | BoxPlotStateProps
+  | ParallelCoordinateStateProps
+  | BubbleChartStateProps;
+
+export const plotReducer = (
+  state = initialState,
+  action: PlotAction,
+  keplerState: GeoDaState['keplerGl']
+) => {
   switch (action.type) {
     case PLOT_ACTIONS.ADD_PLOT:
-      return [...state, action.payload];
-    case PLOT_ACTIONS.REMOVE_PLOT:
-      return state.filter(plot => plot.id !== action.payload);
+      return addPlotUpdater(state, action, keplerState);
+    case PLOT_ACTIONS.REMOVE_PLOT: {
+      const payload = action.payload as RemovePlotActionProps;
+      return state.filter(plot => plot.id !== payload.id);
+    }
+    case PLOT_ACTIONS.UPDATE_PLOT: {
+      const payload = action.payload as PlotStateProps;
+      return state.map(plot => {
+        if (plot.id === payload.id) {
+          return {...plot, ...payload};
+        }
+        return plot;
+      });
+    }
     default:
       return state;
   }

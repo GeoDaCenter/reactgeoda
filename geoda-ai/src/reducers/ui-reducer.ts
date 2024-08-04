@@ -1,3 +1,4 @@
+import {RuleGroupType} from 'react-querybuilder';
 import {UI_ACTIONS} from '../actions';
 
 const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
@@ -7,12 +8,36 @@ export type UiAction = {
   payload: string | boolean;
 };
 
+export type UiStateProps = {
+  theme: 'light' | 'dark';
+  defaultDatasetId: string;
+  showPropertyPanel: boolean;
+  showChatPanel: boolean;
+  propertyPanelName: string;
+  showOpenFileModal: boolean;
+  showAddDatasetModal: boolean;
+  showSaveProjectModal: boolean;
+  showKeplerTable: boolean;
+  showGridView: boolean;
+  openAIKey: string;
+  isOpenAIKeyChecked: boolean;
+  screenCaptured: string;
+  startScreenCapture: boolean;
+  defaultPromptText: string;
+  table: {
+    queryBuilder?: RuleGroupType;
+    queryCode?: string;
+    showQueryBuilder: boolean;
+  };
+};
+
 export const INITIAL_UI_STATE = {
   theme: 'dark',
-  showOpenFileModal: false,
+  defaultDatasetId: '',
+  showOpenFileModal: true,
   showAddDatasetModal: false,
   showSaveProjectModal: false,
-  showKeplerTableModal: false,
+  showKeplerTable: false,
   showGridView: false,
   showPropertyPanel: false,
   showChatPanel: false,
@@ -33,6 +58,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
       return {
         ...state,
         theme: action.payload
+      };
+    case UI_ACTIONS.SET_DEFAULT_DATASET_ID:
+      return {
+        ...state,
+        defaultDatasetId: action.payload
       };
     case UI_ACTIONS.SET_SCREEN_CAPTURED:
       return {
@@ -67,7 +97,7 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction) => {
     case UI_ACTIONS.SET_KEPLER_TABLE_MODAL:
       return {
         ...state,
-        showKeplerTableModal: action.payload
+        showKeplerTable: action.payload
       };
     case UI_ACTIONS.SET_GRID_VIEW:
       return {

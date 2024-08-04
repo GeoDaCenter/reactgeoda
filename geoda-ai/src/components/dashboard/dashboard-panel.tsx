@@ -12,7 +12,7 @@ import {generateRandomId} from '@/utils/ui-utils';
 import {addTextGridItem, updateMode} from '@/actions/dashboard-actions';
 import {MAP_ID, accordionItemClasses} from '@/constants';
 import {Layer} from '@kepler.gl/layers';
-import {PlotProps} from '@/actions';
+import {PlotActionProps} from '@/actions';
 import {PlotWrapper} from '../plots/plot-management';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {RegressionReport} from '../spreg/spreg-report';
@@ -189,7 +189,7 @@ export function DashboardPanel() {
                         )}
                       {plotIds &&
                         plots.map(
-                          (plot: PlotProps) =>
+                          (plot: PlotActionProps) =>
                             gridItems?.find(l => l.id === plot.id && l.show === false) && (
                               <DraggableElement key={plot.id} id={plot.id}>
                                 {PlotWrapper(plot, false)}

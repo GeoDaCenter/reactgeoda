@@ -1,4 +1,4 @@
-import React, {Key, useState} from 'react';
+import React, {Key, useMemo, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {
   Tabs,
@@ -12,29 +12,30 @@ import {
   RadioGroup,
   Radio
 } from '@nextui-org/react';
-import {GeojsonLayer} from '@kepler.gl/layers';
-import {getDistanceThresholds} from 'geoda-wasm';
+import {Layer} from '@kepler.gl/layers';
+import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
 
 import {addWeights} from '@/actions';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {
-  createContiguityWeights,
-  createDistanceWeights,
-  createKNNWeights,
-  CreateWeightsOutputProps
-} from '@/utils/weights-utils';
+import {createWeights} from '@/utils/weights-utils';
 import {CreateButton} from '../common/create-button';
-
+import {BinaryFeatureCollection} from '@loaders.gl/schema';
+import {
+  getBinaryGeometryTypeFromLayer,
+  getBinaryGeometriesFromLayer
+} from '../spatial-operations/spatial-join-utils';
+import KeplerTable from '@kepler.gl/table';
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
-  keplerLayer: GeojsonLayer | null;
+  keplerLayer: Layer;
+  keplerDataset: KeplerTable;
 };
 
-export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
-  const dispatch = useDispatch();
+export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCreationProps) {
+  const dispatch = useDispatch<any>();
 
   const [error, setError] = useState<string | null>(null);
-  const [weightsType, setWeightsType] = useState<string>('contiguity');
+  const [weightsType, setWeightsType] = useState<'contiguity' | 'knn' | 'band'>('contiguity');
   const [inputK, setInputK] = useState<number>(4);
   const [contiguityType, setContiguityType] = useState<string>('queen');
   const [orderOfContiguity, setOrderContiguity] = useState<number>(1);
@@ -45,13 +46,22 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const [maxSliderValue, setMaxSliderValue] = useState<number>(0);
   const [sliderValue, setSliderValue] = useState<number>(0);
 
-  const binaryGeometryType = keplerLayer?.meta.featureTypes;
-  const binaryGeometries = keplerLayer?.dataToFeature;
+  const binaryGeometryType: BinaryGeometryType = useMemo(
+    () => getBinaryGeometryTypeFromLayer(keplerLayer) as BinaryGeometryType,
+    [keplerLayer]
+  );
+
+  const binaryGeometries = useMemo(
+    () => getBinaryGeometriesFromLayer(keplerLayer, keplerDataset) as BinaryFeatureCollection[],
+    [keplerLayer, keplerDataset]
+  );
+
+  const datasetId = keplerLayer.config.dataId;
 
   const isMile = false;
 
   const onWeightsSelectionChange = async (key: Key) => {
-    setWeightsType(key as string);
+    setWeightsType(key as 'contiguity' | 'knn' | 'band');
     if (key === 'distance' && binaryGeometries && binaryGeometryType) {
       // compute the distanceThreshold
       const {minDistance, maxDistance, maxPairDistance} = await getDistanceThresholds({
@@ -77,42 +87,25 @@ export function WeightsCreationComponent({keplerLayer}: WeightsCreationProps) {
   const onCreateWeights = async () => {
     setError(null);
     try {
-      if (binaryGeometries && binaryGeometryType) {
-        let result: CreateWeightsOutputProps | null = null;
-
-        if (weightsType === 'contiguity') {
-          result = await createContiguityWeights({
-            contiguityType,
-            binaryGeometryType,
-            // @ts-ignore
-            binaryGeometries,
-            precisionThreshold,
-            orderOfContiguity,
-            includeLowerOrder
-          });
-        } else if (weightsType === 'knn') {
-          const k = inputK;
-          result = await createKNNWeights({
-            k,
-            binaryGeometryType,
-            // @ts-ignore
-            binaryGeometries
-          });
-        } else if (weightsType === 'band') {
-          result = await createDistanceWeights({
-            distanceThreshold: sliderValue,
-            isMile: false,
-            binaryGeometryType,
-            // @ts-ignore
-            binaryGeometries
-          });
-        }
-        if (result) {
-          const {weights, weightsMeta} = result;
-          // dispatch action to update redux state state.root.weights
-          dispatch(addWeights({weights, weightsMeta}));
-        }
+      const result = await createWeights({
+        datasetId,
+        weightsType,
+        contiguityType,
+        binaryGeometryType,
+        binaryGeometries,
+        precisionThreshold,
+        orderOfContiguity,
+        includeLowerOrder,
+        k: inputK,
+        distanceThreshold: sliderValue,
+        isMile
+      });
+      if (!result) {
+        throw new Error('weights type is not supported');
       }
+      const {weights, weightsMeta} = result;
+      // dispatch action to update redux state state.root.weights
+      dispatch(addWeights({weights, weightsMeta, datasetId}));
     } catch (e) {
       console.error(e);
       setError(`Create weights error: ${e}`);

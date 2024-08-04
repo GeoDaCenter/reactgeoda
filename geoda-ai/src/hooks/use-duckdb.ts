@@ -119,6 +119,78 @@ export async function getColumnData(columnName: string): Promise<number[]> {
   return [];
 }
 
+export async function addColumnWithValues({
+  tableName,
+  columnName,
+  columnType,
+  columnValues
+}: {
+  tableName: string;
+  columnName: string;
+  columnType: 'NUMERIC' | 'VARCHAR';
+  columnValues: unknown[];
+}) {
+  if (db) {
+    try {
+      const conn = await db.connect();
+      // create a temporary arrow table with the column name and values
+      const arrowTable = tableFromArrays({[columnName]: columnValues});
+      // create a temporary duckdb table using the arrow table
+      await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
+      try {
+        // add a new column from the temporary table to the main table
+        await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnType}`);
+      } catch (error) {
+        // do nothing if can't add a new column since it might already exist
+      }
+      // update the new column with the values from the temporary table
+      await conn.query(
+        `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
+      );
+      // drop the temporary table
+      await conn.query(`DROP TABLE "temp_${columnName}"`);
+      await conn.close();
+    } catch (error) {
+      console.error(error);
+      throw new Error("Can't add a new column with values to the table, Error: " + error);
+    }
+  }
+}
+
+export async function addColumnBySQL(sql: string) {
+  if (db) {
+    try {
+      // remove \n from sql
+      const sqlString = sql.replace(/\n/g, '');
+
+      const conn = await db.connect();
+      await conn.query(sqlString);
+      await conn.close();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+export async function queryValuesBySQL(queryString: string): Promise<unknown[]> {
+  if (!db) {
+    throw new Error('DuckDB is not initialized');
+  }
+  try {
+    // remove \n from sql
+    const sqlString = queryString.replace(/\n/g, '');
+
+    const conn = await db.connect();
+    const arrowResult = await conn.query<{v: any}>(sqlString);
+    const result = arrowResult.getChildAt(0)?.toArray();
+    await conn.close();
+    return result || [];
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error: can not query the values from the table. Details: ' + error);
+  }
+}
+
 /**
  * custom hook to use DuckDB
  *

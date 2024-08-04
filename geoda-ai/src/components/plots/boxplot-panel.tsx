@@ -6,14 +6,11 @@ import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {Key, useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Spacer, Tab, Tabs, RadioGroup, Radio} from '@nextui-org/react';
-import {MAP_ID} from '@/constants';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {CreateBoxplotProps, createBoxplot} from '@/utils/plots/boxplot-utils'; // Updated import
-import {PlotProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
-import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -29,53 +26,39 @@ export function BoxplotPanel() {
   // useState for hingeValue
   const [hingeValue, setHingeValue] = useState('1.5');
 
-  // use selector to get tableName
-  const tableName = useSelector(mainTableNameSelector);
-  // use selector to get dataContainer
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // on create boxplot // Updated function name
   const onCreateBoxplot = () => {
-    // Updated function name
-    // get data from variable
-    const data: CreateBoxplotProps['data'] = variables.reduce(
-      (prev: CreateBoxplotProps['data'], cur: string) => {
-        const values = getColumnData(cur, dataContainer);
-        prev[cur] = values;
-        return prev;
-      },
-      {}
-    );
-
-    // get hinge value as number
-    const boundIQR = parseFloat(hingeValue);
-    const boxplot = createBoxplot({data, boundIQR});
-    // generate random id for boxplot
-    const id = generateRandomId();
-    // dispatch action to create boxplot and add to store
-    dispatch(addPlot({id, type: 'boxplot', variables, data: boxplot}));
-    // show plots management tab
-    setShowPlotsManagement(true);
+    if (variables.length > 0) {
+      // get hinge value as number
+      const boundIQR = parseFloat(hingeValue);
+      // dispatch action to create boxplot and add to store
+      dispatch(addPlot({type: 'boxplot', variables, datasetId, boundIQR}));
+      // show plots management tab
+      setShowPlotsManagement(true);
+    }
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
-  const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
+  const newPlotsCount = plots.filter((plot: PlotActionProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
   // reset isNew flag of plots
   useEffect(() => {
     if (newPlotsCount > 0) {
-      plots.forEach((plot: PlotProps) => {
+      plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   const onTabChange = (key: Key) => {
     setShowPlotsManagement(key === 'plot-management');
@@ -93,7 +76,7 @@ export function BoxplotPanel() {
       })}
       icon={null}
     >
-      {!tableName ? (
+      {!keplerDataset ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
@@ -117,7 +100,8 @@ export function BoxplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <MultiVariableSelector setVariables={setVariables} />
+                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <MultiVariableSelector datasetId={datasetId} setVariables={setVariables} />
                     <RadioGroup
                       orientation="horizontal"
                       value={hingeValue}

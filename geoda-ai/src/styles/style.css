@@ -62,6 +62,18 @@
     display: block;
   }
 }
+/* hide Add Data button in kepler.gl */
+.add-data-button {
+  display: none !important;
+}
+/* show remove dataset icon */
+.remove-dataset {
+  opacity: 1 !important;
+}
+/* remove hover effect on dataset-modal-tab */
+.dataset-modal-tab:hover {
+  background-color: transparent !important;
+}
 /* .kg-checkbox .kg-checkbox__label::before {
   border: 1px solid #0F9668;
   height: 12px;

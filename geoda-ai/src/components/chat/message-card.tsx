@@ -7,7 +7,7 @@ import {useClipboard} from '@nextui-org/use-clipboard';
 import {Icon} from '@iconify/react';
 
 import {cn} from '../common/cn';
-import {CustomMessage} from '../chatgpt/custom-messages';
+import {CUSTOM_MESSAGE_TYPE, CustomMessage} from '../chatgpt/custom-messages';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
 
 export type MessageCardProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -69,6 +69,7 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
         >
           Github/geodaai
         </Link>
+        &nbsp; or refresh the page and try again.
       </p>
     );
 
@@ -122,6 +123,21 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
       if (stopChat) stopChat();
     }, [stopChat]);
 
+    // function to check if customMessage is valid
+    const isValidCustomMessage = (customMessage: MessagePayload) => {
+      // check if customMessage is an object
+      if (customMessage && typeof customMessage === 'object') {
+        // check if customMessage has a key functionName
+        if ('functionName' in customMessage) {
+          // check if customMessage.functionName one of CUSTOM_FUNCTIONS keys
+          if (CUSTOM_MESSAGE_TYPE.includes(customMessage.functionName)) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
+
     return (
       <div {...props} ref={ref} className={cn('flex gap-3', className)}>
         <div className="relative flex-none">
@@ -148,7 +164,9 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
               {/* <Markdown className="flex flex-col gap-4">{message as string}</Markdown> */}
               {status === 'pending' && <Spinner color="default" size="sm" />}
               {hasFailed ? failedMessage : message}
-              {customMessage && <CustomMessage props={customMessage} />}
+              {customMessage && isValidCustomMessage(customMessage) && (
+                <CustomMessage props={customMessage} />
+              )}
             </div>
             {status === 'pending' && (
               <div className="absolute right-2 top-2 flex rounded-full bg-content2 shadow-small">

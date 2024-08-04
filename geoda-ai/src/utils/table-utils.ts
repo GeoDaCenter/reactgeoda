@@ -5,8 +5,6 @@ import MerseeneTwister from 'mersenne-twister';
 import {DATA_TYPES} from 'type-analyzer';
 import {DEFAULT_RANDOM_SEED} from '@/constants';
 import {Field} from '@kepler.gl/types';
-import {Dispatch, UnknownAction} from 'redux';
-import {addTableColumn} from '@kepler.gl/actions';
 
 export function getQueryBuilderFields(dataset: KeplerTable | undefined) {
   const fields: QueryField[] = [];
@@ -238,11 +236,10 @@ export function generateSQLUpdateColumn({
 }
 
 export type addKeplerColumnProps = {
-  dataset?: KeplerTable;
+  dataset: KeplerTable;
   newFieldName: string;
   fieldType: string;
   columnData: unknown | unknown[];
-  dispatch: Dispatch<UnknownAction>;
 };
 
 /**
@@ -252,33 +249,29 @@ export function addKeplerColumn({
   dataset,
   newFieldName,
   fieldType,
-  columnData,
-  dispatch
+  columnData
 }: addKeplerColumnProps) {
-  if (dataset) {
-    // get dataset from kepler.gl if dataset.label === tableName
-    const dataContainer = dataset.dataContainer;
-    const fieldsLength = dataset.fields.length;
-    // get analyzer type from columnType
-    const analyzerType = fieldTypeToAnalyzerType(fieldType);
-    const numberOfRows = dataset.length;
+  // get dataset from kepler.gl if dataset.label === tableName
+  const dataContainer = dataset.dataContainer;
+  const fieldsLength = dataset.fields.length;
+  // get analyzer type from columnType
+  const analyzerType = fieldTypeToAnalyzerType(fieldType);
+  const numberOfRows = dataset.length;
 
-    // add new column to kepler.gl
-    const newField: Field = {
-      id: newFieldName,
-      name: newFieldName,
-      displayName: newFieldName,
-      format: '',
-      type: fieldType,
-      analyzerType,
-      fieldIdx: fieldsLength,
-      valueAccessor: (d: any) => {
-        return dataContainer?.valueAt(d.index, fieldsLength);
-      }
-    };
+  // add new column to kepler.gl
+  const newField: Field = {
+    id: newFieldName,
+    name: newFieldName,
+    displayName: newFieldName,
+    format: '',
+    type: fieldType,
+    analyzerType,
+    fieldIdx: fieldsLength,
+    valueAccessor: (d: any) => {
+      return dataContainer?.valueAt(d.index, fieldsLength);
+    }
+  };
 
-    const values = generateColumnData(numberOfRows, columnData);
-    // Add a new column without data first, so it can avoid error from deduceTypeFromArray()
-    dispatch(addTableColumn(dataset.id, newField, values));
-  }
+  const values = generateColumnData(numberOfRows, columnData);
+  return {newField, values};
 }

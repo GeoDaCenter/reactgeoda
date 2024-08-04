@@ -14,6 +14,8 @@ export type CreateWeightsOutputProps = {
 };
 
 export type CreateContiguityWeightsProps = {
+  datasetId: string;
+  weightsType: 'contiguity';
   contiguityType: string;
   binaryGeometryType: BinaryGeometryType;
   binaryGeometries: BinaryFeatureCollection[];
@@ -23,6 +25,7 @@ export type CreateContiguityWeightsProps = {
 };
 
 export async function createContiguityWeights({
+  datasetId,
   contiguityType,
   binaryGeometryType,
   binaryGeometries,
@@ -43,7 +46,7 @@ export async function createContiguityWeights({
   });
   const weightsMeta: WeightsMeta = {
     ...getMetaFromWeights(weights),
-    id: `w-${contiguityType}-contiguity-${orderOfContiguity}${includeLowerOrder ? '-lower' : ''}`,
+    id: `w-${datasetId}-${contiguityType}-${orderOfContiguity}${includeLowerOrder ? '-lower' : ''}`,
     type: contiguityType === 'queen' ? 'queen' : 'rook',
     symmetry: 'symmetric',
     order: orderOfContiguity,
@@ -54,12 +57,15 @@ export async function createContiguityWeights({
 }
 
 export type CreateKNNWeightsProps = {
+  datasetId: string;
+  weightsType: 'knn';
   k: number;
   binaryGeometryType: BinaryGeometryType;
   binaryGeometries: BinaryFeatureCollection[];
 };
 
 export async function createKNNWeights({
+  datasetId,
   k,
   binaryGeometryType,
   binaryGeometries
@@ -71,7 +77,7 @@ export async function createKNNWeights({
   });
   const weightsMeta: WeightsMeta = {
     ...getMetaFromWeights(weights),
-    id: `w-${k}-nn`,
+    id: `w-${datasetId}-${k}-nn`,
     type: 'knn',
     symmetry: 'symmetric',
     k
@@ -80,6 +86,8 @@ export async function createKNNWeights({
 }
 
 export type CreateDistanceWeightsProps = {
+  datasetId: string;
+  weightsType: 'band';
   distanceThreshold: number;
   isMile: boolean;
   binaryGeometryType: BinaryGeometryType;
@@ -87,6 +95,7 @@ export type CreateDistanceWeightsProps = {
 };
 
 export async function createDistanceWeights({
+  datasetId,
   distanceThreshold,
   isMile,
   binaryGeometryType,
@@ -103,11 +112,56 @@ export async function createDistanceWeights({
 
   const weightsMeta: WeightsMeta = {
     ...getMetaFromWeights(weights),
-    id: `w-distance-${distanceThresholdString}${isMile ? '-mile' : 'km'}`,
+    id: `w-${datasetId}-distance-${distanceThresholdString}${isMile ? '-mile' : 'km'}`,
     type: 'threshold',
     symmetry: 'symmetric',
     threshold: distanceThreshold,
     isMile
   };
   return {weights, weightsMeta};
+}
+
+export type CreateWeightsProps = {
+  datasetId: string;
+} & (CreateContiguityWeightsProps | CreateKNNWeightsProps | CreateDistanceWeightsProps);
+
+export async function createWeights(props: CreateWeightsProps) {
+  let result: CreateWeightsOutputProps | null = null;
+
+  if (props.weightsType === 'contiguity') {
+    result = await createContiguityWeights({
+      datasetId: props.datasetId,
+      weightsType: props.weightsType,
+      contiguityType: props.contiguityType,
+      binaryGeometryType: props.binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries: props.binaryGeometries,
+      precisionThreshold: props.precisionThreshold,
+      orderOfContiguity: props.orderOfContiguity,
+      includeLowerOrder: props.includeLowerOrder
+    });
+  } else if (props.weightsType === 'knn') {
+    const k = props.k;
+    result = await createKNNWeights({
+      datasetId: props.datasetId,
+      weightsType: props.weightsType,
+      k,
+      binaryGeometryType: props.binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries: props.binaryGeometries
+    });
+  } else if (props.weightsType === 'band') {
+    result = await createDistanceWeights({
+      datasetId: props.datasetId,
+      weightsType: props.weightsType,
+      distanceThreshold: props.distanceThreshold,
+      isMile: props.isMile,
+      binaryGeometryType: props.binaryGeometryType,
+      // @ts-ignore
+      binaryGeometries: props.binaryGeometries
+    });
+  }
+
+  // const {weights, weightsMeta} = result;
+  return result;
 }

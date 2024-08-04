@@ -3,26 +3,21 @@ import {VariableSelector} from '../common/variable-selector';
 import {WeightsSelector} from '../weights/weights-management';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {MAP_ID} from '@/constants';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {useState} from 'react';
-import {mainTableNameSelector} from '@/store/selectors';
+import KeplerTable from '@kepler.gl/table';
 
 export type SpatialLagValueProps = {
+  tableName: string;
+  keplerDataset: KeplerTable;
   setValues: (values: unknown | unknown[]) => void;
 };
 
 /**
  * The react component for spatial lag value
  */
-export function SpatialLagValueComponent({setValues}: SpatialLagValueProps) {
+export function SpatialLagValueComponent({keplerDataset, setValues}: SpatialLagValueProps) {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
-  // use selector to get tableName
-  const tableName = useSelector(mainTableNameSelector);
-  // use selector to get dataContainer
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
 
   const [variableValues, setVariableValues] = useState<number[] | null>(null);
   const [neighbors, setNeighbors] = useState<number[][] | undefined>(weights?.[0]?.weights);
@@ -38,7 +33,7 @@ export function SpatialLagValueComponent({setValues}: SpatialLagValueProps) {
   // handle variable selection change
   const onVariableSelectionChange = (columnName: string) => {
     // get values from selected variable
-    const values = getColumnData(columnName, dataContainer);
+    const values = getColumnDataFromKeplerDataset(columnName, keplerDataset);
     setVariableValues(values);
     if (neighbors) {
       updateValues(values, neighbors);

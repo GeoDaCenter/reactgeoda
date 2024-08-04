@@ -16,13 +16,12 @@ import {
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
-import {ScatterPlotProps} from '@/actions/plot-actions';
 import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
-import {getColumnData, getDataContainer} from '@/utils/data-utils';
-import {MAP_ID} from '@/constants';
-import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
+import {selectKeplerDataset} from '@/store/selectors';
 import {ChartInsightButton} from '../common/chart-insight';
+import {ScatterPlotStateProps} from '@/reducers/plot-reducer';
 
 // Register the required ECharts components
 echarts.use([
@@ -36,43 +35,38 @@ echarts.use([
 ]);
 //echarts.registerTransform(transform.regression);
 
-export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
+export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
   const [rendered, setRendered] = useState(false);
 
-  const {id, variableX, variableY} = props;
+  const {id, datasetId, variableX, variableY} = props;
 
   // use selector to get theme and table name
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector(mainDataIdSelector);
-
   // use selector to get sourceId of interaction
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
-
-  const tableName = useSelector(mainTableNameSelector);
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
+  // use selector to get keplerDataset
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    const xData = getColumnData(variableX, dataContainer);
-    const yData = getColumnData(variableY, dataContainer);
+    const xData = getColumnDataFromKeplerDataset(variableX, keplerDataset);
+    const yData = getColumnDataFromKeplerDataset(variableY, keplerDataset);
 
     return getScatterChartOption(variableX, xData, variableY, yData);
-  }, [dataContainer, variableX, variableY]);
+  }, [keplerDataset, variableX, variableY]);
 
   const bindEvents = useMemo(
     () => ({
       brushSelected: function (params: any) {
-        onBrushSelected(params, dispatch, dataId, id, eChartsRef.current?.getEchartsInstance());
+        onBrushSelected(params, dispatch, datasetId, id, eChartsRef.current?.getEchartsInstance());
       }
     }),
-    [dispatch, dataId, id]
+    [dispatch, datasetId, id]
   );
 
-  const title = `${variableX} vs ${variableY}`;
+  const title = `X: ${variableX} vs Y: ${variableY}`;
 
   // generate a unique id for the chart
   const chartId = `scatterplot-${id}`;
@@ -84,8 +78,8 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
           <div style={{height, width}}>
             <Card className="h-full w-full" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-                <p className="text-tiny font-bold uppercase">Scatter Plot</p>
-                <small className="text-default-500">{title}</small>
+                <p className="text-tiny font-bold uppercase">{title}</p>
+                <small className="text-default-500">{keplerDataset.label}</small>
                 <ChartInsightButton parentElementId={chartId} />
               </CardHeader>
               <CardBody className="py-2">
@@ -103,7 +97,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
                   }}
                 />
                 {rendered && sourceId && sourceId !== id && (
-                  <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} />
+                  <EChartsUpdater dataId={datasetId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
             </Card>
@@ -111,6 +105,17 @@ export const Scatterplot = ({props}: {props: ScatterPlotProps}) => {
         )}
       </AutoSizer>
     ),
-    [chartId, title, option, theme, bindEvents, rendered, sourceId, id, dataId]
+    [
+      chartId,
+      title,
+      keplerDataset.label,
+      option,
+      theme,
+      bindEvents,
+      rendered,
+      sourceId,
+      id,
+      datasetId
+    ]
   );
 };

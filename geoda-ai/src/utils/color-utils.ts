@@ -5,13 +5,15 @@ import interpolate from 'color-interpolate';
 
 const MAX_COLOR_RANGE_LENGTH = 20;
 
-export function getDefaultColorRange(numberOfColors: number) {
-  return ALL_COLOR_RANGES.find(colorRange => {
+export function getDefaultColorRange(numberOfColors: number): ColorRange {
+  const foundColorRange = ALL_COLOR_RANGES.find(colorRange => {
     return (
       colorRange.colors.length ===
       (numberOfColors > MAX_COLOR_RANGE_LENGTH ? MAX_COLOR_RANGE_LENGTH : numberOfColors)
     );
   });
+  // return the first color range if not found
+  return foundColorRange ?? ALL_COLOR_RANGES[0];
 }
 
 export function findColorRange(newStep: number, oldColorRange?: ColorRange) {

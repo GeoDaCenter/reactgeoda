@@ -6,11 +6,11 @@ import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
-import {PlotProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
-import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -24,8 +24,9 @@ export function ParallelCoordinatePanel() {
   // use state for variable
   const [variables, setVariables] = useState<string[]>([]);
 
-  // use selector to get tableName
-  const tableName = useSelector(mainTableNameSelector);
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
 
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
@@ -33,32 +34,28 @@ export function ParallelCoordinatePanel() {
   // on create pcp
   const onCreateParallelCoordinate = () => {
     // Must have at least 2 variables in order to create a pcp
-    if (variables.length < 2) {
-      return;
+    if (variables.length === 2) {
+      // dispatch action to create pcp and add to store
+      dispatch(addPlot({type: 'parallel-coordinate', variables, datasetId}));
+      // Show the plots management panel
+      setShowPlotsManagement(true);
     }
-
-    // generate random id for pcp
-    const id = generateRandomId();
-    // dispatch action to create pcp and add to store
-    dispatch(addPlot({id, type: 'parallel-coordinate', variables}));
-    // Show the plots management panel
-    setShowPlotsManagement(true);
   };
 
   // check if there is any newly added plots, if there is, show plots management tab
-  const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
+  const newPlotsCount = plots.filter((plot: PlotActionProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
   // reset isNew flag of plots
   useEffect(() => {
     if (newPlotsCount > 0) {
-      plots.forEach((plot: PlotProps) => {
+      plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   return (
     <RightPanelContainer
@@ -72,7 +69,7 @@ export function ParallelCoordinatePanel() {
       })}
       icon={null}
     >
-      {!tableName ? (
+      {!keplerDataset ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
       ) : (
         <div className="h-full overflow-y-auto p-4">
@@ -95,7 +92,13 @@ export function ParallelCoordinatePanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <MultiVariableSelector setVariables={setVariables} />
+                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <MultiVariableSelector
+                      datasetId={datasetId}
+                      setVariables={setVariables}
+                      label="Select at least 2 variables"
+                      isInvalid={variables.length < 2}
+                    />
                   </div>
                   <Spacer y={8} />
                   <CreateButton

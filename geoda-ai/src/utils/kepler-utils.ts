@@ -1,5 +1,5 @@
 import {GeoDaBrushLinkPayloadProps} from '@/actions';
-import {KeplerAction} from '@/reducers/interaction-reducer';
+import {InteractionAction} from '@/reducers/interaction-reducer';
 import {Layer} from '@kepler.gl/layers';
 import {KeplerGlState} from '@kepler.gl/reducers';
 import {Filter} from '@kepler.gl/types';
@@ -9,7 +9,7 @@ function isGeoDaBrushLinkPayloadProps(payload: any): payload is GeoDaBrushLinkPa
   return payload.dataId && payload.filteredIndex;
 }
 
-export function handleGeoDaBrushLink(state: KeplerGlState, action: KeplerAction) {
+export function handleGeoDaBrushLink(state: KeplerGlState, action: InteractionAction) {
   if (!isGeoDaBrushLinkPayloadProps(action.payload)) {
     return state;
   }

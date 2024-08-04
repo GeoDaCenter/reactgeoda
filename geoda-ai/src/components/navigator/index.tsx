@@ -44,10 +44,6 @@ export function Navigator() {
   );
   const isFileLoaded = useSelector((state: GeoDaState) => state.root.datasets?.length > 0);
 
-  const showKeplerTableModal = useSelector(
-    (state: GeoDaState) => state.root.uiState.showKeplerTableModal
-  );
-
   const showChatPanel = useSelector((state: GeoDaState) => state.root.uiState.showChatPanel);
 
   // get number of newly added weights from state.root.weights
@@ -113,10 +109,10 @@ export function Navigator() {
   const onTableCallback = useCallback(
     (event: React.MouseEvent) => {
       dispatch(setPropertyPanel(PanelName.TABLE));
-      dispatch(setKeplerTableModal(!showKeplerTableModal));
+      dispatch(setKeplerTableModal(true));
       event.stopPropagation();
     },
-    [dispatch, showKeplerTableModal]
+    [dispatch]
   );
 
   const onClickIconCallback = useCallback(
@@ -165,6 +161,8 @@ export function Navigator() {
     [dispatch, showChatPanel]
   );
 
+  const buttonClassName = 'bg-transparent active:outline-none active:ring-0';
+
   return (
     <div className="justify-top flex h-screen w-[48px] flex-col items-center bg-gradient-to-b from-amber-950 via-amber-900 to-gray-800">
       <GeoDaLogo />
@@ -173,7 +171,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             onClick={onOpenCallback}
             isDisabled={isFileLoaded}
           >
@@ -184,7 +182,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             isDisabled={!isFileLoaded}
             onClick={onSaveCallback}
           >
@@ -195,7 +193,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             onClick={onAddCallback}
             isDisabled={!isFileLoaded}
           >
@@ -206,7 +204,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             isDisabled={!isFileLoaded}
             onClick={onTableCallback}
           >
@@ -217,7 +215,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             id="icon-mapping"
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
@@ -237,7 +235,7 @@ export function Navigator() {
             <Button
               isIconOnly
               size="sm"
-              className="bg-transparent"
+              className={buttonClassName}
               id="icon-weights"
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
@@ -250,7 +248,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             id="icon-spatial-join"
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
@@ -262,7 +260,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             id="icon-custom-map"
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
@@ -282,7 +280,7 @@ export function Navigator() {
             <Button
               isIconOnly
               size="sm"
-              className="bg-transparent"
+              className={buttonClassName}
               id="icon-histogram"
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
@@ -303,7 +301,7 @@ export function Navigator() {
             <Button
               isIconOnly
               size="sm"
-              className="bg-transparent"
+              className={buttonClassName}
               id="icon-scatterplot"
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
@@ -324,7 +322,7 @@ export function Navigator() {
             <Button
               isIconOnly
               size="sm"
-              className="bg-transparent"
+              className={buttonClassName}
               id="icon-boxplot"
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
@@ -345,7 +343,7 @@ export function Navigator() {
             <Button
               isIconOnly
               size="sm"
-              className="bg-transparent"
+              className={buttonClassName}
               id="icon-cartogram"
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
@@ -358,7 +356,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             id="icon-pcp"
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
@@ -374,7 +372,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             id="icon-lisa"
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
@@ -394,7 +392,7 @@ export function Navigator() {
             <Button
               isIconOnly
               size="sm"
-              className="bg-transparent"
+              className={buttonClassName}
               id="icon-spreg"
               onClick={onClickIconCallback}
               isDisabled={!isFileLoaded}
@@ -409,7 +407,7 @@ export function Navigator() {
           <Button
             isIconOnly
             size="sm"
-            className="bg-transparent"
+            className={buttonClassName}
             id="icon-chatgpt"
             onClick={onClickIconCallback}
             isDisabled={!isFileLoaded}
@@ -422,7 +420,7 @@ export function Navigator() {
         <Button
           isIconOnly
           size="sm"
-          className="bg-transparent"
+          className={buttonClassName}
           id="icon-settings"
           onClick={onClickIconCallback}
         >

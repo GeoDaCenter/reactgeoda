@@ -1,22 +1,15 @@
 import {
   legacy_createStore as createStore,
-  combineReducers,
   applyMiddleware,
-  Middleware
+  Middleware,
+  UnknownAction,
+  Dispatch
 } from 'redux';
+import {thunk} from 'redux-thunk';
 import {createLogger} from 'redux-logger';
-import {Layout} from 'react-grid-layout';
 import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
-
 import keplerLanguageMiddleware from './language-middleware';
-import geodaReducer from '../reducers/index';
-import {WeightsProps} from '@/actions/weights-actions';
-import {PlotProps} from '@/actions/plot-actions';
-import {RegressionProps} from '@/actions/regression-actions';
-import {DatasetProps} from '@/actions';
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {GridItemProps, GridTextItemProps} from '@/utils/grid-utils';
-import {RuleGroupType} from 'react-querybuilder';
+import geodaReducer, {GeoDaRootState} from '../reducers/index';
 import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
 
 /**
@@ -24,49 +17,7 @@ import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
  */
 export type GeoDaState = {
   keplerGl: typeof customizedKeplerGlReducer;
-  root: {
-    defaultDatasetId: string;
-    datasets: Array<DatasetProps>;
-    language: string;
-    uiState: {
-      theme: 'light' | 'dark';
-      showPropertyPanel: boolean;
-      showChatPanel: boolean;
-      propertyPanelName: string;
-      showOpenFileModal: boolean;
-      showAddDatasetModal: boolean;
-      showSaveProjectModal: boolean;
-      showKeplerTableModal: boolean;
-      showGridView: boolean;
-      openAIKey: string;
-      isOpenAIKeyChecked: boolean;
-      screenCaptured: string;
-      startScreenCapture: boolean;
-      defaultPromptText: string;
-      table: {
-        queryBuilder?: RuleGroupType;
-        queryCode?: string;
-        showQueryBuilder: boolean;
-      };
-    };
-    weights: Array<WeightsProps>;
-    plots: Array<PlotProps>;
-    regressions: Array<RegressionProps>;
-    ai: {
-      messages: Array<MessageModel>;
-    };
-    dashboard: {
-      mode: 'edit' | 'display';
-      gridLayout?: Layout[];
-      gridItems?: GridItemProps[];
-      textItems?: GridTextItemProps[];
-    };
-    interaction: {
-      sourceId?: string;
-      // brushLink: key is the dataId used in kepler.gl, value is the filtered index
-      brushLink: {[key: string]: number[]};
-    };
-  };
+  root: GeoDaRootState;
 };
 
 const customizedKeplerGlReducer = keplerGlReducer
@@ -117,14 +68,21 @@ const customizedKeplerGlReducer = keplerGlReducer
     }
   });
 
-export const reducers = combineReducers({
-  keplerGl: customizedKeplerGlReducer,
-  root: geodaReducer
-});
+// export const reducers = combineReducers({
+//   keplerGl: customizedKeplerGlReducer,
+//   root: geodaReducer
+// });
+
+export const reducers = (state: any, action: any) => {
+  return {
+    keplerGl: customizedKeplerGlReducer(state.keplerGl, action),
+    root: geodaReducer(state.root, action, state.keplerGl)
+  };
+};
 
 // Customize logger
-const loggerMiddleware: Middleware = createLogger({
-  predicate: (_getState: any, action: any) => {
+const loggerMiddleware: Middleware<{}, any, Dispatch<any>> = createLogger({
+  predicate: (_getState: any, action: UnknownAction) => {
     const skipLogging = [
       '@@kepler.gl/LAYER_HOVER',
       '@@kepler.gl/MOUSE_MOVE',
@@ -135,8 +93,7 @@ const loggerMiddleware: Middleware = createLogger({
   }
 });
 
-// @ts-ignore FIXME
-export const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware, loggerMiddleware]);
+export const middlewares = enhanceReduxMiddleware([keplerLanguageMiddleware]) as Middleware[];
 
 const initialState = {};
 
@@ -144,8 +101,7 @@ const initialState = {};
 const store = createStore(
   reducers,
   initialState,
-  // @ts-ignore FIXME
-  applyMiddleware(...middlewares)
+  applyMiddleware(...middlewares, thunk, loggerMiddleware)
 );
 // const store = configureStore({reducer: reducers, middleware: middlewares});
 

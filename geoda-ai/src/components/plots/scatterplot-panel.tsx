@@ -1,16 +1,16 @@
 import {useIntl} from 'react-intl';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {VariableSelector} from '../common/variable-selector';
-import {PlotProps, addPlot} from '@/actions/plot-actions';
+import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
-import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
-import {mainTableNameSelector} from '@/store/selectors';
+import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -22,34 +22,41 @@ export function ScatterplotPanel() {
   const [variableX, setVariableX] = useState<string | undefined>(undefined);
   const [variableY, setVariableY] = useState<string | undefined>(undefined);
 
-  const tableName = useSelector(mainTableNameSelector);
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
-    if (variableX && variableY) {
-      const id = generateRandomId();
-      dispatch(addPlot({id, type: 'scatter', variableX, variableY}));
+    if (keplerDataset && variableX && variableY) {
+      dispatch(
+        addPlot({
+          type: 'scatter',
+          variableX,
+          variableY,
+          datasetId
+        })
+      );
       // Show the plots management panel
       setShowPlotsManagement(true);
-    } else {
-      console.error('X and Y variables must be selected for a scatter plot');
     }
   };
 
   // Logic for managing new plots
-  const newPlotsCount = plots.filter((plot: PlotProps) => plot.isNew).length;
+  const newPlotsCount = plots.filter((plot: PlotActionProps) => plot.isNew).length;
   const [showPlotsManagement, setShowPlotsManagement] = useState(newPlotsCount > 0);
 
   useEffect(() => {
     if (newPlotsCount > 0) {
-      plots.forEach((plot: PlotProps) => {
+      plots.forEach((plot: PlotActionProps) => {
         if (plot.isNew) {
-          plot.isNew = false;
+          dispatch(updatePlot({...plot, isNew: false}));
         }
       });
     }
-  }, [newPlotsCount, plots]);
+  }, [dispatch, newPlotsCount, plots]);
 
   return (
     <RightPanelContainer
@@ -60,8 +67,8 @@ export function ScatterplotPanel() {
       })}
       icon={null}
     >
-      {!tableName ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+      {!keplerDataset ? (
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -75,20 +82,21 @@ export function ScatterplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
+                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
                     <VariableSelector
-                      variable={variableX}
+                      dataId={datasetId}
                       setVariable={setVariableX}
                       label="Select Independent Variable X"
                     />
                     <VariableSelector
-                      variable={variableY}
+                      dataId={datasetId}
                       setVariable={setVariableY}
                       label="Select Dependent Variable Y"
                     />
                     <Spacer y={1} />
                     <CreateButton
                       onClick={onCreateScatterplot}
-                      isDisabled={!variableX || !variableY}
+                      isDisabled={!variableX || !variableY || !keplerDataset}
                     >
                       Create Scatterplot
                     </CreateButton>

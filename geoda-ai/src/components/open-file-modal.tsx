@@ -145,9 +145,9 @@ const OpenFileComponent = ({
           {...getRootProps()}
           style={{
             backgroundColor: '#eeeeee',
-            opacity: 0.8,
-            backgroundImage: 'radial-gradient(#444cf7 0.5px, #eeeeee 0.5px)',
-            backgroundSize: '10px 10px'
+            opacity: 0.8
+            // backgroundImage: 'radial-gradient(#444cf7 0.5px, #eeeeee 0.5px)',
+            // backgroundSize: '10px 10px'
           }}
         >
           <input {...getInputProps()} />
@@ -172,7 +172,10 @@ const OpenFileComponent = ({
           </p>
         </div>
         {error && (
-          <WarningBox message={`Failed to open dropped file: ${error}`} type={WarningType.ERROR} />
+          <WarningBox
+            message={`Failed to open dropped file: ${error}. Please try to refresh current page, or contact us.`}
+            type={WarningType.ERROR}
+          />
         )}
       </CardFooter>
     </Card>

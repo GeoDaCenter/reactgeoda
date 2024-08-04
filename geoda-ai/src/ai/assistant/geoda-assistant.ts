@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 export const GPT_MODEL = 'gpt-4o-2024-05-13';
 export const GEODA_AI_ASSISTANT_NAME = 'geoda.ai-openai-agent';
-export const GEODA_AI_ASSISTANT_VERSION = '0.0.2';
+export const GEODA_AI_ASSISTANT_VERSION = '0.0.6';
 
 export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   model: GPT_MODEL,
@@ -11,39 +11,6 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   instructions:
     "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local spatial autocorrelation analysis, including local morn statistics, local G, local G*, local Geary and Quantile LISA\n5. apply spatial regression, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTex to format text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.",
   tools: [
-    {
-      type: 'function',
-      function: {
-        name: 'univariateLocalMoran',
-        description:
-          'Apply univariate local moran statistic to identify local clusters and local spatial outliers of a specific variable using a specific spatial weights. In the local moran statistical result, the high-high and low-low locations (positive local spatial autocorrelation) are typically referred to as spatial clusters, while the high-low and low-high locations (negative local spatial autocorrelation) are termed spatial outliers.',
-        parameters: {
-          type: 'object',
-          properties: {
-            weightsID: {
-              type: 'string',
-              description:
-                'The weightsID that is mapping to user created spatial weights based on the type and properties when creating the spatial weights. For example, after user created a KNN weights with k=5, the weightsID should be w-nn-5'
-            },
-            variableName: {
-              type: 'string',
-              description: 'The variable name, which contains numeric values'
-            },
-            permutation: {
-              type: 'number',
-              description:
-                'The number of possible arrangements or permutations in the conditional permutation test carried out in local moran statistics. Default permutation number is 999'
-            },
-            significanceThreshold: {
-              type: 'number',
-              description:
-                'The significance threshold is a value between 0 and 1 that is used to determine whether a probability is significant or not. Default significant threshold is 0.05'
-            }
-          },
-          required: ['weightsID', 'variableName']
-        }
-      }
-    },
     {
       type: 'function',
       function: {
@@ -61,9 +28,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
             variableName: {
               type: 'string',
               description: 'The variable name, which contains numeric values'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
             }
           },
-          required: ['k', 'variableName']
+          required: ['k', 'variableName', 'datasetName']
         }
       }
     },
@@ -85,9 +57,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'string',
               description:
                 'The name of the variable to be plotted along the Y-axis, representing the dependent variable or the variable of interest.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableX and variableY.'
             }
           },
-          required: ['variableX', 'variableY']
+          required: ['variableX', 'variableY', 'datasetName']
         }
       }
     },
@@ -111,41 +88,18 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'number',
               description:
                 'The multiplier for the IQR to determine outliers. The default value is 1.5. However, a value of 3.0 is common as well. It can also be called hinge value.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableNames.'
             }
           },
-          required: ['variableNames']
+          required: ['variableNames', 'datasetName']
         }
       }
     },
-    {
-      type: 'function',
-      function: {
-        name: 'linearRegression',
-        description:
-          'Apply linear regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. If spatial weights is provided, the diagnostics for spatial autocorrelation will be applied.',
-        parameters: {
-          type: 'object',
-          properties: {
-            independentVariables: {
-              type: 'array',
-              items: {
-                type: 'string'
-              },
-              description: 'A list of the independent or explanatory variable names X'
-            },
-            dependentVariable: {
-              type: 'string',
-              description: 'The name of dependent variable Y'
-            },
-            weightsId: {
-              type: 'string',
-              description: 'The id of the specified spatial weights.'
-            }
-          },
-          required: ['independentVariables', 'dependentVariable']
-        }
-      }
-    },
+
     {
       type: 'function',
       function: {
@@ -161,41 +115,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
                 type: 'string'
               },
               description: 'A list of the variable names'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableNames.'
             }
           },
-          required: ['variableNames']
-        }
-      }
-    },
-    {
-      type: 'function',
-      function: {
-        name: 'createVariable',
-        description: 'Create a new variable or column.',
-        parameters: {
-          type: 'object',
-          properties: {
-            variableName: {
-              type: 'string',
-              description: 'The name of the new variable or column.'
-            },
-            dataType: {
-              type: 'string',
-              description:
-                'The data type of the new variable or column. It could be integer, string or real.'
-            },
-            defaultValue: {
-              type: 'string',
-              description:
-                "The default value that is assigned to the new variable or column. It could be a number, e.g. 0 or 1. It could be a description, e.g. random numbers or normal random. Please return 'uniform_random' for random numbers, return 'normal_random' for normal random numbers."
-            },
-            expression: {
-              type: 'string',
-              description:
-                'The expression that is used to create the new variable by composing with other variables.  For example, (A + B), or (A / B). Please add round brackets to the expression. Please return the expression within a pair of round brackets.'
-            }
-          },
-          required: ['dataType', 'variableName']
+          required: ['variableNames', 'datasetName']
         }
       }
     },
@@ -227,25 +154,93 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'string',
               description:
                 'Optionally, the name of the variable to be represented by the color of each bubble, possibly to categorize or further differentiate the data points.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableX, variableY, variableSize and variableColor.'
             }
           },
-          required: ['variableX', 'variableY', 'variableSize']
+          required: ['variableX', 'variableY', 'variableSize', 'datasetName']
         }
       }
     },
     {
       type: 'function',
       function: {
-        name: 'metaData',
+        name: 'createMap',
         description:
-          'Get the meta data of the dataset, including the number of rows, the number of columns or variables, the column/variable names, and the data types of each column/variable.',
+          'Create a thematic map from a numeric variable by grouping the values into k bins or categories using a specific map classification method. If map classification method is not mentiond, please ask the users to provide one.',
         parameters: {
           type: 'object',
-          properties: {},
-          required: []
+          properties: {
+            method: {
+              type: 'string',
+              description:
+                'The name of the map classification method. It should be one of the following methods: quantile, natural breaks, equal interval, percentile, box, standard deviation, unique values. The default name of method is quantile.'
+            },
+            k: {
+              type: 'number',
+              description:
+                'The number of bins or classes that the numeric values will be groupped into. This property is required by the following classifcation methods: quantile, natural breaks, equal interval, percentile. This property is not required by the following classification methods: box, standard deviation, unique values. The default value of k is 5.'
+            },
+            variableName: {
+              type: 'string',
+              description: 'The name of the numeric variable.'
+            },
+            hinge: {
+              type: 'number',
+              description:
+                'This property is only for classifcation method: box. This numeric value defines the lower and upper edges of the box known as hinges. It could be either 1.5 or 3.0, and the default value is 1.5'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
+            }
+          },
+          required: ['method', 'variableName', 'datasetName']
         }
       }
     },
+    {
+      type: 'function',
+      function: {
+        name: 'createVariable',
+        description: 'Create a new variable or column.',
+        parameters: {
+          type: 'object',
+          properties: {
+            variableName: {
+              type: 'string',
+              description: 'The name of the new variable or column.'
+            },
+            dataType: {
+              type: 'string',
+              description:
+                'The data type of the new variable or column. It could be integer, string or real.'
+            },
+            defaultValue: {
+              type: 'string',
+              description:
+                "The default value that is assigned to the new variable or column. It could be a number, e.g. 0 or 1. It could be a description, e.g. random numbers or normal random. Please return 'uniform_random' for random numbers, return 'normal_random' for normal random numbers."
+            },
+            expression: {
+              type: 'string',
+              description:
+                'The expression that is used to create the new variable by composing with other variables.  For example, (A + B), or (A / B). Please add round brackets to the expression. Please return the expression within a pair of round brackets.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
+            }
+          },
+          required: ['dataType', 'variableName', 'datasetName']
+        }
+      }
+    },
+
     {
       type: 'function',
       function: {
@@ -284,42 +279,92 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'number',
               description:
                 'This parameter only used in distance based weights creation. It represents the distance threshold used to search nearby neighbors for each geometry. The unit should be either kilometer (KM) or mile.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to use the first dataset name.'
             }
           },
-          required: ['type']
+          required: ['type', 'datasetName']
         }
       }
     },
     {
       type: 'function',
       function: {
-        name: 'createMap',
+        name: 'univariateLocalMoran',
         description:
-          'Create a thematic map from a numeric variable by grouping the values into k bins or categories using a specific map classification method. If map classification method is not mentiond, please ask the users to provide one.',
+          'Apply univariate local moran statistic to identify local clusters and local spatial outliers of a specific variable using a specific spatial weights. In the local moran statistical result, the high-high and low-low locations (positive local spatial autocorrelation) are typically referred to as spatial clusters, while the high-low and low-high locations (negative local spatial autocorrelation) are termed spatial outliers.',
         parameters: {
           type: 'object',
           properties: {
-            method: {
+            weightsID: {
               type: 'string',
               description:
-                'The name of the map classification method. It should be one of the following methods: quantile, natural breaks, equal interval, percentile, box, standard deviation, unique values. The default name of method is quantile.'
-            },
-            k: {
-              type: 'number',
-              description:
-                'The number of bins or classes that the numeric values will be groupped into. This property is required by the following classifcation methods: quantile, natural breaks, equal interval, percentile. This property is not required by the following classification methods: box, standard deviation, unique values. The default value of k is 5.'
+                'The weightsID that is mapping to user created spatial weights based on the type and properties when creating the spatial weights. For example, after user created a KNN weights with k=5, the weightsID should be w-nn-5'
             },
             variableName: {
               type: 'string',
-              description: 'The name of the numeric variable.'
+              description: 'The variable name, which contains numeric values'
             },
-            hinge: {
+            permutation: {
               type: 'number',
               description:
-                'This property is only for classifcation method: box. This numeric value defines the lower and upper edges of the box known as hinges. It could be either 1.5 or 3.0, and the default value is 1.5'
+                'The number of possible arrangements or permutations in the conditional permutation test carried out in local moran statistics. Default permutation number is 999'
+            },
+            significanceThreshold: {
+              type: 'number',
+              description:
+                'The significance threshold is a value between 0 and 1 that is used to determine whether a probability is significant or not. Default significant threshold is 0.05'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
             }
           },
-          required: ['method', 'variableName']
+          required: ['weightsID', 'variableName', 'datasetName']
+        }
+      }
+    },
+    {
+      type: 'function',
+      function: {
+        name: 'linearRegression',
+        description:
+          'Apply linear regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. If spatial weights is provided, the diagnostics for spatial autocorrelation will be applied.',
+        parameters: {
+          type: 'object',
+          properties: {
+            independentVariables: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description: 'A list of the independent or explanatory variable names X'
+            },
+            dependentVariable: {
+              type: 'string',
+              description: 'The name of dependent variable Y'
+            },
+            modelType: {
+              type: 'string',
+              description:
+                'The type of regression model. It could be classic, spatial-lag or spatial-error. The default model type is classic. If not provided, please use classic model.'
+            },
+            weightsId: {
+              type: 'string',
+              description:
+                'The id of the specified spatial weights. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the independentVariables and dependentVariable.'
+            }
+          },
+          required: ['independentVariables', 'dependentVariable', 'datasetName']
         }
       }
     }

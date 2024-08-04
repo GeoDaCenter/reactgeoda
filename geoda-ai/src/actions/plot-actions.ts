@@ -1,42 +1,46 @@
-import {HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
+import {HistogramDataProps} from '@/utils/plots/histogram-utils';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
-  REMOVE_PLOT = 'REMOVE_PLOT'
+  REMOVE_PLOT = 'REMOVE_PLOT',
+  UPDATE_PLOT = 'UPDATE_PLOT'
 }
 
-type BasePlotProps = {
-  id: string;
+type BasePlotActionProps = {
+  id?: string;
+  datasetId: string;
   type: string;
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
   isNew?: boolean;
 };
 
-export type HistogramPlotProps = BasePlotProps & {
+export type HistogramPlotActionProps = BasePlotActionProps & {
   type: 'histogram';
   variable: string;
-  data: HistogramDataProps[];
+  numberOfBins: number;
+  data?: HistogramDataProps[];
 };
 
-export type ScatterPlotProps = BasePlotProps & {
+export type ScatterPlotActionProps = BasePlotActionProps & {
   type: 'scatter';
   variableX: string;
   variableY: string;
 };
 
-export type BoxPlotProps = BasePlotProps & {
+export type BoxPlotActionProps = BasePlotActionProps & {
   type: 'boxplot';
   variables: string[];
-  data: BoxplotDataProps;
+  boundIQR: number;
+  data?: BoxplotDataProps;
 };
 
-export type ParallelCoordinateProps = BasePlotProps & {
+export type ParallelCoordinateActionProps = BasePlotActionProps & {
   type: 'parallel-coordinate';
   variables: string[];
 };
 
-export type BubbleChartProps = BasePlotProps & {
+export type BubbleChartActionProps = BasePlotActionProps & {
   type: 'bubble';
   variableX: string;
   variableY: string;
@@ -44,18 +48,18 @@ export type BubbleChartProps = BasePlotProps & {
   variableColor?: string; // optionally, color
 };
 
-export type PlotProps =
-  | HistogramPlotProps
-  | ScatterPlotProps
-  | BoxPlotProps
-  | BubbleChartProps
-  | ParallelCoordinateProps;
+export type PlotActionProps =
+  | HistogramPlotActionProps
+  | ScatterPlotActionProps
+  | BoxPlotActionProps
+  | BubbleChartActionProps
+  | ParallelCoordinateActionProps;
 
-export type RemovePlotProps = {
+export type RemovePlotActionProps = {
   id: string;
 };
 
-export const addPlot = (newPlot: PlotProps) => ({
+export const addPlot = (newPlot: PlotActionProps) => ({
   type: PLOT_ACTIONS.ADD_PLOT,
   payload: newPlot
 });
@@ -63,4 +67,9 @@ export const addPlot = (newPlot: PlotProps) => ({
 export const removePlot = (id: string) => ({
   type: PLOT_ACTIONS.REMOVE_PLOT,
   payload: {id}
+});
+
+export const updatePlot = (updatedPlot: PlotActionProps) => ({
+  type: PLOT_ACTIONS.UPDATE_PLOT,
+  payload: updatedPlot
 });

@@ -1,14 +1,16 @@
-import {getColumnData} from '@/utils/data-utils';
+import {findKeplerDatasetByVariableName, getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
 import {generateRandomId} from '@/utils/ui-utils';
-import {DataContainerInterface} from '@kepler.gl/utils';
+import {KeplerGlState} from '@kepler.gl/reducers';
 
 export type BubbleChartOutput = {
   type: 'bubble';
   name: string;
   result: {
     id: string;
+    datasetId: string;
+    datasetName: string;
     variableX: string;
     variableY: string;
     variableSize: string;
@@ -21,16 +23,25 @@ type BubbleCallbackProps = {
   variableY: string;
   variableSize: string;
   variableColor?: string;
+  datasetName?: string;
 };
 
 export function bubbleCallback(
-  {variableX, variableY, variableSize, variableColor}: BubbleCallbackProps,
-  {dataContainer}: {dataContainer: DataContainerInterface}
+  {variableX, variableY, variableSize, variableColor, datasetName}: BubbleCallbackProps,
+  {visState}: {visState: KeplerGlState['visState']}
 ): BubbleChartOutput | ErrorOutput {
-  const columnDataX = getColumnData(variableX, dataContainer);
-  const columnDataY = getColumnData(variableY, dataContainer);
-  const columnDataSize = getColumnData(variableSize, dataContainer);
-  const columnDataColor = variableColor ? getColumnData(variableColor, dataContainer) : undefined;
+  // get dataset using dataset name from visState
+  const keplerDataset = findKeplerDatasetByVariableName(datasetName, variableX, visState.datasets);
+  if (!keplerDataset) {
+    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+  }
+
+  const columnDataX = getColumnDataFromKeplerDataset(variableX, keplerDataset);
+  const columnDataY = getColumnDataFromKeplerDataset(variableY, keplerDataset);
+  const columnDataSize = getColumnDataFromKeplerDataset(variableSize, keplerDataset);
+  const columnDataColor = variableColor
+    ? getColumnDataFromKeplerDataset(variableColor, keplerDataset)
+    : undefined;
 
   // Check if both variables' data are successfully accessed
   if (
@@ -53,6 +64,8 @@ export function bubbleCallback(
     name: 'Bubble Chart Data',
     result: {
       id: generateRandomId(),
+      datasetId: keplerDataset.id,
+      datasetName: keplerDataset.label,
       variableX,
       variableY,
       variableSize,

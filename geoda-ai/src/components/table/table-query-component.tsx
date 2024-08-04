@@ -1,6 +1,5 @@
 import {useDuckDB} from '@/hooks/use-duckdb';
 import {GeoDaState} from '@/store';
-import {getDataset} from '@/utils/data-utils';
 import {getQueryBuilderFields} from '@/utils/table-utils';
 import {Button, Card, CardBody, CardHeader, Checkbox} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
@@ -11,7 +10,8 @@ import MonacoEditor from '@monaco-editor/react';
 
 import 'react-querybuilder/dist/query-builder.css';
 import {geodaBrushLink, setQueryCode} from '@/actions';
-import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
+import KeplerTable from '@kepler.gl/table';
 
 // const initialQuery: RuleGroupType = {combinator: 'and', rules: []};
 
@@ -23,7 +23,17 @@ function getQueryBuilder(sql: string) {
   }
 }
 
-export function TableQueryComponent() {
+export function TableQueryComponent({
+  datasetId,
+  setDatasetId,
+  keplerDataset,
+  tableName
+}: {
+  datasetId: string;
+  setDatasetId: (datasetId: string) => void;
+  keplerDataset: KeplerTable;
+  tableName: string;
+}) {
   const id = 'table-query';
 
   const dispatch = useDispatch();
@@ -31,16 +41,13 @@ export function TableQueryComponent() {
   const {query} = useDuckDB();
 
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const tableName = useSelector(mainTableNameSelector);
-  const dataId = useSelector(mainDataIdSelector);
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
   const queryCode = useSelector((state: GeoDaState) => state.root.uiState.table.queryCode);
 
   // parse the query code, if runtime error occurs, use default initialQuery
   const queryBuilder = getQueryBuilder(queryCode || `select * from ${tableName}`);
 
   // get fields for query builder
-  const fields = useMemo(() => getQueryBuilderFields(dataset), [dataset]);
+  const fields = useMemo(() => getQueryBuilderFields(keplerDataset), [keplerDataset]);
 
   const [code, setCode] = useState(queryCode || '');
   const [sqlQuery, setSqlQuery] = useState<RuleGroupType>(queryBuilder);
@@ -75,13 +82,14 @@ export function TableQueryComponent() {
     const selectedIndexes = await query(tableName, code);
 
     if (selectedIndexes) {
-      dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: selectedIndexes}));
+      dispatch(geodaBrushLink({sourceId: id, dataId: datasetId, filteredIndex: selectedIndexes}));
     }
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-4 text-xs">
+      <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+      <div className="m-2 flex flex-col gap-4 text-xs">
         <Checkbox
           defaultSelected
           size="sm"

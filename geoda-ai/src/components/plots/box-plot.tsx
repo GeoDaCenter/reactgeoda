@@ -20,12 +20,12 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {CreateBoxplotProps, getBoxPlotChartOption} from '@/utils/plots/boxplot-utils';
 import {GeoDaState} from '@/store';
-import {BoxPlotProps} from '@/actions/plot-actions';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
-import {getColumnData} from '@/utils/data-utils';
-import {keplerDataContainerSelector, mainDataIdSelector} from '@/store/selectors';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
+import {selectKeplerDataset} from '@/store/selectors';
 import {ECHARTS_DARK_THEME} from './echarts-theme';
 import {ChartInsightButton} from '../common/chart-insight';
+import {BoxPlotStateProps} from '@/reducers/plot-reducer';
 
 // Register the required components
 echarts.use([
@@ -45,8 +45,8 @@ echarts.registerTheme('dark', ECHARTS_DARK_THEME);
 /**
  * The react component of a box plot using eCharts
  */
-export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
-  const {id, type, variables, data: boxPlotData} = props;
+export const BoxPlot = ({props}: {props: BoxPlotStateProps}) => {
+  const {id, datasetId, variables, data: boxPlotData} = props;
 
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
@@ -54,17 +54,17 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector(mainDataIdSelector);
+  // use selector to get sourceId of interaction
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
-  // use selector to get dataContainer
-  const dataContainer = useSelector(keplerDataContainerSelector);
+  // use selector to get keplerDataset
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
   const seriesIndex = variables.map((_, i) => i);
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
     const rawData = variables.reduce((prev: CreateBoxplotProps['data'], cur: string) => {
-      const values = getColumnData(cur, dataContainer);
+      const values = getColumnDataFromKeplerDataset(cur, keplerDataset);
       prev[cur] = values;
       return prev;
     }, {});
@@ -75,18 +75,18 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
       meanPoint: boxPlotData.meanPoint,
       theme: theme
     });
-  }, [boxPlotData.boxData, boxPlotData.meanPoint, dataContainer, variables, theme]);
+  }, [variables, boxPlotData.boxData, boxPlotData.meanPoint, theme, keplerDataset]);
 
   const bindEvents = useMemo(
     () => ({
       brushSelected: function (params: any) {
-        onBrushSelected(params, dispatch, dataId, id, eChartsRef.current?.getEchartsInstance());
+        onBrushSelected(params, dispatch, datasetId, id, eChartsRef.current?.getEchartsInstance());
       },
       rendered: function () {
         setRendered(true);
       }
     }),
-    [dispatch, dataId, id]
+    [dispatch, datasetId, id]
   );
 
   // generate a unique id for the chart
@@ -96,8 +96,8 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
     () => (
       <Card className="my-4" shadow="none" id={chartId}>
         <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-          <p className="text-tiny font-bold uppercase">{type}</p>
-          <small className="text-default-500">{variables.join(',')}</small>
+          <p className="text-tiny font-bold uppercase">{variables.join(',')}</p>
+          <small className="text-default-500">{keplerDataset.label}</small>
           <ChartInsightButton parentElementId={chartId} />
         </CardHeader>
         <CardBody className="w-full py-2">
@@ -115,22 +115,22 @@ export const BoxPlot = ({props}: {props: BoxPlotProps}) => {
             // }}
           />
           {rendered && sourceId && sourceId !== id && (
-            <EChartsUpdater dataId={dataId} eChartsRef={eChartsRef} seriesIndex={seriesIndex} />
+            <EChartsUpdater dataId={datasetId} eChartsRef={eChartsRef} seriesIndex={seriesIndex} />
           )}
         </CardBody>
       </Card>
     ),
     [
       chartId,
-      type,
       variables,
+      keplerDataset.label,
       option,
       theme,
       bindEvents,
       rendered,
       sourceId,
       id,
-      dataId,
+      datasetId,
       seriesIndex
     ]
   );

@@ -22,7 +22,18 @@ export function getBubbleChartOption({
   sizeData,
   colorData
 }: BubbleChartOptionProps) {
-  const seriesData = xData.map((x, i) => [x, yData[i], sizeData[i], colorData?.[i] || 0]);
+  // standardize sizeData in the range [0, 1]
+  const sizeDataMin = Math.min(...sizeData);
+  const sizeDataMax = Math.max(...sizeData);
+  const sizeDataRange = sizeDataMax - sizeDataMin;
+  const sizeDataStandardized = sizeData.map(d => (50 * (d - sizeDataMin)) / sizeDataRange);
+
+  const seriesData = xData.map((x, i) => [
+    x,
+    yData[i],
+    sizeDataStandardized[i],
+    colorData?.[i] || 0
+  ]);
 
   const option = {
     xAxis: {
@@ -57,8 +68,11 @@ export function getBubbleChartOption({
     tooltip: {
       trigger: 'item',
       formatter: function (params: any) {
+        const idx = params.dataIndex;
+        // format number to 2 decimal places
+        const sizeValue = sizeDataStandardized[idx].toFixed(2);
         return (
-          `${variableX}: ${params.value[0]}<br/>${variableY}: ${params.value[1]}<br/>Size: ${params.value[2]}` +
+          `${variableX}: ${params.value[0]}<br/>${variableY}: ${params.value[1]}<br/>Size: ${sizeValue}` +
           (params.value[3] ? `<br/>Color: ${params.value[3]}` : '')
         );
       },

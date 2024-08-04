@@ -14,6 +14,11 @@ import {CustomMapMessage} from './custom-map-message';
 import {CustomCreateVariableMessage} from './custom-create-variable-message';
 import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 
+/**
+ * Custom message types, which should be one of the CustomFunctionNames
+ */
+export const CUSTOM_MESSAGE_TYPE = Object.values(CustomFunctionNames);
+
 export type CustomMessagePayload = {
   type: string;
   // one of the CustomFunctionNames

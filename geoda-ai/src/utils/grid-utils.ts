@@ -1,4 +1,4 @@
-import {PlotProps, WeightsProps} from '@/actions';
+import {PlotActionProps, WeightsProps} from '@/actions';
 import {RegressionProps} from '@/actions/regression-actions';
 import {Layer} from '@kepler.gl/layers';
 import {EditorState} from 'lexical';
@@ -54,7 +54,7 @@ export function initGridItems({
     });
   });
 
-  plots?.forEach((plot: PlotProps) => {
+  plots?.forEach((plot: PlotActionProps) => {
     newGridItems.push({
       id: plot.id,
       show: true,
@@ -94,7 +94,7 @@ export type CreateGridItemsProps = {
   gridLayout?: Layout[];
   gridItems: GridItemProps[];
   layers: Layer[];
-  plots: PlotProps[];
+  plots: PlotActionProps[];
   regressions: RegressionProps[];
   textItems?: GridTextItemProps[];
   weights?: WeightsProps[];
@@ -133,7 +133,7 @@ export function createGridItems({
     }
   });
 
-  plots?.forEach((plot: PlotProps) => {
+  plots?.forEach((plot: PlotActionProps) => {
     if (!newGridItems.find(l => l.id === plot.id)) {
       newGridItems.push({
         id: plot.id,

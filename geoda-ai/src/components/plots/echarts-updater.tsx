@@ -2,9 +2,9 @@ import {Dispatch, RefObject, useEffect} from 'react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {getDataset} from '@/utils/data-utils';
 import {geodaBrushLink} from '@/actions';
 import {EChartsType} from 'echarts';
+import {selectKeplerDataset} from '@/store/selectors';
 
 type EChartsUpdaterProps = {
   dataId: string;
@@ -19,8 +19,8 @@ export const EChartsUpdater = ({dataId, eChartsRef, seriesIndex}: EChartsUpdater
   );
 
   // get dataset from store
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const numberOfRows = dataset?.dataContainer.numRows() || 0;
+  const dataset = useSelector(selectKeplerDataset(dataId));
+  const numberOfRows = dataset?.length || 0;
 
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {

@@ -1,5 +1,4 @@
-import {FileCacheItem} from '@kepler.gl/processors';
-import {Table as ArrowTable} from 'apache-arrow';
+import {DatasetProps} from '@/reducers/file-reducer';
 
 export enum FILE_ACTIONS {
   ADD_DATASET = 'ADD_DATASET',
@@ -9,17 +8,6 @@ export enum FILE_ACTIONS {
 export const saveProject = () => ({
   type: FILE_ACTIONS.SAVE_PROJECT
 });
-
-export type DatasetProps = {
-  // the file name
-  fileName: string;
-  // the dataId, should be the same as the dataId in kepler.gl
-  dataId?: string;
-  // the raw arrow table for duckdb
-  arrowTable: ArrowTable;
-  // the processed data for kepler.gl
-  arrowFormatData?: FileCacheItem;
-};
 
 export const addDataset = (data: DatasetProps) => ({
   // arrow data

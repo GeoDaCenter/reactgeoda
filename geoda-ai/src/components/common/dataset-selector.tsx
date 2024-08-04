@@ -1,37 +1,47 @@
+import {setDefaultDatasetId} from '@/actions';
 import {datasetsSelector} from '@/store/selectors';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
-import {Key, useState} from 'react';
-import {useSelector} from 'react-redux';
+import {Key} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 
 type DatasetSelectorProps = {
-  datasetId?: string;
+  datasetId: string;
   setDatasetId: (datasetName: string) => void;
+  updateDefaultDatasetId?: boolean;
   label?: string;
   size?: 'sm' | 'md' | 'lg';
-  optional?: boolean; // for optional vars
-  isInvalid?: boolean;
 };
 
-export function DatasetSelector(props: DatasetSelectorProps) {
+export function DatasetSelector({
+  datasetId,
+  setDatasetId,
+  updateDefaultDatasetId = true,
+  label,
+  size
+}: DatasetSelectorProps) {
+  const dispatch = useDispatch();
   const datasets = useSelector(datasetsSelector);
-
-  const [dataId, setDataId] = useState<string>(props.datasetId || '');
 
   const onDatasetSelectionChange = (value: Key) => {
     const selectValue = value as string;
-    props.setDatasetId(selectValue);
-    // update variable in state
-    setDataId(selectValue);
+    if (selectValue && selectValue.length > 0) {
+      // update variable in state
+      setDatasetId(selectValue);
+      if (updateDefaultDatasetId) {
+        // update default dataset id in store
+        dispatch(setDefaultDatasetId(selectValue));
+      }
+    }
   };
 
   return (
     <Autocomplete
-      label={props.label || 'Select dataset'}
+      label={label || 'Select dataset'}
       className="max-w"
       onSelectionChange={onDatasetSelectionChange}
-      size={props.size || 'md'}
-      selectedKey={dataId}
-      isInvalid={props.isInvalid}
+      size={size || 'md'}
+      selectedKey={datasetId}
+      isInvalid={!datasetId || datasetId.length === 0}
     >
       {datasets.map((d, i) => (
         <AutocompleteItem key={d.dataId || i} value={d.dataId}>

@@ -1,100 +1,69 @@
 import {useIntl} from 'react-intl';
-import {
-  Select,
-  SelectItem,
-  Tabs,
-  Tab,
-  Card,
-  CardBody,
-  Chip,
-  RadioGroup,
-  Radio
-} from '@nextui-org/react';
+import {Tabs, Tab, Card, CardBody, Chip, RadioGroup, Radio} from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Key, useEffect, useMemo, useState} from 'react';
+import {Key, useEffect, useState} from 'react';
 
-import {getColumnData, getDataContainer, getLayer, getNumericFieldNames} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {MAP_ID} from '@/constants';
-import {addRegression, RegressionProps} from '@/actions/regression-actions';
-import {runRegression} from '@/utils/regression-utils';
+import {RegressionProps, runRegressionAsync, updateRegression} from '@/actions/regression-actions';
 import {RegressionReport} from './spreg-report';
-import {generateRandomId} from '@/utils/ui-utils';
 import {CreateButton} from '../common/create-button';
 import {WeightsSelector} from '../weights/weights-management';
-import {mainTableNameSelector} from '@/store/selectors';
+import {datasetsSelector, selectKeplerDataset, selectWeightsByDataId} from '@/store/selectors';
+import {DatasetSelector} from '../common/dataset-selector';
+import {VariableSelector} from '../common/variable-selector';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
 export function SpregPanel() {
   const intl = useIntl();
   // use dispatch
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<any>();
 
   // get data from redux store
-  const weights = useSelector((state: GeoDaState) => state.root.weights);
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
+  const datasets = useSelector(datasetsSelector);
+  const [datasetId, setDatasetId] = useState(datasets?.[0]?.dataId || '');
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
+  const weights = useSelector(selectWeightsByDataId(datasetId));
+
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
   const newRegressionCount = regressions?.filter((reg: any) => reg.isNew).length || 0;
-  const tableName = useSelector(mainTableNameSelector);
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
 
   // useState for tab change
   const [showRegressionManagement, setShowRegressionManagement] = useState(newRegressionCount > 0);
   // useState for variable name
   const [yVariable, setYVariable] = useState('');
-  const [xVariables, setXVariables] = useState<string[]>([]);
-  const [selectedWeight, setSelectedWeight] = useState<string>(
+  const [weightsId, setWeightsId] = useState<string>(
     weights.length > 0 ? weights[weights.length - 1].weightsMeta.id || '' : ''
   );
   const [model, setModel] = useState('classic');
-
-  // get numeric columns from redux store
-  const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(layer);
-    return fieldNames;
-  }, [layer]);
-
-  // handle variable change
-  const onVariableSelectionChange = (value: any) => {
-    const selectValue = value.currentKey;
-    setYVariable(selectValue);
-  };
+  const [xVariables, setXVariables] = useState<string[]>([]);
 
   // handle select weights
   const onSelectWeights = (id: string) => {
-    const selectedW = weights.find(w => w.weightsMeta.id === id);
-    setSelectedWeight(selectedW?.weightsMeta.id || '');
+    setWeightsId(id);
   };
 
   // handle onRunRegression callback
   const onRunRegression = async () => {
-    // get data from Y variable
-    const yData = getColumnData(yVariable, dataContainer);
-    // get data for X variables
-    const xData = xVariables.map((variable: string) => getColumnData(variable, dataContainer));
-    // get weights data
-    const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === selectedWeight);
-    const w = selectedWeightData?.weights;
-    // run regression analysis
-    const regression = await runRegression(model, {
-      x: xData,
-      y: yData,
-      weights: w,
-      ...(w ? {weightsId: selectedWeight} : {}),
-      xNames: xVariables,
-      yName: yVariable,
-      datasetName: tableName
-    });
-    // generate random id
-    const id = generateRandomId();
-    // dispatch action to create regression and add to store
-    dispatch(addRegression({id, type: 'regression', data: regression}));
+    // dispatch action to run regression and add result to store
+    dispatch(
+      runRegressionAsync({
+        keplerDataset,
+        model,
+        yVariable,
+        xVariables,
+        weightsId,
+        weights
+      })
+    );
+  };
+
+  const onSetYVariable = (variable: string) => {
+    setYVariable(variable);
+    // exclude Y variable from X variables
   };
 
   const onTabChange = (key: Key) => {
@@ -106,12 +75,16 @@ export function SpregPanel() {
   };
 
   // monitor state.root.regressions, if regressions.length changed, update the tab title
-  const regressionsLength = regressions?.length;
   useEffect(() => {
-    if (regressionsLength) {
-      setShowRegressionManagement(true);
+    if (newRegressionCount > 0) {
+      // reset isNew flag of regressions
+      regressions.forEach((reg: any) => {
+        if (reg.isNew) {
+          dispatch(updateRegression(reg.id, false));
+        }
+      });
     }
-  }, [regressionsLength]);
+  }, [dispatch, newRegressionCount, regressions]);
 
   return (
     <RightPanelContainer
@@ -124,7 +97,7 @@ export function SpregPanel() {
         defaultMessage: 'Apply spatial regression analysis'
       })}
     >
-      {numericColumns.length === 0 ? (
+      {!keplerDataset ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
@@ -148,22 +121,25 @@ export function SpregPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <Select
-                      label="Select Dependent Variable"
-                      className="max-w"
-                      onSelectionChange={onVariableSelectionChange}
-                    >
-                      {numericColumns.map((col: string) => (
-                        <SelectItem key={col} value={col}>
-                          {col}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                    <MultiVariableSelector
-                      setVariables={setXVariables}
-                      label="Select Independent Variables"
+                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <VariableSelector
+                      dataId={datasetId}
+                      setVariable={onSetYVariable}
+                      size="sm"
+                      label="Select dependent variable (Y)"
                     />
-                    <WeightsSelector weights={weights} onSelectWeights={onSelectWeights} />
+                    <MultiVariableSelector
+                      datasetId={datasetId}
+                      excludeVariables={[yVariable]}
+                      setVariables={setXVariables}
+                      label="Select independent variables (X)"
+                      isInvalid={xVariables.length === 0}
+                    />
+                    <WeightsSelector
+                      weights={weights}
+                      weightsId={weightsId}
+                      onSelectWeights={onSelectWeights}
+                    />
                     <RadioGroup
                       label="Select model"
                       size="sm"

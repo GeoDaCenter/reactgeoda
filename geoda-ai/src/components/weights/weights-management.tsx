@@ -13,11 +13,11 @@ import {
   SelectItem
 } from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
-import {GeoDaState} from '@/store';
 import {WeightsMeta} from 'geoda-wasm';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
+import {selectWeightsByDataId} from '@/store/selectors';
 
 // weightsMeta: mapping its key to descriptive label
 const WeightsMetaLables: Record<string, string> = {
@@ -85,6 +85,7 @@ export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}): Rea
 
 export type WeightsSelectorProps = {
   weights: {weightsMeta: WeightsMeta}[];
+  weightsId?: string;
   onSelectWeights: (value: any) => void;
   label?: string;
   showWarningBox?: boolean;
@@ -92,12 +93,13 @@ export type WeightsSelectorProps = {
 
 export function WeightsSelector({
   weights,
+  weightsId,
   onSelectWeights,
   label,
   showWarningBox = true
 }: WeightsSelectorProps) {
   const dispatch = useDispatch();
-  const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
+  const [selectedWeight, setSelectedWeight] = useState(weightsId);
 
   // handle select weights
   const onSelectionChange = (value: any) => {
@@ -141,10 +143,10 @@ export function WeightsSelector({
  * @component
  * @description Component for managing spatial weights
  */
-export function WeightsManagementComponent() {
+export function WeightsManagementComponent({datasetId}: {datasetId: string}): React.ReactElement {
   const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
 
-  const weights = useSelector((state: GeoDaState) => state.root.weights);
+  const weights = useSelector(selectWeightsByDataId(datasetId));
 
   // create rows from weightsMeta using useMemo
   const weightsMeta = useMemo(() => {

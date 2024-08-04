@@ -1,12 +1,11 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Table as ArrowTable, Field as ArrowField} from 'apache-arrow';
 // @ts-ignore
 import {DATA_TYPES as AnalyzerDATA_TYPES} from 'type-analyzer';
-
-// @ts-ignore FIXME
 import {
   appInjector,
+  DatasetTabs,
   DataTableFactory,
   makeGetActionCreators,
   renderedSize
@@ -17,13 +16,16 @@ import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 
 import {GeoDaState} from '../../store';
 import {useTheme} from 'styled-components';
-import {getDataset} from '@/utils/data-utils';
-import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {
+  defaultDatasetIdSelector,
+  keplerDatasetsSelector,
+  selectKeplerDataset
+} from '@/store/selectors';
+import {wrapTo} from '@kepler.gl/actions';
+import {MAP_ID} from '@/constants';
+import {setDefaultDatasetId} from '@/actions';
 
 export const MIN_STATS_CELL_SIZE = 122;
-
-// create a selector to get the action creators from kepler.gl
-const keplerActionSelector = makeGetActionCreators();
 
 // get DataTableModal component from appInjector
 const DataTable = appInjector.get(DataTableFactory);
@@ -60,14 +62,13 @@ export function DuckDBTableComponent() {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  const tableName = useSelector(mainTableNameSelector);
-  const dataId = useSelector(mainDataIdSelector);
+  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
 
   // get Kepler state from redux store
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
+  const keplerDatasets = useSelector(keplerDatasetsSelector);
+  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
 
-  // @ts-expect-error FIXME
-  const {fields, dataContainer, pinnedColumns} = dataset;
+  const {fields, dataContainer, pinnedColumns, label: tableName, id: dataId} = keplerDataset;
 
   // get filteredIndex from redux
   const filteredIndex = useSelector(
@@ -125,7 +126,19 @@ export function DuckDBTableComponent() {
   );
 
   // get action creators from kepler.gl
-  const {visStateActions} = useMemo(() => keplerActionSelector(dispatch, {}), [dispatch]);
+  // const {visStateActions} = useMemo(() => keplerActionSelector(dispatch, {}), [dispatch]);
+  // get kepler actions
+  const dispatchKepler = (action: any) => dispatch(wrapTo(MAP_ID, action));
+  const keplerActionSelector = makeGetActionCreators();
+  const keplerOwnProps = {};
+  const {visStateActions} = keplerActionSelector(dispatchKepler, keplerOwnProps);
+
+  const onShowDatasetTable = useCallback(
+    (datasetId: string) => {
+      dispatch(setDefaultDatasetId(datasetId));
+    },
+    [dispatch]
+  );
 
   return useMemo(
     () => (
@@ -133,6 +146,11 @@ export function DuckDBTableComponent() {
         className="item-center flex w-full flex-col bg-white"
         style={{height: '100%', minWidth: '50vw', padding: '0px'}}
       >
+        <DatasetTabs
+          activeDataset={keplerDataset}
+          datasets={keplerDatasets}
+          showDatasetTable={onShowDatasetTable}
+        />
         <DataTable
           key={tableName}
           dataId={tableName}
@@ -157,6 +175,9 @@ export function DuckDBTableComponent() {
       columns,
       dataContainer,
       filteredIndexDict,
+      keplerDataset,
+      keplerDatasets,
+      onShowDatasetTable,
       pinnedColumns,
       tableName,
       theme,

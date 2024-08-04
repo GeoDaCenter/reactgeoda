@@ -1,16 +1,15 @@
-// This component will be used to display the classification panel for data or map classification
-
-import {MAP_ID, MappingTypes} from '@/constants';
-import {useMemo, useState} from 'react';
+import {MappingTypes} from '@/constants';
 import {ColorSelector} from './color-selector';
 import {Select, SelectItem, Tab, Tabs} from '@nextui-org/react';
 import {ColorRange} from '@kepler.gl/constants';
-import {getColumnData, getDataContainer, getLayer, getNumericFieldNames} from '@/utils/data-utils';
-import {useSelector} from 'react-redux';
-import {GeoDaState} from '@/store';
-import {RateValueComponent} from './rate-component';
-import {getDefaultColorRange, findColorRange} from '@/utils/color-utils';
-import {mainTableNameSelector} from '@/store/selectors';
+import {RateUIComponent, RateUIProps} from './rate-component';
+import {findColorRange} from '@/utils/color-utils';
+import {
+  DatasetVariableSelector,
+  onDatasetVariableSelectionChangeProps
+} from './dataset-variable-selector';
+import {RatesOptions} from 'geoda-wasm';
+import {Key} from 'react';
 
 export const ClassificationTypes = [
   {
@@ -59,89 +58,59 @@ const DefaultNumberOfCategories = Array.from({length: 19}, (_, i) => i + 2).map(
 }));
 
 export type ClassificationOnValuesChange = {
-  method: string;
-  variable: string;
+  datasetId: string;
+  method: MappingTypes;
   k: number;
+  variable?: string;
+  eventVariable?: string;
+  baseVariable?: string;
+  ratesMethod?: RatesOptions;
+  weightsId?: string;
   colorRange?: ColorRange;
-  rateValues?: number[];
 };
 
 export type ClassificationPanelProps = {
   props: {
-    k?: number;
-    variable?: string;
-    mappingType?: string;
-  };
-  onValuesChange?: ({method, variable, k, colorRange}: ClassificationOnValuesChange) => void;
+    k: number;
+    setK: (k: number) => void;
+    variable: string;
+    setVariable: (variable: string) => void;
+    mappingType: MappingTypes;
+    setMappingType: (mappingType: MappingTypes) => void;
+    selectedColorRange: ColorRange;
+    setSelectedColorRange: (colorRange: ColorRange) => void;
+    setIsRatesMap?: (isRatesMap: boolean) => void;
+  } & RateUIProps['props'];
 };
 
 // It will be used in the Map Panel component and Bubble Chart component
-export function ClassificationPanel({props, onValuesChange}: ClassificationPanelProps) {
-  // useSelector to get layer from redux store
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
-  // use selector to get tableName
-  const tableName = useSelector(mainTableNameSelector);
-  // use selector to get dataContainer
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
-
-  // useState for number of bins
-  const [k, setK] = useState(props.k || 5);
-
-  // useState for variable name
-  const [variable, setVariable] = useState(props.variable || '');
-
-  // useState for mapping type
-  const [mappingType, setMappingType] = useState(props.mappingType || MappingTypes.QUANTILE);
-
-  // useState for selected color range
-  const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
-
-  // get numeric columns from redux store
-  const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNames(layer);
-    return fieldNames;
-  }, [layer]);
+export function ClassificationPanel({props}: ClassificationPanelProps) {
+  const {
+    k,
+    setK,
+    datasetId,
+    setDatasetId,
+    variable,
+    setVariable,
+    mappingType,
+    setMappingType,
+    eventVariable,
+    setEventVariable,
+    baseVariable,
+    setBaseVariable,
+    weightsId,
+    setWeightsId,
+    ratesMethod,
+    setRatesMethod,
+    selectedColorRange,
+    setSelectedColorRange,
+    setIsRatesMap
+  } = props;
 
   // handle map type change
   const onMapTypeChange = (value: any) => {
     const selectValue = value.currentKey;
     setMappingType(selectValue);
-    // if user selects unique values, get unique values from the column
-    let numberOfCategories = k;
-    let updatedColorRange = selectedColorRange;
-    if (selectValue === MappingTypes.UNIQUE_VALUES && variable !== '') {
-      try {
-        // get k value for unique values
-        const values = getColumnData(variable, dataContainer);
-        // check if values are all integers
-        values.forEach((v: number) => {
-          if (!Number.isInteger(v)) {
-            throw new Error('Values are not all integers');
-          }
-        });
-        const uniqueValues = Array.from(new Set(values)).sort((a, b) => a - b);
-        numberOfCategories = uniqueValues.length;
-        setK(numberOfCategories);
-        // get color range based on k value
-        const newColorRange = findColorRange(numberOfCategories, selectedColorRange);
-        if (newColorRange) {
-          updatedColorRange = newColorRange;
-          setSelectedColorRange(newColorRange);
-        }
-      } catch (e) {
-        // error because of undefined column
-        setMappingType(MappingTypes.QUANTILE);
-      }
-    }
-    // call onValuesChange callback
-    onValuesChange?.({
-      method: selectValue,
-      variable,
-      k: numberOfCategories,
-      colorRange: updatedColorRange
-    });
   };
 
   // handle number of bins change
@@ -151,59 +120,57 @@ export function ClassificationPanel({props, onValuesChange}: ClassificationPanel
     // get color range based on k value when number of bins change
     const newColorRange = findColorRange(kValue, selectedColorRange);
     setSelectedColorRange(newColorRange);
-    onValuesChange?.({method: mappingType, variable, k: kValue, colorRange: newColorRange});
-  };
-
-  // handle variable change
-  const onVariableSelectionChange = (value: any) => {
-    const selectValue = value.currentKey;
-    setVariable(selectValue);
-    onValuesChange?.({
-      method: mappingType,
-      variable: selectValue,
-      k,
-      colorRange: selectedColorRange
-    });
   };
 
   // handle color range selection change
   const onSelectColorRange = (p: ColorRange) => {
     setSelectedColorRange(p);
-    onValuesChange?.({method: mappingType, variable, k, colorRange: p});
   };
 
-  // handle rate values change
-  const onRateValuesChange = (values: unknown | unknown[], label: string) => {
-    if (Array.isArray(values)) {
-      onValuesChange?.({
-        method: mappingType,
-        variable: label,
-        k,
-        colorRange: selectedColorRange,
-        rateValues: values
-      });
-    }
+  const onDatasetVariableSelectionChange = ({
+    variable,
+    dataId
+  }: onDatasetVariableSelectionChangeProps) => {
+    setVariable(variable || '');
+    setDatasetId(dataId || '');
+  };
+
+  const onSelectionChange = (key: Key) => {
+    setIsRatesMap?.(key === 'rate-mapping');
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <Tabs key="classification-panel-tabs" variant="underlined" aria-label="classification-tabs">
+      <Tabs
+        key="classification-panel-tabs"
+        variant="underlined"
+        aria-label="classification-tabs"
+        onSelectionChange={onSelectionChange}
+      >
         <Tab key="basic-mapping" title="Basic Mapping">
-          <Select
-            label="Variable"
-            className="max-w"
-            onSelectionChange={onVariableSelectionChange}
-            selectedKeys={[variable]}
-          >
-            {numericColumns.map((col: string) => (
-              <SelectItem key={col} value={col}>
-                {col}
-              </SelectItem>
-            ))}
-          </Select>
+          <DatasetVariableSelector
+            datasetId={datasetId}
+            setDatasetId={setDatasetId}
+            variable={variable}
+            setVariable={setVariable}
+            onSelectionChange={onDatasetVariableSelectionChange}
+          />
         </Tab>
         <Tab key="rate-mapping" title="Rate Mapping">
-          <RateValueComponent onValuesChange={onRateValuesChange} />
+          <RateUIComponent
+            props={{
+              ratesMethod,
+              setRatesMethod,
+              datasetId,
+              setDatasetId,
+              eventVariable,
+              setEventVariable,
+              baseVariable,
+              setBaseVariable,
+              weightsId,
+              setWeightsId
+            }}
+          />
         </Tab>
       </Tabs>
       <Select

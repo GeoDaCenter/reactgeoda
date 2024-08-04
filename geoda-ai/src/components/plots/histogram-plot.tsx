@@ -1,5 +1,4 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
-import {HistogramPlotProps} from '@/actions/plot-actions';
 import {Card, CardHeader, CardBody} from '@nextui-org/react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 // Import the echarts core module, which provides the necessary interfaces for using echarts.
@@ -73,10 +72,10 @@ import {GeoDaState} from '@/store';
 import {RefObject, useEffect, useMemo, useRef, useState} from 'react';
 import {getHistogramChartOption, HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {geodaBrushLink} from '@/actions';
-import {getColumnData, getDataContainer, getDataset} from '@/utils/data-utils';
-import {MAP_ID} from '@/constants';
-import {mainDataIdSelector, mainTableNameSelector} from '@/store/selectors';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
+import {selectKeplerDataset} from '@/store/selectors';
 import {ChartInsightButton} from '../common/chart-insight';
+import {HistogramPlotStateProps} from '@/reducers/plot-reducer';
 
 // Register the required components
 echarts.use([
@@ -109,8 +108,8 @@ const ChartsUpdater = ({
   );
 
   // get dataset from store
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const numberOfRows = dataset?.dataContainer.numRows() || 0;
+  const dataset = useSelector(selectKeplerDataset(dataId));
+  const numberOfRows = dataset?.length || 0;
 
   // when filteredIndexTrigger changes, update the chart option using setOption
   useEffect(() => {
@@ -130,26 +129,26 @@ const ChartsUpdater = ({
 /**
  * The react component of a histogram plot using Nivo bar chart
  */
-export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
+export const HistogramPlot = ({props}: {props: HistogramPlotStateProps}) => {
   const dispatch = useDispatch();
   const eChartsRef = useRef<ReactEChartsCore>(null);
 
   const [rendered, setRendered] = useState(false);
 
-  const {id, type, variable, data: histogramData} = props;
+  const {id, datasetId, variable, data: histogramData} = props;
 
   // use selector to get theme
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-  const dataId = useSelector(mainDataIdSelector);
+  // use selector to get source id
   const sourceId = useSelector((state: GeoDaState) => state.root.interaction?.sourceId);
+  // use selector to get keplerDataset
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
-  // use selector to get tableName, dataContainer
-  const tableName = useSelector(mainTableNameSelector);
-  const dataContainer = useSelector((state: GeoDaState) =>
-    getDataContainer(tableName, state.keplerGl[MAP_ID].visState.datasets)
-  );
   // get data from variable
-  const rawData = useMemo(() => getColumnData(variable, dataContainer), [dataContainer, variable]);
+  const rawData = useMemo(
+    () => getColumnDataFromKeplerDataset(variable, keplerDataset),
+    [keplerDataset, variable]
+  );
 
   // get indexes of data items for each bar
   const barDataIndexes = useMemo(
@@ -200,10 +199,10 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           }
         }
         // Dispatch action to highlight selected in other components
-        dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex}));
+        dispatch(geodaBrushLink({sourceId: id, dataId: datasetId, filteredIndex}));
       }
     };
-  }, [barDataIndexes, dataId, dispatch, histogramData, id]);
+  }, [barDataIndexes, datasetId, dispatch, histogramData, id]);
 
   // generate a unique id for the chart
   const chartId = `histogram-${id}`;
@@ -215,8 +214,8 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
           <div style={{height, width}}>
             <Card className="h-full w-full" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
-                <p className="text-tiny font-bold uppercase">{type}</p>
-                <small className="text-default-500">{variable}</small>
+                <p className="text-tiny font-bold uppercase">{variable}</p>
+                <small className="truncate text-default-500">{keplerDataset.label}</small>
                 <ChartInsightButton parentElementId={chartId} />
               </CardHeader>
               <CardBody className="py-2">
@@ -235,7 +234,7 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
                 />
                 {rendered && sourceId && sourceId !== id && (
                   <ChartsUpdater
-                    dataId={dataId}
+                    dataId={datasetId}
                     eChartsRef={eChartsRef}
                     histogramData={histogramData}
                     barDataIndexes={barDataIndexes}
@@ -252,14 +251,14 @@ export const HistogramPlot = ({props}: {props: HistogramPlotProps}) => {
       barDataIndexes,
       bindEvents,
       chartId,
-      dataId,
+      datasetId,
       histogramData,
       id,
+      keplerDataset.label,
       option,
       rendered,
       sourceId,
       theme,
-      type,
       variable
     ]
   );

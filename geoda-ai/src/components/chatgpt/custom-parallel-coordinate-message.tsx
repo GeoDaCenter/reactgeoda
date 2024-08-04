@@ -1,12 +1,13 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {ParallelCoordinateProps, addPlot} from '@/actions/plot-actions';
+import {addPlot} from '@/actions/plot-actions';
 import {ParallelCoordinateOutput} from '@/ai/assistant/callbacks/callback-pcp';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {CustomMessagePayload} from './custom-messages';
 import {GeoDaState} from '@/store';
+import {ParallelCoordinateStateProps} from '@/reducers/plot-reducer';
 
 /**
  * Custom PCP plot Message
@@ -15,10 +16,11 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
   const dispatch = useDispatch();
   const {output} = props;
 
-  const {id, variables} = output.result as ParallelCoordinateOutput['result'];
+  const {id, datasetId, variables} = output.result as ParallelCoordinateOutput['result'];
 
-  const parallelCoordinateProps: ParallelCoordinateProps = {
+  const parallelCoordinateProps: ParallelCoordinateStateProps = {
     id,
+    datasetId,
     type: 'parallel-coordinate',
     variables
   };
@@ -30,7 +32,7 @@ export const CustomParallelCoordinateMessage = ({props}: {props: CustomMessagePa
   // handle click event
   const onClick = () => {
     // dispatch action to update redux state
-    dispatch(addPlot({id, type: 'parallel-coordinate', variables, isNew: true}));
+    dispatch(addPlot({...parallelCoordinateProps, isNew: true}));
     // hide the button once clicked
     setHide(true);
   };

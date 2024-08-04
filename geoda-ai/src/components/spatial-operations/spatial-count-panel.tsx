@@ -1,36 +1,46 @@
-import {Card, CardBody, CardHeader, Input, Spacer} from '@nextui-org/react';
+import {Input, Spacer} from '@nextui-org/react';
 import {DatasetSelector} from '../common/dataset-selector';
 import VerticalSteps from '../common/vertical-steps';
 import {CreateButton} from '../common/create-button';
 import {useDispatch, useSelector} from 'react-redux';
-import {datasetsSelector, selectKeplerDataset, selectKeplerLayer} from '@/store/selectors';
-import React from 'react';
-import {spatialJoin} from 'geoda-wasm';
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {
+  datasetsSelector,
+  selectKeplerDataset,
+  selectKeplerLayer,
+  selectSpatialCountConfig
+} from '@/store/selectors';
+import React, {useState} from 'react';
 import {getDatasetName} from '@/utils/data-utils';
-import {PreviewDataTable} from '../table/preview-data-table';
-import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {addTableColumn} from '@kepler.gl/actions';
-import {Field} from '@kepler.gl/types';
-import {getBinaryGeometriesFromLayer, getBinaryGeometryTypeFromLayer} from './spatial-join-utils';
+import {runSpatialCountAsync} from '@/actions/spatial-join-actions';
 
 export function SpatialCountPanel() {
-  const {addColumnWithValues} = useDuckDB();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<any>();
+
   const datasets = useSelector(datasetsSelector);
-  const [currentStep, setCurrentStep] = React.useState(1);
-  const [firstDatasetId, setFirstDatasetId] = React.useState(datasets?.[0]?.dataId || '');
-  const [secondDatasetId, setSecondDatasetId] = React.useState('');
-  const [newColumnName, setNewColumnName] = React.useState('');
-  const [counts, setCounts] = React.useState<number[]>([]);
-  const [isRunning, setIsRunning] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
+
+  const spatialCountConfig = useSelector(selectSpatialCountConfig);
+
+  const [firstDatasetId, setFirstDatasetId] = useState(
+    spatialCountConfig?.leftDatasetId || datasets?.[0]?.dataId || ''
+  );
+
+  const [secondDatasetId, setSecondDatasetId] = useState(spatialCountConfig?.rightDatasetId || '');
+
+  const [newColumnName, setNewColumnName] = useState(spatialCountConfig?.newColumnName || '');
+
+  const [errorMessage, setErrorMessage] = useState(spatialCountConfig?.errorMessage || '');
+
+  const [status, setStatus] = useState(spatialCountConfig?.status || '');
+
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const [isRunning, setIsRunning] = useState(false);
 
   const resetRunningState = () => {
     setIsRunning(false);
     setErrorMessage('');
-    setCounts([]);
+    setStatus('');
   };
 
   const onSetFirstDatasetId = (datasetId: string) => {
@@ -59,53 +69,20 @@ export function SpatialCountPanel() {
 
   const onSpatialCount = async () => {
     setIsRunning(true);
-    if (leftLayer && rightLayer && leftDataset) {
-      try {
-        // layer could be GeojsonLayer or PointLayer
-        const left = getBinaryGeometriesFromLayer(leftLayer, leftDataset);
-        const leftGeometryType = getBinaryGeometryTypeFromLayer(leftLayer);
-        const right = getBinaryGeometriesFromLayer(rightLayer, rightDataset);
-        const rightGeometryType = getBinaryGeometryTypeFromLayer(rightLayer);
-
-        if (!right || !left) {
-          throw new Error('Invalid dataset for spatial count.');
-        }
-
-        // @ts-ignore fix types
-        const joinResult = await spatialJoin({left, leftGeometryType, right, rightGeometryType});
-        // convert joinResult to counts
-        const values = joinResult.map(row => row.length);
-        setCounts(values);
-        // save counts to the new column
-        // get the table name from first dataset
-        const tableName = getDatasetName(datasets, firstDatasetId);
-        // add new column to duckdb
-        addColumnWithValues({
-          tableName,
-          columnName: newColumnName,
-          columnValues: values,
-          columnType: 'NUMERIC'
-        });
-        // add new column to keplergl
-        const newField: Field = {
-          id: newColumnName,
-          name: newColumnName,
-          displayName: newColumnName,
-          format: '',
-          type: ALL_FIELD_TYPES.integer,
-          analyzerType: 'INTEGER',
-          fieldIdx: leftDataset.fields.length,
-          valueAccessor: (d: any) => {
-            return leftDataset.dataContainer.valueAt(d.index, leftDataset.fields.length);
-          }
-        };
-        dispatch(addTableColumn(firstDatasetId, newField, values));
-        setErrorMessage('');
-        setIsRunning(false);
-      } catch (error: any) {
-        setErrorMessage(error.message);
-      }
-    }
+    // wait 100 ms to show loading spinner
+    await new Promise(resolve => setTimeout(resolve, 500));
+    dispatch(
+      runSpatialCountAsync({
+        leftDatasetId: firstDatasetId,
+        leftTableName: getDatasetName(datasets, firstDatasetId),
+        newColumnName,
+        leftLayer,
+        rightLayer,
+        leftDataset,
+        rightDataset
+      })
+    );
+    resetRunningState();
   };
 
   return (
@@ -129,11 +106,7 @@ export function SpatialCountPanel() {
               description:
                 'The first dataset with geometries (e.g. polygons) that contain/intersect geometries from the second dataset.',
               element: (
-                <DatasetSelector
-                  setDatasetId={onSetFirstDatasetId}
-                  datasetId={firstDatasetId}
-                  isInvalid={firstDatasetId?.length === 0}
-                />
+                <DatasetSelector setDatasetId={onSetFirstDatasetId} datasetId={firstDatasetId} />
               )
             },
             {
@@ -141,11 +114,7 @@ export function SpatialCountPanel() {
               description:
                 'The second dataset with geometries (e.g. points) that will be counted by the geometries in the first dataset.',
               element: (
-                <DatasetSelector
-                  setDatasetId={onSetSecondDatasetId}
-                  datasetId={secondDatasetId}
-                  isInvalid={secondDatasetId?.length === 0}
-                />
+                <DatasetSelector setDatasetId={onSetSecondDatasetId} datasetId={secondDatasetId} />
               )
             },
             {
@@ -166,7 +135,7 @@ export function SpatialCountPanel() {
           ]}
         />
       </section>
-      {counts.length > 0 ? (
+      {status === 'success' ? (
         <WarningBox message="Spatial count applied successfully" type={WarningType.SUCCESS} />
       ) : (
         isRunning &&
@@ -180,24 +149,10 @@ export function SpatialCountPanel() {
           secondDatasetId?.length === 0 ||
           firstDatasetId?.length === 0
         }
+        isRunning={isRunning}
       >
         Apply Spatial Count
       </CreateButton>
-      {counts.length > 0 && (
-        <Card className="m-1">
-          <CardHeader>
-            <p className="text-tiny">Column Preview</p>
-          </CardHeader>
-          <CardBody>
-            <PreviewDataTable
-              fieldName={newColumnName}
-              fieldType={ALL_FIELD_TYPES.integer}
-              columnData={counts}
-              numberOfRows={counts.length}
-            />
-          </CardBody>
-        </Card>
-      )}
     </div>
   );
 }

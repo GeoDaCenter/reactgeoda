@@ -7,6 +7,9 @@ import {Datasets as KeplerDatasets} from '@kepler.gl/table';
 
 type StateSelector<R> = Selector<GeoDaState, R>;
 
+export const defaultDatasetIdSelector: StateSelector<string> = (state: GeoDaState) =>
+  state.root.uiState.defaultDatasetId;
+
 export const datasetsSelector: StateSelector<GeoDaState['root']['datasets']> = (
   state: GeoDaState
 ) => state.root.datasets;
@@ -39,10 +42,32 @@ export const selectKeplerLayer = (dataId?: string) =>
     return layer;
   });
 
+export const keplerUIStateSelector = (state: GeoDaState) => state.keplerGl[MAP_ID].uiState;
+
+export const keplerDatasetsSelector = (state: GeoDaState) =>
+  state.keplerGl[MAP_ID].visState.datasets;
+
+export const selectDefaultKeplerDataset = createSelector(
+  [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],
+  (datasets: KeplerDatasets) => {
+    return Object.values(datasets).length > 0 ? Object.values(datasets)[0] : null;
+  }
+);
+
 export const selectKeplerDataset = (dataId?: string) =>
   createSelector(
     [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],
     (datasets: KeplerDatasets) => {
-      return dataId ? datasets[dataId] : Object.values(datasets)[0];
+      return dataId && dataId in datasets ? datasets[dataId] : Object.values(datasets)[0];
     }
   );
+
+export const selectWeightsByDataId = (datasetId: string) =>
+  createSelector([(state: GeoDaState) => state.root.weights], weights => {
+    return weights.filter(weight => weight.datasetId === datasetId);
+  });
+
+export const selectSpatialAssignConfig = (state: GeoDaState) =>
+  state.root.spatialJoin.spatialAssign;
+
+export const selectSpatialCountConfig = (state: GeoDaState) => state.root.spatialJoin.spatialCount;

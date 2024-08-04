@@ -4,11 +4,10 @@ import {useIntl} from 'react-intl';
 import {Accordion, AccordionItem, Input} from '@nextui-org/react';
 
 import {GeoDaState} from '../../store';
-import {setOpenAIKey, setPropertyPanel} from '../../actions';
+import {setOpenAIKey, setShowChatPanel} from '../../actions';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {accordionItemClasses} from '@/constants';
 import {CreateButton} from '../common/create-button';
-import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {WarningBox, WarningType} from '../common/warning-box';
 
@@ -48,12 +47,12 @@ export function SettingsPanel() {
         'Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.'
       );
       dispatch(setOpenAIKey(undefined));
-      return;
+    } else {
+      // dispatch action to update redux state state.root.uiState.openAIKey
+      dispatch(setOpenAIKey(key));
+      // dispatch action to show chatgpt panel
+      dispatch(setShowChatPanel(true));
     }
-    // dispatch action to update redux state state.root.uiState.openAIKey
-    dispatch(setOpenAIKey(key));
-    // dispatch action to show chatgpt panel
-    dispatch(setPropertyPanel(PanelName.CHAT_GPT));
   }, [dispatch, key]);
 
   const onNoOpenAIKeyMessageClick = () => {

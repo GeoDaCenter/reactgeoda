@@ -1,15 +1,23 @@
-import {DataContainerInterface} from '@kepler.gl/utils';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
-import {getColumnData} from '@/utils/data-utils';
+import {findKeplerDatasetByVariableName, getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {HistogramDataProps, createHistogram} from '@/utils/plots/histogram-utils';
 import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
 import {generateRandomId} from '@/utils/ui-utils';
+import {VisState} from '@kepler.gl/schemas';
 
+/**
+ * Output of the histogram callback function.
+ * It contains the result of the histogram that will be sent to the LLM assistant.
+ * It also contains the histogram data that will be used to create histogram plot if custom message is enabled.
+ *
+ */
 export type HistogramOutput = {
   type: 'histogram';
   name: string;
   result: {
     id: string;
+    datasetId: string;
+    datasetName: string;
     variableName: string;
     numberOfBins: number;
     histogram: Array<Omit<HistogramDataProps, 'items'>>;
@@ -20,14 +28,25 @@ export type HistogramOutput = {
 type HistogramCallbackProps = {
   k: number;
   variableName: string;
+  datasetName?: string;
 };
 
 export function histogramCallback(
-  {k, variableName}: HistogramCallbackProps,
-  {dataContainer}: {dataContainer: DataContainerInterface}
+  {k, variableName, datasetName}: HistogramCallbackProps,
+  {visState}: {visState: VisState}
 ): HistogramOutput | ErrorOutput {
+  // get dataset using dataset name from visState
+  const keplerDataset = findKeplerDatasetByVariableName(
+    datasetName,
+    variableName,
+    visState.datasets
+  );
+  if (!keplerDataset) {
+    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+  }
+
   // get column data
-  const columnData = getColumnData(variableName, dataContainer);
+  const columnData = getColumnDataFromKeplerDataset(variableName, keplerDataset);
 
   // check column data is empty
   if (!columnData || columnData.length === 0) {
@@ -42,6 +61,8 @@ export function histogramCallback(
     name: 'Histogram',
     result: {
       id: generateRandomId(),
+      datasetId: keplerDataset.id,
+      datasetName: keplerDataset.label,
       variableName,
       numberOfBins: k,
       histogram

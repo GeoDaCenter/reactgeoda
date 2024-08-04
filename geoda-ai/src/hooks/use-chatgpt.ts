@@ -1,18 +1,13 @@
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-// import {getTableSummary} from './use-duckdb';
 import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
-import {GeoDaState} from '@/store';
-import {useSelector} from 'react-redux';
-import {MAP_ID} from '@/constants';
-import {getDataContainer} from '@/utils/data-utils';
 import {
+  CustomFunctionContext,
   CustomFunctionOutputProps,
+  CustomFunctions,
   initOpenAI,
   processMessage,
   translateVoiceToText
 } from '@/ai/openai-utils';
-import {useDuckDB} from './use-duckdb';
-import {mainTableNameSelector} from '@/store/selectors';
 
 /**
  * Create a message from custom function call
@@ -58,78 +53,47 @@ function createMessageFromCustomFunctionCall({
 }
 
 /**
- * custom hook to use ChatGPT
+ * Custom hook to use ChatGPT
+ *
+ * registerFunction({functionName: 'summarizeData', functionArgs: {tableName}, input: {}})
+ * registerFunctionContext({var1, var2}), variables will be accessible by registered functions
+ * registerFunctionMessage({functionName: 'summarizeData', functionArgs: {tableName}, output: {result: {}}}), return React.JSX.Element
  */
-export function useChatGPT() {
-  const tableName = useSelector(mainTableNameSelector);
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
-  const weights = useSelector((state: GeoDaState) => state.root.weights);
-  // use selector to get dataContainer
-  const dataContainer = useSelector(() => getDataContainer(tableName, visState?.datasets));
-
-  const {queryValues} = useDuckDB();
-
+export function useChatGPT({
+  customFunctions,
+  customFunctionContext = {}
+}: {
+  customFunctions: CustomFunctions;
+  customFunctionContext: CustomFunctionContext;
+}) {
   /**
-   * Upload sumary of the table to ChatGPT assistant
-   * Note: this is not used specifically for uploading summary, but it could be a skeleton for uploading other file.
-   * @param tableName table name
+   * Process message by sending message to LLM assistant and retrieving response
+   * @returns None
    */
-  // async function uploadSummary(tableName: string) {
-  //   if (openai && assistant && tableName) {
-  //     // create a file object to pass the summary of the table
-  //     const tableSummary = await getTableSummary(tableName);
-  //     // create a file object from the string
-  //     const blob = new Blob([tableSummary], {
-  //       type: 'text/plain;charset=utf-8'
-  //     });
-  //     const file = await openai.files.create({
-  //       purpose: 'assistants',
-  //       file: new File([blob], `data_summary_${tableName}.txt`)
-  //     });
-  //     // Retrieve existing file IDs
-  //     const assistantDetails = await openai.beta.assistants.retrieve(assistant.id);
-  //     let existingFileIds = assistantDetails.file_ids || [];
-  //     console.log('existingFileIds', existingFileIds);
-
-  //     // Update the assistant with the new file ID
-  //     await openai.beta.assistants.update(assistant.id, {
-  //       file_ids: [...existingFileIds, file.id]
-  //     });
-  //     // Update local assistantDetails and save to assistant.json
-  //     assistantDetails.file_ids = [...existingFileIds, file.id];
-  //     // remember file.id to be removed later
-  //     const updatedAssistantDetails = await openai.beta.assistants.retrieve(assistant.id);
-  //     const updatedExistingFileIds = updatedAssistantDetails.file_ids || [];
-  //     console.log('updatedExistingFileIds', updatedExistingFileIds);
-  //   }
-  // }
-
-  /**
-   * Process message by sending message to ChatGPT assistant and retrieving response
-   * @returns
-   */
-  async function processChatGPTMessage(
-    question: string,
+  async function sendMessage(
+    textMessage: string,
     streamMessage: (delta: string, customMessage?: MessageModel) => void,
     imageMessage?: string
   ) {
     await processMessage({
-      question,
+      textMessage,
       imageMessage,
-      customFunctions: CUSTOM_FUNCTIONS,
-      customFunctionContext: {tableName, visState, weights, dataContainer, queryValues},
+      customFunctions,
+      customFunctionContext,
       customMessageCallback: createMessageFromCustomFunctionCall,
       streamMessageCallback: streamMessage
     });
   }
 
+  /**
+   * Convert speech to text
+   * @param audioBlob The audio blob to convert to text
+   * @returns The text from the audio blob
+   */
   async function speechToText(audioBlob: Blob) {
     // implement speech to text
     return translateVoiceToText(audioBlob);
   }
 
-  // registerFunction({functionName: 'summarizeData', functionArgs: {tableName}, input: {}})
-  // registerFunctionContext({var1, var2}), variables will be accessible by registered functions
-  // registerFunctionMessage({functionName: 'summarizeData', functionArgs: {tableName}, output: {result: {}}}), return React.JSX.Element
-  return {initOpenAI, processChatGPTMessage, speechToText};
+  return {initOpenAI, sendMessage, speechToText};
 }

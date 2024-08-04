@@ -1,6 +1,6 @@
 import {localMoran} from 'geoda-wasm';
 
-import {WeightsProps} from '@/actions';
+import {WeightsProps} from '@/reducers/weights-reducer';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {CHAT_FIELD_NAME_NOT_FOUND, CHAT_WEIGHTS_NOT_FOUND} from '@/constants';
 import {
