@@ -172,7 +172,10 @@ const OpenFileComponent = ({
           </p>
         </div>
         {error && (
-          <WarningBox message={`Failed to open dropped file: ${error}`} type={WarningType.ERROR} />
+          <WarningBox
+            message={`Failed to open dropped file: ${error}. Please try to refresh current page, or contact us.`}
+            type={WarningType.ERROR}
+          />
         )}
       </CardFooter>
     </Card>

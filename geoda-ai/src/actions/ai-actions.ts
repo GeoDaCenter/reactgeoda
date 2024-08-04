@@ -59,7 +59,7 @@ export const addDatasetToAI =
             newMetaData.result
           ];
           const textDatasetMeta = JSON.stringify(newMetaData);
-          const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}`;
+          const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Please try to correct the variable names if they are not correct.`;
 
           // update datasetMeta in the store
           dispatch(setDatasetMeta(updatedDatasetMeta));

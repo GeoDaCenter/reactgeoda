@@ -3,7 +3,7 @@ import {findKeplerDatasetByVariableName, getColumnDataFromKeplerDataset} from '@
 import {HistogramDataProps, createHistogram} from '@/utils/plots/histogram-utils';
 import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
 import {generateRandomId} from '@/utils/ui-utils';
-import {KeplerGlState} from '@kepler.gl/reducers';
+import {VisState} from '@kepler.gl/schemas';
 
 /**
  * Output of the histogram callback function.
@@ -33,7 +33,7 @@ type HistogramCallbackProps = {
 
 export function histogramCallback(
   {k, variableName, datasetName}: HistogramCallbackProps,
-  {visState}: {visState: KeplerGlState['visState']}
+  {visState}: {visState: VisState}
 ): HistogramOutput | ErrorOutput {
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(

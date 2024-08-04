@@ -115,6 +115,7 @@ export async function initOpenAI(apiKey: string) {
  * Cancel the openai assistant run
  */
 export async function cancelOpenAI() {
+  isLocked = false;
   if (openai && thread) {
     const runs = await openai.beta.threads.runs.list(thread.id);
     runs.data.forEach(async run => {
@@ -129,6 +130,7 @@ export async function cancelOpenAI() {
  * Close the openai assistant
  */
 export async function closeOpenAI() {
+  isLocked = false;
   if (openai && thread) {
     await cancelOpenAI();
     await openai.beta.threads.del(thread.id);
@@ -177,12 +179,10 @@ export async function setAdditionalInstructions(message: string) {
         isLocked = false;
       })
       .on('error', async err => {
-        isLocked = false;
         console.error(err);
         cancelOpenAI();
       })
       .on('abort', async () => {
-        isLocked = false;
         console.error('abort');
         cancelOpenAI();
       });
@@ -325,19 +325,19 @@ export async function processMessage({
   if (!openai || !thread || !assistant) return;
 
   // check active runs in the thread
-  const runs = await openai.beta.threads.runs.list(thread.id);
+  // const runs = await openai.beta.threads.runs.list(thread.id);
 
   // wait until there is no active run, the max wait time is 20 seconds
-  const currentTime = new Date().getTime();
-  while (runs.data.some(run => run.status === 'in_progress' || run.status === 'queued')) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const timeDiff = new Date().getTime() - currentTime;
-    if (timeDiff > 20000) {
-      console.error('The assistant is busy, try to cancel all runs.');
-      await cancelOpenAI();
-      break;
-    }
-  }
+  // const currentTime = new Date().getTime();
+  // while (runs.data.some(run => run.status === 'in_progress' || run.status === 'queued')) {
+  //   await new Promise(resolve => setTimeout(resolve, 100));
+  //   const timeDiff = new Date().getTime() - currentTime;
+  //   if (timeDiff > 20000) {
+  //     console.error('The assistant is busy, try to cancel all runs.');
+  //     await cancelOpenAI();
+  //     break;
+  //   }
+  // }
 
   if (imageMessage) {
     // process image message

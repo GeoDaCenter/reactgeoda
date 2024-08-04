@@ -81,8 +81,6 @@ type CreateUniqueValuesMapProps = {
   legendLabels: string[];
   mappingType: string;
   colorFieldName: string;
-  layerOrder?: string[];
-  isPreview?: boolean;
 };
 
 export function createUniqueValuesMap({

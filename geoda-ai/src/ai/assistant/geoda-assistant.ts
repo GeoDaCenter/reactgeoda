@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 export const GPT_MODEL = 'gpt-4o-2024-05-13';
 export const GEODA_AI_ASSISTANT_NAME = 'geoda.ai-openai-agent';
-export const GEODA_AI_ASSISTANT_VERSION = '0.0.5';
+export const GEODA_AI_ASSISTANT_VERSION = '0.0.6';
 
 export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   model: GPT_MODEL,
@@ -192,9 +192,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'number',
               description:
                 'This property is only for classifcation method: box. This numeric value defines the lower and upper edges of the box known as hinges. It could be either 1.5 or 3.0, and the default value is 1.5'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
             }
           },
-          required: ['method', 'variableName']
+          required: ['method', 'variableName', 'datasetName']
         }
       }
     },
@@ -224,9 +229,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'string',
               description:
                 'The expression that is used to create the new variable by composing with other variables.  For example, (A + B), or (A / B). Please add round brackets to the expression. Please return the expression within a pair of round brackets.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
             }
           },
-          required: ['dataType', 'variableName']
+          required: ['dataType', 'variableName', 'datasetName']
         }
       }
     },
@@ -269,9 +279,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'number',
               description:
                 'This parameter only used in distance based weights creation. It represents the distance threshold used to search nearby neighbors for each geometry. The unit should be either kilometer (KM) or mile.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to use the first dataset name.'
             }
           },
-          required: ['type']
+          required: ['type', 'datasetName']
         }
       }
     },
@@ -302,9 +317,14 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'number',
               description:
                 'The significance threshold is a value between 0 and 1 that is used to determine whether a probability is significant or not. Default significant threshold is 0.05'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
             }
           },
-          required: ['weightsID', 'variableName']
+          required: ['weightsID', 'variableName', 'datasetName']
         }
       }
     },
@@ -328,12 +348,23 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               type: 'string',
               description: 'The name of dependent variable Y'
             },
+            modelType: {
+              type: 'string',
+              description:
+                'The type of regression model. It could be classic, spatial-lag or spatial-error. The default model type is classic. If not provided, please use classic model.'
+            },
             weightsId: {
               type: 'string',
-              description: 'The id of the specified spatial weights.'
+              description:
+                'The id of the specified spatial weights. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.'
+            },
+            datasetName: {
+              type: 'string',
+              description:
+                'The name of the dataset. If not provided, please try to find the dataset name that contains the independentVariables and dependentVariable.'
             }
           },
-          required: ['independentVariables', 'dependentVariable']
+          required: ['independentVariables', 'dependentVariable', 'datasetName']
         }
       }
     }

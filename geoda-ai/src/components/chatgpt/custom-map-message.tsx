@@ -4,28 +4,33 @@ import {CustomMessagePayload} from './custom-messages';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {createCustomScaleMap, createUniqueValuesMap} from '@/utils/mapping-functions';
-import {getLayer} from '@/utils/data-utils';
 import {KeplerMapContainer} from '../common/kepler-map-container';
-import {reorderLayer, layerVisConfigChange} from '@kepler.gl/actions';
+import {reorderLayer, layerVisConfigChange, addLayer} from '@kepler.gl/actions';
 import {MAP_ID, MappingTypes} from '@/constants';
 import {ColorSelector} from '../common/color-selector';
 import {getDefaultColorRange} from '@/utils/color-utils';
 import {ColorRange} from '@kepler.gl/constants';
 import {CustomCreateButton} from '../common/custom-create-button';
+import {MapCallbackOutput} from '@/ai/assistant/callbacks/callback-map';
+import {selectKeplerDataset} from '@/store/selectors';
 
 /**
  * Custom Map Message
  */
 export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
-  const {functionArgs, output} = props;
-  const mappingType = 'type' in output ? output.name : 'quantile';
-  const breaks = output.result as number[];
-  const k = mappingType === MappingTypes.UNIQUE_VALUES ? breaks.length : breaks.length + 1;
-
   const dispatch = useDispatch();
 
-  // use selector to get layer
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
+  const {functionArgs, output} = props;
+  const {
+    datasetId,
+    classificationMethod: mappingType,
+    classificationValues
+  } = output.result as MapCallbackOutput['result'];
+
+  const k =
+    mappingType === MappingTypes.UNIQUE_VALUES
+      ? classificationValues.length
+      : classificationValues.length + 1;
 
   // use selector to get layerOrder
   const layerOrder = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder);
@@ -36,6 +41,9 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   // useState for selected color range
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
 
+  // get dataset from redux store
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
+
   const updateLayer = useMemo(() => {
     if ('type' in output && 'mapping' === output.type) {
       const {variableName} = functionArgs;
@@ -43,8 +51,9 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
       const label = `${mappingType}-${colorFieldName}-${k}`;
       // check if there is already a layer with the same label
       const existingLayer = layers.find((layer: Layer) => layer.config.label === label);
+
       if (existingLayer && selectedColorRange) {
-        // update the color range in the existing layer
+        // then we just need to update the color range in the existing layer
         const newVisCconfig = {
           ...existingLayer.config.visConfig,
           colorRange: {
@@ -64,36 +73,43 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
         dispatch(layerVisConfigChange(existingLayer, newVisCconfig));
         return existingLayer.id;
       }
+
+      let newLayer;
+
+      // create new layer
       if (mappingType === 'unique values') {
-        const newLayer = createUniqueValuesMap({
-          dispatch,
-          layer,
-          uniqueValues: breaks,
-          legendLabels: breaks.map(v => v.toString()),
+        newLayer = createUniqueValuesMap({
+          dataset: keplerDataset,
+          uniqueValues: classificationValues as number[],
+          legendLabels: classificationValues.map(v => v.toString()),
           hexColors: selectedColorRange?.colors || [],
           mappingType,
-          colorFieldName,
-          layerOrder,
-          isPreview: true
+          colorFieldName
         });
-        return newLayer.id;
       } else {
-        const newLayer = createCustomScaleMap({
-          breaks,
+        newLayer = createCustomScaleMap({
+          dataset: keplerDataset,
+          breaks: classificationValues as number[],
           mappingType,
           colorFieldName,
-          dispatch,
-          layer,
-          colorRange: selectedColorRange,
-          layerOrder,
-          isPreview: true
+          colorRange: selectedColorRange
         });
-        return newLayer.id;
       }
+
+      // dispatch to add new layer in kepler.gl
+      dispatch(addLayer(newLayer, datasetId));
+
+      // remove newLayer from layerOrder
+      const otherLayers = layerOrder.filter((id: string) => id !== newLayer.id);
+
+      // dispatch to hide the layer in the layerOrder
+      dispatch(reorderLayer([...otherLayers]));
+
+      return newLayer.id;
     }
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [breaks, dispatch, functionArgs, output, selectedColorRange]);
+  }, [classificationValues, dispatch, functionArgs, output, selectedColorRange]);
 
   const [hide, setHide] = useState(layerOrder.includes(updateLayer) || false);
 

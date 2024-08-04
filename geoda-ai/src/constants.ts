@@ -52,6 +52,9 @@ export const LISA_COLORS = Object.keys(LISA_LEGEND);
 export const LISA_LABELS = Object.values(LISA_LEGEND);
 
 // openAI responses
+export const CHAT_DATASET_NOT_FOUND =
+  'Error: dataset is not found. Please make sure the variable name is correct.';
+
 export const CHAT_FIELD_NAME_NOT_FOUND =
   'Error: field name is not found. User may forget to mention a field name.';
 
