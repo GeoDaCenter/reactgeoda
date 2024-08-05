@@ -149,7 +149,7 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
             placement="bottom-right"
             shape="circle"
           >
-            <Avatar src={avatar} />
+            <Avatar src={avatar} showFallback />
           </Badge>
         </div>
         <div className="flex w-full flex-col gap-4">

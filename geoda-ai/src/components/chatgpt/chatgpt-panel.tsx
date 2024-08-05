@@ -55,6 +55,8 @@ const ChatGPTPanel = () => {
 
   const weights = useSelector((state: GeoDaState) => state.root.weights);
 
+  const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
+
   // check if openAIKey is valid
   const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
     isKeyChecked ? 'success' : 'checking'
@@ -104,18 +106,6 @@ const ChatGPTPanel = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasets]);
 
-  // get messages from state.root
-  const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
-
-  // update message callback function
-  const updateMessages = (messages: MessageModel[]) => {
-    dispatch(setMessages(messages));
-  };
-
-  // or use local state
-  // const [messages, setMessages] = useState<Array<MessageModel>>(
-  //   initialMessages ?? [welcomeMessage]
-  // );
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
@@ -155,7 +145,6 @@ const ChatGPTPanel = () => {
           processMessage={sendMessage}
           speechToText={speechToText}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
-          setMessages={updateMessages}
         />
       )}
     </RightPanelContainer>
