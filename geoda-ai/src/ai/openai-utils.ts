@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import {ReactNode} from 'react';
 import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from './assistant/geoda-assistant';
+import {isCustomMessagePayload, isValidCustomMessage} from '@/components/chatgpt/custom-messages';
 
 export interface MessageImageContentProps {
   src?: string;
@@ -194,21 +195,16 @@ export async function setAdditionalInstructions(message: string) {
 /**
  * Type of Custom function output props
  */
-export type CustomFunctionOutputProps =
-  | {
-      /** the type of the function, e.g. plot, map, table etc. */
-      type: string;
-      // the name of the function, e.g. createMap, createPlot etc.
-      name: string;
-      /* the result of the function run, it will be sent back to LLM to parse as response to users */
-      result: unknown;
-      /* the data of the function run, it will be used to create the custom message e.g. plot, map etc. */
-      data?: unknown;
-    }
-  | {
-      type: 'error';
-      result: unknown;
-    };
+export type CustomFunctionOutputProps<R, D> = {
+  /** the type of the function, e.g. plot, map, table etc. */
+  type: string;
+  // the name of the function, e.g. createMap, createPlot etc.
+  name: string;
+  /* the result of the function run, it will be sent back to LLM to parse as response to users */
+  result: R;
+  /* the data of the function run, it will be used to create the custom message e.g. plot, map etc. */
+  data?: D;
+};
 
 /**
  * Type of Custom functions, a dictionary of functions e.g. createMap, createPlot etc.
@@ -217,7 +213,11 @@ export type CustomFunctionOutputProps =
  * The function should return a CustomFunctionOutputProps object, or a Promise of CustomFunctionOutputProps object if it is a async function.
  */
 export type CustomFunctions = {
-  [key: string]: (...args: any[]) => CustomFunctionOutputProps | Promise<CustomFunctionOutputProps>;
+  [key: string]: (
+    ...args: any[]
+  ) =>
+    | CustomFunctionOutputProps<unknown, unknown>
+    | Promise<CustomFunctionOutputProps<unknown, unknown>>;
 };
 
 /**
@@ -230,7 +230,7 @@ export type CustomFunctionCall = {
   /** the arguments of the function */
   functionArgs: {};
   /** the output of function execution */
-  output: CustomFunctionOutputProps;
+  output: CustomFunctionOutputProps<unknown, unknown>;
 };
 
 /**
@@ -470,7 +470,7 @@ async function processRequiresAction(
     curr_run?.required_action?.submit_tool_outputs.tool_calls.forEach(async toolCall => {
       // handle each tool call (function)
       let resultToLLM: unknown | null = null;
-      let functionOutput: CustomFunctionOutputProps | null = null;
+      let functionOutput: CustomFunctionOutputProps<unknown, unknown> | null = null;
       // run custom function
       const functionName = toolCall.function.name;
       const functionArgs = JSON.parse(toolCall.function.arguments);
@@ -479,7 +479,7 @@ async function processRequiresAction(
         let isFunctionRunError = false;
         try {
           const func = customFunctions[functionName];
-          functionOutput = await func(functionArgs, customFunctionContext);
+          functionOutput = await func(functionName, functionArgs, customFunctionContext);
           resultToLLM = functionOutput.result;
         } catch (err) {
           isFunctionRunError = true;
@@ -490,6 +490,7 @@ async function processRequiresAction(
           };
           functionOutput = {
             type: 'error',
+            name: functionName,
             result: err
           };
         }
@@ -549,7 +550,7 @@ function submitToolOutputs({
     ]
   });
 
-  // streaming what LLM responses
+  // streaming what LLM responses and add a custom response UI if needed
   responseStream
     .on('textDelta', textDelta => {
       lastMessage = lastMessage + textDelta.value || '';
@@ -558,12 +559,18 @@ function submitToolOutputs({
     .on('end', async () => {
       if (!isFunctionRunError) {
         // append a custom response e.g. plot, map etc. if needed
-        if (customReponseMsg) {
+        if (customReponseMsg && customReponseMsg.payload) {
           if (lastMessage.length === 0) lastMessage = '\n';
-          streamMessageCallback(lastMessage, customReponseMsg);
+          // check if custom message is valid before rendering
+          if (
+            isCustomMessagePayload(customReponseMsg.payload) &&
+            isValidCustomMessage(customReponseMsg.payload)
+          ) {
+            streamMessageCallback(lastMessage, customReponseMsg);
+          }
         }
       } else {
-        console.log('there is an error happend in the custom function');
+        console.error('there is an error happend in the custom function');
       }
     })
     .on('error', async err => {

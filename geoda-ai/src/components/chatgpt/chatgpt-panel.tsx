@@ -9,7 +9,7 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {addDatasetToAI, setIsOpenAIKeyChecked, setMessages, setPropertyPanel} from '@/actions';
+import {addDatasetToAI, setIsOpenAIKeyChecked, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {datasetsSelector} from '@/store/selectors';
@@ -54,6 +54,8 @@ const ChatGPTPanel = () => {
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
 
   const weights = useSelector((state: GeoDaState) => state.root.weights);
+
+  const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
 
   // check if openAIKey is valid
   const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
@@ -104,19 +106,6 @@ const ChatGPTPanel = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasets]);
 
-  // get messages from state.root
-  const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
-
-  // update message callback function
-  const updateMessages = (messages: MessageModel[]) => {
-    dispatch(setMessages(messages));
-  };
-
-  // or use local state
-  // const [messages, setMessages] = useState<Array<MessageModel>>(
-  //   initialMessages ?? [welcomeMessage]
-  // );
-
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
     dispatch(setPropertyPanel(PanelName.SETTINGS));
@@ -155,7 +144,6 @@ const ChatGPTPanel = () => {
           processMessage={sendMessage}
           speechToText={speechToText}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
-          setMessages={updateMessages}
         />
       )}
     </RightPanelContainer>

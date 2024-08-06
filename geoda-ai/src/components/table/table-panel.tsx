@@ -16,9 +16,8 @@ function TablePanel() {
   const [selectedTab, setSelectedTab] = useState('table-query');
 
   const keplerDataset = useSelector(selectDefaultKeplerDataset);
-  const [datasetId, setDatasetId] = useState(keplerDataset.id);
-  console.log('datasetId', datasetId);
-  const tableName = keplerDataset.label;
+  const [datasetId, setDatasetId] = useState(keplerDataset?.id);
+  const tableName = keplerDataset?.label;
 
   const onTabChange = (key: React.Key) => {
     if (key === 'table-query') {
@@ -39,7 +38,7 @@ function TablePanel() {
         defaultMessage: 'Query and edit the table data.'
       })}
     >
-      {!tableName ? (
+      {!tableName || !datasetId ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto  p-1">

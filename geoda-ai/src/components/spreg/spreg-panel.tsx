@@ -7,13 +7,14 @@ import {GeoDaState} from '@/store';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {MultiVariableSelector} from '../common/multivariable-selector';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {RegressionProps, runRegressionAsync, updateRegression} from '@/actions/regression-actions';
+import {runRegressionAsync, updateRegression} from '@/actions/regression-actions';
 import {RegressionReport} from './spreg-report';
 import {CreateButton} from '../common/create-button';
 import {WeightsSelector} from '../weights/weights-management';
 import {datasetsSelector, selectKeplerDataset, selectWeightsByDataId} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {VariableSelector} from '../common/variable-selector';
+import {RegressionProps} from '@/reducers/regression-reducer';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 

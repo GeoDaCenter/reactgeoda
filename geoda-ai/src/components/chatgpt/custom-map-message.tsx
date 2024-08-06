@@ -1,6 +1,5 @@
 import {useMemo, useState} from 'react';
 import {Layer} from '@kepler.gl/layers';
-import {CustomMessagePayload} from './custom-messages';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {createCustomScaleMap, createUniqueValuesMap} from '@/utils/mapping-functions';
@@ -13,19 +12,36 @@ import {ColorRange} from '@kepler.gl/constants';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {MapCallbackOutput} from '@/ai/assistant/callbacks/callback-map';
 import {selectKeplerDataset} from '@/store/selectors';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+/**
+ * Type guard for Custom Map Output
+ * @param functionOutput The function output
+ * @returns The flag indicates the function output is a custom map output
+ */
+export function isCustomMapOutput(
+  functionOutput: CustomFunctionOutputProps<unknown, unknown>
+): functionOutput is MapCallbackOutput {
+  return functionOutput.type === 'mapping';
+}
 
 /**
  * Custom Map Message
  */
-export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomMapMessage = ({
+  functionOutput,
+  functionArgs
+}: {
+  functionOutput: MapCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
 
-  const {functionArgs, output} = props;
   const {
     datasetId,
     classificationMethod: mappingType,
     classificationValues
-  } = output.result as MapCallbackOutput['result'];
+  } = functionOutput.result;
 
   const k =
     mappingType === MappingTypes.UNIQUE_VALUES
@@ -45,83 +61,79 @@ export const CustomMapMessage = ({props}: {props: CustomMessagePayload}) => {
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
   const updateLayer = useMemo(() => {
-    if ('type' in output && 'mapping' === output.type) {
-      const {variableName} = functionArgs;
-      const colorFieldName = variableName;
-      const label = `${mappingType}-${colorFieldName}-${k}`;
-      // check if there is already a layer with the same label
-      const existingLayer = layers.find((layer: Layer) => layer.config.label === label);
+    const {variableName} = functionArgs;
+    const colorFieldName = variableName;
+    const label = `${mappingType}-${colorFieldName}-${k}`;
+    // check if there is already a layer with the same label
+    const existingLayer = layers.find((layer: Layer) => layer.config.label === label);
 
-      if (existingLayer && selectedColorRange) {
-        // then we just need to update the color range in the existing layer
-        const newVisCconfig = {
-          ...existingLayer.config.visConfig,
-          colorRange: {
-            ...selectedColorRange,
-            colorMap: existingLayer.config.visConfig.colorRange.colorMap.map(
-              (color: any, index: number) => {
-                return [color[0], selectedColorRange.colors[index]];
-              }
-            ),
-            colorLegend: existingLayer.config.visConfig.colorRange.colorLegend?.map(
-              (color: any, index: number) => {
-                return {...color, color: selectedColorRange.colors[index]};
-              }
-            )
-          }
-        };
-        dispatch(layerVisConfigChange(existingLayer, newVisCconfig));
-        return existingLayer.id;
-      }
-
-      let newLayer;
-
-      // create new layer
-      if (mappingType === 'unique values') {
-        newLayer = createUniqueValuesMap({
-          dataset: keplerDataset,
-          uniqueValues: classificationValues as number[],
-          legendLabels: classificationValues.map(v => v.toString()),
-          hexColors: selectedColorRange?.colors || [],
-          mappingType,
-          colorFieldName
-        });
-      } else {
-        newLayer = createCustomScaleMap({
-          dataset: keplerDataset,
-          breaks: classificationValues as number[],
-          mappingType,
-          colorFieldName,
-          colorRange: selectedColorRange
-        });
-      }
-
-      // dispatch to add new layer in kepler.gl
-      dispatch(addLayer(newLayer, datasetId));
-
-      // remove newLayer from layerOrder
-      const otherLayers = layerOrder.filter((id: string) => id !== newLayer.id);
-
-      // dispatch to hide the layer in the layerOrder
-      dispatch(reorderLayer([...otherLayers]));
-
-      return newLayer.id;
+    if (existingLayer && selectedColorRange) {
+      // then we just need to update the color range in the existing layer
+      const newVisCconfig = {
+        ...existingLayer.config.visConfig,
+        colorRange: {
+          ...selectedColorRange,
+          colorMap: existingLayer.config.visConfig.colorRange.colorMap.map(
+            (color: any, index: number) => {
+              return [color[0], selectedColorRange.colors[index]];
+            }
+          ),
+          colorLegend: existingLayer.config.visConfig.colorRange.colorLegend?.map(
+            (color: any, index: number) => {
+              return {...color, color: selectedColorRange.colors[index]};
+            }
+          )
+        }
+      };
+      dispatch(layerVisConfigChange(existingLayer, newVisCconfig));
+      return existingLayer.id;
     }
-    return null;
+
+    let newLayer;
+
+    // create new layer
+    if (mappingType === 'unique values') {
+      newLayer = createUniqueValuesMap({
+        dataset: keplerDataset,
+        uniqueValues: classificationValues as number[],
+        legendLabels: classificationValues.map(v => v.toString()),
+        hexColors: selectedColorRange?.colors || [],
+        mappingType,
+        colorFieldName
+      });
+    } else {
+      newLayer = createCustomScaleMap({
+        dataset: keplerDataset,
+        breaks: classificationValues as number[],
+        mappingType,
+        colorFieldName,
+        colorRange: selectedColorRange
+      });
+    }
+
+    // dispatch to add new layer in kepler.gl
+    dispatch(addLayer(newLayer, datasetId));
+
+    // remove newLayer from layerOrder
+    const otherLayers = layerOrder.filter((id: string) => id !== newLayer.id);
+
+    // dispatch to hide the layer in the layerOrder
+    dispatch(reorderLayer([...otherLayers]));
+
+    return newLayer.id;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classificationValues, dispatch, functionArgs, output, selectedColorRange]);
+  }, [classificationValues, dispatch, functionArgs, selectedColorRange]);
 
   const [hide, setHide] = useState(layerOrder.includes(updateLayer) || false);
 
   // handle click event
   const onClick = () => {
-    if ('type' in output && 'mapping' === output.type) {
-      // find other layers except updateLayer
-      const otherLayers = layerOrder.filter((id: string) => id !== updateLayer);
-      // new order of layers
-      const newOrder = [updateLayer, ...otherLayers];
-      dispatch(reorderLayer(newOrder));
-    }
+    // find other layers except updateLayer
+    const otherLayers = layerOrder.filter((id: string) => id !== updateLayer);
+    // new order of layers
+    const newOrder = [updateLayer, ...otherLayers];
+    dispatch(reorderLayer(newOrder));
+
     // hide the button once clicked
     setHide(true);
   };

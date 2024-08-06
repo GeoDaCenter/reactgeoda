@@ -1,5 +1,6 @@
-import {PlotActionProps, WeightsProps} from '@/actions';
-import {RegressionProps} from '@/actions/regression-actions';
+import {PlotActionProps} from '@/actions';
+import {RegressionProps} from '@/reducers/regression-reducer';
+import {WeightsProps} from '@/reducers/weights-reducer';
 import {Layer} from '@kepler.gl/layers';
 import {EditorState} from 'lexical';
 import {Layout} from 'react-grid-layout';
@@ -55,11 +56,13 @@ export function initGridItems({
   });
 
   plots?.forEach((plot: PlotActionProps) => {
-    newGridItems.push({
-      id: plot.id,
-      show: true,
-      type: GRID_ITEM_TYPES.PLOT
-    });
+    if (plot.id) {
+      newGridItems.push({
+        id: plot.id,
+        show: true,
+        type: GRID_ITEM_TYPES.PLOT
+      });
+    }
   });
 
   regressions?.forEach((regression: RegressionProps) => {
@@ -134,7 +137,7 @@ export function createGridItems({
   });
 
   plots?.forEach((plot: PlotActionProps) => {
-    if (!newGridItems.find(l => l.id === plot.id)) {
+    if (!newGridItems.find(l => l.id === plot.id) && plot.id) {
       newGridItems.push({
         id: plot.id,
         show: true,

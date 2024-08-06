@@ -4,7 +4,12 @@ import {MessageModel} from '@chatscope/chat-ui-kit-react';
 // import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {setDefaultPromptText, setScreenCaptured, setStartScreenCapture} from '@/actions';
+import {
+  setDefaultPromptText,
+  setMessages,
+  setScreenCaptured,
+  setStartScreenCapture
+} from '@/actions';
 import {cancelOpenAI} from '@/ai/openai-utils';
 import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
 import MessageCard from '../chat/message-card';
@@ -27,8 +32,6 @@ export type ChatGPTComponentProps = {
   speechToText: (voice: Blob) => Promise<string>;
   // initial messages
   messages: Array<MessageModel>;
-  // update message callback function
-  setMessages: (messages: MessageModel[]) => void;
   className?: string;
 };
 
@@ -37,13 +40,13 @@ export const ChatGPTComponent = ({
   initOpenAI,
   processMessage,
   speechToText,
-  messages,
-  setMessages
+  messages
 }: ChatGPTComponentProps) => {
   // const intl = useIntl();
   const dispatch = useDispatch();
 
   const [isTyping, setIsTyping] = useState(false);
+
   // if in dashboard mode, the message should be draggable
   const isMessageDraggable = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
@@ -58,7 +61,7 @@ export const ChatGPTComponent = ({
   // handle send message
   const handleSend = useCallback(
     async (message: string) => {
-      // display input message in dialog
+      // add user input message
       const newMessage: MessageModel = {
         message,
         direction: 'outgoing',
@@ -67,18 +70,20 @@ export const ChatGPTComponent = ({
       };
 
       const newMessages: Array<MessageModel> = [...messages, newMessage];
-      setMessages(newMessages);
+      dispatch(setMessages(newMessages));
       setIsTyping(true);
 
-      // add an empty return message to show typing indicator
-      setMessages([
-        ...newMessages,
-        {message: '', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
-      ]);
+      // add an empty return message to show typing indicator for chatbot
+      dispatch(
+        setMessages([
+          ...newMessages,
+          {message: '', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
+        ])
+      );
 
       let screenshotImage: string | undefined = undefined;
 
-      // prepare image message
+      // prepare image message if screenCaptured is set
       if (screenCaptured && screenCaptured.length > 0) {
         // get screenshot image from localStorage
         screenshotImage = screenCaptured || undefined;
@@ -86,18 +91,20 @@ export const ChatGPTComponent = ({
         dispatch(setScreenCaptured(''));
       }
 
-      // process input message to chatgpt
+      // send user message to chatbot
       await processMessage(
         message,
         (deltaMessage: string, customMessage?: MessageModel, isCompleted?: boolean) => {
           if (deltaMessage.length > 0) {
             setIsTyping(false);
           }
-          setMessages([
-            ...newMessages,
-            {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
-            ...(customMessage ? [customMessage] : [])
-          ]);
+          dispatch(
+            setMessages([
+              ...newMessages,
+              {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
+              ...(customMessage ? [customMessage] : [])
+            ])
+          );
           if (isCompleted) {
             localStorage.removeItem('screenshot');
           }
@@ -110,7 +117,7 @@ export const ChatGPTComponent = ({
         newMessages.pop();
       }
     },
-    [dispatch, messages, processMessage, setMessages, screenCaptured]
+    [dispatch, messages, processMessage, screenCaptured]
   );
 
   // initialize OpenAI client
@@ -173,15 +180,17 @@ export const ChatGPTComponent = ({
     // calll to stop openai runs
     cancelOpenAI();
     // set status of last message to failed
-    setMessages([
-      ...messages.slice(0, messages.length - 1),
-      {
-        message: messages[messages.length - 1].message,
-        direction: 'incoming',
-        sender: 'Error',
-        position: 'normal'
-      }
-    ]);
+    dispatch(
+      setMessages([
+        ...messages.slice(0, messages.length - 1),
+        {
+          message: messages[messages.length - 1].message,
+          direction: 'incoming',
+          sender: 'Error',
+          position: 'normal'
+        }
+      ])
+    );
   };
 
   // handle report question
@@ -212,7 +221,7 @@ export const ChatGPTComponent = ({
                 avatar={
                   message.direction === 'incoming'
                     ? '/img/geoda-ai-chat.png'
-                    : 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/avatar_ai.png'
+                    : 'https://images.unsplash.com/broken'
                 }
                 currentAttempt={i === 1 ? 2 : 1}
                 message={message.message}

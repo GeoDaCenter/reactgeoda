@@ -1,58 +1,93 @@
-import {DataContainerInterface} from '@kepler.gl/utils';
-import {linearRegression, printLinearRegressionResult} from 'geoda-wasm';
-
 import {RegressionDataProps} from '@/reducers/regression-reducer';
-import {getColumnData} from '@/utils/data-utils';
+import {findKeplerDatasetByVariableName} from '@/utils/data-utils';
 import {WeightsProps} from '@/reducers/weights-reducer';
+import {VisState} from '@kepler.gl/schemas';
+import {CHAT_DATASET_NOT_FOUND} from '@/constants';
+import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {runRegression} from '@/utils/regression-utils';
+import {printRegressionResult} from '@/components/spreg/spreg-report';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 
-type LinearRegressionCallbackFuncProps = Pick<
-  RegressionDataProps,
-  'dependentVariable' | 'independentVariables'
-> & {weightsId: string};
+type RegressionResult = {
+  dependentVariable: string;
+  independentVariables: string[];
+  weights: string;
+  report: string;
+  modelType?: string;
+};
 
-export async function linearRegressionCallbackFunc(
-  {dependentVariable, independentVariables, weightsId}: LinearRegressionCallbackFuncProps,
+type RegressionData = RegressionDataProps;
+
+export type RegressionCallbackOutput = CustomFunctionOutputProps<
+  RegressionResult,
+  RegressionData
+> & {
+  type: 'regression';
+};
+
+type SpatialRegressionCallbackFuncProps = {
+  dependentVariable: string;
+  independentVariables: string[];
+  weightsId: string;
+  modelType?: string;
+  datasetName?: string;
+  report?: string;
+};
+
+export async function spatialRegressionCallbackFunc(
+  functionName: string,
   {
-    tableName,
-    dataContainer,
-    weights
-  }: {tableName: string; dataContainer: DataContainerInterface; weights: WeightsProps[]}
-) {
-  // get data for dependent variable
-  const dependentVariableData = getColumnData(dependentVariable, dataContainer);
-  // get data for independent variables
-  const independentVariablesData = independentVariables.map(variable =>
-    getColumnData(variable, dataContainer)
+    dependentVariable,
+    independentVariables,
+    weightsId,
+    modelType,
+    datasetName
+  }: SpatialRegressionCallbackFuncProps,
+  {visState, weights}: {visState: VisState; weights: WeightsProps[]}
+): Promise<RegressionCallbackOutput | ErrorOutput> {
+  // get dataset using dataset name from visState
+  const keplerDataset = findKeplerDatasetByVariableName(
+    datasetName,
+    dependentVariable,
+    visState.datasets
   );
-  // get weights data
-  const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === weightsId)?.weights;
+  if (!keplerDataset) {
+    return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
+  }
 
-  const regression = await linearRegression({
-    x: independentVariablesData,
-    y: dependentVariableData,
-    xNames: independentVariables,
-    yName: dependentVariable,
-    weights: selectedWeightData,
-    ...(selectedWeightData ? {weightsId} : {}),
-    datasetName: tableName
+  if (!weights || weights.length === 0 || !datasetName) {
+    return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
+  }
+
+  const regression = await runRegression({
+    keplerDataset,
+    model: modelType || 'classic',
+    xVariables: independentVariables,
+    yVariable: dependentVariable,
+    weights,
+    weightsId
   });
 
-  const regressionReport = printLinearRegressionResult(regression);
+  const report = regression.result;
+  const regressionReport = printRegressionResult(report);
 
   return {
-    type: 'linearRegression',
-    name: 'Linear Regression',
+    type: 'regression',
+    name: functionName,
     result: {
       dependentVariable,
       independentVariables,
       weights: weightsId,
-      result: regressionReport
+      modelType: modelType,
+      report: regressionReport
     },
     data: {
+      datasetName: keplerDataset.label,
       dependentVariable,
       independentVariables,
       weights: weightsId,
-      result: regression
+      modelType: modelType,
+      result: report
     }
   };
 }

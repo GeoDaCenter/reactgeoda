@@ -4,7 +4,7 @@ import {findKeplerDatasetByVariableName, getColumnDataFromKeplerDataset} from '@
 import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
 import {KeplerGlState} from '@kepler.gl/reducers';
 
-export type ScatterplotOutput = {
+export type ScatterCallbackOutput = {
   type: 'scatter';
   name: string;
   result: {
@@ -24,14 +24,15 @@ type ScatterCallbackProps = {
 };
 
 export function scatterCallback(
+  functionName: string,
   {variableX, variableY, datasetName}: ScatterCallbackProps,
   {visState}: {visState: KeplerGlState['visState']}
-): ScatterplotOutput | ErrorOutput {
+): ScatterCallbackOutput | ErrorOutput {
   console.log('scatterCallback', variableX, variableY, datasetName);
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(datasetName, variableX, visState.datasets);
   if (!keplerDataset) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   const columnDataX = getColumnDataFromKeplerDataset(variableX, keplerDataset);
@@ -39,7 +40,7 @@ export function scatterCallback(
 
   // Check if both variables' data are successfully accessed
   if (!columnDataX || columnDataX.length === 0 || !columnDataY || columnDataY.length === 0) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   return {

@@ -2,24 +2,34 @@ import {Button} from '@nextui-org/react';
 import {useState} from 'react';
 
 import {addPlot} from '@/actions/plot-actions';
-import {CustomMessagePayload} from './custom-messages';
 import {HeartIcon} from '../icons/heart';
-import {BoxplotOutput} from '@/ai/assistant/callbacks/callback-box';
+import {BoxPlotCallbackOutput} from '@/ai/assistant/callbacks/callback-box';
 import {BoxPlot} from '../plots/box-plot';
 import {useDispatch, useSelector} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {GeoDaState} from '@/store';
 import {BoxPlotStateProps} from '@/reducers/plot-reducer';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+export function isCustomBoxPlotOutput(
+  props: CustomFunctionOutputProps<unknown, unknown>
+): props is BoxPlotCallbackOutput {
+  return props.type === 'boxplot';
+}
 
 /**
  * Custom BoxPlot Message
  */
-export const CustomBoxplotMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomBoxplotMessage = ({
+  functionOutput
+}: {
+  functionOutput: BoxPlotCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
-  const {output} = props;
 
-  const {id, datasetId, variables, boundIQR} = output.result as BoxplotOutput['result'];
-  const boxplot = 'data' in output ? (output.data as BoxplotOutput['data']) : null;
+  const {id, datasetId, variables, boundIQR} = functionOutput.result;
+  const boxplot = functionOutput.data;
 
   // get plot from redux store
   const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));

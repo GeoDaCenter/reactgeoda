@@ -7,6 +7,8 @@ export type RegressionDataProps = {
   weights?: string;
   dependentVariableData?: number[];
   independentVariablesData?: number[][];
+  modelType?: string;
+  datasetName?: string;
   result: LinearRegressionResult | SpatialLagResult | SpatialErrorResult | null;
 };
 

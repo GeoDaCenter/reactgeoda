@@ -1,8 +1,8 @@
-import {RegressionDataProps} from '@/actions/regression-actions';
 import KeplerTable from '@kepler.gl/table';
 import {linearRegression, spatialLagRegression, spatialError} from 'geoda-wasm';
 import {getColumnDataFromKeplerDataset} from './data-utils';
-import {WeightsProps} from '@/actions';
+import {WeightsProps} from '@/reducers/weights-reducer';
+import {RegressionDataProps} from '@/reducers/regression-reducer';
 
 export type RunRegressionProps = {
   keplerDataset: KeplerTable;
