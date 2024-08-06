@@ -9,9 +9,9 @@ import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {CustomCreateButton} from '../common/custom-create-button';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 import {selectKeplerDataset} from '@/store/selectors';
 import {KeplerMapContainer} from '../common/kepler-map-container';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomLisaOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>

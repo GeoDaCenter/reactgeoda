@@ -9,7 +9,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {GeoDaState} from '@/store';
 import {BoxPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomBoxPlotOutput(
   props: CustomFunctionOutputProps<unknown, unknown>

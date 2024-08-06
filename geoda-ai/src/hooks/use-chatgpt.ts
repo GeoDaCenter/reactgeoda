@@ -1,13 +1,7 @@
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import {MessageModel, MessagePayload} from '@chatscope/chat-ui-kit-react';
 import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
-import {
-  CustomFunctionContext,
-  CustomFunctionOutputProps,
-  CustomFunctions,
-  initOpenAI,
-  processMessage,
-  translateVoiceToText
-} from '@/ai/openai-utils';
+import {initOpenAI, processMessage, translateVoiceToText} from '@/ai/openai-utils';
+import {CustomFunctionContext, CustomFunctionOutputProps, CustomFunctions} from '@/ai/types';
 
 /**
  * Create a message from custom function call
@@ -34,7 +28,6 @@ function createMessageFromCustomFunctionCall({
     output
   };
 
-  // get values from enum CustomFunctionNames
   const allFunctions = Object.keys(CUSTOM_FUNCTIONS);
   // remove 'summarizeData' from allFunctions
   const functionsWithCustomMessage = allFunctions.filter(funcName => funcName !== 'summarizeData');
@@ -72,7 +65,7 @@ export function useChatGPT({
    */
   async function sendMessage(
     textMessage: string,
-    streamMessage: (delta: string, customMessage?: MessageModel) => void,
+    streamMessage: (delta: string, customMessage?: MessagePayload) => void,
     imageMessage?: string
   ) {
     await processMessage({

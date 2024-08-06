@@ -7,7 +7,7 @@ import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinateStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomParallelCoordinateOutput(
   props: CustomFunctionOutputProps<unknown, unknown>

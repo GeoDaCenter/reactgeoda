@@ -25,7 +25,7 @@ export type HistogramCallbackOutput = {
   data: HistogramDataProps[];
 };
 
-type HistogramCallbackProps = {
+export type HistogramCallbackProps = {
   k: number;
   variableName: string;
   datasetName?: string;

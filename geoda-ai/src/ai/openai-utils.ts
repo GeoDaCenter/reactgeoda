@@ -1,38 +1,14 @@
 import OpenAI from 'openai';
-import {ReactNode} from 'react';
 import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from './assistant/geoda-assistant';
 import {isCustomMessagePayload, isValidCustomMessage} from '@/components/chatgpt/custom-messages';
-
-export interface MessageImageContentProps {
-  src?: string;
-  width?: string | number;
-  height?: string | number;
-  alt?: string;
-}
-export type MessageDirection = 'incoming' | 'outgoing' | 0 | 1;
-export type MessageType = 'html' | 'text' | 'image' | 'custom';
-export type MessagePayload = string | Record<string, any> | MessageImageContentProps | ReactNode;
-
-/**
- * Type of MessageModel
- *
- * @param message The message to be sent
- * @param sentTime The time the message was sent
- * @param sender The sender of the message
- * @param direction The direction of the message
- * @param position The position of the message
- * @param type The type of the message
- * @param payload The payload of the message, can be string, object, image or custom
- */
-export interface MessageModel {
-  message?: string;
-  sentTime?: string;
-  sender?: string;
-  direction: MessageDirection;
-  position: 'single' | 'first' | 'normal' | 'last' | 0 | 1 | 2 | 3;
-  type?: MessageType;
-  payload?: MessagePayload;
-}
+import {
+  CustomFunctionOutputProps,
+  CustomFunctions,
+  CustomMessageCallback,
+  MessageModel,
+  ProcessMessageProps,
+  StreamMessageCallback
+} from './types';
 
 /** declare global openai variable */
 let openai: OpenAI | null = null;
@@ -191,86 +167,6 @@ export async function setAdditionalInstructions(message: string) {
     console.log('additional instructions are set');
   }
 }
-
-/**
- * Type of Custom function output props
- */
-export type CustomFunctionOutputProps<R, D> = {
-  /** the type of the function, e.g. plot, map, table etc. */
-  type: string;
-  // the name of the function, e.g. createMap, createPlot etc.
-  name: string;
-  /* the result of the function run, it will be sent back to LLM to parse as response to users */
-  result: R;
-  /* the data of the function run, it will be used to create the custom message e.g. plot, map etc. */
-  data?: D;
-};
-
-/**
- * Type of Custom functions, a dictionary of functions e.g. createMap, createPlot etc.
- * key is the name of the function, value is the function itself.
- *
- * The function should return a CustomFunctionOutputProps object, or a Promise of CustomFunctionOutputProps object if it is a async function.
- */
-export type CustomFunctions = {
-  [key: string]: (
-    ...args: any[]
-  ) =>
-    | CustomFunctionOutputProps<unknown, unknown>
-    | Promise<CustomFunctionOutputProps<unknown, unknown>>;
-};
-
-/**
- * Type of CustomFunctionCall
- *
- */
-export type CustomFunctionCall = {
-  /** the name of the function */
-  functionName: string;
-  /** the arguments of the function */
-  functionArgs: {};
-  /** the output of function execution */
-  output: CustomFunctionOutputProps<unknown, unknown>;
-};
-
-/**
- * Type of CustomMessageCallback
- *
- * @param customFunctionCall The custom function call
- */
-export type CustomMessageCallback = (customFunctionCall: CustomFunctionCall) => MessageModel | null;
-
-/**
- * Type of StreamMessageCallback
- *
- * @param deltaMessage The delta message from the assistant
- * @param customMessage The custom message from the custom function
- * @param isCompleted The flag to indicate if the message is completed
- */
-export type StreamMessageCallback = (
-  deltaMessage: string,
-  customMessage?: MessageModel,
-  isCompleted?: boolean
-) => void;
-
-/**
- * Context objects for custom functions
- */
-export type CustomFunctionContext = {
-  [key: string]: any;
-};
-
-/**
- * Type of ProcessMessageProps
- */
-export type ProcessMessageProps = {
-  textMessage: string;
-  imageMessage?: string;
-  customFunctions: CustomFunctions;
-  customFunctionContext: CustomFunctionContext;
-  customMessageCallback: CustomMessageCallback;
-  streamMessageCallback: StreamMessageCallback;
-};
 
 /**
  * Translate voice to text using whisper-1 model
@@ -560,13 +456,13 @@ function submitToolOutputs({
       if (!isFunctionRunError) {
         // append a custom response e.g. plot, map etc. if needed
         if (customReponseMsg && customReponseMsg.payload) {
-          if (lastMessage.length === 0) lastMessage = '\n';
+          lastMessage += '\n\n';
           // check if custom message is valid before rendering
           if (
             isCustomMessagePayload(customReponseMsg.payload) &&
             isValidCustomMessage(customReponseMsg.payload)
           ) {
-            streamMessageCallback(lastMessage, customReponseMsg);
+            streamMessageCallback(lastMessage, customReponseMsg.payload);
           }
         }
       } else {

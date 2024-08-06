@@ -8,7 +8,7 @@ import {PreviewDataTable} from '../table/preview-data-table';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {selectKeplerDataset} from '@/store/selectors';
 import {addTableColumn} from '@kepler.gl/actions';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomCreateVariableOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>

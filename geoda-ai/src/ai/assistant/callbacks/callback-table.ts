@@ -2,8 +2,8 @@ import {DUCKDB_AGGREGATE_FUNCTIONS, DUCKDB_STATS_FUNCTIONS} from '@/components/t
 import {generateNormalDistributionData, generateUniformRandomData} from '@/utils/table-utils';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {CHAT_DATASET_NOT_FOUND} from '@/constants';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 import {VisState} from '@kepler.gl/schemas';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 type CreateVariableResult = {
   newColumn: string;

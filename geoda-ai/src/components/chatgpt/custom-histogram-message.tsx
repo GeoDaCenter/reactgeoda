@@ -7,7 +7,7 @@ import {HistogramPlot} from '../plots/histogram-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {HistogramPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomHistogramOutput(
   props: CustomFunctionOutputProps<unknown, unknown>

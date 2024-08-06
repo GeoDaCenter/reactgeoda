@@ -101,8 +101,13 @@ export const ChatGPTComponent = ({
           dispatch(
             setMessages([
               ...newMessages,
-              {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
-              ...(customMessage ? [customMessage] : [])
+              {
+                message: deltaMessage,
+                direction: 'incoming',
+                sender: 'ChatGPT',
+                position: 'normal',
+                payload: customMessage
+              }
             ])
           );
           if (isCompleted) {

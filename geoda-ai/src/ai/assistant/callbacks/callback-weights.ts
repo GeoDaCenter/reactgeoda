@@ -14,7 +14,7 @@ import {
   getBinaryGeometryTypeFromLayer
 } from '@/components/spatial-operations/spatial-join-utils';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export type WeightsResult = {
   datasetId: string;

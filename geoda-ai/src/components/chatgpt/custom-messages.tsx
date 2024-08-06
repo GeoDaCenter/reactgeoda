@@ -1,6 +1,5 @@
 import React, {useMemo} from 'react';
 
-import {CustomFunctionNames} from '@/ai/assistant/custom-functions';
 import {CustomWeightsMessage, isCustomWeightsOutput} from './custom-weights-message';
 import {CustomLocalMoranMessage, isCustomLisaOutput} from './custom-lisa-message';
 import {CustomHistogramMessage, isCustomHistogramOutput} from './custom-histogram-message';
@@ -18,12 +17,11 @@ import {
   CustomCreateVariableMessage,
   isCustomCreateVariableOutput
 } from './custom-create-variable-message';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export type CustomMessagePayload = {
   type: string;
-  // one of the CustomFunctionNames
-  functionName: CustomFunctionNames;
+  functionName: string;
   functionArgs: Record<string, any>;
   output: CustomFunctionOutputProps<unknown, unknown>;
 };

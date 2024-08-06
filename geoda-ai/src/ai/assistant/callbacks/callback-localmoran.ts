@@ -12,8 +12,8 @@ import {
   getColumnDataFromKeplerDataset,
   isNumberArray
 } from '@/utils/data-utils';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
 import {VisState} from '@kepler.gl/schemas';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export type LisaResult = {
   datasetId: string;

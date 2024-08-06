@@ -6,7 +6,7 @@ import {CHAT_DATASET_NOT_FOUND} from '@/constants';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {runRegression} from '@/utils/regression-utils';
 import {printRegressionResult} from '@/components/spreg/spreg-report';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 type RegressionResult = {
   dependentVariable: string;
