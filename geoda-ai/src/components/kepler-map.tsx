@@ -13,6 +13,11 @@ import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
 import {setKeplerTableModal} from '@/actions';
 
+/**
+ * The table control button for the top right corner of the kepler.gl map
+ * @param props Function to set the kepler table modal
+ * @returns The table control button
+ */
 function TableControl(props: {setKeplerTableModal: (flag: boolean) => void}) {
   return (
     <div className="ml-[10px] mr-[12px] mt-[20px]">
@@ -30,6 +35,11 @@ function TableControl(props: {setKeplerTableModal: (flag: boolean) => void}) {
 }
 
 CustomMapControlFactory.deps = MapControlFactory.deps;
+/**
+ * The custom map control factory that is used to replace the default map control MapControlFactory
+ * @param deps The dependencies for the custom map control factory
+ * @returns The custom map control
+ */
 function CustomMapControlFactory(...deps: any[]) {
   // @ts-ignore FIX type
   const MapControl = MapControlFactory(...deps);
@@ -44,8 +54,7 @@ function CustomMapControlFactory(...deps: any[]) {
   return withState([], state => ({...state.keplerGl}), {setKeplerTableModal})(CustomMapControl);
 }
 
-// @ts-ignore Inject custom header into Kepler.gl,
-const KeplerGl = injectComponents([[MapControlFactory, CustomMapControlFactory]]);
+const KeplerGl = injectComponents([[MapControlFactory, CustomMapControlFactory] as never]);
 
 const KeplerMap = () => {
   const {theme} = useNextTheme();

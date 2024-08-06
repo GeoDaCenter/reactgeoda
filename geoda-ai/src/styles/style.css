@@ -69,6 +69,18 @@
 /* show remove dataset icon */
 .remove-dataset {
   opacity: 1 !important;
+  display: none !important;
+}
+/* hide select-geometry */
+.select-geometry {
+  display: none !important;
+}
+/* hide CompareSwitchWrapper */
+.comparison-switch {
+  display: none !important;
+}
+.comparison-type {
+  display: none !important;
 }
 /* remove hover effect on dataset-modal-tab */
 .dataset-modal-tab:hover {
