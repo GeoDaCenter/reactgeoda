@@ -2,22 +2,32 @@ import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {addPlot} from '@/actions/plot-actions';
-import {CustomMessagePayload} from './custom-messages';
-import {HistogramOutput} from '@/ai/assistant/callbacks/callback-histogram';
+import {HistogramCallbackOutput} from '@/ai/assistant/callbacks/callback-histogram';
 import {HistogramPlot} from '../plots/histogram-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {HistogramPlotStateProps} from '@/reducers/plot-reducer';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+export function isCustomHistogramOutput(
+  props: CustomFunctionOutputProps<unknown, unknown>
+): props is HistogramCallbackOutput {
+  return props.type === 'histogram';
+}
 
 /**
  * Custom Histogram Message
  */
-export const CustomHistogramMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomHistogramMessage = ({
+  functionOutput
+}: {
+  functionOutput: HistogramCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
-  const {output} = props;
 
-  const {id, datasetId, numberOfBins, variableName} = output.result as HistogramOutput['result'];
-  const histogram = 'data' in output ? (output.data as HistogramOutput['data']) : null;
+  const {id, datasetId, numberOfBins, variableName} = functionOutput.result;
+  const histogram = functionOutput.data;
 
   const histogramPlotProps: HistogramPlotStateProps = {
     id,

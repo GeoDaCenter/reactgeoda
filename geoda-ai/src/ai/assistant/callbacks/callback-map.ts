@@ -13,6 +13,22 @@ import {
 } from '@/constants';
 import {createMapBreaks} from '@/utils/mapping-functions';
 import {VisState} from '@kepler.gl/schemas';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+// LLM will return functionName and functionArgs
+// CustomFunctions {functionName: callbackFunction}
+// CustomFunctionContext e.g. visState
+// CustomFunctionOutput, includes `result` for LLM  and `data` for custom UI
+
+type MapResult = {
+  datasetId: string;
+  classificationMethod: string;
+  classificationValues: Array<number | string>;
+};
+
+export type MapCallbackOutput = CustomFunctionOutputProps<MapResult, unknown> & {
+  type: 'mapping';
+};
 
 type CreateMapCallbackProps = {
   method:
@@ -29,18 +45,8 @@ type CreateMapCallbackProps = {
   datasetName?: string;
 };
 
-export type MapCallbackOutput = {
-  type: 'mapping';
-  name: string;
-  /** the result contains the values of breaks or unique values */
-  result: {
-    datasetId: string;
-    classificationMethod: string;
-    classificationValues: Array<number | string>;
-  };
-};
-
 export async function createMapCallback(
+  functionName: string,
   {method, variableName, k = 5, hinge, datasetName}: CreateMapCallbackProps,
   {visState}: {visState: VisState}
 ): Promise<MapCallbackOutput | ErrorOutput> {
@@ -51,19 +57,20 @@ export async function createMapCallback(
     visState.datasets
   );
   if (!keplerDataset) {
-    return createErrorResult(CHAT_DATASET_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
   }
 
   if (!checkIfFieldNameExists(keplerDataset.label, variableName, visState)) {
-    return createErrorResult(
-      `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
-    );
+    return createErrorResult({
+      name: functionName,
+      result: `${CHAT_FIELD_NAME_NOT_FOUND} For example, create a quantile map using variable HR60 and 5 quantiles.`
+    });
   }
 
   const datasetId = keplerDataset.id;
   const columnData = getColumnDataFromKeplerDataset(variableName, keplerDataset);
   if (!columnData || columnData.length === 0) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   let classificationValues: Array<number | string> | null = null;
@@ -74,15 +81,17 @@ export async function createMapCallback(
     classificationValues = uniqueValues;
     // check if the number of unique values is more than 100
     if (uniqueValues.length > 100) {
-      return createErrorResult(
-        'Error: unique values are more than 100. Please use another method for map creation.'
-      );
+      return createErrorResult({
+        name: functionName,
+        result:
+          'Error: unique values are more than 100. Please use another method for map creation.'
+      });
     }
     // return the result
     if (classificationValues) {
       return {
         type: 'mapping',
-        name: method,
+        name: functionName,
         result: {datasetId, classificationMethod: method, classificationValues}
       };
     }
@@ -90,13 +99,19 @@ export async function createMapCallback(
 
   // for all other map classification methods, column data should be numeric
   if (!isNumberArray(columnData)) {
-    return createErrorResult('Error: column data should be numeric for map creation.');
+    return createErrorResult({
+      name: functionName,
+      result: 'Error: column data should be numeric for map creation.'
+    });
   }
 
   // need the value of k
   if (['quantile', 'natural breaks', 'equal interval'].includes(method)) {
     if (!k || k < 2) {
-      return createErrorResult(`Error: k value should be greater than 1 for ${method} map.`);
+      return createErrorResult({
+        name: functionName,
+        result: `Error: k value should be greater than 1 for ${method} map.`
+      });
     }
     if (method === 'quantile') {
       classificationValues = await createMapBreaks({
@@ -140,7 +155,7 @@ export async function createMapCallback(
   if (classificationValues) {
     return {
       type: 'mapping',
-      name: method,
+      name: functionName,
       result: {
         classificationValues,
         classificationMethod: method,
@@ -149,5 +164,8 @@ export async function createMapCallback(
     };
   }
 
-  return createErrorResult('Error: classification method for map creation is not supported');
+  return createErrorResult({
+    name: functionName,
+    result: 'Error: classification method for map creation is not supported'
+  });
 }

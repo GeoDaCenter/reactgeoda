@@ -11,7 +11,7 @@ import {VisState} from '@kepler.gl/schemas';
  * It also contains the histogram data that will be used to create histogram plot if custom message is enabled.
  *
  */
-export type HistogramOutput = {
+export type HistogramCallbackOutput = {
   type: 'histogram';
   name: string;
   result: {
@@ -32,9 +32,10 @@ type HistogramCallbackProps = {
 };
 
 export function histogramCallback(
+  functionName: string,
   {k, variableName, datasetName}: HistogramCallbackProps,
   {visState}: {visState: VisState}
-): HistogramOutput | ErrorOutput {
+): HistogramCallbackOutput | ErrorOutput {
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(
     datasetName,
@@ -42,7 +43,7 @@ export function histogramCallback(
     visState.datasets
   );
   if (!keplerDataset) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   // get column data
@@ -50,7 +51,7 @@ export function histogramCallback(
 
   // check column data is empty
   if (!columnData || columnData.length === 0) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   // call histogram function

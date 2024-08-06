@@ -5,7 +5,7 @@ import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
 import {generateRandomId} from '@/utils/ui-utils';
 import {KeplerGlState} from '@kepler.gl/reducers';
 
-export type BoxplotOutput = {
+export type BoxPlotCallbackOutput = {
   type: 'boxplot';
   name: string;
   result: {
@@ -25,16 +25,17 @@ export type BoxplotFunctionProps = {
 };
 
 export function boxplotCallback(
+  functionName: string,
   {variableNames, boundIQR, datasetName}: BoxplotFunctionProps,
   {visState}: {visState: KeplerGlState['visState']}
-): BoxplotOutput | ErrorOutput {
+): BoxPlotCallbackOutput | ErrorOutput {
   const keplerDataset = findKeplerDatasetByVariableName(
     datasetName,
     variableNames[0],
     visState.datasets
   );
   if (!keplerDataset) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   // get data from variable
@@ -49,7 +50,7 @@ export function boxplotCallback(
 
   // check column data is empty
   if (!data || Object.keys(data).length === 0) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   // call boxplot function

@@ -1,4 +1,4 @@
-import {RegressionProps} from '@/actions/regression-actions';
+import {RegressionProps} from '@/reducers/regression-reducer';
 import {Card, CardBody, CardHeader, ScrollShadow} from '@nextui-org/react';
 import {
   printLinearRegressionResultUsingMarkdown,
@@ -15,21 +15,36 @@ import remarkGfm from 'remark-gfm';
 const formatEquation = (y: string, x: string[]) => `${y} ~ ${x.join(' + ')}`;
 
 // check if the type of regressionReport is LinearRegressionResult
-function isLinearRegressionResult(
+export function isLinearRegressionResult(
   regressionReport: any
 ): regressionReport is LinearRegressionResult {
   return regressionReport.type === 'linearRegression';
 }
 
 // check if the type of regressionReport is SpatialLagResult
-function isSpatialLagResult(regressionReport: any): regressionReport is SpatialLagResult {
+export function isSpatialLagResult(regressionReport: any): regressionReport is SpatialLagResult {
   return regressionReport.type === 'spatialLag';
 }
 
 // check if the type of regressionReport is SpatialErrorResult
-function isSpatialErrorResult(regressionReport: any): regressionReport is SpatialErrorResult {
+export function isSpatialErrorResult(
+  regressionReport: any
+): regressionReport is SpatialErrorResult {
   return regressionReport.type === 'spatialError';
 }
+
+export const printRegressionResult = (
+  report: LinearRegressionResult | SpatialLagResult | SpatialErrorResult | null
+) => {
+  if (isLinearRegressionResult(report)) {
+    return printLinearRegressionResultUsingMarkdown(report);
+  } else if (isSpatialLagResult(report)) {
+    return printSpatialLagResultUsingMarkdown(report);
+  } else if (isSpatialErrorResult(report)) {
+    return printSpatialErrorResultUsingMarkdown(report);
+  }
+  return 'Error: Unknown regression type.';
+};
 
 export const RegressionReport = ({
   regression,
@@ -40,19 +55,6 @@ export const RegressionReport = ({
   height?: number;
   width?: number;
 }) => {
-  const printRegressionResult = (
-    report: LinearRegressionResult | SpatialLagResult | SpatialErrorResult
-  ) => {
-    if (isLinearRegressionResult(report)) {
-      return printLinearRegressionResultUsingMarkdown(report);
-    } else if (isSpatialLagResult(report)) {
-      return printSpatialLagResultUsingMarkdown(report);
-    } else if (isSpatialErrorResult(report)) {
-      return printSpatialErrorResultUsingMarkdown(report);
-    }
-    return 'Error: Unknown regression type.';
-  };
-
   const regReport = regression.data.result;
   return regReport ? (
     <Card key={regression.id} className="p-0">

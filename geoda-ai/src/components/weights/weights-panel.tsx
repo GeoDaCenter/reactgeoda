@@ -8,7 +8,6 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {WeightsManagementComponent} from './weights-management';
 import {WeightsCreationComponent} from './weights-creation';
 import {getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
-import {WeightsProps} from '@/actions/weights-actions';
 import {
   selectDefaultKeplerDataset,
   selectKeplerDataset,
@@ -16,6 +15,7 @@ import {
   selectWeightsByDataId
 } from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 const NO_MAP_LOADED_MESSAGE =
   'Please load a map first before creating and managing spatial weights.';

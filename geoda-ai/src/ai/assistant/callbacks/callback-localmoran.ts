@@ -1,30 +1,38 @@
-import {localMoran} from 'geoda-wasm';
+import {localMoran, LocalMoranResult} from 'geoda-wasm';
 
 import {WeightsProps} from '@/reducers/weights-reducer';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
-import {CHAT_FIELD_NAME_NOT_FOUND, CHAT_WEIGHTS_NOT_FOUND} from '@/constants';
 import {
-  checkIfFieldNameExists,
-  getColumnDataFromKeplerLayer,
+  CHAT_COLUMN_DATA_NOT_FOUND,
+  CHAT_DATASET_NOT_FOUND,
+  CHAT_WEIGHTS_NOT_FOUND
+} from '@/constants';
+import {
+  findKeplerDatasetByVariableName,
+  getColumnDataFromKeplerDataset,
   isNumberArray
 } from '@/utils/data-utils';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {VisState} from '@kepler.gl/schemas';
 
-export type UniLocalMoranOutput = {
+export type LisaResult = {
+  datasetId: string;
+  significanceThreshold: number;
+  permutations: number;
+  variableName: string;
+  weightsID: string;
+  numberOfHighHighClusters: number;
+  numberOfLowLowClusters: number;
+  numberOfHighLowClusters: number;
+  numberOfLowHighClusters: number;
+  numberOfIsolatedClusters: number;
+  globalMoranI: number;
+};
+
+type LisaData = LocalMoranResult;
+
+export type LisaCallbackOutput = CustomFunctionOutputProps<LisaResult, LisaData> & {
   type: 'lisa';
-  name: string;
-  result: {
-    significanceThreshold: number;
-    permutations: number;
-    variableName: string;
-    weightsID: string;
-    numberOfHighHighClusters: number;
-    numberOfLowLowClusters: number;
-    numberOfHighLowClusters: number;
-    numberOfLowHighClusters: number;
-    numberOfIsolatedClusters: number;
-    globalMoranI: number;
-  };
-  data: any;
 };
 
 type UniLocalMoranCallbackProps = {
@@ -32,51 +40,61 @@ type UniLocalMoranCallbackProps = {
   weightsID: string;
   permutations?: number;
   significanceThreshold?: number;
+  datasetName?: string;
 };
 
 export async function univariateLocalMoranCallback(
+  functionName: string,
   {
+    datasetName,
     variableName,
     weightsID,
     permutations = 999,
     significanceThreshold = 0.05
   }: UniLocalMoranCallbackProps,
-  {tableName, visState, weights}: {tableName: string; visState: any; weights: WeightsProps[]}
-): Promise<UniLocalMoranOutput | ErrorOutput> {
+  {visState, weights}: {visState: VisState; weights: WeightsProps[]}
+): Promise<LisaCallbackOutput | ErrorOutput> {
+  // get dataset using dataset name from visState
+  const keplerDataset = findKeplerDatasetByVariableName(
+    datasetName,
+    variableName,
+    visState.datasets
+  );
+  if (!keplerDataset) {
+    return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
+  }
+
   // get weights using weightsID
   let selectWeight = weights.find((w: WeightsProps) => w.weightsMeta.id === weightsID);
   if (weights.length === 0) {
-    return createErrorResult(CHAT_WEIGHTS_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_WEIGHTS_NOT_FOUND});
   }
   if (!selectWeight) {
     // using last weights if weightsID is not found
     selectWeight = weights[weights.length - 1];
   }
 
-  // get table name from geodaState
-  if (!tableName) {
-    return createErrorResult('Error: table name is empty');
-  }
-  if (!checkIfFieldNameExists(tableName, variableName, visState)) {
-    return createErrorResult(
-      `${CHAT_FIELD_NAME_NOT_FOUND} For example, run local moran analysis using variable HR60 and KNN weights with k=4.`
-    );
-  }
-  // get column data
-  const columnData = await getColumnDataFromKeplerLayer(tableName, variableName, visState.datasets);
+  const datasetId = keplerDataset.id;
+  const columnData = getColumnDataFromKeplerDataset(variableName, keplerDataset);
   if (!columnData || columnData.length === 0) {
-    return createErrorResult('Error: column data is empty');
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
+
   // check the type of columnData is an array of numbers
   if (!isNumberArray(columnData)) {
-    return createErrorResult('Error: column data is not an array of numbers');
+    return createErrorResult({
+      name: functionName,
+      result: 'Error: column data is not an array of numbers'
+    });
   }
+
   // run LISA analysis
   const lm = await localMoran({
     data: columnData,
     neighbors: selectWeight?.weights,
     permutation: permutations
   });
+
   // get cluster values using significant cutoff
   const clusters = lm.pValues.map((p: number, i) => {
     if (p > significanceThreshold) {
@@ -87,8 +105,9 @@ export async function univariateLocalMoranCallback(
 
   return {
     type: 'lisa',
-    name: 'Local Moran',
+    name: functionName,
     result: {
+      datasetId,
       significanceThreshold,
       permutations,
       variableName,

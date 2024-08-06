@@ -9,7 +9,7 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {addDatasetToAI, setIsOpenAIKeyChecked, setMessages, setPropertyPanel} from '@/actions';
+import {addDatasetToAI, setIsOpenAIKeyChecked, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {datasetsSelector} from '@/store/selectors';
@@ -105,7 +105,6 @@ const ChatGPTPanel = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasets]);
-
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel

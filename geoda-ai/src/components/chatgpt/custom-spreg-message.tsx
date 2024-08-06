@@ -1,20 +1,31 @@
 import {useState} from 'react';
 import {useDispatch} from 'react-redux';
 
-import {addRegression, RegressionDataProps} from '@/actions/regression-actions';
+import {addRegression} from '@/actions/regression-actions';
 import {generateRandomId} from '@/utils/ui-utils';
-import {CustomMessagePayload} from './custom-messages';
 import {CustomCreateButton} from '../common/custom-create-button';
+import {RegressionCallbackOutput} from '@/ai/assistant/callbacks/callback-regression';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+export function isCustomRegressionOutput(
+  functionOutput: CustomFunctionOutputProps<unknown, unknown>
+): functionOutput is RegressionCallbackOutput {
+  return functionOutput.type === 'regression';
+}
 
 /**
  * Custom Spreg Message
  */
-export const CustomSpregMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomSpregMessage = ({
+  functionOutput
+}: {
+  functionOutput: RegressionCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const [hide, setHide] = useState(false);
-  const {output} = props;
   const dispatch = useDispatch();
 
-  const regResult = 'data' in output && (output.data as RegressionDataProps);
+  const regResult = functionOutput.data;
 
   // handle click event
   const onClick = () => {

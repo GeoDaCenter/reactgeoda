@@ -5,7 +5,7 @@ import * as duckdb from '@duckdb/duckdb-wasm';
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
 // @ts-expect-error
 import duckdb_wasm_next from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm';
-import {DatasetProps} from '@/actions';
+import {DatasetProps} from '@/reducers/file-reducer';
 
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {

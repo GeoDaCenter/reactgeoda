@@ -4,9 +4,9 @@ import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {findKeplerDatasetByVariableName, getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {CHAT_COLUMN_DATA_NOT_FOUND, CHAT_NOT_ENOUGH_COLUMNS} from '@/constants';
 import {generateRandomId} from '@/utils/ui-utils';
-import {KeplerGlState} from '@kepler.gl/reducers';
+import {VisState} from '@kepler.gl/schemas';
 
-export type ParallelCoordinateOutput = {
+export type ParallelCoordinateCallbackOutput = {
   type: 'parallel-coordinate';
   name: string;
   result: {
@@ -24,9 +24,10 @@ type ParallelCoordinateCallbackProps = {
 };
 
 export function parallelCoordinateCallback(
+  functionName: string,
   {variableNames, datasetName}: ParallelCoordinateCallbackProps,
-  {visState}: {visState: KeplerGlState['visState']}
-): ParallelCoordinateOutput | ErrorOutput {
+  {visState}: {visState: VisState}
+): ParallelCoordinateCallbackOutput | ErrorOutput {
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(
     datasetName,
@@ -34,7 +35,7 @@ export function parallelCoordinateCallback(
     visState.datasets
   );
   if (!keplerDataset) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   // get data from variable
@@ -49,12 +50,12 @@ export function parallelCoordinateCallback(
 
   // check column data is empty
   if (!data || Object.keys(data).length === 0) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   // check if there are at least 2 columns
   if (Object.keys(data).length === 1) {
-    return createErrorResult(CHAT_NOT_ENOUGH_COLUMNS);
+    return createErrorResult({name: functionName, result: CHAT_NOT_ENOUGH_COLUMNS});
   }
 
   return {

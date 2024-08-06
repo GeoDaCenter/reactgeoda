@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 export const GPT_MODEL = 'gpt-4o-2024-05-13';
 export const GEODA_AI_ASSISTANT_NAME = 'geoda.ai-openai-agent';
-export const GEODA_AI_ASSISTANT_VERSION = '0.0.6';
+export const GEODA_AI_ASSISTANT_VERSION = '0.0.8';
 
 export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   model: GPT_MODEL,
@@ -233,7 +233,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
             datasetName: {
               type: 'string',
               description:
-                'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
+                'The name of the dataset. If not provided, please try to use the first dataset. Otherwise, please prompt the user to provide the dataset name for the new variable.'
             }
           },
           required: ['dataType', 'variableName', 'datasetName']
@@ -280,6 +280,11 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
               description:
                 'This parameter only used in distance based weights creation. It represents the distance threshold used to search nearby neighbors for each geometry. The unit should be either kilometer (KM) or mile.'
             },
+            isMile: {
+              type: 'boolean',
+              description:
+                'This parameter only used in distance based weights creation. It represents whether the distance threshold is in mile or not. The default value is False.'
+            },
             datasetName: {
               type: 'string',
               description:
@@ -302,7 +307,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
             weightsID: {
               type: 'string',
               description:
-                'The weightsID that is mapping to user created spatial weights based on the type and properties when creating the spatial weights. For example, after user created a KNN weights with k=5, the weightsID should be w-nn-5'
+                'The weightsID that is mapping to user created spatial weights based on the dataset name, type and properties when creating the spatial weights. If no weightsID can be found from the metadata of previously created weights, please prompt user to create spatial weights first.'
             },
             variableName: {
               type: 'string',
@@ -331,9 +336,9 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
     {
       type: 'function',
       function: {
-        name: 'linearRegression',
+        name: 'spatialRegression',
         description:
-          'Apply linear regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. If spatial weights is provided, the diagnostics for spatial autocorrelation will be applied.',
+          'Apply spatial regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. If spatial weights is provided, the diagnostics for spatial autocorrelation will be applied. The spatial regression model could be classic, spatial-lag or spatial-error model.',
         parameters: {
           type: 'object',
           properties: {
@@ -356,7 +361,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
             weightsId: {
               type: 'string',
               description:
-                'The id of the specified spatial weights. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.'
+                'The id of the specified spatial weights. For classic model, the optional weightsId is for spatial diagnostics. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.'
             },
             datasetName: {
               type: 'string',
@@ -364,7 +369,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
                 'The name of the dataset. If not provided, please try to find the dataset name that contains the independentVariables and dependentVariable.'
             }
           },
-          required: ['independentVariables', 'dependentVariable', 'datasetName']
+          required: ['independentVariables', 'dependentVariable', 'modelType', 'datasetName']
         }
       }
     }

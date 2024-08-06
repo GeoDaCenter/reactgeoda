@@ -1,42 +1,57 @@
 import {DUCKDB_AGGREGATE_FUNCTIONS, DUCKDB_STATS_FUNCTIONS} from '@/components/table/sql-constant';
 import {generateNormalDistributionData, generateUniformRandomData} from '@/utils/table-utils';
+import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {CHAT_DATASET_NOT_FOUND} from '@/constants';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {VisState} from '@kepler.gl/schemas';
 
-export type CreateVariableCallBackProps = {
+type CreateVariableResult = {
+  newColumn: string;
+  columnType: string;
+  defaultValue?: string;
+  expression?: string;
+};
+
+type CreateVariableData = {
+  datasetName: string;
+  datasetId?: string;
+  numberOfRows?: number;
+  newColumn: string;
+  columnType: string;
+  defaultValue?: string;
+  expression?: string;
+  values: unknown | unknown[];
+};
+
+export type CreateVariableCallbackOutput = CustomFunctionOutputProps<
+  CreateVariableResult,
+  CreateVariableData
+> & {
+  type: 'createVariable';
+  data: CreateVariableData;
+};
+
+type CreateVariableCallBackProps = {
   tableName: string;
   variableName: string;
   dataType: string;
   defaultValue?: string;
   expression?: string;
-};
-
-export type CreateVariableCallBackOutput = {
-  type: 'createVariable';
-  name: string;
-  result: {
-    newColumn: string;
-    columnType: string;
-    defaultValue?: string;
-    expression?: string;
-  };
-  data: {
-    newColumn: string;
-    columnType: string;
-    defaultValue?: string;
-    expression?: string;
-    values: unknown | unknown[];
-  };
+  datasetName?: string;
 };
 
 export async function createVariableCallBack(
-  {variableName, dataType, defaultValue, expression}: CreateVariableCallBackProps,
-  {
-    tableName,
-    queryValues
-  }: {
-    tableName: string;
-    queryValues: (sql: string) => Promise<unknown[]>;
+  functionName: string,
+  {variableName, dataType, defaultValue, expression, datasetName}: CreateVariableCallBackProps,
+  {visState, queryValues}: {visState: VisState; queryValues: (sql: string) => Promise<unknown[]>}
+): Promise<CreateVariableCallbackOutput | ErrorOutput> {
+  if (!datasetName) {
+    return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
   }
-): Promise<CreateVariableCallBackOutput> {
+
+  // get dataset using dataset name from visState
+  const keplerDataset = Object.values(visState.datasets).find(d => d.label === datasetName);
+
   let values;
 
   if (defaultValue) {
@@ -59,9 +74,9 @@ export async function createVariableCallBack(
         .map(func => func.name.replace(/\(.*\)/g, ''))
         .join('|');
       const re = new RegExp(`(${replace})\\(([^)]+)\\)`, 'g');
-      const updatedCode = expression.replace(re, `(select $1($2) from "${tableName}")`);
+      const updatedCode = expression.replace(re, `(select $1($2) from "${datasetName}")`);
       // execute the SQL expression
-      const sql = `SELECT ${updatedCode} FROM "${tableName}";`;
+      const sql = `SELECT ${updatedCode} FROM "${datasetName}";`;
       const result = await queryValues(sql);
       values = Array.from(result);
     }
@@ -69,7 +84,7 @@ export async function createVariableCallBack(
 
   return {
     type: 'createVariable',
-    name: 'Create Cariable',
+    name: functionName,
     result: {
       newColumn: variableName,
       columnType: dataType,
@@ -77,6 +92,9 @@ export async function createVariableCallBack(
       ...(expression ? {expression} : {})
     },
     data: {
+      datasetId: keplerDataset?.id,
+      datasetName,
+      numberOfRows: keplerDataset?.length,
       newColumn: variableName,
       columnType: dataType,
       ...(defaultValue ? {defaultValue} : {}),

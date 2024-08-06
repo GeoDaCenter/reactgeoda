@@ -2,23 +2,31 @@ import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {addPlot} from '@/actions/plot-actions';
-import {CustomMessagePayload} from './custom-messages';
-import {BubbleChartOutput} from '@/ai/assistant/callbacks/callback-bubble';
+import {BubbleChartCallbackOutput} from '@/ai/assistant/callbacks/callback-bubble';
 import {BubbleChart} from '../plots/bubble-chart-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {BubbleChartStateProps} from '@/reducers/plot-reducer';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+export function isCustomBubbleChartOutput(
+  props: CustomFunctionOutputProps<unknown, unknown>
+): props is BubbleChartCallbackOutput {
+  return props.type === 'bubble';
+}
 
 /**
  * Custom Bubble Chart Message
  */
-export const CustomBubbleChartMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomBubbleChartMessage = ({
+  functionOutput
+}: {
+  functionOutput: BubbleChartCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
 
-  const {output} = props;
-
-  const {id, datasetId, variableX, variableY, variableSize, variableColor} =
-    output.result as BubbleChartOutput['result'];
+  const {id, datasetId, variableX, variableY, variableSize, variableColor} = functionOutput.result;
 
   const bubbleChartProps: BubbleChartStateProps = {
     id,

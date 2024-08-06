@@ -4,7 +4,7 @@ import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
 import {generateRandomId} from '@/utils/ui-utils';
 import {KeplerGlState} from '@kepler.gl/reducers';
 
-export type BubbleChartOutput = {
+export type BubbleChartCallbackOutput = {
   type: 'bubble';
   name: string;
   result: {
@@ -27,13 +27,14 @@ type BubbleCallbackProps = {
 };
 
 export function bubbleCallback(
+  functionName: string,
   {variableX, variableY, variableSize, variableColor, datasetName}: BubbleCallbackProps,
   {visState}: {visState: KeplerGlState['visState']}
-): BubbleChartOutput | ErrorOutput {
+): BubbleChartCallbackOutput | ErrorOutput {
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(datasetName, variableX, visState.datasets);
   if (!keplerDataset) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   const columnDataX = getColumnDataFromKeplerDataset(variableX, keplerDataset);
@@ -52,11 +53,11 @@ export function bubbleCallback(
     !columnDataSize ||
     columnDataSize.length === 0
   ) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   if (variableColor && (!columnDataColor || columnDataColor.length === 0)) {
-    return createErrorResult(CHAT_COLUMN_DATA_NOT_FOUND);
+    return createErrorResult({name: functionName, result: CHAT_COLUMN_DATA_NOT_FOUND});
   }
 
   return {

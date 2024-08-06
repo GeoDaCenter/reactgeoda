@@ -1,7 +1,7 @@
 // define a type of custom function that is an object contains key-value pairs
 
 import {CustomFunctions} from '../openai-utils';
-import {linearRegressionCallbackFunc} from './callbacks/callback-regression';
+import {spatialRegressionCallbackFunc} from './callbacks/callback-regression';
 import {createVariableCallBack} from './callbacks/callback-table';
 import {createWeightsCallback} from './callbacks/callback-weights';
 import {createMapCallback} from './callbacks/callback-map';
@@ -12,6 +12,12 @@ import {scatterCallback} from './callbacks/callback-scatter';
 import {histogramCallback} from './callbacks/callback-histogram';
 import {univariateLocalMoranCallback} from './callbacks/callback-localmoran';
 
+export type CustomFunctionArgs = {
+  functionName: string;
+  functionArgs: Record<string, any>;
+  context: any;
+};
+
 // define enum for custom function names, the value of each enum is
 // the name of the function that is defined in OpenAI assistant model
 export enum CustomFunctionNames {
@@ -20,7 +26,7 @@ export enum CustomFunctionNames {
   BUBBLE_CHART = 'bubble',
   BOXPLOT = 'boxplot',
   PARALLELCOORDINATE = 'parallelCoordinate',
-  LINEAR_REGRESSION = 'linearRegression',
+  SPATIAL_REGRESSION = 'spatialRegression',
   CREATE_VARIABLE = 'createVariable',
   CREATE_WEIGHTS = 'createWeights',
   CREATE_MAP = 'createMap',
@@ -29,15 +35,17 @@ export enum CustomFunctionNames {
 
 export type ErrorOutput = {
   type: 'error';
+  name: string;
   result: {
     success: boolean;
     details: string;
   };
 };
 
-export function createErrorResult(result: string): ErrorOutput {
+export function createErrorResult({name, result}: {name: string; result: string}): ErrorOutput {
   return {
     type: 'error',
+    name,
     result: {
       success: false,
       details: result
@@ -51,7 +59,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   bubble: bubbleCallback,
   boxplot: boxplotCallback,
   parallelCoordinate: parallelCoordinateCallback,
-  linearRegression: linearRegressionCallbackFunc,
+  spatialRegression: spatialRegressionCallbackFunc,
   createVariable: createVariableCallBack,
   createWeights: createWeightsCallback,
   createMap: createMapCallback,

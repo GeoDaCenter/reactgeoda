@@ -20,7 +20,7 @@ function createMessageFromCustomFunctionCall({
 }: {
   functionName: string;
   functionArgs: Record<string, unknown>;
-  output: CustomFunctionOutputProps;
+  output: CustomFunctionOutputProps<unknown, unknown>;
 }): MessageModel | null {
   const type = 'custom';
   const message = '';

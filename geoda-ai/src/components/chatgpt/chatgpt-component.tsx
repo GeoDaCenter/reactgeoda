@@ -46,6 +46,7 @@ export const ChatGPTComponent = ({
   const dispatch = useDispatch();
 
   const [isTyping, setIsTyping] = useState(false);
+
   // if in dashboard mode, the message should be draggable
   const isMessageDraggable = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
@@ -60,7 +61,7 @@ export const ChatGPTComponent = ({
   // handle send message
   const handleSend = useCallback(
     async (message: string) => {
-      // display input message in dialog
+      // add user input message
       const newMessage: MessageModel = {
         message,
         direction: 'outgoing',
@@ -72,7 +73,7 @@ export const ChatGPTComponent = ({
       dispatch(setMessages(newMessages));
       setIsTyping(true);
 
-      // add an empty return message to show typing indicator
+      // add an empty return message to show typing indicator for chatbot
       dispatch(
         setMessages([
           ...newMessages,
@@ -82,7 +83,7 @@ export const ChatGPTComponent = ({
 
       let screenshotImage: string | undefined = undefined;
 
-      // prepare image message
+      // prepare image message if screenCaptured is set
       if (screenCaptured && screenCaptured.length > 0) {
         // get screenshot image from localStorage
         screenshotImage = screenCaptured || undefined;
@@ -90,7 +91,7 @@ export const ChatGPTComponent = ({
         dispatch(setScreenCaptured(''));
       }
 
-      // process input message to chatgpt
+      // send user message to chatbot
       await processMessage(
         message,
         (deltaMessage: string, customMessage?: MessageModel, isCompleted?: boolean) => {

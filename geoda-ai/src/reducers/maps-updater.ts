@@ -37,7 +37,7 @@ async function createKeplerLayer({
     // create unique values map in kepler.gl
     newLayer = createUniqueValuesMap({
       dataset: keplerDataset,
-      uniqueValues,
+      uniqueValues: uniqueValues as number[],
       legendLabels,
       hexColors: colorRange?.colors || [],
       mappingType: classficationMethod,

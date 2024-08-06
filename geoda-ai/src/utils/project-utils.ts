@@ -1,16 +1,18 @@
 import {arrayBufferToBase64, base64ToArrayBuffer, loadArrowFile} from './file-utils';
 import {SavedConfigV1} from '@kepler.gl/schemas';
 import {GeoDaState} from '@/store';
-import {DatasetProps, WeightsProps} from '@/actions';
 import {WeightsMeta} from 'geoda-wasm';
 import {Table as ArrowTable, tableToIPC} from 'apache-arrow';
 import {DATASET_FORMATS} from '@kepler.gl/constants';
+import {WeightsProps} from '@/reducers/weights-reducer';
+import {DatasetProps} from '@/reducers/file-reducer';
 
 type SavedWeightsProps = {
   weightsMeta: WeightsMeta;
   weights: string;
   offsets: string;
   isNew?: boolean;
+  datasetId: string;
 };
 
 export type LoadedGeoDaConfig = {
@@ -148,6 +150,7 @@ function loadWeights(savedWeights: SavedWeightsProps[]): WeightsProps[] {
     }
 
     return {
+      datasetId: w.datasetId,
       weightsMeta: w.weightsMeta,
       weights: neighbors,
       ...(w.isNew ? {isNew: w.isNew} : {})

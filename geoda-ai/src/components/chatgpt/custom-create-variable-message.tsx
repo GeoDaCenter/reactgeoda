@@ -1,70 +1,77 @@
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {useDuckDB} from '@/hooks/use-duckdb';
-import {CreateVariableCallBackOutput} from '@/ai/assistant/callbacks/callback-table';
+import {addColumnBySQL} from '@/hooks/use-duckdb';
+import {CreateVariableCallbackOutput} from '@/ai/assistant/callbacks/callback-table';
 import {addKeplerColumn, generateSQLUpdateColumn} from '@/utils/table-utils';
-import {GeoDaState} from '@/store';
-import {getDataset} from '@/utils/data-utils';
 import {PreviewDataTable} from '../table/preview-data-table';
 import {CustomCreateButton} from '../common/custom-create-button';
-import {CustomMessagePayload} from './custom-messages';
-import {mainTableNameSelector} from '@/store/selectors';
+import {selectKeplerDataset} from '@/store/selectors';
 import {addTableColumn} from '@kepler.gl/actions';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+export function isCustomCreateVariableOutput(
+  functionOutput: CustomFunctionOutputProps<unknown, unknown>
+): functionOutput is CreateVariableCallbackOutput {
+  return functionOutput.type === 'create-variable';
+}
 
 /**
  * Custom Create Variable Message
  */
-export const CustomCreateVariableMessage = ({props}: {props: CustomMessagePayload}) => {
-  const [hide, setHide] = useState(false);
-  const createVariableData =
-    'data' in props.output && (props.output.data as CreateVariableCallBackOutput['data']);
+export const CustomCreateVariableMessage = ({
+  functionOutput
+}: {
+  functionOutput: CreateVariableCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
-  const {addColumn} = useDuckDB();
+  const [hide, setHide] = useState(false);
 
-  const tableName = useSelector(mainTableNameSelector);
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const numberOfRows = dataset?.dataContainer.numRows() || 0;
+  const {newColumn, columnType, values, datasetName, datasetId} = functionOutput.data;
 
-  const sql = useMemo(() => {
-    return createVariableData
-      ? generateSQLUpdateColumn({
-          tableName,
-          columnName: createVariableData.newColumn,
-          columnType: createVariableData.columnType,
-          values: createVariableData.values
-        })
-      : '';
-  }, [createVariableData, tableName]);
+  // get dataset from redux store
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
+
+  const sql = useMemo(
+    () =>
+      generateSQLUpdateColumn({
+        tableName: datasetName,
+        columnName: newColumn,
+        columnType: columnType,
+        values: values
+      }),
+    [columnType, datasetName, newColumn, values]
+  );
 
   // handle click event
   const onClick = () => {
-    if (createVariableData && dataset) {
+    if (datasetId) {
       // add column to duckdb
-      addColumn(sql);
+      addColumnBySQL(sql);
       // add column to kepler.gl
-      const {newField, values} = addKeplerColumn({
-        dataset,
-        newFieldName: createVariableData.newColumn,
-        fieldType: createVariableData.columnType,
-        columnData: createVariableData.values
+      const {newField, values: columnValues} = addKeplerColumn({
+        dataset: keplerDataset,
+        newFieldName: newColumn,
+        fieldType: columnType,
+        columnData: values
       });
-      dispatch(addTableColumn(dataset.id, newField, values));
+      dispatch(addTableColumn(datasetId, newField, columnValues));
 
       // hide the button once clicked
       setHide(true);
     }
   };
 
-  return createVariableData ? (
+  return keplerDataset ? (
     <div className="w-full">
       {!hide && (
         <div className="w-full">
           <PreviewDataTable
-            fieldName={createVariableData.newColumn}
-            fieldType={createVariableData.columnType}
-            columnData={createVariableData.values}
-            numberOfRows={numberOfRows}
+            fieldName={newColumn}
+            fieldType={columnType}
+            columnData={values}
+            numberOfRows={keplerDataset.length}
           />
         </div>
       )}

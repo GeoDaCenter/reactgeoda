@@ -1,41 +1,48 @@
-import {LocalMoranResultType} from 'geoda-wasm';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
-import {addTableColumn} from '@kepler.gl/actions';
+import {addLayer, addTableColumn, reorderLayer} from '@kepler.gl/actions';
 
-import {CustomMessagePayload} from './custom-messages';
-import {UniLocalMoranOutput} from '@/ai/assistant/callbacks/callback-localmoran';
-import {LISA_COLORS, LISA_LABELS} from '@/constants';
+import {LisaCallbackOutput} from '@/ai/assistant/callbacks/callback-localmoran';
+import {LISA_COLORS, LISA_LABELS, MAP_ID} from '@/constants';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {useDispatch, useSelector} from 'react-redux';
-import {getDataset, getLayer} from '@/utils/data-utils';
 import {GeoDaState} from '@/store';
 import {CustomCreateButton} from '../common/custom-create-button';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {selectKeplerDataset} from '@/store/selectors';
+import {KeplerMapContainer} from '../common/kepler-map-container';
+
+export function isCustomLisaOutput(
+  functionOutput: CustomFunctionOutputProps<unknown, unknown>
+): functionOutput is LisaCallbackOutput {
+  return functionOutput.type === 'lisa';
+}
 
 /**
  * Custom LISA Message
  */
-export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomLocalMoranMessage = ({
+  functionOutput,
+  functionArgs
+}: {
+  functionOutput: LisaCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
-  const [hide, setHide] = useState(false);
 
-  const layer = useSelector((state: GeoDaState) => getLayer(state));
-  const dataset = useSelector((state: GeoDaState) => getDataset(state));
-  const layerOrder = useSelector(
-    (state: GeoDaState) => state.keplerGl.keplerGlInstance.visState.layerOrder
-  );
+  const lm = functionOutput.data;
+  const {datasetId, significanceThreshold, variableName, permutations} = functionOutput.result;
 
-  const {output} = props;
+  // use selector to get layerOrder
+  const layerOrder = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder);
 
-  const lm = 'data' in output && (output.data as LocalMoranResultType);
-  const {significanceThreshold, variableName} = output.result as UniLocalMoranOutput['result'];
+  // get dataset from redux store
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
-  // handle click event
-  const onClick = () => {
+  const updateLayer = useMemo(() => {
     if (!lm) {
-      console.error('Local Moran data is unavailable or invalid.');
-      return;
+      return null;
     }
     // get cluster values using significant cutoff
     const clusters = lm.pValues.map((p: number, i: number) => {
@@ -45,49 +52,77 @@ export const CustomLocalMoranMessage = ({props}: {props: CustomMessagePayload}) 
       return lm.clusters[i];
     });
 
-    // add new column to kepler.gl
-    const newFieldName = `lm_${variableName}`;
-
-    if (!dataset) {
-      console.error('Dataset not found');
-      return;
-    }
-    const dataContainer = dataset.dataContainer;
-    const fieldsLength = dataset.fields.length;
-
     // create new field
+    const newFieldName = `lm_${variableName}`;
+    const fieldsLength = keplerDataset.fields.length;
     const newField: Field = {
       id: newFieldName,
       name: newFieldName,
       displayName: newFieldName,
       format: '',
-      type: ALL_FIELD_TYPES.real,
-      analyzerType: 'FLOAT',
+      type: ALL_FIELD_TYPES.integer,
+      analyzerType: 'INT',
       fieldIdx: fieldsLength,
       valueAccessor: (d: any) => {
-        return dataContainer.valueAt(d.index, fieldsLength);
+        return keplerDataset.dataContainer.valueAt(d.index, fieldsLength);
       }
     };
-    // Add a new column without data first, so it can avoid error from deduceTypeFromArray()
-    dispatch(addTableColumn(dataset.id, newField, clusters));
 
+    // Add a new column without data first, so it can avoid error from deduceTypeFromArray()
+    dispatch(addTableColumn(keplerDataset.id, newField, clusters));
+
+    const label = `lisa_${variableName}_${permutations}`;
     // create custom scale map
-    createUniqueValuesMap({
+    const newLayer = createUniqueValuesMap({
+      dataset: keplerDataset,
       uniqueValues: [0, 1, 2, 3, 4, 5],
       hexColors: LISA_COLORS,
       legendLabels: LISA_LABELS,
-      mappingType: 'Local Moran',
-      colorFieldName: newFieldName,
-      dispatch,
-      layer,
-      layerOrder
+      mappingType: label,
+      colorFieldName: newFieldName
     });
+
+    // dispatch to add new layer in kepler.gl
+    dispatch(addLayer(newLayer, datasetId));
+
+    // remove newLayer from layerOrder
+    const otherLayers = layerOrder.filter((id: string) => id !== newLayer.id);
+
+    // dispatch to hide the layer in the layerOrder
+    dispatch(reorderLayer([...otherLayers]));
+
+    return newLayer.id;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, functionArgs, lm]);
+
+  const [hide, setHide] = useState(false);
+
+  // handle click event
+  const onClick = () => {
+    if (!lm) {
+      console.error('Local Moran data is unavailable or invalid.');
+      return;
+    }
+
+    // find other layers except updateLayer
+    const otherLayers = layerOrder.filter((id: string) => id !== updateLayer);
+    // new order of layers
+    const newOrder = [updateLayer, ...otherLayers];
+    dispatch(reorderLayer(newOrder));
+
     // hide the button once clicked
     setHide(true);
   };
 
   return (
     <div className="w-full">
+      {!hide && (
+        <>
+          <div className="pointer-events-none h-[180px] w-full">
+            {updateLayer && <KeplerMapContainer layerId={updateLayer} mapIndex={1} />}
+          </div>
+        </>
+      )}
       <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Map" />
     </div>
   );

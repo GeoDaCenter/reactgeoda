@@ -2,21 +2,31 @@ import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {addPlot} from '@/actions/plot-actions';
-import {ScatterplotOutput} from '@/ai/assistant/callbacks/callback-scatter';
+import {ScatterCallbackOutput} from '@/ai/assistant/callbacks/callback-scatter';
 import {Scatterplot} from '../plots/scatter-plot';
-import {CustomMessagePayload} from './custom-messages';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ScatterPlotStateProps} from '@/reducers/plot-reducer';
+import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+
+export function isCustomScatterPlotOutput(
+  props: CustomFunctionOutputProps<unknown, unknown>
+): props is ScatterCallbackOutput {
+  return props.type === 'scatter';
+}
 
 /**
  * Custom Scatter Plot Message
  */
-export const CustomScatterplotMessage = ({props}: {props: CustomMessagePayload}) => {
+export const CustomScatterPlotMessage = ({
+  functionOutput
+}: {
+  functionOutput: ScatterCallbackOutput;
+  functionArgs: Record<string, any>;
+}) => {
   const dispatch = useDispatch();
-  const {output} = props;
 
-  const {id, datasetId, variableX, variableY} = output.result as ScatterplotOutput['result'];
+  const {id, datasetId, variableX, variableY} = functionOutput.result;
 
   const scatterPlotProps: ScatterPlotStateProps = {
     id,
