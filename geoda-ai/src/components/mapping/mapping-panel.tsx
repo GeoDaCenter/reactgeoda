@@ -9,14 +9,15 @@ import {
   LayerListFactory,
   DatasetSectionFactory,
   makeGetActionCreators,
-  MapManagerFactory
+  MapManagerFactory,
+  TooltipConfigFactory
 } from '@kepler.gl/components';
 import {LayerClasses} from '@kepler.gl/layers';
 import {GeoDaState} from '@/store';
 import {MAP_ID, MappingTypes} from '@/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {updateTableColor, wrapTo} from '@kepler.gl/actions';
+import {interactionConfigChange, updateTableColor, wrapTo} from '@kepler.gl/actions';
 import {SIDEBAR_PANELS} from '@kepler.gl/constants';
 import {getDefaultColorRange} from '@/utils/color-utils';
 import {ClassificationPanel} from '../common/classification-panel';
@@ -31,6 +32,7 @@ const DatasetSection = appInjector.get(DatasetSectionFactory);
 const LayerList = appInjector.get(LayerListFactory);
 const MapManager = appInjector.get(MapManagerFactory);
 const DndContext = appInjector.get(DndContextFactory);
+const TooltipConfig = appInjector.get(TooltipConfigFactory);
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your maps.';
 
@@ -50,6 +52,9 @@ function MappingPanel() {
   // get datasets from redux store
   const datasets = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.datasets);
   const layers = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layers);
+  const interactionConfig = useSelector(
+    (state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.interactionConfig
+  );
   const layerOrder = useSelector(
     (state: GeoDaState) => state.keplerGl[MAP_ID]?.visState?.layerOrder
   );
@@ -120,6 +125,19 @@ function MappingPanel() {
 
   const onUpdateDatasetColor = (datasetId: string, color: RGBColor) => {
     dispatch(updateTableColor(datasetId, color));
+  };
+
+  const onInteractionConfigChange = (newConfig: any) => {
+    console.log(newConfig);
+    dispatch(
+      interactionConfigChange({
+        ...interactionConfig.tooltip,
+        config: {
+          ...interactionConfig.tooltip.config,
+          ...newConfig
+        }
+      })
+    );
   };
 
   return (
@@ -224,6 +242,21 @@ function MappingPanel() {
                             visStateActions={visStateActions}
                           />
                         </DndContext>
+                      </CardBody>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <p className="text-tiny tracking-[1.25px] text-[#A0A7B4] dark:text-[#6A7485]">
+                          Tooltip
+                        </p>
+                      </CardHeader>
+                      <CardBody>
+                        <TooltipConfig
+                          datasets={datasets}
+                          config={interactionConfig.tooltip.config}
+                          onChange={onInteractionConfigChange}
+                          onDisplayFormatChange={visStateActions.setColumnDisplayFormat}
+                        />
                       </CardBody>
                     </Card>
                   </KeplerGlContext.Provider>
