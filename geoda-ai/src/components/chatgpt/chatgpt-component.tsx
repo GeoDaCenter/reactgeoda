@@ -1,8 +1,10 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
-// import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
+
+import {MessageModel, MessagePayload} from '@/ai/types';
+
+import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from '@/ai/assistant/geoda-assistant';
 import {GeoDaState} from '@/store';
 import {
   setDefaultPromptText,
@@ -13,6 +15,10 @@ import {
 import {cancelOpenAI} from '@/ai/openai-utils';
 import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
 import MessageCard from '../chat/message-card';
+import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
+import {useChatGPT} from '@/hooks/use-chatgpt';
+import {queryValuesBySQL} from '@/hooks/use-duckdb';
+import {MAP_ID} from '@/constants';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
@@ -20,28 +26,12 @@ export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 export type ChatGPTComponentProps = {
   openAIKey: string;
-  // the function to initialize OpenAI js client
-  initOpenAI: (apiKey: string) => void;
-  // the function to process user prompt message and return response in array of MessageModel
-  processMessage: (
-    message: string,
-    streamMessage: (delta: string, customMessage?: MessageModel) => void,
-    imageMessage?: string
-  ) => void;
-  // the function
-  speechToText: (voice: Blob) => Promise<string>;
   // initial messages
   messages: Array<MessageModel>;
   className?: string;
 };
 
-export const ChatGPTComponent = ({
-  openAIKey,
-  initOpenAI,
-  processMessage,
-  speechToText,
-  messages
-}: ChatGPTComponentProps) => {
+export const ChatGPTComponent = ({openAIKey, messages}: ChatGPTComponentProps) => {
   // const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -57,6 +47,16 @@ export const ChatGPTComponent = ({
   const defaultPromptText = useSelector(
     (state: GeoDaState) => state.root.uiState.defaultPromptText
   );
+
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
+
+  const weights = useSelector((state: GeoDaState) => state.root.weights);
+
+  // useChatGPT hook
+  const {initOpenAI, sendMessage, speechToText} = useChatGPT({
+    customFunctions: CUSTOM_FUNCTIONS,
+    customFunctionContext: {visState, weights, queryValuesBySQL}
+  });
 
   // handle send message
   const handleSend = useCallback(
@@ -92,9 +92,9 @@ export const ChatGPTComponent = ({
       }
 
       // send user message to chatbot
-      await processMessage(
+      await sendMessage(
         message,
-        (deltaMessage: string, customMessage?: MessageModel, isCompleted?: boolean) => {
+        (deltaMessage: string, customMessage?: MessagePayload, isCompleted?: boolean) => {
           if (deltaMessage.length > 0) {
             setIsTyping(false);
           }
@@ -122,7 +122,7 @@ export const ChatGPTComponent = ({
         newMessages.pop();
       }
     },
-    [dispatch, messages, processMessage, screenCaptured]
+    [dispatch, messages, screenCaptured, sendMessage]
   );
 
   // initialize OpenAI client
@@ -150,7 +150,7 @@ export const ChatGPTComponent = ({
     //   }
     // ]);
     if (openAIKey) {
-      initOpenAI(openAIKey);
+      initOpenAI(openAIKey, GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

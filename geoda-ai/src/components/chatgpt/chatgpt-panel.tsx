@@ -17,6 +17,7 @@ import {MAP_ID} from '@/constants';
 import {queryValuesBySQL} from '@/hooks/use-duckdb';
 import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
 import {DatasetProps} from '@/reducers/file-reducer';
+import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from '@/ai/assistant/geoda-assistant';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 export const INVALID_OPENAI_KEY_MESSAGE =
@@ -63,7 +64,7 @@ const ChatGPTPanel = () => {
   );
 
   // useChatGPT hook
-  const {initOpenAI, sendMessage, speechToText} = useChatGPT({
+  const {initOpenAI} = useChatGPT({
     customFunctions: CUSTOM_FUNCTIONS,
     customFunctionContext: {visState, weights, queryValuesBySQL}
   });
@@ -86,7 +87,7 @@ const ChatGPTPanel = () => {
   useEffect(() => {
     if (openAIKey) {
       testOpenAIKey(openAIKey).then((isValid: boolean) => {
-        initOpenAI(openAIKey).then(() => {
+        initOpenAI(openAIKey, GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION).then(() => {
           setOpenAIKeyValid(isValid ? 'success' : 'failed');
           if (isValid) {
             onDatasetsChange(datasets);
@@ -140,9 +141,6 @@ const ChatGPTPanel = () => {
       ) : (
         <ChatGPTComponent
           openAIKey={openAIKey}
-          initOpenAI={initOpenAI}
-          processMessage={sendMessage}
-          speechToText={speechToText}
           messages={messages.length > 0 ? messages : [welcomeMessage]}
         />
       )}

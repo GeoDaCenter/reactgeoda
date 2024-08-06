@@ -2,6 +2,7 @@ import {
   getMetaDataCallback,
   MetaDataCallbackOutput
 } from '@/ai/assistant/callbacks/callback-metadata';
+import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from '@/ai/assistant/geoda-assistant';
 import {ErrorOutput} from '@/ai/assistant/custom-functions';
 import {initOpenAI, setAdditionalInstructions} from '@/ai/openai-utils';
 import {MAP_ID} from '@/constants';
@@ -65,7 +66,7 @@ export const addDatasetToAI =
           dispatch(setDatasetMeta(updatedDatasetMeta));
 
           // add dataset metadata as additional instructions for AI model
-          await initOpenAI(openAIKey);
+          await initOpenAI(openAIKey, GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION);
           await setAdditionalInstructions(message);
         }
       }

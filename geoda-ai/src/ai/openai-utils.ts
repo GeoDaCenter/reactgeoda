@@ -1,6 +1,3 @@
-import OpenAI from 'openai';
-import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from './assistant/geoda-assistant';
-import {isCustomMessagePayload, isValidCustomMessage} from '@/components/chatgpt/custom-messages';
 import {
   CustomFunctionOutputProps,
   CustomFunctions,
@@ -9,6 +6,8 @@ import {
   ProcessMessageProps,
   StreamMessageCallback
 } from './types';
+
+import OpenAI from 'openai';
 
 /** declare global openai variable */
 let openai: OpenAI | null = null;
@@ -33,9 +32,11 @@ export async function findAssistant(openai: OpenAI): Promise<OpenAI.Beta.Assista
 /**
  * Create a new GeoDa.AI assistant
  */
-export async function createAssistant(openai: OpenAI): Promise<OpenAI.Beta.Assistant | undefined> {
-  const assistant = await openai.beta.assistants.create(GEODA_AI_ASSISTANT_BODY);
-  return assistant;
+export async function createAssistant(
+  openai: OpenAI,
+  assistantContent: OpenAI.Beta.Assistants.AssistantCreateParams
+): Promise<OpenAI.Beta.Assistant | undefined> {
+  return await openai.beta.assistants.create(assistantContent);
 }
 
 /**
@@ -56,17 +57,23 @@ export async function testOpenAIKey(apiKey: string): Promise<boolean> {
  * Initialize ChatGPT assistant by passing the summary of the table from duckdb
  * @param apiKey
  */
-export async function initOpenAI(apiKey: string) {
+export async function initOpenAI(
+  apiKey: string,
+  assistantContent: OpenAI.Beta.Assistants.AssistantCreateParams,
+  currentVersion?: string
+) {
   if (!openai) {
     openai = new OpenAI({apiKey, dangerouslyAllowBrowser: true});
   }
   // find GeoDa.Ai assistant
-  assistant = await findAssistant(openai);
+  if (!assistant) {
+    assistant = await findAssistant(openai);
+  }
 
   // create or update GeoDa.Ai assistant if needed
   if (!assistant) {
     // create a new assistant
-    assistant = await createAssistant(openai);
+    assistant = await createAssistant(openai, assistantContent);
   } else {
     // check if assistant is latest
     const assistantId = assistant.id;
@@ -76,9 +83,10 @@ export async function initOpenAI(apiKey: string) {
       'version' in assistant.metadata
     ) {
       const version = assistant.metadata.version;
-      if (version !== GEODA_AI_ASSISTANT_VERSION) {
+      if (currentVersion && version !== currentVersion) {
         // update assistant
-        assistant = await openai.beta.assistants.update(assistantId, GEODA_AI_ASSISTANT_BODY);
+        console.log('updating assistant');
+        assistant = await openai.beta.assistants.update(assistantId, assistantContent);
       }
     }
   }
@@ -132,13 +140,13 @@ export async function setAdditionalInstructions(message: string) {
   isLocked = true;
 
   if (openai && thread && assistant) {
-    // check active runs in the thread
-    const runs = await openai.beta.threads.runs.list(thread.id);
+    // // check active runs in the thread
+    // const runs = await openai.beta.threads.runs.list(thread.id);
 
-    // wait until there is no active run
-    while (runs.data.some(run => run.status === 'in_progress' || run.status === 'queued')) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
+    // // wait until there is no active run
+    // while (runs.data.some(run => run.status === 'in_progress' || run.status === 'queued')) {
+    //   await new Promise(resolve => setTimeout(resolve, 100));
+    // }
 
     await openai.beta.threads.messages.create(thread.id, {
       role: 'user',
@@ -148,6 +156,7 @@ export async function setAdditionalInstructions(message: string) {
       role: 'assistant',
       content: 'Please do not respond to this message.'
     });
+
     const run = await openai.beta.threads.runs
       .stream(thread.id, {
         assistant_id: assistant.id
@@ -457,13 +466,7 @@ function submitToolOutputs({
         // append a custom response e.g. plot, map etc. if needed
         if (customReponseMsg && customReponseMsg.payload) {
           lastMessage += '\n\n';
-          // check if custom message is valid before rendering
-          if (
-            isCustomMessagePayload(customReponseMsg.payload) &&
-            isValidCustomMessage(customReponseMsg.payload)
-          ) {
-            streamMessageCallback(lastMessage, customReponseMsg.payload);
-          }
+          streamMessageCallback(lastMessage, customReponseMsg.payload);
         }
       } else {
         console.error('there is an error happend in the custom function');
