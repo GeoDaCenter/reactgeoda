@@ -58,7 +58,7 @@ export function boxplotCallback(
 
   return {
     type: 'boxplot',
-    name: 'Boxplot',
+    name: 'boxplot',
     result: {
       id: generateRandomId(),
       datasetId: keplerDataset.id,

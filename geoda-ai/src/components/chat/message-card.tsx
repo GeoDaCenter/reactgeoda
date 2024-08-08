@@ -157,52 +157,56 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
                 isCustomMessagePayload(customMessage) &&
                 isValidCustomMessage(customMessage) && <CustomMessage props={customMessage} />}
             </div>
-            {status === 'pending' && (
-              <div className="absolute right-2 top-2 flex rounded-full bg-content2 shadow-small">
-                <Button isIconOnly radius="full" size="sm" variant="light" onPress={handleStopChat}>
-                  <Icon className="text-lg text-default-600" icon="gravity-ui:stop" />
-                </Button>
-              </div>
-            )}
-            {showFeedback && !hasFailed && status !== 'pending' && (
-              <div className="absolute right-2 top-2 flex rounded-full bg-content2 shadow-small">
-                <Button isIconOnly radius="full" size="sm" variant="light" onPress={handleCopy}>
-                  {copied ? (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:check" />
-                  ) : (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:copy" />
+            <div className="absolute right-2 top-2 flex rounded-full bg-content2 shadow-small">
+              <Button isIconOnly radius="full" size="sm" variant="light" onPress={handleStopChat}>
+                <Icon className="text-lg text-default-600" icon="gravity-ui:stop" />
+              </Button>
+              {showFeedback && !hasFailed && status !== 'pending' && (
+                <>
+                  <Button isIconOnly radius="full" size="sm" variant="light" onPress={handleCopy}>
+                    {copied ? (
+                      <Icon className="text-lg text-default-600" icon="gravity-ui:check" />
+                    ) : (
+                      <Icon className="text-lg text-default-600" icon="gravity-ui:copy" />
+                    )}
+                  </Button>
+                  {false && (
+                    <Button
+                      isIconOnly
+                      radius="full"
+                      size="sm"
+                      variant="light"
+                      onPress={() => handleFeedback(index, true)}
+                    >
+                      {feedback === 'like' ? (
+                        <Icon
+                          className="text-lg text-default-600"
+                          icon="gravity-ui:thumbs-up-fill"
+                        />
+                      ) : (
+                        <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-up" />
+                      )}
+                    </Button>
                   )}
-                </Button>
-                {false && (
                   <Button
                     isIconOnly
                     radius="full"
                     size="sm"
                     variant="light"
-                    onPress={() => handleFeedback(index, true)}
+                    onPress={() => handleFeedback(index, false)}
                   >
-                    {feedback === 'like' ? (
-                      <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-up-fill" />
+                    {feedback === 'dislike' ? (
+                      <Icon
+                        className="text-lg text-default-600"
+                        icon="gravity-ui:thumbs-down-fill"
+                      />
                     ) : (
-                      <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-up" />
+                      <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-down" />
                     )}
                   </Button>
-                )}
-                <Button
-                  isIconOnly
-                  radius="full"
-                  size="sm"
-                  variant="light"
-                  onPress={() => handleFeedback(index, false)}
-                >
-                  {feedback === 'dislike' ? (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-down-fill" />
-                  ) : (
-                    <Icon className="text-lg text-default-600" icon="gravity-ui:thumbs-down" />
-                  )}
-                </Button>
-              </div>
-            )}
+                </>
+              )}
+            </div>
             {attempts > 1 && !hasFailed && (
               <div className="flex w-full items-center justify-end">
                 <button

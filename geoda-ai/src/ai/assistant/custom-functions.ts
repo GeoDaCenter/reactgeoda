@@ -9,7 +9,7 @@ import {parallelCoordinateCallback} from './callbacks/callback-pcp';
 import {bubbleCallback} from './callbacks/callback-bubble';
 import {scatterCallback} from './callbacks/callback-scatter';
 import {histogramCallback} from './callbacks/callback-histogram';
-import {univariateLocalMoranCallback} from './callbacks/callback-localmoran';
+import {lisaCallback} from './callbacks/callback-lisa';
 import {CustomFunctionOutputProps, CustomFunctions} from '../types';
 
 export type ErrorOutput = CustomFunctionOutputProps<unknown, unknown> & {
@@ -48,5 +48,5 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   createVariable: createVariableCallBack,
   createWeights: createWeightsCallback,
   createMap: createMapCallback,
-  univariateLocalMoran: univariateLocalMoranCallback
+  lisa: lisaCallback
 };

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import {addWeights} from '@/actions';
 import {useDispatch} from 'react-redux';
@@ -28,11 +28,23 @@ export const CustomWeightsMessage = ({
 }) => {
   const dispatch = useDispatch();
 
-  const [hide, setHide] = useState(false);
-
-  const {datasetId, weightsMeta} = functionOutput.result;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {datasetId, success, ...weightsMeta} = functionOutput.result;
 
   const weights = functionOutput.data;
+
+  const [hide, setHide] = useState(functionOutput.isIntermediate || false);
+
+  // dispatch action to add weights when isInermediate is true when mounting the component
+  useEffect(() => {
+    if (functionOutput.isIntermediate) {
+      if (weights) {
+        dispatch(addWeights({datasetId, weights, weightsMeta, isNew: true}));
+        setHide(true);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // handle click event
   const onClick = () => {

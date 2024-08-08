@@ -3,8 +3,8 @@ import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {addLayer, addTableColumn, reorderLayer} from '@kepler.gl/actions';
 
-import {LisaCallbackOutput} from '@/ai/assistant/callbacks/callback-localmoran';
-import {LISA_COLORS, LISA_LABELS, MAP_ID} from '@/constants';
+import {LisaCallbackOutput} from '@/ai/assistant/callbacks/callback-lisa';
+import {MAP_ID} from '@/constants';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
@@ -32,7 +32,12 @@ export const CustomLocalMoranMessage = ({
   const dispatch = useDispatch();
 
   const lm = functionOutput.data;
-  const {datasetId, significanceThreshold, variableName, permutations} = functionOutput.result;
+  const {
+    datasetId,
+    variableName,
+    permutations,
+    clusters: metaDataOfClusters
+  } = functionOutput.result;
 
   // use selector to get layerOrder
   const layerOrder = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder);
@@ -44,13 +49,9 @@ export const CustomLocalMoranMessage = ({
     if (!lm) {
       return null;
     }
-    // get cluster values using significant cutoff
-    const clusters = lm.pValues.map((p: number, i: number) => {
-      if (p > significanceThreshold) {
-        return 0;
-      }
-      return lm.clusters[i];
-    });
+
+    // get unique values from clusters
+    const uniqueValues = Array.from(new Set(lm.clusters));
 
     // create new field
     const newFieldName = `lm_${variableName}`;
@@ -69,15 +70,18 @@ export const CustomLocalMoranMessage = ({
     };
 
     // Add a new column without data first, so it can avoid error from deduceTypeFromArray()
-    dispatch(addTableColumn(keplerDataset.id, newField, clusters));
+    dispatch(addTableColumn(keplerDataset.id, newField, lm.clusters));
+
+    const hexColors = metaDataOfClusters.map(cluster => cluster.color);
+    const legendLabels = metaDataOfClusters.map(cluster => cluster.label);
 
     const label = `lisa_${variableName}_${permutations}`;
     // create custom scale map
     const newLayer = createUniqueValuesMap({
       dataset: keplerDataset,
-      uniqueValues: [0, 1, 2, 3, 4, 5],
-      hexColors: LISA_COLORS,
-      legendLabels: LISA_LABELS,
+      uniqueValues: uniqueValues,
+      hexColors,
+      legendLabels,
       mappingType: label,
       colorFieldName: newFieldName
     });

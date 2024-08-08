@@ -59,7 +59,7 @@ export function histogramCallback(
 
   return {
     type: 'histogram',
-    name: 'Histogram',
+    name: 'histogram',
     result: {
       id: generateRandomId(),
       datasetId: keplerDataset.id,

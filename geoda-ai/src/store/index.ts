@@ -7,7 +7,7 @@ import {
 } from 'redux';
 import {thunk} from 'redux-thunk';
 import {createLogger} from 'redux-logger';
-import keplerGlReducer, {enhanceReduxMiddleware} from '@kepler.gl/reducers';
+import keplerGlReducer, {enhanceReduxMiddleware, KeplerGlState} from '@kepler.gl/reducers';
 import keplerLanguageMiddleware from './language-middleware';
 import geodaReducer, {GeoDaRootState} from '../reducers/index';
 import {handleGeoDaBrushLink} from '@/utils/kepler-utils';
@@ -63,7 +63,7 @@ const customizedKeplerGlReducer = keplerGlReducer
     // }
   })
   .plugin({
-    BRUSH_LINK_FROM_GEODA: (state: any, action: any) => {
+    BRUSH_LINK_FROM_GEODA: (state: KeplerGlState, action: UnknownAction) => {
       return handleGeoDaBrushLink(state, action);
     }
   });
@@ -73,7 +73,7 @@ const customizedKeplerGlReducer = keplerGlReducer
 //   root: geodaReducer
 // });
 
-export const reducers = (state: any, action: any) => {
+export const reducers = (state: GeoDaState, action: UnknownAction) => {
   return {
     keplerGl: customizedKeplerGlReducer(state.keplerGl, action),
     root: geodaReducer(state.root, action, state.keplerGl)
@@ -83,6 +83,10 @@ export const reducers = (state: any, action: any) => {
 // Customize logger
 const loggerMiddleware: Middleware<{}, any, Dispatch<any>> = createLogger({
   predicate: (_getState: any, action: UnknownAction) => {
+    // skip logging in production mode
+    if (process.env.NODE_ENV === 'production') {
+      return false;
+    }
     const skipLogging = [
       '@@kepler.gl/LAYER_HOVER',
       '@@kepler.gl/MOUSE_MOVE',

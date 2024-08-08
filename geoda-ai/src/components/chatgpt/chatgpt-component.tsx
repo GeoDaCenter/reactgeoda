@@ -4,7 +4,6 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {MessageModel, MessagePayload} from '@/ai/types';
 
-import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from '@/ai/assistant/geoda-assistant';
 import {GeoDaState} from '@/store';
 import {
   setDefaultPromptText,
@@ -25,13 +24,12 @@ export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Setti
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 export type ChatGPTComponentProps = {
-  openAIKey: string;
   // initial messages
   messages: Array<MessageModel>;
   className?: string;
 };
 
-export const ChatGPTComponent = ({openAIKey, messages}: ChatGPTComponentProps) => {
+export const ChatGPTComponent = ({messages}: ChatGPTComponentProps) => {
   // const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -53,7 +51,7 @@ export const ChatGPTComponent = ({openAIKey, messages}: ChatGPTComponentProps) =
   const weights = useSelector((state: GeoDaState) => state.root.weights);
 
   // useChatGPT hook
-  const {initOpenAI, sendMessage, speechToText} = useChatGPT({
+  const {sendMessage, speechToText} = useChatGPT({
     customFunctions: CUSTOM_FUNCTIONS,
     customFunctionContext: {visState, weights, queryValuesBySQL}
   });
@@ -126,34 +124,39 @@ export const ChatGPTComponent = ({openAIKey, messages}: ChatGPTComponentProps) =
   );
 
   // initialize OpenAI client
-  useEffect(() => {
-    // set initial message
-    // setMessages([
-    //   // test any custom message
-    //   {
-    //     type: 'custom',
-    //     message: '',
-    //     sender: 'ChatGPT',
-    //     direction: 'incoming',
-    //     position: 'normal',
-    //     payload: {
-    //       type: 'custom',
-    //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
-    //       functionArgs: {
-    //         variable: 'HR60',
-    //         k: 5
-    //       },
-    //       output: {
-    //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
-    //       }
-    //     }
-    //   }
-    // ]);
-    if (openAIKey) {
-      initOpenAI(openAIKey, GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  // // set initial message
+  // setMessages([
+  //   // test any custom message
+  //   {
+  //     type: 'custom',
+  //     message: '',
+  //     sender: 'ChatGPT',
+  //     direction: 'incoming',
+  //     position: 'normal',
+  //     payload: {
+  //       type: 'custom',
+  //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
+  //       functionArgs: {
+  //         variable: 'HR60',
+  //         k: 5
+  //       },
+  //       output: {
+  //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
+  //       }
+  //     }
+  //   }
+  // ]);
+  // if (openAIKey) {
+  //   initOpenAI(
+  //     openAIKey,
+  //     GEODA_AI_ASSISTANT_NAME,
+  //     GEODA_AI_ASSISTANT_BODY,
+  //     GEODA_AI_ASSISTANT_VERSION
+  //   );
+  // }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   // scroll to bottom when new message is added
   useEffect(() => {
@@ -177,6 +180,10 @@ export const ChatGPTComponent = ({openAIKey, messages}: ChatGPTComponentProps) =
   const onScreenshotClick = useCallback(() => {
     // dispatch to set startScreenCapture to true
     dispatch(setStartScreenCapture(true));
+  }, [dispatch]);
+
+  const onRemoveScreenshot = useCallback(() => {
+    dispatch(setScreenCaptured(''));
   }, [dispatch]);
 
   // handle stop running chat
@@ -265,6 +272,7 @@ export const ChatGPTComponent = ({openAIKey, messages}: ChatGPTComponentProps) =
         <PromptInputWithBottomActions
           onSendMessage={handleSend}
           onScreenshotClick={onScreenshotClick}
+          onRemoveScreenshot={onRemoveScreenshot}
           screenCaptured={screenCaptured}
           onVoiceMessage={speechToText}
           defaultPromptText={defaultPromptText}

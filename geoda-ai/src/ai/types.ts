@@ -54,6 +54,10 @@ export type CustomFunctionOutputProps<R, D> = {
   type: string;
   // the name of the function, e.g. createMap, createPlot etc.
   name: string;
+  // the args of the function, e.g. {datasetId: '123', variable: 'income'}
+  args?: Record<string, any>;
+  /** flag indicate if the custom function is a intermediate step */
+  isIntermediate?: boolean;
   /* the result of the function run, it will be sent back to LLM to parse as response to users */
   result: R;
   /* the data of the function run, it will be used to create the custom message e.g. plot, map etc. */
@@ -70,7 +74,8 @@ export type CustomFunctions = {
   [key: string]: (
     functionName: string,
     functionArgs: any,
-    customFunctionContext: any
+    customFunctionContext: any,
+    previousOutput?: CustomFunctionOutputProps<unknown, unknown>[]
   ) =>
     | CustomFunctionOutputProps<unknown, unknown>
     | Promise<CustomFunctionOutputProps<unknown, unknown>>;

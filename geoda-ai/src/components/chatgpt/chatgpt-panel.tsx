@@ -1,28 +1,23 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
 import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
-import {useChatGPT} from '@/hooks/use-chatgpt';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {addDatasetToAI, setIsOpenAIKeyChecked, setPropertyPanel} from '@/actions';
+import {addDatasetToAI, setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
-import {testOpenAIKey} from '@/ai/openai-utils';
 import {datasetsSelector} from '@/store/selectors';
-import {MAP_ID} from '@/constants';
-import {queryValuesBySQL} from '@/hooks/use-duckdb';
-import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
 import {DatasetProps} from '@/reducers/file-reducer';
-import {GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION} from '@/ai/assistant/geoda-assistant';
+import {ChatGPTConfigComponent} from './chatgpt-config';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 export const INVALID_OPENAI_KEY_MESSAGE =
   'The OpenAI API key is invalid. Please change your OpenAI API key in Settings.';
-export const CONNECT_OPENAI_API = 'Connecting...';
+export const CONNECT_OPENAI_API = 'Connecting and initializing ...';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
@@ -52,22 +47,17 @@ const ChatGPTPanel = () => {
 
   const datasetMeta = useSelector((state: GeoDaState) => state.root.ai.datasetMeta);
 
-  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
-
-  const weights = useSelector((state: GeoDaState) => state.root.weights);
-
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
 
-  // check if openAIKey is valid
-  const [openAIKeyValid, setOpenAIKeyValid] = useState<'checking' | 'success' | 'failed'>(
-    isKeyChecked ? 'success' : 'checking'
-  );
-
-  // useChatGPT hook
-  const {initOpenAI} = useChatGPT({
-    customFunctions: CUSTOM_FUNCTIONS,
-    customFunctionContext: {visState, weights, queryValuesBySQL}
+  // check if datasetMeta has all the datasetIds from datasets
+  const isDatasetMetaComplete = datasets.every(dataset => {
+    return datasetMeta?.find(meta => meta.datasetId === dataset.dataId);
   });
+
+  const onNoOpenAIKeyMessageClick = () => {
+    // dispatch to show settings panel
+    dispatch(setPropertyPanel(PanelName.SETTINGS));
+  };
 
   function onDatasetsChange(datasets: DatasetProps[]) {
     // find datasetIds from datasets that are not in datasetMeta
@@ -84,33 +74,36 @@ const ChatGPTPanel = () => {
     });
   }
 
-  useEffect(() => {
-    if (openAIKey) {
-      testOpenAIKey(openAIKey).then((isValid: boolean) => {
-        initOpenAI(openAIKey, GEODA_AI_ASSISTANT_BODY, GEODA_AI_ASSISTANT_VERSION).then(() => {
-          setOpenAIKeyValid(isValid ? 'success' : 'failed');
-          if (isValid) {
-            onDatasetsChange(datasets);
-            dispatch(setIsOpenAIKeyChecked(true));
-          }
-        });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, initOpenAI, openAIKey]);
+  // useEffect(() => {
+  //   async function onOpenAIKeyChange() {
+  //     if (openAIKey) {
+  //       const isValidKey = await testOpenAIKey(openAIKey);
+  //       if (!isValidKey) {
+  //         dispatch(setIsOpenAIKeyChecked(false));
+  //         setStatus('failed');
+  //         return;
+  //       }
+  //       await initOpenAI(
+  //         openAIKey,
+  //         GEODA_AI_ASSISTANT_NAME,
+  //         GEODA_AI_ASSISTANT_BODY,
+  //         GEODA_AI_ASSISTANT_VERSION
+  //       );
+  //       onDatasetsChange(datasets);
+  //       dispatch(setIsOpenAIKeyChecked(true));
+  //     }
+  //   }
+  //   onOpenAIKeyChange();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [openAIKey]);
 
   useEffect(() => {
     // check if datasets are processed as additional instructions for AI model
-    if (openAIKeyValid === 'success' && openAIKey) {
+    if (isKeyChecked && openAIKey) {
       onDatasetsChange(datasets);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasets]);
-
-  const onNoOpenAIKeyMessageClick = () => {
-    // dispatch to show settings panel
-    dispatch(setPropertyPanel(PanelName.SETTINGS));
-  };
+  }, [datasets, isKeyChecked]);
 
   return (
     <RightPanelContainer
@@ -130,19 +123,18 @@ const ChatGPTPanel = () => {
           type={WarningType.WARNING}
           onClick={onNoOpenAIKeyMessageClick}
         />
-      ) : openAIKeyValid !== 'success' ? (
+      ) : isKeyChecked === false ? (
+        <ChatGPTConfigComponent />
+      ) : !datasetMeta && !isDatasetMetaComplete ? (
         <WarningBox
-          message={openAIKeyValid === 'checking' ? CONNECT_OPENAI_API : INVALID_OPENAI_KEY_MESSAGE}
-          type={openAIKeyValid === 'checking' ? WarningType.WAIT : WarningType.WARNING}
+          message={CONNECT_OPENAI_API}
+          type={WarningType.WAIT}
           onClick={onNoOpenAIKeyMessageClick}
         />
       ) : datasets?.length === 0 ? (
         <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
-        <ChatGPTComponent
-          openAIKey={openAIKey}
-          messages={messages.length > 0 ? messages : [welcomeMessage]}
-        />
+        <ChatGPTComponent messages={messages.length > 0 ? messages : [welcomeMessage]} />
       )}
     </RightPanelContainer>
   );
