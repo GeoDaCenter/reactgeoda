@@ -14,12 +14,12 @@ import {
   getBinaryGeometryTypeFromLayer
 } from '@/components/spatial-operations/spatial-join-utils';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export type WeightsResult = {
+  success: true;
   datasetId: string;
-  weightsMeta: WeightsMeta;
-};
+} & WeightsMeta;
 
 type WeightsData = number[][];
 
@@ -110,8 +110,9 @@ export async function createWeightsCallback(
       type: 'weights',
       name: functionName,
       result: {
-        weightsMeta: w.weightsMeta,
-        datasetId: keplerDataset.id
+        success: true,
+        datasetId: keplerDataset.id,
+        ...w.weightsMeta
       },
       data: w.weights
     };

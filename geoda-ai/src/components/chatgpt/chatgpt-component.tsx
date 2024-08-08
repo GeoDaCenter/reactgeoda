@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
-// import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
+
+import {MessageModel, MessagePayload} from '@/ai/types';
+
 import {GeoDaState} from '@/store';
 import {
   setDefaultPromptText,
@@ -13,35 +14,22 @@ import {
 import {cancelOpenAI} from '@/ai/openai-utils';
 import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actions';
 import MessageCard from '../chat/message-card';
+import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
+import {useChatGPT} from '@/hooks/use-chatgpt';
+import {queryValuesBySQL} from '@/hooks/use-duckdb';
+import {MAP_ID} from '@/constants';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 export type ChatGPTComponentProps = {
-  openAIKey: string;
-  // the function to initialize OpenAI js client
-  initOpenAI: (apiKey: string) => void;
-  // the function to process user prompt message and return response in array of MessageModel
-  processMessage: (
-    message: string,
-    streamMessage: (delta: string, customMessage?: MessageModel) => void,
-    imageMessage?: string
-  ) => void;
-  // the function
-  speechToText: (voice: Blob) => Promise<string>;
   // initial messages
   messages: Array<MessageModel>;
   className?: string;
 };
 
-export const ChatGPTComponent = ({
-  openAIKey,
-  initOpenAI,
-  processMessage,
-  speechToText,
-  messages
-}: ChatGPTComponentProps) => {
+export const ChatGPTComponent = ({messages}: ChatGPTComponentProps) => {
   // const intl = useIntl();
   const dispatch = useDispatch();
 
@@ -57,6 +45,16 @@ export const ChatGPTComponent = ({
   const defaultPromptText = useSelector(
     (state: GeoDaState) => state.root.uiState.defaultPromptText
   );
+
+  const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
+
+  const weights = useSelector((state: GeoDaState) => state.root.weights);
+
+  // useChatGPT hook
+  const {sendMessage, speechToText} = useChatGPT({
+    customFunctions: CUSTOM_FUNCTIONS,
+    customFunctionContext: {visState, weights, queryValuesBySQL}
+  });
 
   // handle send message
   const handleSend = useCallback(
@@ -92,17 +90,22 @@ export const ChatGPTComponent = ({
       }
 
       // send user message to chatbot
-      await processMessage(
+      await sendMessage(
         message,
-        (deltaMessage: string, customMessage?: MessageModel, isCompleted?: boolean) => {
+        (deltaMessage: string, customMessage?: MessagePayload, isCompleted?: boolean) => {
           if (deltaMessage.length > 0) {
             setIsTyping(false);
           }
           dispatch(
             setMessages([
               ...newMessages,
-              {message: deltaMessage, direction: 'incoming', sender: 'ChatGPT', position: 'normal'},
-              ...(customMessage ? [customMessage] : [])
+              {
+                message: deltaMessage,
+                direction: 'incoming',
+                sender: 'ChatGPT',
+                position: 'normal',
+                payload: customMessage
+              }
             ])
           );
           if (isCompleted) {
@@ -117,38 +120,43 @@ export const ChatGPTComponent = ({
         newMessages.pop();
       }
     },
-    [dispatch, messages, processMessage, screenCaptured]
+    [dispatch, messages, screenCaptured, sendMessage]
   );
 
   // initialize OpenAI client
-  useEffect(() => {
-    // set initial message
-    // setMessages([
-    //   // test any custom message
-    //   {
-    //     type: 'custom',
-    //     message: '',
-    //     sender: 'ChatGPT',
-    //     direction: 'incoming',
-    //     position: 'normal',
-    //     payload: {
-    //       type: 'custom',
-    //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
-    //       functionArgs: {
-    //         variable: 'HR60',
-    //         k: 5
-    //       },
-    //       output: {
-    //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
-    //       }
-    //     }
-    //   }
-    // ]);
-    if (openAIKey) {
-      initOpenAI(openAIKey);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  // // set initial message
+  // setMessages([
+  //   // test any custom message
+  //   {
+  //     type: 'custom',
+  //     message: '',
+  //     sender: 'ChatGPT',
+  //     direction: 'incoming',
+  //     position: 'normal',
+  //     payload: {
+  //       type: 'custom',
+  //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
+  //       functionArgs: {
+  //         variable: 'HR60',
+  //         k: 5
+  //       },
+  //       output: {
+  //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
+  //       }
+  //     }
+  //   }
+  // ]);
+  // if (openAIKey) {
+  //   initOpenAI(
+  //     openAIKey,
+  //     GEODA_AI_ASSISTANT_NAME,
+  //     GEODA_AI_ASSISTANT_BODY,
+  //     GEODA_AI_ASSISTANT_VERSION
+  //   );
+  // }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   // scroll to bottom when new message is added
   useEffect(() => {
@@ -172,6 +180,10 @@ export const ChatGPTComponent = ({
   const onScreenshotClick = useCallback(() => {
     // dispatch to set startScreenCapture to true
     dispatch(setStartScreenCapture(true));
+  }, [dispatch]);
+
+  const onRemoveScreenshot = useCallback(() => {
+    dispatch(setScreenCaptured(''));
   }, [dispatch]);
 
   // handle stop running chat
@@ -260,6 +272,7 @@ export const ChatGPTComponent = ({
         <PromptInputWithBottomActions
           onSendMessage={handleSend}
           onScreenshotClick={onScreenshotClick}
+          onRemoveScreenshot={onRemoveScreenshot}
           screenCaptured={screenCaptured}
           onVoiceMessage={speechToText}
           defaultPromptText={defaultPromptText}

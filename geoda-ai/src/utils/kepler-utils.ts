@@ -3,16 +3,25 @@ import {InteractionAction} from '@/reducers/interaction-reducer';
 import {Layer} from '@kepler.gl/layers';
 import {KeplerGlState} from '@kepler.gl/reducers';
 import {Filter} from '@kepler.gl/types';
+import {UnknownAction} from 'redux';
 
 // type guard function to check if payload is GeoDaBrushLinkPayloadProps
 function isGeoDaBrushLinkPayloadProps(payload: any): payload is GeoDaBrushLinkPayloadProps {
   return payload.dataId && payload.filteredIndex;
 }
 
-export function handleGeoDaBrushLink(state: KeplerGlState, action: InteractionAction) {
+export function isInteractionAction(action: UnknownAction): action is InteractionAction {
+  return action.type === 'BRUSH_LINK_FROM_GEODA' || action.type === 'BRUSH_LINK_FROM_KEPLER';
+}
+
+export function handleGeoDaBrushLink(state: KeplerGlState, action: UnknownAction) {
+  if (!isInteractionAction(action)) {
+    return state;
+  }
   if (!isGeoDaBrushLinkPayloadProps(action.payload)) {
     return state;
   }
+
   const {sourceId, dataId, filteredIndex} = action.payload;
   if (sourceId === 'kepler') {
     return state;

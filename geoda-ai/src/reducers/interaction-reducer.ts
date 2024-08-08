@@ -20,7 +20,7 @@ const initialState: KeplerBrushLinkProps = {
 };
 
 export type InteractionAction = {
-  type: string;
+  type: 'BRUSH_LINK_FROM_KEPLER' | 'BRUSH_LINK_FROM_GEODA';
   payload: KeplerBrushLinkPayloadProps | GeoDaBrushLinkPayloadProps;
 };
 

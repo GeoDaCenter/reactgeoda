@@ -13,7 +13,7 @@ import {
 } from '@/constants';
 import {createMapBreaks} from '@/utils/mapping-functions';
 import {VisState} from '@kepler.gl/schemas';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 // LLM will return functionName and functionArgs
 // CustomFunctions {functionName: callbackFunction}

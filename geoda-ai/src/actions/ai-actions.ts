@@ -2,6 +2,11 @@ import {
   getMetaDataCallback,
   MetaDataCallbackOutput
 } from '@/ai/assistant/callbacks/callback-metadata';
+import {
+  GEODA_AI_ASSISTANT_BODY,
+  GEODA_AI_ASSISTANT_NAME,
+  GEODA_AI_ASSISTANT_VERSION
+} from '@/ai/assistant/geoda-assistant';
 import {ErrorOutput} from '@/ai/assistant/custom-functions';
 import {initOpenAI, setAdditionalInstructions} from '@/ai/openai-utils';
 import {MAP_ID} from '@/constants';
@@ -11,7 +16,8 @@ import {Dispatch, UnknownAction} from 'redux';
 
 export enum AI_ACTIONS {
   SET_MESSAGES = 'SET_MESSAGES',
-  SET_DATASET_META = 'SET_DATASET_META'
+  SET_DATASET_META = 'SET_DATASET_META',
+  ADD_DATASET_META = 'ADD_DATASET_META'
 }
 
 export const setMessages = (payload: MessageModel[]) => ({
@@ -19,17 +25,24 @@ export const setMessages = (payload: MessageModel[]) => ({
   payload
 });
 
-export type DatasetMetaPayloadProps = Array<{
+export type DatasetMetaProps = {
   datasetId: string;
   datasetName: string;
   numberOfRows: number;
   numberOfColumns: number;
   columnNames: string[];
   columnDataTypes: string[];
-}>;
+};
+
+export type DatasetMetaPayloadProps = Array<DatasetMetaProps>;
 
 export const setDatasetMeta = (payload: DatasetMetaPayloadProps) => ({
   type: AI_ACTIONS.SET_DATASET_META,
+  payload
+});
+
+export const addDatasetMeta = (payload: DatasetMetaProps) => ({
+  type: AI_ACTIONS.ADD_DATASET_META,
   payload
 });
 
@@ -54,19 +67,20 @@ export const addDatasetToAI =
         );
 
         if (newMetaData.type === 'metadata') {
-          const updatedDatasetMeta: DatasetMetaPayloadProps = [
-            ...(datasetMeta || []),
-            newMetaData.result
-          ];
           const textDatasetMeta = JSON.stringify(newMetaData);
           const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Please try to correct the variable names if they are not correct.`;
 
-          // update datasetMeta in the store
-          dispatch(setDatasetMeta(updatedDatasetMeta));
-
           // add dataset metadata as additional instructions for AI model
-          await initOpenAI(openAIKey);
+          await initOpenAI(
+            openAIKey,
+            GEODA_AI_ASSISTANT_NAME,
+            GEODA_AI_ASSISTANT_BODY,
+            GEODA_AI_ASSISTANT_VERSION
+          );
           await setAdditionalInstructions(message);
+
+          // update datasetMeta in the store
+          dispatch(addDatasetMeta(newMetaData.result));
         }
       }
     }

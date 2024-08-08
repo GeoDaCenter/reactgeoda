@@ -25,7 +25,7 @@ export type HistogramCallbackOutput = {
   data: HistogramDataProps[];
 };
 
-type HistogramCallbackProps = {
+export type HistogramCallbackProps = {
   k: number;
   variableName: string;
   datasetName?: string;
@@ -59,7 +59,7 @@ export function histogramCallback(
 
   return {
     type: 'histogram',
-    name: 'Histogram',
+    name: 'histogram',
     result: {
       id: generateRandomId(),
       datasetId: keplerDataset.id,

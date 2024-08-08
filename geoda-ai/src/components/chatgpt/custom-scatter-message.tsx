@@ -7,7 +7,7 @@ import {Scatterplot} from '../plots/scatter-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ScatterPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomScatterPlotOutput(
   props: CustomFunctionOutputProps<unknown, unknown>

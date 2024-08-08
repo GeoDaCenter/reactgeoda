@@ -27,6 +27,11 @@ export const aiReducer = (state = initialState, action: AiAction) => {
         ...state,
         datasetMeta: action.payload
       };
+    case AI_ACTIONS.ADD_DATASET_META:
+      return {
+        ...state,
+        datasetMeta: state.datasetMeta ? [...state.datasetMeta, action.payload] : [action.payload]
+      };
     default:
       return state;
   }

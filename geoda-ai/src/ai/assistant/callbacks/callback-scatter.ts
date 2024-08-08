@@ -17,7 +17,7 @@ export type ScatterCallbackOutput = {
   // data is not needed for classic scatter plot, but when linear regression is added, it will be used
 };
 
-type ScatterCallbackProps = {
+export type ScatterCallbackProps = {
   variableX: string;
   variableY: string;
   datasetName?: string;

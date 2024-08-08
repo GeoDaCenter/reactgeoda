@@ -7,7 +7,7 @@ import {BubbleChart} from '../plots/bubble-chart-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {BubbleChartStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 export function isCustomBubbleChartOutput(
   props: CustomFunctionOutputProps<unknown, unknown>

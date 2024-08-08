@@ -1,7 +1,9 @@
 import OpenAI from 'openai';
 
 export const GPT_MODEL = 'gpt-4o-2024-05-13';
-export const GEODA_AI_ASSISTANT_NAME = 'geoda.ai-openai-agent';
+// export const GPT_MODEL = 'gpt-4o-mini';
+export const GEODA_AI_ASSISTANT_NAME =
+  process.env.NODE_ENV === 'production' ? 'geoda.ai-openai-agent' : 'geoda.ai-openai-agent-dev';
 export const GEODA_AI_ASSISTANT_VERSION = '0.0.8';
 
 export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
@@ -9,7 +11,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   name: GEODA_AI_ASSISTANT_NAME,
   description: 'Assistant for geoda.ai',
   instructions:
-    "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local spatial autocorrelation analysis, including local morn statistics, local G, local G*, local Geary and Quantile LISA\n5. apply spatial regression, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTex to format text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.",
+    "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local indicators of spatial association (LISA) analysis, including local morn, local G, local G*, local Geary and Quantile LISA\n5. Apply spatial regression analysis, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTex to format text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.\nFor lisa function, please use the existing spatial weights. If no spatial weights can be found, please ask the user to create spatial weights first.\n Please try to correct the variable name using the metadata of the datasets.",
   tools: [
     {
       type: 'function',
@@ -246,7 +248,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
       function: {
         name: 'createWeights',
         description:
-          'Create a spatial weights, which could be k nearest neighbor (knn) weights, queen contiguity weights, rook contiguity weights, distance based weights or kernel weights.',
+          'Create a spatial weights, which could be k nearest neighbor (knn) weights, queen contiguity weights, rook contiguity weights, distance based weights or kernel weights. Please assume the dataset contains the geometries or coordinates of the observations for weights createion.',
         parameters: {
           type: 'object',
           properties: {
@@ -298,20 +300,41 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
     {
       type: 'function',
       function: {
-        name: 'univariateLocalMoran',
+        name: 'lisa',
         description:
-          'Apply univariate local moran statistic to identify local clusters and local spatial outliers of a specific variable using a specific spatial weights. In the local moran statistical result, the high-high and low-low locations (positive local spatial autocorrelation) are typically referred to as spatial clusters, while the high-low and low-high locations (negative local spatial autocorrelation) are termed spatial outliers.',
+          'Apply local indicators of spatial association (LISA) statistics, which inlcude local moran, local G, local G*, local Geary and Quantile LISA, to identify local clusters (e.g. hot spots and cold spots) or local spatial outliers of a specific variable and a specific spatial weights. Please do not create spatial weights in this function and only use the existing spatial weights. If no spatial weights can be found, please respond to user to create spatial weights first.',
         parameters: {
           type: 'object',
           properties: {
+            method: {
+              type: 'string',
+              description:
+                "The name of the LISA method. It could be one of the following methods: localMoran, localGeary, localG, localGStar, quantileLisa. The localG is for local Getis-Ord's G"
+            },
             weightsID: {
               type: 'string',
               description:
-                'The weightsID that is mapping to user created spatial weights based on the dataset name, type and properties when creating the spatial weights. If no weightsID can be found from the metadata of previously created weights, please prompt user to create spatial weights first.'
+                'The weightsID that is mapping to user created spatial weights based on the dataset name, type and properties when creating the spatial weights. If no weightsID can be found, please do not try to create spatial weights, but ask user to create spatial weights first.'
             },
             variableName: {
               type: 'string',
               description: 'The variable name, which contains numeric values'
+            },
+            multiVariableNames: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description:
+                "A list of the variable names. This property is only used in multivariate LISA methods: e.g. multivariate local moran. If multivariate LISA is specified, please don't use variableName."
+            },
+            biVariableNames: {
+              type: 'array',
+              items: {
+                type: 'string'
+              },
+              description:
+                "A list of the variable names. This property is only used in bivariate LISA methods: e.g. bivariate local moran. If bivariate LISA is specified, please don't use variableName."
             },
             permutation: {
               type: 'number',
@@ -329,7 +352,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
                 'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
             }
           },
-          required: ['weightsID', 'variableName', 'datasetName']
+          required: ['method', 'weightsID', 'variableName', 'datasetName']
         }
       }
     },

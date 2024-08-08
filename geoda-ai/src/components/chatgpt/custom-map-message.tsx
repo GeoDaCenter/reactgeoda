@@ -12,7 +12,7 @@ import {ColorRange} from '@kepler.gl/constants';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {MapCallbackOutput} from '@/ai/assistant/callbacks/callback-map';
 import {selectKeplerDataset} from '@/store/selectors';
-import {CustomFunctionOutputProps} from '@/ai/openai-utils';
+import {CustomFunctionOutputProps} from '@/ai/types';
 
 /**
  * Type guard for Custom Map Output
@@ -144,7 +144,7 @@ export const CustomMapMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-2 w-full">
       {!hide && (
         <>
           <div className="pointer-events-none h-[180px] w-full">
