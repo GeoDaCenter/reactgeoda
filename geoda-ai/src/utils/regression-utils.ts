@@ -34,9 +34,9 @@ export async function runRegression({
 
   if (model === 'classic') {
     result = await linearRegression({x, y, xNames, yName, weightsId, weights: w, datasetName});
-  } else if (model === 'lag') {
+  } else if (model === 'spatial-lag') {
     result = await spatialLagRegression({x, y, xNames, yName, weightsId, weights: w, datasetName});
-  } else if (model === 'error') {
+  } else if (model === 'spatial-error') {
     result = await spatialError({x, y, xNames, yName, weightsId, weights: w, datasetName});
   } else {
     throw new Error(`Invalid regression model: ${model}`);

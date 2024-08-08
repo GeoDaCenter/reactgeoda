@@ -4,14 +4,14 @@ export const GPT_MODEL = 'gpt-4o-2024-05-13';
 // export const GPT_MODEL = 'gpt-4o-mini';
 export const GEODA_AI_ASSISTANT_NAME =
   process.env.NODE_ENV === 'production' ? 'geoda.ai-openai-agent' : 'geoda.ai-openai-agent-dev';
-export const GEODA_AI_ASSISTANT_VERSION = '0.0.8';
+export const GEODA_AI_ASSISTANT_VERSION = '0.0.1';
 
 export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
   model: GPT_MODEL,
   name: GEODA_AI_ASSISTANT_NAME,
   description: 'Assistant for geoda.ai',
   instructions:
-    "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local indicators of spatial association (LISA) analysis, including local morn, local G, local G*, local Geary and Quantile LISA\n5. Apply spatial regression analysis, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTex to format text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.\nFor lisa function, please use the existing spatial weights. If no spatial weights can be found, please ask the user to create spatial weights first.\n Please try to correct the variable name using the metadata of the datasets.",
+    "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local indicators of spatial association (LISA) analysis, including local morn, local G, local G*, local Geary and Quantile LISA\n5. Apply spatial regression analysis, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTeX symbols for mathematical and scientific text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.\nFor lisa function, please use the existing spatial weights. If no spatial weights can be found, please ask the user to create spatial weights first.\n Please try to correct the variable name using the metadata of the datasets.",
   tools: [
     {
       type: 'function',
@@ -361,7 +361,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
       function: {
         name: 'spatialRegression',
         description:
-          'Apply spatial regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. If spatial weights is provided, the diagnostics for spatial autocorrelation will be applied. The spatial regression model could be classic, spatial-lag or spatial-error model.',
+          'Apply spatial regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. The spatial regression model could be classic, spatial-lag or spatial-error model. For classic model, the optional weightsId is for spatial diagnostics. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.',
         parameters: {
           type: 'object',
           properties: {
@@ -383,8 +383,7 @@ export const GEODA_AI_ASSISTANT_BODY: OpenAI.Beta.AssistantCreateParams = {
             },
             weightsId: {
               type: 'string',
-              description:
-                'The id of the specified spatial weights. For classic model, the optional weightsId is for spatial diagnostics. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.'
+              description: 'The id of the specified spatial weights.'
             },
             datasetName: {
               type: 'string',
