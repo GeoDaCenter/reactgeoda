@@ -56,8 +56,7 @@ export function SpregPanel() {
         model,
         yVariable,
         xVariables,
-        weightsId,
-        weights
+        weights: weights.find(w => w.weightsMeta.id === weightsId)
       })
     );
   };
