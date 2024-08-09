@@ -9,8 +9,7 @@ export type RunRegressionProps = {
   model: string;
   yVariable: string;
   xVariables: string[];
-  weightsId: string;
-  weights: WeightsProps[];
+  weights?: WeightsProps;
 };
 
 export async function runRegression({
@@ -18,7 +17,6 @@ export async function runRegression({
   model,
   xVariables: xNames,
   yVariable: yName,
-  weightsId,
   weights
 }: RunRegressionProps): Promise<RegressionDataProps> {
   let result = null;
@@ -31,14 +29,14 @@ export async function runRegression({
     getColumnDataFromKeplerDataset(variable, keplerDataset)
   );
   // get weights data
-  const selectedWeightData = weights.find(({weightsMeta}) => weightsMeta.id === weightsId);
-  const w = selectedWeightData?.weights;
+  const weightsId = weights?.weightsMeta.id;
+  const w = weights?.weights;
 
   if (model === 'classic') {
     result = await linearRegression({x, y, xNames, yName, weightsId, weights: w, datasetName});
-  } else if (model === 'lag') {
+  } else if (model === 'spatial-lag') {
     result = await spatialLagRegression({x, y, xNames, yName, weightsId, weights: w, datasetName});
-  } else if (model === 'error') {
+  } else if (model === 'spatial-error') {
     result = await spatialError({x, y, xNames, yName, weightsId, weights: w, datasetName});
   } else {
     throw new Error(`Invalid regression model: ${model}`);

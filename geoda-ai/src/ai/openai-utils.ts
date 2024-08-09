@@ -334,82 +334,85 @@ export async function processMessage({
 
   const release = await mutex.acquire();
 
-  // create a message in the thread
-  await openai.beta.threads.messages.create(thread.id, {
-    role: 'user',
-    content: textMessage
-  });
-
-  lastMessage = '';
-
-  // create a run with stream to handle the assistant response
-  const run = await openai.beta.threads.runs
-    .stream(thread.id, {
-      assistant_id: assistant.id,
-      parallel_tool_calls: true
-    })
-    .on('toolCallCreated', async toolCall => {
-      console.log('toolCallCreated', toolCall);
+  try {
+    // create a message in the thread
+    await openai.beta.threads.messages.create(thread.id, {
+      role: 'user',
+      content: textMessage
     });
 
-  let nextRun = null;
+    lastMessage = '';
 
-  for await (const event of run) {
-    // Retrieve events that are denoted with 'requires_action'
-    // since these will have our tool_calls
-    if (event.event === 'thread.run.requires_action') {
+    // create a run with stream to handle the assistant response
+    const run = await openai.beta.threads.runs
+      .stream(thread.id, {
+        assistant_id: assistant.id,
+        parallel_tool_calls: true
+      })
+      .on('toolCallCreated', async toolCall => {
+        console.log('toolCallCreated', toolCall);
+      });
+
+    let nextRun = null;
+
+    for await (const event of run) {
+      // Retrieve events that are denoted with 'requires_action'
+      // since these will have our tool_calls
+      if (event.event === 'thread.run.requires_action') {
+        nextRun = await handleRequiresAction(
+          event.data,
+          event.data.id,
+          event.data.thread_id,
+          customFunctions,
+          customFunctionContext,
+          customMessageCallback,
+          streamMessageCallback
+        );
+      }
+      if (event.event === 'thread.message.delta') {
+        const content = event.data.delta.content;
+        const textContent = content
+          ?.filter(c => c.type === 'text')
+          .reduce((acc, c) => {
+            return acc + c.text?.value || '';
+          }, '');
+
+        lastMessage += textContent || '';
+        // stream the message back to the UI
+        streamMessageCallback(lastMessage);
+      }
+    }
+
+    // if there is more than one function call in the same run, process them
+    let previousFunctionName: string | null =
+      nextRun?.run?.required_action?.submit_tool_outputs.tool_calls?.[0]?.function?.name || null;
+
+    while (nextRun && nextRun.run?.status === 'requires_action') {
       nextRun = await handleRequiresAction(
-        event.data,
-        event.data.id,
-        event.data.thread_id,
+        nextRun.run,
+        nextRun.run.id,
+        nextRun.run.thread_id,
         customFunctions,
         customFunctionContext,
         customMessageCallback,
-        streamMessageCallback
+        streamMessageCallback,
+        nextRun.output
       );
-    }
-    if (event.event === 'thread.message.delta') {
-      const content = event.data.delta.content;
-      const textContent = content
-        ?.filter(c => c.type === 'text')
-        .reduce((acc, c) => {
-          return acc + c.text?.value || '';
-        }, '');
+      const nextFunctionName =
+        nextRun?.run?.required_action?.submit_tool_outputs.tool_calls?.[0]?.function?.name || null;
 
-      lastMessage += textContent || '';
-      // stream the message back to the UI
-      streamMessageCallback(lastMessage);
+      if (previousFunctionName === nextFunctionName) {
+        await run.abort();
+        break;
+      }
     }
+
+    // final run
+    await run.finalRun();
+  } finally {
+    // release the lock
+    release();
   }
-
-  // if there is more than one function call in the same run, process them
-  let previousFunctionName: string | null =
-    nextRun?.run?.required_action?.submit_tool_outputs.tool_calls?.[0]?.function?.name || null;
-
-  while (nextRun && nextRun.run?.status === 'requires_action') {
-    nextRun = await handleRequiresAction(
-      nextRun.run,
-      nextRun.run.id,
-      nextRun.run.thread_id,
-      customFunctions,
-      customFunctionContext,
-      customMessageCallback,
-      streamMessageCallback,
-      nextRun.output
-    );
-    const nextFunctionName =
-      nextRun?.run?.required_action?.submit_tool_outputs.tool_calls?.[0]?.function?.name || null;
-
-    if (previousFunctionName === nextFunctionName) {
-      await run.abort();
-      break;
-    }
-  }
-
-  // final run
-  await run.finalRun();
-  // release the lock
-  release();
 }
 
 async function handleRequiresAction(

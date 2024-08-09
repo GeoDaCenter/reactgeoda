@@ -1,6 +1,6 @@
 // define a type of custom function that is an object contains key-value pairs
 
-import {spatialRegressionCallbackFunc} from './callbacks/callback-regression';
+import {spatialRegressionCallback} from './callbacks/callback-regression';
 import {createVariableCallBack} from './callbacks/callback-table';
 import {createWeightsCallback} from './callbacks/callback-weights';
 import {createMapCallback} from './callbacks/callback-map';
@@ -44,7 +44,7 @@ export const CUSTOM_FUNCTIONS: CustomFunctions = {
   bubble: bubbleCallback,
   boxplot: boxplotCallback,
   parallelCoordinate: parallelCoordinateCallback,
-  spatialRegression: spatialRegressionCallbackFunc,
+  spatialRegression: spatialRegressionCallback,
   createVariable: createVariableCallBack,
   createWeights: createWeightsCallback,
   createMap: createMapCallback,

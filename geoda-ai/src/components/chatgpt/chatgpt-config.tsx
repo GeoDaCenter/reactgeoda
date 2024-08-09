@@ -1,15 +1,18 @@
 import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Accordion, AccordionItem, Input} from '@nextui-org/react';
-
+import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
+import {Icon} from '@iconify/react';
 import {GeoDaState} from '../../store';
 import {setIsOpenAIKeyChecked, setOpenAIKey} from '../../actions';
 import {accordionItemClasses} from '@/constants';
-import {CreateButton} from '../common/create-button';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {WarningBox, WarningType} from '../common/warning-box';
 
-export function ChatGPTConfigComponent() {
+export function ChatGPTConfigComponent({
+  setShowConfig
+}: {
+  setShowConfig: (showConfig: boolean) => void;
+}) {
   const dispatch = useDispatch();
 
   // state for openAIKey error
@@ -50,8 +53,10 @@ export function ChatGPTConfigComponent() {
       dispatch(setOpenAIKey(key));
       // dispatch action to update state.root.uiState.isOpenAIKeyChecked
       dispatch(setIsOpenAIKeyChecked(true));
+      // close the config panel
+      setShowConfig(false);
     }
-  }, [dispatch, key]);
+  }, [dispatch, key, setShowConfig]);
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
@@ -86,9 +91,16 @@ export function ChatGPTConfigComponent() {
               />
             </AccordionItem>
           </Accordion>
-          <CreateButton onClick={onConfirmClick} isDisabled={false}>
-            Confirm
-          </CreateButton>
+          <Button
+            radius="sm"
+            color="danger"
+            className="bg-rose-900"
+            onClick={onConfirmClick}
+            isDisabled={false}
+            startContent={<Icon icon="hugeicons:ai-chat-02" className="h-5 w-5" />}
+          >
+            Let&apos;s Chat
+          </Button>
         </div>
       )}
     </>

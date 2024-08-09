@@ -24,7 +24,7 @@ import {addDataset} from '../actions/file-actions';
 import {MAP_ID} from '@/constants';
 import {loadDroppedFile} from '@/utils/file-utils';
 import {loadGeoDaProject, ProcessDropFilesOutput} from '@/utils/project-utils';
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {initDuckDB, useDuckDB} from '@/hooks/use-duckdb';
 import {ProtoDataset} from '@kepler.gl/types';
 import {WarningBox, WarningType} from './common/warning-box';
 
@@ -72,6 +72,7 @@ const OpenFileComponent = ({
       setLoading(true);
 
       try {
+        initDuckDB();
         // process dropped files, and return the file name, arrowTable and arrowFormatData
         const {datasets, keplerConfig, geodaConfig} = await processDropFiles(
           acceptedFiles,

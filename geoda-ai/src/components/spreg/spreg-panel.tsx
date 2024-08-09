@@ -56,8 +56,7 @@ export function SpregPanel() {
         model,
         yVariable,
         xVariables,
-        weightsId,
-        weights
+        weights: weights.find(w => w.weightsMeta.id === weightsId)
       })
     );
   };
@@ -153,10 +152,10 @@ export function SpregPanel() {
                       <Radio value="classic" defaultChecked={true}>
                         Classic
                       </Radio>
-                      <Radio value="lag" isDisabled={weights.length === 0}>
+                      <Radio value="spatial-lag" isDisabled={weights.length === 0}>
                         Spatial Lag
                       </Radio>
-                      <Radio value="error" isDisabled={weights.length === 0}>
+                      <Radio value="spatial-error" isDisabled={weights.length === 0}>
                         Spatial Error
                       </Radio>
                     </RadioGroup>
