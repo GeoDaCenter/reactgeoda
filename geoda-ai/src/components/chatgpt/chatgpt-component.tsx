@@ -123,41 +123,6 @@ export const ChatGPTComponent = ({messages}: ChatGPTComponentProps) => {
     [dispatch, messages, screenCaptured, sendMessage]
   );
 
-  // initialize OpenAI client
-  // useEffect(() => {
-  // // set initial message
-  // setMessages([
-  //   // test any custom message
-  //   {
-  //     type: 'custom',
-  //     message: '',
-  //     sender: 'ChatGPT',
-  //     direction: 'incoming',
-  //     position: 'normal',
-  //     payload: {
-  //       type: 'custom',
-  //       functionName: CustomFunctionNames.QUANTILE_BREAKS,
-  //       functionArgs: {
-  //         variable: 'HR60',
-  //         k: 5
-  //       },
-  //       output: {
-  //         quantile_breaks: [0.1, 0.2, 0.3, 0.4, 0.5]
-  //       }
-  //     }
-  //   }
-  // ]);
-  // if (openAIKey) {
-  //   initOpenAI(
-  //     openAIKey,
-  //     GEODA_AI_ASSISTANT_NAME,
-  //     GEODA_AI_ASSISTANT_BODY,
-  //     GEODA_AI_ASSISTANT_VERSION
-  //   );
-  // }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
-
   // scroll to bottom when new message is added
   useEffect(() => {
     // hack to scroll to bottom

@@ -1,6 +1,18 @@
 import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Accordion, AccordionItem, Button, Input} from '@nextui-org/react';
+import {
+  Accordion,
+  AccordionItem,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Input,
+  Select,
+  SelectItem,
+  Slider,
+  Selection
+} from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 import {GeoDaState} from '../../store';
 import {setIsOpenAIKeyChecked, setOpenAIKey} from '../../actions';
@@ -27,6 +39,10 @@ export function ChatGPTConfigComponent({
   // define useState for key
   const [key, setKey] = React.useState(openAIKey || '');
 
+
+  let typingTimer: NodeJS.Timeout; // Timer identifier
+  const doneTypingInterval = 1000; // Time in milliseconds (1 second)
+
   const onOpenAIKeyChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const keyValue = event.target.value;
     setKey(keyValue);
@@ -35,6 +51,13 @@ export function ChatGPTConfigComponent({
     setOpenAIKeyError(false);
     // reset errorMessage
     setErrorMessage('');
+
+    // if stop typing for 1 second, check if key is valid
+    // Clear the previous timer if user is still typing
+    clearTimeout(typingTimer);
+
+    // Set a new timer
+    typingTimer = setTimeout(onConfirmClick, doneTypingInterval);
   }, []);
 
   const onConfirmClick = useCallback(async () => {
@@ -62,47 +85,101 @@ export function ChatGPTConfigComponent({
     // dispatch to show settings panel
     setOpenAIKeyError(true);
     setErrorMessage('');
+    setShowConfig(true);
   };
+
+  const onLlmModelChange = useCallback((keys: Selection) => {
+    // @ts-ignore FIXME
+    keys.currentKey;
+  }, []);
 
   return (
     <>
-      {openAIKeyError && errorMessage.length > 0 ? (
-        <WarningBox
-          message={errorMessage}
-          type={WarningType.WARNING}
-          onClick={onNoOpenAIKeyMessageClick}
-        />
-      ) : (
-        <div className="flex flex-col gap-4 p-4">
-          <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1']}>
-            <AccordionItem
-              key="1"
-              aria-label="OpenAI Settings"
-              title="OpenAI Settings"
-              subtitle="Change your OpenAI settings"
-            >
+      <div className="flex flex-col gap-4 overflow-y-auto pl-4 pr-4">
+        <Accordion itemClasses={accordionItemClasses} defaultExpandedKeys={['1', '2']}>
+          <AccordionItem
+            key="1"
+            aria-label="AI Settings"
+            title="AI Settings"
+            subtitle="Change your AI settings"
+          >
+            <div className="flex flex-col gap-4">
+              <Select
+                selectedKeys={['openai']}
+                disabledKeys={['gemini', 'llama', 'qwen', 'custom']}
+                label="AI Provider"
+                placeholder="Select AI provider"
+                className="max-w-full"
+              >
+                <SelectItem key="openai">OpenAI ChatGPT</SelectItem>
+                <SelectItem key="gemini">Google Gemini</SelectItem>
+                <SelectItem key="llama">Meta Llama</SelectItem>
+                <SelectItem key="qwen">Alibaba QWen</SelectItem>
+                <SelectItem key="custom">Custom Llama</SelectItem>
+              </Select>
+              <Select
+                selectedKeys={['gpt-4o-2024-05-13']}
+                label="LLM Model"
+                placeholder="Select LLM model"
+                className="max-w-full"
+                onSelectionChange={onLlmModelChange}
+              >
+                <SelectItem key="gpt-4o-2024-05-13">gpt-4o-2024-05-13</SelectItem>
+                <SelectItem key="gpt-4o-mini">gpt-4o-mini</SelectItem>
+              </Select>
+              {openAIKeyError && errorMessage.length > 0 && (
+                <WarningBox
+                  message={errorMessage}
+                  type={WarningType.WARNING}
+                  onClick={onNoOpenAIKeyMessageClick}
+                />
+              )}
               <Input
                 type="string"
-                label="OpenAI Key"
+                label="API Key"
                 defaultValue="Enter your OpenAI key here"
                 className="max-w-full"
                 onChange={onOpenAIKeyChange}
                 value={key || ''}
+                required
+                isInvalid={openAIKeyError || key.length === 0}
               />
-            </AccordionItem>
-          </Accordion>
-          <Button
-            radius="sm"
-            color="danger"
-            className="bg-rose-900"
-            onClick={onConfirmClick}
-            isDisabled={false}
-            startContent={<Icon icon="hugeicons:ai-chat-02" className="h-5 w-5" />}
-          >
-            Let&apos;s Chat
-          </Button>
-        </div>
-      )}
+              <Slider
+                label="Temperature"
+                step={0.1}
+                maxValue={1}
+                minValue={0}
+                defaultValue={0.8}
+                className="max-w-full"
+              />
+              <Slider
+                label="Top P"
+                step={0.1}
+                maxValue={1}
+                minValue={0}
+                defaultValue={0.8}
+                className="max-w-full"
+              />
+            </div>
+          </AccordionItem>
+        </Accordion>
+        <Card className="hidden">
+          <CardHeader>
+            <p className="text-small">Usage</p>
+          </CardHeader>
+          <CardBody></CardBody>
+        </Card>
+        <Button
+          radius="sm"
+          color="danger"
+          className="mt-4 bg-rose-900"
+          onClick={onConfirmClick}
+          isDisabled={openAIKeyError || errorMessage.length > 0}
+          startContent={<Icon icon="hugeicons:ai-chat-02" className="h-5 w-5" />}
+        >
+          Let&apos;s Chat
+        </Button>
+      </div>
     </>
   );
 }

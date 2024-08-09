@@ -1,9 +1,10 @@
 'use client';
 
-import {useRef, useState, FormEvent} from 'react';
+import {useState, FormEvent} from 'react';
+import {Icon} from '@iconify/react';
 import jsonp from 'jsonp';
-import Modal from 'react-responsive-modal';
-import 'react-responsive-modal/styles.css';
+import Link from 'next/link';
+import {Button, Card, CardBody, CardHeader, Spacer} from '@nextui-org/react';
 import {WarningBox, WarningType} from '../common/warning-box';
 
 export function SignUpModal() {
@@ -37,119 +38,138 @@ export function SignUpModal() {
   };
 
   return (
-    <div id="signup-modal" style={{padding: '20px'}}>
-      <div id="mc_embed_shell">
-        <div id="mc_embed_signup">
-          <form
-            action="https://gmail.us21.list-manage.com/subscribe/post?u=06b2700cae8218b88f097724d&amp;id=6a6f176215&amp;f_id=00dde5e6f0"
-            method="post"
-            id="mc-embedded-subscribe-form"
-            name="mc-embedded-subscribe-form"
-            className="validate"
-            target="_blank"
-            onSubmit={onSubmit}
-          >
-            <div id="mc_embed_signup_scroll">
-              <h2>Sign Up for GeoDa.AI Preview</h2>
-              <div className="indicates-required">
-                <span className="asterisk">*</span>
-                indicates required
-              </div>
-              <div className="mc-field-group">
-                <label htmlFor="mce-EMAIL">
-                  Email Address
-                  <span className="asterisk">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="EMAIL"
-                  className="required email"
-                  id="mce-EMAIL"
-                  value={email}
-                  onChange={onInputChange}
-                />
-                <span id="mce-EMAIL-HELPERTEXT" className="helper_text"></span>
-              </div>
-              <div id="mce-responses" className="clear foot">
-                <div className="response" id="mce-error-response" style={{display: 'none'}}></div>
-                <div className="response" id="mce-success-response" style={{display: 'none'}}></div>
-              </div>
-              <div aria-hidden="true" style={{position: 'absolute', left: '-5000px'}}>
-                <input
-                  type="text"
-                  name="b_06b2700cae8218b88f097724d_6a6f176215"
-                  value=""
-                  readOnly
-                />
-              </div>
-              <div className="optionalParent">
-                <div className="clear foot">
-                  <input
-                    type="submit"
-                    name="subscribe"
-                    id="mc-embedded-subscribe"
-                    className="button"
-                    value="Sign Me Up!"
-                    readOnly
-                  />
+    <Card>
+      <CardHeader>
+        <p className="text-sm">You can sign up for GeoDa.AI official release (optinal)</p>
+      </CardHeader>
+      <CardBody>
+        <div id="signup-modal">
+          <div id="mc_embed_shell">
+            <div id="mc_embed_signup">
+              <form
+                action="https://gmail.us21.list-manage.com/subscribe/post?u=06b2700cae8218b88f097724d&amp;id=6a6f176215&amp;f_id=00dde5e6f0"
+                method="post"
+                id="mc-embedded-subscribe-form"
+                name="mc-embedded-subscribe-form"
+                className="validate"
+                target="_blank"
+                onSubmit={onSubmit}
+              >
+                <div id="mc_embed_signup_scroll" className="flex flex-row gap-2">
+                  <>
+                    <div className="mc-field-group flex flex-row items-start gap-2">
+                      <label htmlFor="mce-EMAIL" className="hidden text-sm">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        name="EMAIL"
+                        className="required email w-[350px] rounded-sm bg-slate-100 p-2 text-black"
+                        placeholder="Enter your email"
+                        id="mce-EMAIL"
+                        value={email}
+                        onChange={onInputChange}
+                      />
+                      <span id="mce-EMAIL-HELPERTEXT" className="helper_text"></span>
+                    </div>
+                    <div id="mce-responses" className="clear foot">
+                      <div
+                        className="response"
+                        id="mce-error-response"
+                        style={{display: 'none'}}
+                      ></div>
+                      <div
+                        className="response"
+                        id="mce-success-response"
+                        style={{display: 'none'}}
+                      ></div>
+                    </div>
+                    <div aria-hidden="true" style={{position: 'absolute', left: '-5000px'}}>
+                      <input
+                        type="text"
+                        name="b_06b2700cae8218b88f097724d_6a6f176215"
+                        value=""
+                        readOnly
+                      />
+                    </div>
+                  </>
+                  <div className="optionalParent">
+                    <div className="clear foot">
+                      <input
+                        type="submit"
+                        name="subscribe"
+                        id="mc-embedded-subscribe"
+                        className="button h-[40px] w-[100px] rounded-md bg-slate-700 text-sm text-white"
+                        value="Submit"
+                        readOnly
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </form>
             </div>
-          </form>
+          </div>
+          <div className="msg-alert mt-3">
+            {status === 'sending' && <WarningBox message={'Sending...'} type={WarningType.WAIT} />}
+            {status === 'success' && (
+              <WarningBox
+                message={
+                  'Thank you for signing up! We will send out email once GeoDa.AI is officially released.'
+                }
+                type={WarningType.SUCCESS}
+              />
+            )}
+            {status === 'duplicate' && (
+              <WarningBox
+                message={'This email address has already been subscribed.'}
+                type={WarningType.WARNING}
+              />
+            )}
+            {status === 'error' && (
+              <WarningBox
+                message={'An unexpected internal error has occurred.'}
+                type={WarningType.ERROR}
+              />
+            )}
+          </div>
         </div>
-      </div>
-      <div className="msg-alert">
-        {status === 'sending' && <WarningBox message={'Sending...'} type={WarningType.WAIT} />}
-        {status === 'success' && (
-          <WarningBox
-            message={
-              'Thank you for signing up! We will send out email once GeoDa.AI is ready for preview.'
-            }
-            type={WarningType.SUCCESS}
-          />
-        )}
-        {status === 'duplicate' && (
-          <WarningBox
-            message={'This email address has already been subscribed.'}
-            type={WarningType.WARNING}
-          />
-        )}
-        {status === 'error' && (
-          <WarningBox
-            message={'An unexpected internal error has occurred.'}
-            type={WarningType.ERROR}
-          />
-        )}
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
 }
 
 export function SignUpButton() {
-  const [showSignUpForm, setShowSignUpForm] = useState(false);
-
-  const onSignUpClick = () => {
-    setShowSignUpForm(true);
-  };
-
-  const modalRef = useRef(null);
-
-  const onCloseSignUpForm = () => {
-    setShowSignUpForm(false);
-  };
-
   return (
-    <div className="user-buttons">
-      <div className={'large-primary-wrapper geoda-ai-signup'}>
-        <div className={`button large-primary-instance`} onClick={onSignUpClick}>
-          Sign Up for Beta Preview
-        </div>
-      </div>
-      {showSignUpForm ? (
-        <Modal open={showSignUpForm} onClose={onCloseSignUpForm} center initialFocusRef={modalRef}>
-          <SignUpModal />
-        </Modal>
-      ) : null}
+    <div className="flex flex-col gap-4 p-10">
+      <p>
+        This is the technical preview of GeoDa.AI. It is free to use and will be open-sourced.
+        Please note that this preview is not intended for production use and may contain bugs or
+        other issues. It is also subject to change without notice.
+      </p>
+      <p>
+        If you have any feedback or suggestions, please let us know by creating an issue on our
+        repository at &nbsp;
+        <Link
+          target="_blank"
+          href="https://github.com/orgs/geodaai/discussions/categories/bugs"
+          className="text-blue-500"
+        >
+          Github/geodaai
+        </Link>
+        . We appreciate your help in making GeoDa.AI better for everyone.
+      </p>
+      <Spacer y={2} />
+      <Link href="/preview">
+        <Button
+          radius="lg"
+          className="bg-gradient-to-tr from-pink-500 to-yellow-500 p-6 text-large text-white shadow-lg"
+          endContent={<Icon icon="akar-icons:arrow-right" />}
+        >
+          Get Started
+        </Button>
+      </Link>
+      <Spacer y={4} />
+      <SignUpModal />
     </div>
   );
 }
