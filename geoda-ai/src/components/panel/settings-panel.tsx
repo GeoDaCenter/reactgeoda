@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import {useDispatch} from 'react-redux';
-import { useIntl } from 'react-intl';
+import React, {useState} from 'react';
+import {useIntl} from 'react-intl';
 import {Icon} from '@iconify/react';
 import {Button, Checkbox, Divider, Input, Link} from '@nextui-org/react';
 

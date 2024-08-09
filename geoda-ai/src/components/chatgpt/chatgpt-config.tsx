@@ -39,8 +39,7 @@ export function ChatGPTConfigComponent({
   // define useState for key
   const [key, setKey] = React.useState(openAIKey || '');
 
-
-  let typingTimer: NodeJS.Timeout; // Timer identifier
+  let typingTimer: any; // Timer identifier
   const doneTypingInterval = 1000; // Time in milliseconds (1 second)
 
   const onOpenAIKeyChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,6 +56,8 @@ export function ChatGPTConfigComponent({
     clearTimeout(typingTimer);
 
     // Set a new timer
+    // @ts-ignore FIXME
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     typingTimer = setTimeout(onConfirmClick, doneTypingInterval);
   }, []);
 

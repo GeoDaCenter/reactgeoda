@@ -2,13 +2,14 @@
 
 /* eslint-disable @next/next/no-img-element */
 import type {IconProps} from '@iconify/react';
+// eslint-disable-next-line no-duplicate-imports
 import {Icon} from '@iconify/react';
 
 import '@/styles/globals.css';
 import '@/styles/landing-guide.css';
 import '@/styles/landing.css';
 import {Button, Link, Spacer, Modal, ModalContent, ModalHeader, ModalBody} from '@nextui-org/react';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {SignUpButton} from '@/components/user/signup';
 
 type SocialIconProps = Omit<IconProps, 'icon'>;
