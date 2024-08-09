@@ -80,29 +80,6 @@ const ChatGPTPanel = () => {
     });
   }
 
-  // useEffect(() => {
-  //   async function onOpenAIKeyChange() {
-  //     if (openAIKey) {
-  //       const isValidKey = await testOpenAIKey(openAIKey);
-  //       if (!isValidKey) {
-  //         dispatch(setIsOpenAIKeyChecked(false));
-  //         setStatus('failed');
-  //         return;
-  //       }
-  //       await initOpenAI(
-  //         openAIKey,
-  //         GEODA_AI_ASSISTANT_NAME,
-  //         GEODA_AI_ASSISTANT_BODY,
-  //         GEODA_AI_ASSISTANT_VERSION
-  //       );
-  //       onDatasetsChange(datasets);
-  //       dispatch(setIsOpenAIKeyChecked(true));
-  //     }
-  //   }
-  //   onOpenAIKeyChange();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [openAIKey]);
-
   useEffect(() => {
     // check if datasets are processed as additional instructions for AI model
     if (isKeyChecked && openAIKey) {
@@ -134,13 +111,7 @@ const ChatGPTPanel = () => {
           <Icon icon="mynaui:config" width={18} />
         </Button>
       </Tooltip>
-      {!openAIKey ? (
-        <WarningBox
-          message={NO_OPENAI_KEY_MESSAGE}
-          type={WarningType.WARNING}
-          onClick={onNoOpenAIKeyMessageClick}
-        />
-      ) : isKeyChecked === false || showConfig ? (
+      {isKeyChecked === false || showConfig ? (
         <ChatGPTConfigComponent setShowConfig={setShowConfig} />
       ) : !datasetMeta && !isDatasetMetaComplete ? (
         <WarningBox

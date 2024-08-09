@@ -1,9 +1,10 @@
-import {AI_ACTIONS, DatasetMetaPayloadProps} from '@/actions';
+import {AI_ACTIONS, AIConfigProps, DatasetMetaPayloadProps} from '@/actions';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 
 export type AiStateProps = {
   messages: MessageModel[];
   datasetMeta?: DatasetMetaPayloadProps;
+  config?: AIConfigProps;
 };
 
 const initialState: AiStateProps = {
@@ -31,6 +32,14 @@ export const aiReducer = (state = initialState, action: AiAction) => {
       return {
         ...state,
         datasetMeta: state.datasetMeta ? [...state.datasetMeta, action.payload] : [action.payload]
+      };
+    case AI_ACTIONS.SET_CONFIG:
+      return {
+        ...state,
+        config: {
+          ...state.config,
+          ...action.payload
+        }
       };
     default:
       return state;

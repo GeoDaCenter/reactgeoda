@@ -82,7 +82,7 @@ yarn dev
 ```
 
 The landing page is at http://localhost:3000/
-The geoda.ai app is at http://localhost:3000/mapland
+The geoda.ai app is at http://localhost:3000/preview
 
 ## 3. Pull request
 

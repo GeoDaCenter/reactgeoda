@@ -17,7 +17,8 @@ import {Dispatch, UnknownAction} from 'redux';
 export enum AI_ACTIONS {
   SET_MESSAGES = 'SET_MESSAGES',
   SET_DATASET_META = 'SET_DATASET_META',
-  ADD_DATASET_META = 'ADD_DATASET_META'
+  ADD_DATASET_META = 'ADD_DATASET_META',
+  SET_CONFIG = 'SET_CONFIG'
 }
 
 export const setMessages = (payload: MessageModel[]) => ({
@@ -34,6 +35,14 @@ export type DatasetMetaProps = {
   columnDataTypes: string[];
 };
 
+export type AIConfigProps = {
+  provider: string;
+  model: string;
+  apiKey: string;
+  temperature: number;
+  topP: number;
+};
+
 export type DatasetMetaPayloadProps = Array<DatasetMetaProps>;
 
 export const setDatasetMeta = (payload: DatasetMetaPayloadProps) => ({
@@ -43,6 +52,11 @@ export const setDatasetMeta = (payload: DatasetMetaPayloadProps) => ({
 
 export const addDatasetMeta = (payload: DatasetMetaProps) => ({
   type: AI_ACTIONS.ADD_DATASET_META,
+  payload
+});
+
+export const setAIConfig = (payload: AIConfigProps) => ({
+  type: AI_ACTIONS.SET_CONFIG,
   payload
 });
 
