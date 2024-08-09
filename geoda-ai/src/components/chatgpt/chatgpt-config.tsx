@@ -8,7 +8,11 @@ import {accordionItemClasses} from '@/constants';
 import {testOpenAIKey} from '@/ai/openai-utils';
 import {WarningBox, WarningType} from '../common/warning-box';
 
-export function ChatGPTConfigComponent() {
+export function ChatGPTConfigComponent({
+  setShowConfig
+}: {
+  setShowConfig: (showConfig: boolean) => void;
+}) {
   const dispatch = useDispatch();
 
   // state for openAIKey error
@@ -49,8 +53,10 @@ export function ChatGPTConfigComponent() {
       dispatch(setOpenAIKey(key));
       // dispatch action to update state.root.uiState.isOpenAIKeyChecked
       dispatch(setIsOpenAIKeyChecked(true));
+      // close the config panel
+      setShowConfig(false);
     }
-  }, [dispatch, key]);
+  }, [dispatch, key, setShowConfig]);
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel

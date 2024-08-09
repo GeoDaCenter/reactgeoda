@@ -4,15 +4,16 @@ import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import {useIntl} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '../../store';
+import {Icon} from '@iconify/react';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {RightPanelContainer} from '../common/right-panel-template';
 import {ChatGPTComponent} from './chatgpt-component';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
-import {addDatasetToAI, setPropertyPanel} from '@/actions';
-import {PanelName} from '../panel/panel-container';
+import {addDatasetToAI} from '@/actions';
 import {datasetsSelector} from '@/store/selectors';
 import {DatasetProps} from '@/reducers/file-reducer';
 import {ChatGPTConfigComponent} from './chatgpt-config';
+import {Button, Tooltip} from '@nextui-org/react';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 export const INVALID_OPENAI_KEY_MESSAGE =
@@ -49,14 +50,19 @@ const ChatGPTPanel = () => {
 
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
 
+  const [showConfig, setShowConfig] = React.useState(false);
+
   // check if datasetMeta has all the datasetIds from datasets
   const isDatasetMetaComplete = datasets.every(dataset => {
     return datasetMeta?.find(meta => meta.datasetId === dataset.dataId);
   });
 
   const onNoOpenAIKeyMessageClick = () => {
-    // dispatch to show settings panel
-    dispatch(setPropertyPanel(PanelName.SETTINGS));
+    setShowConfig(true);
+  };
+
+  const onClickConfig = () => {
+    setShowConfig(true);
   };
 
   function onDatasetsChange(datasets: DatasetProps[]) {
@@ -117,14 +123,25 @@ const ChatGPTPanel = () => {
       })}
       showAIHelp={false}
     >
+      <Tooltip content="AI Configuration" size="sm" placement="right">
+        <Button
+          className="absolute -top-12 right-1 z-10"
+          isIconOnly={true}
+          variant="light"
+          size="sm"
+          onClick={onClickConfig}
+        >
+          <Icon icon="mynaui:config" width={18} />
+        </Button>
+      </Tooltip>
       {!openAIKey ? (
         <WarningBox
           message={NO_OPENAI_KEY_MESSAGE}
           type={WarningType.WARNING}
           onClick={onNoOpenAIKeyMessageClick}
         />
-      ) : isKeyChecked === false ? (
-        <ChatGPTConfigComponent />
+      ) : isKeyChecked === false || showConfig ? (
+        <ChatGPTConfigComponent setShowConfig={setShowConfig} />
       ) : !datasetMeta && !isDatasetMetaComplete ? (
         <WarningBox
           message={CONNECT_OPENAI_API}
