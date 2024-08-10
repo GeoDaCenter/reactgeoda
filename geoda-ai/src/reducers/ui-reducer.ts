@@ -1,7 +1,7 @@
 import {RuleGroupType} from 'react-querybuilder';
 import {UI_ACTIONS} from '../actions';
 
-const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
+const LOCAL_API_KEY = '';
 
 export type UiAction = {
   type: UI_ACTIONS;

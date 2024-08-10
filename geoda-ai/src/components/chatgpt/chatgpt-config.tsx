@@ -39,9 +39,6 @@ export function ChatGPTConfigComponent({
   // define useState for key
   const [key, setKey] = React.useState(openAIKey || '');
 
-  let typingTimer: any; // Timer identifier
-  const doneTypingInterval = 1000; // Time in milliseconds (1 second)
-
   const onOpenAIKeyChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const keyValue = event.target.value;
     setKey(keyValue);
@@ -50,15 +47,6 @@ export function ChatGPTConfigComponent({
     setOpenAIKeyError(false);
     // reset errorMessage
     setErrorMessage('');
-
-    // if stop typing for 1 second, check if key is valid
-    // Clear the previous timer if user is still typing
-    clearTimeout(typingTimer);
-
-    // Set a new timer
-    // @ts-ignore FIXME
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    typingTimer = setTimeout(onConfirmClick, doneTypingInterval);
   }, []);
 
   const onConfirmClick = useCallback(async () => {

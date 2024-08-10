@@ -40,7 +40,7 @@ export function SignUpModal() {
   return (
     <Card>
       <CardHeader>
-        <p className="text-sm">You can sign up for GeoDa.AI official release (optinal)</p>
+        <p className="text-sm">You can sign up for GeoDa.AI official release (optional)</p>
       </CardHeader>
       <CardBody>
         <div id="signup-modal">
@@ -55,7 +55,7 @@ export function SignUpModal() {
                 target="_blank"
                 onSubmit={onSubmit}
               >
-                <div id="mc_embed_signup_scroll" className="flex flex-row gap-2">
+                <div id="mc_embed_signup_scroll" className="flex flex-col gap-2 md:flex-row">
                   <>
                     <div className="mc-field-group flex flex-row items-start gap-2">
                       <label htmlFor="mce-EMAIL" className="hidden text-sm">
@@ -64,7 +64,7 @@ export function SignUpModal() {
                       <input
                         type="email"
                         name="EMAIL"
-                        className="required email w-[350px] rounded-sm bg-slate-100 p-2 text-black"
+                        className="required email w-[240px] rounded-sm bg-slate-100 p-2 text-black"
                         placeholder="Enter your email"
                         id="mce-EMAIL"
                         value={email}
@@ -140,9 +140,8 @@ export function SignUpModal() {
 
 export function SignUpButton() {
   return (
-    <div className="flex flex-col gap-4 p-10">
+    <div className="flex flex-col gap-4 p-6 text-sm text-slate-300">
       <p>
-        This is the technical preview of GeoDa.AI. It is free to use and will be open-sourced.
         Please note that this preview is not intended for production use and may contain bugs or
         other issues. It is also subject to change without notice.
       </p>
@@ -158,7 +157,7 @@ export function SignUpButton() {
         </Link>
         . We appreciate your help in making GeoDa.AI better for everyone.
       </p>
-      <Spacer y={2} />
+      <Spacer y={1} />
       <Link href="/preview">
         <Button
           radius="lg"
@@ -168,7 +167,7 @@ export function SignUpButton() {
           Get Started
         </Button>
       </Link>
-      <Spacer y={4} />
+      <Spacer y={1} />
       <SignUpModal />
     </div>
   );
