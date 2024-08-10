@@ -17,7 +17,7 @@ type SocialIconProps = Omit<IconProps, 'icon'>;
 const socialItems = [
   {
     name: 'X',
-    href: '#',
+    href: 'https://x.com/lixun910',
     icon: (props: SocialIconProps) => <Icon {...props} icon="ri:twitter-x-fill" />
   },
   {
@@ -27,8 +27,8 @@ const socialItems = [
   },
   {
     name: 'Slack',
-    href: '#',
-    icon: (props: SocialIconProps) => <Icon {...props} icon="fontisto:slack" />
+    href: 'https://csds-uchicago.slack.com/join/shared_invite/zt-2o8sy8fgn-a_EW0ZxPYzj3OaOMjAGVww#/shared-invite/email',
+    icon: (props: SocialIconProps) => <Icon {...props} icon="mdi:slack" />
   }
 ];
 

@@ -1,6 +1,6 @@
 'use client';
 
-import Markdown from 'markdown-to-jsx';
+// import Markdown from 'markdown-to-jsx';
 import React from 'react';
 import {Avatar, Badge, Button, Link, Tooltip, Spinner} from '@nextui-org/react';
 import {useClipboard} from '@nextui-org/use-clipboard';
@@ -13,7 +13,6 @@ import {
   isValidCustomMessage
 } from '../chatgpt/custom-messages';
 import {MessagePayload} from '@chatscope/chat-ui-kit-react';
-// import Markdown from 'react-markdown';
 
 export type MessageCardProps = React.HTMLAttributes<HTMLDivElement> & {
   index: number;
@@ -153,11 +152,7 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
             <div ref={messageRef} className={'whitespace-pre-line pr-20 text-small'}>
               {/* <Markdown className="flex flex-col gap-4">{message as string}</Markdown> */}
               {status === 'pending' && <Spinner color="default" size="sm" />}
-              {hasFailed ? (
-                failedMessage
-              ) : (
-                <Markdown className="flex flex-col gap-4">{message as string}</Markdown>
-              )}
+              {hasFailed ? failedMessage : message}
               {customMessage &&
                 isCustomMessagePayload(customMessage) &&
                 isValidCustomMessage(customMessage) && <CustomMessage props={customMessage} />}
