@@ -103,6 +103,7 @@ const initialState = {};
 
 // create store with initial state and reducers and middlewares
 const store = createStore(
+  // @ts-ignore FIXME
   reducers,
   initialState,
   applyMiddleware(...middlewares, thunk, loggerMiddleware)

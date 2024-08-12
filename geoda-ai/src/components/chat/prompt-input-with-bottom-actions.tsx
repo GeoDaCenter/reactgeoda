@@ -1,7 +1,6 @@
 'use client';
 
-import React, {useEffect} from 'react';
-import {useAudioRecorder} from 'react-audio-voice-recorder';
+import React from 'react';
 
 import {Button, Tooltip, ScrollShadow, Badge} from '@nextui-org/react';
 import {Icon} from '@iconify/react';
@@ -9,6 +8,7 @@ import {Icon} from '@iconify/react';
 import {cn} from '../common/cn';
 
 import PromptInput from './prompt-input';
+import VoiceChatButton from './voice-chat-button';
 
 type PromptInputWithBottomActionsProps = {
   onSendMessage: (message: string) => void;
@@ -81,37 +81,10 @@ export default function Component({
     setPrompt(textContent || '');
   };
 
-  const recorderControls = useAudioRecorder(
-    {
-      noiseSuppression: true,
-      echoCancellation: true
-    },
-    err => console.table(err) // onNotAllowedOrFound
-  );
-
-  const onTalkClicked = async () => {
-    if (recorderControls.isRecording) {
-      recorderControls.stopRecording();
-    } else {
-      recorderControls.startRecording();
-    }
+  const onRecordingComplete = async (voiceBlob: Blob) => {
+    const voice = await onVoiceMessage(voiceBlob);
+    setPrompt(voice);
   };
-
-  useEffect(() => {
-    async function processVoiceMesage() {
-      if (!recorderControls.isRecording && recorderControls.recordingBlob) {
-        const voice = await onVoiceMessage(recorderControls.recordingBlob);
-        setPrompt(voice);
-        recorderControls.recordingBlob = undefined;
-      }
-    }
-    processVoiceMesage();
-  }, [
-    onVoiceMessage,
-    recorderControls,
-    recorderControls.isRecording,
-    recorderControls.recordingBlob
-  ]);
 
   return (
     <div className="flex w-full flex-col gap-4">
@@ -209,49 +182,7 @@ export default function Component({
             >
               Take a Screenshot to Ask
             </Button>
-            <Button
-              size="sm"
-              startContent={
-                <Icon className="text-default-500" icon="solar:soundwave-linear" width={18} />
-              }
-              endContent={
-                recorderControls.isRecording && (
-                  <svg
-                    className="h-4 w-4 animate-spin text-current"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle
-                      className="opacity-75"
-                      cx="12"
-                      cy="12"
-                      r="4"
-                      strokeWidth="0"
-                      fill="red"
-                    />
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="1"
-                    />
-                    <path
-                      className="opacity-50"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      fill="currentColor"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                )
-              }
-              variant="flat"
-              onClick={onTalkClicked}
-            >
-              Talk to Ask
-            </Button>
+            <VoiceChatButton onRecordingComplete={onRecordingComplete} />
             {enableAttachFile && (
               <Button
                 size="sm"
