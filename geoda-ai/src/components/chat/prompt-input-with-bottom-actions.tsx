@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useAudioRecorder} from 'react-audio-voice-recorder';
 
 import {Button, Tooltip, ScrollShadow, Badge} from '@nextui-org/react';
@@ -92,14 +92,26 @@ export default function Component({
   const onTalkClicked = async () => {
     if (recorderControls.isRecording) {
       recorderControls.stopRecording();
-      if (recorderControls.recordingBlob) {
-        const voice = await onVoiceMessage(recorderControls.recordingBlob);
-        setPrompt(voice);
-      }
     } else {
       recorderControls.startRecording();
     }
   };
+
+  useEffect(() => {
+    async function processVoiceMesage() {
+      if (!recorderControls.isRecording && recorderControls.recordingBlob) {
+        const voice = await onVoiceMessage(recorderControls.recordingBlob);
+        setPrompt(voice);
+        recorderControls.recordingBlob = undefined;
+      }
+    }
+    processVoiceMesage();
+  }, [
+    onVoiceMessage,
+    recorderControls,
+    recorderControls.isRecording,
+    recorderControls.recordingBlob
+  ]);
 
   return (
     <div className="flex w-full flex-col gap-4">
