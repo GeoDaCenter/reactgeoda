@@ -38,7 +38,7 @@ jobs:
             /home/runner/work/reactgeoda/csds_kepler
             /home/runner/work/reactgeoda/loaders.gl
           key: ${{ runner.os }}-csds_kepler-${{ hashFiles('deps.txt') }}
-      - name: Install Kepler.gl 
+      - name: Install Kepler.gl
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
           npm install -g npm
@@ -67,8 +67,19 @@ jobs:
           cd geoda-ai
           yarn
           yarn lint
+      # - name: Create Sentry Release
+      #   uses: getsentry/action-release@v1
+      #   env:
+      #     SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      #     SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      #     SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
       - name: Build geoda-ai
         id: build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: |
           touch .env
           echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env

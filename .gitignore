@@ -3,6 +3,7 @@
 **/.next/
 .DS_Store
 .env.local
+.env.sentry-build-plugin
 yarn-error.log
 **/.yarn/*
 !.yarn/patches
