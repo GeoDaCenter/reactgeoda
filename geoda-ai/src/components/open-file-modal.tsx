@@ -1,5 +1,6 @@
 'use client';
 
+import * as Sentry from '@sentry/nextjs';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -200,6 +201,13 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
 
   // if projectUrl presents, load the project file using fetch when the component mounts
   useEffect(() => {
+    if (!projectUrl) {
+      try {
+        throw new Error('Failed to fetch project file');
+      } catch (e) {
+        Sentry.captureException(e);
+      }
+    }
     (async () => {
       if (!projectUrl) return;
       const res = await fetch(projectUrl);

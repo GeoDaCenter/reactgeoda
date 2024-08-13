@@ -1,5 +1,7 @@
 import React, {Suspense} from 'react';
 import {GoogleAnalytics} from '@next/third-parties/google';
+import * as Sentry from '@sentry/nextjs';
+
 import ThemeClient from './theme-client';
 import Loading from './loading';
 import {Providers} from './providers';
@@ -32,13 +34,15 @@ HTMLCanvasElement.prototype.getContext = function(origFn) {
         </script>
       </head>
       <body>
-        <StyledComponentsRegistry>
-          <Providers>
-            <ThemeClient>
-              <Suspense fallback={<Loading />}>{children}</Suspense>
-            </ThemeClient>
-          </Providers>
-        </StyledComponentsRegistry>
+        <Sentry.ErrorBoundary>
+          <StyledComponentsRegistry>
+            <Providers>
+              <ThemeClient>
+                <Suspense fallback={<Loading />}>{children}</Suspense>
+              </ThemeClient>
+            </Providers>
+          </StyledComponentsRegistry>
+        </Sentry.ErrorBoundary>
       </body>
       <GoogleAnalytics gaId="G-JB0GMHF7MC" />
     </html>
