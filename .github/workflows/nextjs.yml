@@ -67,6 +67,12 @@ jobs:
           cd geoda-ai
           yarn
           yarn lint
+      - name: Create Sentry Release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }} 
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
       - name: Build geoda-ai
         id: build
         run: |
