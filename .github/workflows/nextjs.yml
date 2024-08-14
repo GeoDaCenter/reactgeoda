@@ -73,21 +73,27 @@ jobs:
       #     SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       #     SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       #     SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-      - name: Build geoda-ai
-        id: build
+      - name: Get Head Commit Message
+        id: get_head_commit_message
+        run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> $GITHUB_ENV
+      - name: Build geoda-ai with Sentry
+        id: build-with-sentry
+        if: ${{ contains(env.HEAD_COMMIT_MESSAGE, '[Sentry]') || github.ref == 'refs/heads/main' }}
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NEXT_PUBLIC_MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+          NODE_OPTIONS: '--max_old_space_size=4096'
         run: |
-          touch .env
-          echo NEXT_PUBLIC_MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }} >> geoda-ai/.env
+          cd geoda-ai
+          yarn build-local-with-sentry
+      - name: Build geoda-ai without Sentry
+        id: build-without-sentry
+        if: ${{ !contains(env.HEAD_COMMIT_MESSAGE, '[Sentry]') && github.ref != 'refs/heads/main' }}
+        run: |
           cd geoda-ai
           yarn build-local
-      - name: Get Head Commit Message
-        id: get_head_commit_message
-        run: echo "HEAD_COMMIT_MESSAGE=$(git show -s --format=%s)" >> $GITHUB_ENV
       - name: Deploy Preview to Netlify
         id: deploy
         # deploy when push to main or when commit message contains [Preview]
