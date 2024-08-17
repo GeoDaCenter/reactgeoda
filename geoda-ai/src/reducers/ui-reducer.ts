@@ -14,8 +14,13 @@ export type UiStateProps = {
   showPropertyPanel: boolean;
   showChatPanel: boolean;
   propertyPanelName: string;
-  showOpenFileModal: boolean;
-  showAddDatasetModal: boolean;
+  openFileModal: {
+    showOpenFileModal: boolean;
+    openFileModalError?: string;
+    showAddDatasetModal: boolean;
+    addDatasetModalError?: string;
+    isLoading?: boolean;
+  };
   showSaveProjectModal: boolean;
   showKeplerTable: boolean;
   showGridView: boolean;
@@ -34,8 +39,10 @@ export type UiStateProps = {
 export const INITIAL_UI_STATE = {
   theme: 'dark',
   defaultDatasetId: '',
-  showOpenFileModal: true,
-  showAddDatasetModal: false,
+  openFileModal: {
+    showOpenFileModal: true,
+    showAddDatasetModal: false
+  },
   showSaveProjectModal: false,
   showKeplerTable: false,
   showGridView: false,
@@ -82,12 +89,34 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {
         ...state,
-        showOpenFileModal: action.payload as boolean
+        openFileModal: {
+          ...state.openFileModal,
+          showOpenFileModal: action.payload as boolean
+        }
+      };
+    case UI_ACTIONS.SET_OPEN_FILE_MODAL_IS_LOADING:
+      return {
+        ...state,
+        openFileModal: {
+          ...state.openFileModal,
+          isLoading: action.payload as boolean
+        }
+      };
+    case UI_ACTIONS.SET_OPEN_FILE_MODAL_ERROR:
+      return {
+        ...state,
+        openFileModal: {
+          ...state.openFileModal,
+          openFileModalError: action.payload as string
+        }
       };
     case UI_ACTIONS.SET_ADD_DATASET_MODAL:
       return {
         ...state,
-        showAddDatasetModal: action.payload as boolean
+        openFileModal: {
+          ...state.openFileModal,
+          showAddDatasetModal: action.payload as boolean
+        }
       };
     case UI_ACTIONS.SET_SAVE_PROJECT_MODAL:
       return {

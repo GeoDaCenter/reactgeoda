@@ -1,50 +1,12 @@
 import {RegressionProps} from '@/reducers/regression-reducer';
+import {printRegressionResult} from '@/utils/regression-utils';
 import {Card, CardBody, CardHeader, ScrollShadow} from '@nextui-org/react';
-import {
-  printLinearRegressionResultUsingMarkdown,
-  LinearRegressionResult,
-  SpatialLagResult,
-  SpatialErrorResult,
-  printSpatialLagResultUsingMarkdown,
-  printSpatialErrorResultUsingMarkdown
-} from 'geoda-wasm';
+
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 // format dependent variable and independent variables as y ~ x1 + x2 + x3
 const formatEquation = (y: string, x: string[]) => `${y} ~ ${x.join(' + ')}`;
-
-// check if the type of regressionReport is LinearRegressionResult
-export function isLinearRegressionResult(
-  regressionReport: any
-): regressionReport is LinearRegressionResult {
-  return regressionReport.type === 'linearRegression';
-}
-
-// check if the type of regressionReport is SpatialLagResult
-export function isSpatialLagResult(regressionReport: any): regressionReport is SpatialLagResult {
-  return regressionReport.type === 'spatialLag';
-}
-
-// check if the type of regressionReport is SpatialErrorResult
-export function isSpatialErrorResult(
-  regressionReport: any
-): regressionReport is SpatialErrorResult {
-  return regressionReport.type === 'spatialError';
-}
-
-export const printRegressionResult = (
-  report: LinearRegressionResult | SpatialLagResult | SpatialErrorResult | null
-) => {
-  if (isLinearRegressionResult(report)) {
-    return printLinearRegressionResultUsingMarkdown(report);
-  } else if (isSpatialLagResult(report)) {
-    return printSpatialLagResultUsingMarkdown(report);
-  } else if (isSpatialErrorResult(report)) {
-    return printSpatialErrorResultUsingMarkdown(report);
-  }
-  return 'Error: Unknown regression type.';
-};
 
 export const RegressionReport = ({
   regression,

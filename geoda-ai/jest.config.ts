@@ -97,7 +97,10 @@ const config: Config = {
     '^@kepler.gl/(.*)$': '<rootDir>../../csds_kepler/src/$1/src',
     '^@kepler.gl/tasks$': '<rootDir>../../csds_kepler/src/tasks/src',
     '^@mapbox/tiny-sdf$': '<rootDir>/../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs',
-    '^d3-dsv$': '<rootDir>/../../csds_kepler/node_modules/d3-dsv'
+    '^d3-dsv$': '<rootDir>/../../csds_kepler/node_modules/d3-dsv',
+    '^d3-scale$': '<rootDir>/../../csds_kepler/node_modules/d3-scale',
+    '^openai$': '<rootDir>/node_modules/openai',
+    '^apache-arrow$': '<rootDir>/node_modules/apache-arrow'
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -183,10 +186,12 @@ const config: Config = {
   // testRunner: "jest-circus/runner",
 
   // A map from regular expressions to paths to transformers
-  // transform: undefined,
+  transform: {
+    '^.+\\.(ts|js)$': 'ts-jest'
+  },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  transformIgnorePatterns: ['/node_modules/', 'node_modules/@loaders.gl', 'node_modules/d3-dsv/src']
+  transformIgnorePatterns: ['node_modules/@loaders.gl']
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,

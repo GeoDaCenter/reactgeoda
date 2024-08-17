@@ -180,8 +180,17 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
     setCrossHairsTop(0);
   };
 
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
+    // console.log('Click captured:', e.target);
+  };
+
   return (
-    <div onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMoouseUp}>
+    <div
+      onClickCapture={handleClick}
+      onMouseMove={handleMouseMove}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMoouseUp}
+    >
       <div className="min-w-100 relative flex h-screen w-screen flex-row items-start border-none">
         <Navigator />
         <div className="shadow-[rgba(0,0,15,0.5)_10px_0px_10px_0px]">

@@ -25,7 +25,7 @@ import {
   DuckDBFunctionProps
 } from './sql-constant';
 import {SearchIcon} from '../icons/search';
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import KeplerTable from '@kepler.gl/table';
 
 const AVAILABLE_FUNCTIONS = [
@@ -51,8 +51,6 @@ export function TableVariableValueComponent({
   const [filteredFunctions, setFilteredFunctions] =
     useState<DuckDBFunctionProps[]>(AVAILABLE_FUNCTIONS);
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
-
-  const {queryValues} = useDuckDB();
 
   const editorRef = useRef<SQLEditorRefProps>(null);
 
@@ -82,10 +80,10 @@ export function TableVariableValueComponent({
           ? '0'
           : code.replace(aggregateFuncNamesRegex, `(select $1($2) from "${tableName}")`);
       const sql = `SELECT ${updatedCode} FROM "${tableName}";`;
-      const result = await queryValues(sql);
+      const result = await DuckDB.getInstance().queryValuesBySQL(sql);
       setValues(Array.from(result));
     })();
-  }, [aggregateFuncNamesRegex, code, queryValues, setValues, tableName]);
+  }, [aggregateFuncNamesRegex, code, setValues, tableName]);
 
   // get suggest keys from dataset fields
   const suggestKeys = [

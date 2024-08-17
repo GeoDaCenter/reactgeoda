@@ -1,3 +1,4 @@
+import {useEffect, useState} from 'react';
 import {tableFromArrays} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
@@ -23,20 +24,17 @@ const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   }
 };
 
-export class DuckDB {
-  // singleton pattern to create a DuckDB instance
-  static instance: DuckDB;
-  static getInstance() {
-    if (!DuckDB.instance) {
-      DuckDB.instance = new DuckDB();
-    }
-    return DuckDB.instance;
-  }
+const useDuckDB = () => {
+  const [db, setDb] = useState<duckdb.AsyncDuckDB | null>(null);
 
-  private db: duckdb.AsyncDuckDB | null = null;
+  useEffect(() => {
+    initDuckDB();
+    // return () => db.close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  public async initDuckDB() {
-    if (this.db === null) {
+  const initDuckDB = async () => {
+    if (db === null) {
       // call initDuckDB() in background after 2000 ms
       await new Promise(resolve => setTimeout(resolve, 2000));
       // Select a bundle based on browser checks
@@ -44,18 +42,19 @@ export class DuckDB {
       // Instantiate the asynchronus version of DuckDB-Wasm
       const worker = new Worker(bundle.mainWorker!);
       const logger = new duckdb.ConsoleLogger();
-      this.db = new duckdb.AsyncDuckDB(logger, worker);
-      await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      const newDB = new duckdb.AsyncDuckDB(logger, worker);
+      await newDB.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      setDb(newDB);
     }
   };
 
-  public getDuckDB = () => this.db;
+  const getDuckDB = () => db;
 
-  public getTableSummary = async (tableName: string) => {
-    if (this.db) {
+  const getTableSummary = async (tableName: string) => {
+    if (db) {
       try {
         // connect to the database
-        const conn = await this.db.connect();
+        const conn = await db.connect();
         // Query
         const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
         // Convert arrow table to json FIXME
@@ -75,10 +74,10 @@ export class DuckDB {
     return '';
   };
 
-  public getColumnData = async (tableName: string, columnName: string) => {
-    if (this.db) {
+  const getColumnData = async (tableName: string, columnName: string) => {
+    if (db) {
       // connect to the database
-      const conn = await this.db.connect();
+      const conn = await db.connect();
       // Query
       const arrowResult = await conn.query(`SELECT "${columnName}" FROM "${tableName}"`);
       // Convert arrow table to json
@@ -90,7 +89,7 @@ export class DuckDB {
     return [];
   };
 
-  public addColumnWithValues = async ({
+  const addColumnWithValues = async ({
     tableName,
     columnName,
     columnType,
@@ -101,9 +100,9 @@ export class DuckDB {
     columnType: 'NUMERIC' | 'VARCHAR';
     columnValues: unknown[];
   }) => {
-    if (this.db) {
+    if (db) {
       try {
-        const conn = await this.db.connect();
+        const conn = await db.connect();
         // create a temporary arrow table with the column name and values
         const arrowTable = tableFromArrays({[columnName]: columnValues});
         // create a temporary duckdb table using the arrow table
@@ -128,13 +127,13 @@ export class DuckDB {
     }
   };
 
-  public addColumnBySQL = async (sql: string) => {
-    if (this.db) {
+  const addColumnBySQL = async (sql: string) => {
+    if (db) {
       try {
         // remove \n from sql
         const sqlString = sql.replace(/\n/g, '');
 
-        const conn = await this.db.connect();
+        const conn = await db.connect();
         await conn.query(sqlString);
         await conn.close();
       } catch (error) {
@@ -143,59 +142,15 @@ export class DuckDB {
     }
   };
 
-  public addColumn = async (sql: string) => {
-    if (this.db) {
-      try {
-        // remove \n from sql
-        const sqlString = sql.replace(/\n/g, '');
-
-        const conn = await this.db.connect();
-        await conn.query(sqlString);
-        await conn.close();
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
-
-  public query = async (tableName: string, queryString: string) => {
-    if (!this.db) {
-      throw new Error('DuckDB is not initialized');
-    }
-    // remove \n from queryString
-    const query = queryString.replace(/\n/g, '').trim();
-    const sql =
-      query.length > 0
-        ? `SELECT row_index AS selected_index, * FROM "${tableName}" WHERE ${query.trim()}`
-        : `SELECT row_index AS selected_index, * FROM "${tableName}"`;
-
-    try {
-      // connect to the database
-      const conn = await this.db.connect();
-      // Query
-      const arrowResult = await conn.query<{v: any}>(sql);
-      // Convert arrow table to json
-      // const result = arrowResult.toArray().map(row => row.toJSON());
-      // get the row_index[] from the query result
-      const selectedIndexes = arrowResult.getChildAt(0)?.toArray();
-      // close the connection
-      await conn.close();
-      return selectedIndexes || [];
-    } catch (error) {
-      console.error(error);
-      throw new Error('Error: can not query the values from the table. Details: ' + error);
-    }
-  };
-
-  public queryValuesBySQL = async (queryString: string) => {
-    if (!this.db) {
+  const queryValuesBySQL = async (queryString: string) => {
+    if (!db) {
       throw new Error('DuckDB is not initialized');
     }
     try {
       // remove \n from sql
       const sqlString = queryString.replace(/\n/g, '');
 
-      const conn = await this.db.connect();
+      const conn = await db.connect();
       const arrowResult = await conn.query<{v: any}>(sqlString);
       const result = arrowResult.getChildAt(0)?.toArray();
       await conn.close();
@@ -206,9 +161,9 @@ export class DuckDB {
     }
   };
 
-  public importArrowFile = async ({fileName: tableName, arrowTable}: DatasetProps) => {
-    if (this.db) {
-      const conn = await this.db.connect();
+  const importArrowFile = async ({fileName: tableName, arrowTable}: DatasetProps) => {
+    if (db) {
+      const conn = await db.connect();
 
       const arrowResult = await conn.query('select * from information_schema.tables');
       const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
@@ -237,4 +192,15 @@ export class DuckDB {
       await conn.close();
     }
   };
-}
+
+  return {
+    initDuckDB,
+    getDuckDB,
+    getTableSummary,
+    getColumnData,
+    addColumnWithValues,
+    addColumnBySQL,
+    queryValuesBySQL,
+    importArrowFile
+  };
+};

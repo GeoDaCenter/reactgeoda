@@ -6,9 +6,7 @@ describe('Page', () => {
   it('renders a heading', async () => {
     const {container} = render(<Page />);
 
-    const reactGeoDa = await waitFor(() =>
-      container.getElementsByClassName('landing-page-wrapper')
-    );
+    const reactGeoDa = await waitFor(() => container.getElementsByClassName('main-content'));
     expect(reactGeoDa.length).toBe(1);
   });
 });

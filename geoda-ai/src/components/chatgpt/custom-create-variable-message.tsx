@@ -1,7 +1,7 @@
 import {useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
-import {addColumnBySQL} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {CreateVariableCallbackOutput} from '@/ai/assistant/callbacks/callback-table';
 import {addKeplerColumn, generateSQLUpdateColumn} from '@/utils/table-utils';
 import {PreviewDataTable} from '../table/preview-data-table';
@@ -44,11 +44,12 @@ export const CustomCreateVariableMessage = ({
     [columnType, datasetName, newColumn, values]
   );
 
+
   // handle click event
   const onClick = () => {
     if (datasetId) {
       // add column to duckdb
-      addColumnBySQL(sql);
+      DuckDB.getInstance().addColumnBySQL(sql);
       // add column to kepler.gl
       const {newField, values: columnValues} = addKeplerColumn({
         dataset: keplerDataset,

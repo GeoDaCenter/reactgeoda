@@ -16,7 +16,7 @@ import PromptInputWithBottomActions from '../chat/prompt-input-with-bottom-actio
 import MessageCard from '../chat/message-card';
 import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
 import {useChatGPT} from '@/hooks/use-chatgpt';
-import {queryValuesBySQL} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {MAP_ID} from '@/constants';
 
 export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
@@ -53,7 +53,11 @@ export const ChatGPTComponent = ({messages}: ChatGPTComponentProps) => {
   // useChatGPT hook
   const {sendMessage, speechToText} = useChatGPT({
     customFunctions: CUSTOM_FUNCTIONS,
-    customFunctionContext: {visState, weights, queryValuesBySQL}
+    customFunctionContext: {
+      visState,
+      weights,
+      queryValuesBySQL: DuckDB.getInstance().queryValuesBySQL
+    }
   });
 
   // handle send message

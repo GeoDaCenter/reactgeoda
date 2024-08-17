@@ -1,4 +1,4 @@
-import {SET_LANGUAGE} from '../actions';
+import {SET_LANGUAGE} from '../actions/language-actions';
 
 export type LanguageAction = {
   type: typeof SET_LANGUAGE;

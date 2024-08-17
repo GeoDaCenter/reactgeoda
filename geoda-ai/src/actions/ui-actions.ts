@@ -2,6 +2,8 @@ export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
   SET_DEFAULT_DATASET_ID = 'SET_DEFAULT_DATASET_ID',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
+  SET_OPEN_FILE_MODAL_IS_LOADING = 'SET_OPEN_FILE_MODAL_IS_LOADING',
+  SET_OPEN_FILE_MODAL_ERROR = 'SET_OPEN_FILE_MODAL_ERROR',
   SET_ADD_DATASET_MODAL = 'SET_ADD_DATASET_MODAL',
   SET_SAVE_PROJECT_MODAL = 'SET_SAVE_PROJECT_MODAL',
   SET_KEPLER_TABLE_MODAL = 'SET_KEPLER_TABLE_MODAL',
@@ -30,6 +32,16 @@ export const setDefaultDatasetId = (payload: string) => ({
 
 export const setOpenFileModal = (payload: boolean) => ({
   type: UI_ACTIONS.SET_OPEN_FILE_MODAL,
+  payload
+});
+
+export const setOpenFileModalIsLoading = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_OPEN_FILE_MODAL_IS_LOADING,
+  payload
+});
+
+export const setOpenFileModalError = (payload: string) => ({
+  type: UI_ACTIONS.SET_OPEN_FILE_MODAL_ERROR,
   payload
 });
 
