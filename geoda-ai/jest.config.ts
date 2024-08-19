@@ -94,8 +94,8 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^geoda-wasm$': '<rootDir>/../../geoda-lib/js',
-    '^@kepler.gl/(.*)$': '<rootDir>../../csds_kepler/src/$1/src',
-    '^@kepler.gl/tasks$': '<rootDir>../../csds_kepler/src/tasks/src',
+    // '^@kepler.gl/(.*)$': '<rootDir>../../csds_kepler/src/$1/src',
+    // '^@kepler.gl/tasks$': '<rootDir>../../csds_kepler/src/tasks/src',
     '^@mapbox/tiny-sdf$': '<rootDir>/../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs',
     '^d3-dsv$': '<rootDir>/../../csds_kepler/node_modules/d3-dsv',
     '^d3-scale$': '<rootDir>/../../csds_kepler/node_modules/d3-scale',

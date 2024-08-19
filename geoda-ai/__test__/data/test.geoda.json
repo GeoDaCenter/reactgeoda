@@ -1,0 +1,185 @@
+{
+  "datasets": [
+    {
+      "fileName": "test_csv.csv",
+      "dataId": "-3kf633",
+      "arrowTable": "/////9gAAAAQAAAAAAAKABAADgAHAAgACgAAAAAAAAEQAAAAAAADAAgACAAAAAQACAAAAAQAAAADAAAAcAAAADQAAAAEAAAArP///xAAAAAYAAAAAAAABRgAAAAEAAAAbmFtZQAAAAAAAAAABAAEAAQAAADY////EAAAABQAAAAAAAADEAAAAAMAAABsbmcAAAAAAMb///8AAAIAEAAUAAQAAAAPABAAAAAIABAAAAAQAAAAFAAAAAAAAAMYAAAAAwAAAGxhdAAAAAAAAAAGAAgABgAGAAAAAAACAAAAAAD/////+AAAABQAAAAAAAAADAAWABQADwAQAAQADAAAALgAAAAAAAAAAAAAAxAAAAADAAoAGAAMAAgABAAKAAAAFAAAAIgAAAAEAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAA4AAAAAAAAAAAAAAADAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA0NVW7C/jQkBseHqlLONCQAkbnl4p40JApb3BFybjQkBQ/Bhz15pewAIrhxbZml7AtFn1udqaXsBmiGNd3JpewAAAAAAOAAAAHAAAACoAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABTYW1wbGUgUG9pbnQgMVNhbXBsZSBQb2ludCAyU2FtcGxlIFBvaW50IDNTYW1wbGUgUG9pbnQgNP////8AAAAA"
+    }
+  ],
+  "keplerConfig": {
+    "visState": {
+      "filters": [],
+      "layers": [
+        {
+          "id": "uy7blla",
+          "type": "point",
+          "config": {
+            "dataId": "-3kf633",
+            "label": "point",
+            "color": [18, 147, 154],
+            "colorScale": "quantile",
+            "colorField": null,
+            "colorDomain": [0, 1],
+            "highlightColor": [252, 242, 26, 255],
+            "columns": {
+              "lat": "lat",
+              "lng": "lng"
+            },
+            "isVisible": true,
+            "visConfig": {
+              "radius": 10,
+              "fixedRadius": false,
+              "opacity": 0.8,
+              "outline": false,
+              "thickness": 2,
+              "strokeColor": null,
+              "colorRange": {
+                "name": "Global Warming",
+                "type": "sequential",
+                "category": "Uber",
+                "colors": ["#5A1846", "#900C3F", "#C70039", "#E3611C", "#F1920E", "#FFC300"]
+              },
+              "strokeColorRange": {
+                "name": "Global Warming",
+                "type": "sequential",
+                "category": "Uber",
+                "colors": ["#5A1846", "#900C3F", "#C70039", "#E3611C", "#F1920E", "#FFC300"]
+              },
+              "radiusRange": [0, 50],
+              "filled": true
+            },
+            "hidden": false,
+            "textLabel": [
+              {
+                "field": null,
+                "color": [255, 255, 255],
+                "size": 18,
+                "offset": [0, 0],
+                "anchor": "start",
+                "alignment": "center",
+                "outlineWidth": 0,
+                "outlineColor": [255, 0, 0, 255],
+                "background": false,
+                "backgroundColor": [0, 0, 200, 255]
+              }
+            ]
+          },
+          "visualChannels": {
+            "colorField": null,
+            "colorScale": "quantile",
+            "strokeColorField": null,
+            "strokeColorScale": "quantile",
+            "sizeField": null,
+            "sizeScale": "linear"
+          }
+        }
+      ],
+      "effects": [],
+      "interactionConfig": {
+        "tooltip": {
+          "fieldsToShow": {
+            "-3kf633": [
+              {
+                "name": "name",
+                "format": null
+              }
+            ]
+          },
+          "compareMode": false,
+          "compareType": "absolute",
+          "enabled": true
+        },
+        "brush": {
+          "size": 0.5,
+          "enabled": false
+        },
+        "geocoder": {
+          "enabled": false
+        },
+        "coordinate": {
+          "enabled": false
+        }
+      },
+      "layerBlending": "normal",
+      "overlayBlending": "normal",
+      "splitMaps": [],
+      "animationConfig": {
+        "currentTime": null,
+        "speed": 1
+      },
+      "editor": {
+        "features": [],
+        "visible": true
+      }
+    },
+    "mapState": {
+      "bearing": 0,
+      "dragRotate": false,
+      "latitude": 37.77475,
+      "longitude": -122.41955,
+      "pitch": 0,
+      "zoom": 20,
+      "isSplit": false,
+      "isViewportSynced": true,
+      "isZoomLocked": false,
+      "splitMapViewports": []
+    },
+    "mapStyle": {
+      "styleType": "dark-matter",
+      "topLayerGroups": {},
+      "visibleLayerGroups": {
+        "label": true,
+        "road": true,
+        "border": false,
+        "building": true,
+        "water": true,
+        "land": true,
+        "3d building": false
+      },
+      "threeDBuildingColor": [15.035172933000911, 15.035172933000911, 15.035172933000911],
+      "backgroundColor": [0, 0, 0],
+      "mapStyles": {}
+    }
+  },
+  "geodaConfig": {
+    "language": "en",
+    "maps": [],
+    "uiState": {
+      "theme": "dark",
+      "defaultDatasetId": "",
+      "openFileModal": {
+        "showOpenFileModal": false,
+        "showAddDatasetModal": false,
+        "openFileModalError": "",
+        "isLoading": false
+      },
+      "showSaveProjectModal": false,
+      "showKeplerTable": false,
+      "showGridView": false,
+      "showPropertyPanel": false,
+      "showChatPanel": false,
+      "propertyPanelName": "",
+      "openAIKey": "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",
+      "isOpenAIKeyChecked": false,
+      "screenCaptured": "",
+      "startScreenCapture": false,
+      "defaultPromptText": "",
+      "table": {
+        "showQueryBuilder": true
+      }
+    },
+    "weights": [],
+    "plots": [],
+    "regressions": [],
+    "ai": {
+      "messages": []
+    },
+    "dashboard": {
+      "mode": "edit"
+    },
+    "interaction": {
+      "brushLink": {}
+    },
+    "spatialJoin": {}
+  }
+}

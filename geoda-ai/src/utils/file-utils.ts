@@ -11,7 +11,6 @@ import {
   Utf8 as ArrowString,
   makeVector,
   vectorFromArray,
-  Vector as ArrowVector,
   Data as ArrowData,
   Schema as ArrowSchema,
   Table as ArrowTable,
@@ -59,40 +58,44 @@ const SHAPEFILE_LOADER_OPTIONS = {
 };
 
 export async function loadArrowFile(file: File) {
-  // const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
-  const loadOptions = {
-    arrow: ARROW_LOADER_OPTIONS,
-    metadata: true,
-    gis: {reproject: true}
-  };
-  const loaders = [ArrowLoader];
-  const batchIterator = await parseInBatches(file, loaders, loadOptions);
-  const progressIterator = makeProgressIterator(batchIterator, {size: file.byteSize});
-  const batches = readBatch(progressIterator, file.name);
+  try {
+    // const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
+    const loadOptions = {
+      arrow: ARROW_LOADER_OPTIONS,
+      metadata: true,
+      gis: {reproject: true}
+    };
+    const loaders = [ArrowLoader];
+    const batchIterator = await parseInBatches(file, loaders, loadOptions);
+    const progressIterator = makeProgressIterator(batchIterator, {size: file.size});
+    const batches = readBatch(progressIterator, file.name);
 
-  let result = await batches.next();
-  let content: ProcessFileDataContent = {data: [], fileName: ''};
-  let parsedData: FileCacheItem[] = [];
+    let result = await batches.next();
+    let content: ProcessFileDataContent = {data: [], fileName: ''};
+    let parsedData: FileCacheItem[] = [];
 
-  while (!result.done) {
-    content = result.value as ProcessFileDataContent;
-    result = await batches.next();
-    if (result.done) {
-      parsedData = await processFileData({
-        content,
-        fileCache: []
-      });
-      break;
+    while (!result.done) {
+      content = result.value as ProcessFileDataContent;
+      result = await batches.next();
+      if (result.done) {
+        parsedData = await processFileData({
+          content,
+          fileCache: []
+        });
+        break;
+      }
     }
-  }
 
-  const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
-  return {
-    fileName: content.fileName,
-    dataId: parsedData[0].info.id,
-    arrowTable,
-    arrowFormatData: parsedData[0]
-  };
+    const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
+    return {
+      fileName: content.fileName,
+      dataId: parsedData[0].info.id,
+      arrowTable,
+      arrowFormatData: parsedData[0]
+    };
+  } catch (e: any) {
+    throw new Error('Failed to load arrow file. Details: ' + e.message);
+  }
 }
 
 export async function processDropFiles(
@@ -126,6 +129,14 @@ export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOu
 
   // otherwise check if there is a file with extension .shp
   const shpFile = files.find(file => file.name.endsWith('.shp'));
+  // check if there are associated .dbf, .shx, .prj files with the .shp file
+  if (shpFile) {
+    const dbfFile = files.find(file => file.name.endsWith('.dbf'));
+    const prjFile = files.find(file => file.name.endsWith('.prj'));
+    if (!dbfFile || !prjFile) {
+      throw new Error('Shapefile must have associated .dbf and .prj files. Please drop all files.');
+    }
+  }
   // use shpFile if it exists, otherwise use the first file
   const file = shpFile || files[0];
 

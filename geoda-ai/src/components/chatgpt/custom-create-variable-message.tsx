@@ -44,7 +44,6 @@ export const CustomCreateVariableMessage = ({
     [columnType, datasetName, newColumn, values]
   );
 
-
   // handle click event
   const onClick = () => {
     if (datasetId) {

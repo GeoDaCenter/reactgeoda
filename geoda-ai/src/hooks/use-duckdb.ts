@@ -47,7 +47,7 @@ export class DuckDB {
       this.db = new duckdb.AsyncDuckDB(logger, worker);
       await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
     }
-  };
+  }
 
   public getDuckDB = () => this.db;
 

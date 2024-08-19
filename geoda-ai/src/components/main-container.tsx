@@ -181,7 +181,7 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
   };
 
   const handleClick = (e: MouseEvent<HTMLDivElement>) => {
-    // console.log('Click captured:', e.target);
+    console.log('Click captured:', e.target);
   };
 
   return (

@@ -93,6 +93,11 @@ export const loadDroppedFilesAsync =
     }
   };
 
+/**
+ * Load project file from URL asynchronously
+ * @param projectUrl project file URL
+ * @returns It is a thunk function that actions will be dispatched to update the redux state
+ */
 export const loadProjectUrlAsync =
   (projectUrl: string) => async (dispatch: Dispatch<UnknownAction>, getState: () => GeoDaState) => {
     // clear error message
@@ -101,7 +106,9 @@ export const loadProjectUrlAsync =
     dispatch(setOpenFileModalIsLoading(true));
 
     try {
-      if (!projectUrl) {
+      // check if projectUrl is a valid URL
+      const url = new URL(projectUrl);
+      if (!url) {
         throw new Error('Project URL is not valid');
       }
       // get datasets from state
@@ -113,7 +120,6 @@ export const loadProjectUrlAsync =
       const res = await fetch(projectUrl);
       if (!res.ok) {
         dispatch(setOpenFileModalError('Failed to fetch project file'));
-        dispatch(setOpenFileModalIsLoading(false));
         return;
       }
       const data = await res.json();

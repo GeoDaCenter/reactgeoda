@@ -2,7 +2,7 @@ import React, {PropsWithChildren} from 'react';
 import {RenderOptions, render} from '@testing-library/react';
 import {Provider} from 'react-redux';
 // As a basic setup, import your same slice reducers
-import {GeoDaState, reducers} from '../src/store';
+import {GeoDaState, middlewares, reducers} from '../src/store';
 import {legacy_createStore as createStore, applyMiddleware} from 'redux';
 import {thunk} from 'redux-thunk';
 import ReduxThunkTester from 'redux-thunk-tester';
@@ -24,7 +24,7 @@ function configureTestStore(preloadedState = {}) {
     // @ts-ignore FIXME
     reducers,
     preloadedState,
-    applyMiddleware(reduxThunkTester.createReduxThunkHistoryMiddleware(), thunk)
+    applyMiddleware(...middlewares, reduxThunkTester.createReduxThunkHistoryMiddleware(), thunk)
   );
 
   const origDispatch = store.dispatch;

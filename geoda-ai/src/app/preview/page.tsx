@@ -19,6 +19,7 @@ import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {useSearchParams} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {DuckDB} from '@/hooks/use-duckdb';
+import {useGeoDa} from '@/hooks/use-geoda';
 const MainConatiner = dynamic(() => import('@/components/main-container'), {ssr: false});
 // import MainConatiner from '@/components/main-container';
 
@@ -28,6 +29,8 @@ export default function Home() {
   const searchParams = useSearchParams();
 
   const projectUrl = searchParams.get('project');
+
+  useGeoDa();
 
   // run initDuckDB before rendering the app
   useEffect(() => {

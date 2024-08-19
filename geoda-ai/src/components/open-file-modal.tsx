@@ -64,7 +64,7 @@ const OpenFileComponent = ({isAddingDataset = false}: {isAddingDataset?: boolean
                 size="sm"
                 isIndeterminate
                 aria-label="Loading..."
-                className="mt-2 max-w-md progress"
+                className="progress mt-2 max-w-md"
               />
             )}
           </div>

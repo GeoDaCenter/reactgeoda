@@ -9,7 +9,6 @@ import {
 import {themeLT, theme as themeDK} from '@kepler.gl/styles';
 import {useTheme as useNextTheme} from 'next-themes';
 
-import {useGeoDa} from '@/hooks/use-geoda';
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
 import {setKeplerTableModal} from '@/actions';
 
@@ -58,9 +57,6 @@ const KeplerGl = injectComponents([[MapControlFactory, CustomMapControlFactory] 
 
 const KeplerMap = () => {
   const {theme} = useNextTheme();
-
-  // trigger use hooks to load wasm files
-  useGeoDa();
 
   return (
     <div style={{height: '100%', padding: '0px'}} className={'geoda-kepler-map'}>

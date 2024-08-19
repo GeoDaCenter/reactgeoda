@@ -26,21 +26,29 @@ Object.defineProperty(window, 'Worker', {
 });
 
 // add global definition for fetch in Jest
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    ok: true,
-    json: () => Promise.resolve({data: 'mocked data'})
-  })
+global.fetch = jest.fn(
+  () =>
+    Promise.resolve({
+      ok: true,
+      json: jest.fn().mockResolvedValue({data: 'mocked data'})
+    }) as unknown as Promise<Response>
 );
 
 // add global definition for Request in Jest
 global.Request = jest.fn();
 
 // add global definition for Response in Jest
-global.Response = jest.fn();
+global.Response = jest.fn(
+  () =>
+    ({
+      error: jest.fn(),
+      json: jest.fn(),
+      redirect: jest.fn()
+    }) as unknown as Response
+);
 
 // mock loaders.gl version
-global._loadersgl_ = {version: '4.2.1'};
+(global as any)._loadersgl_ = {version: '4.2.1'};
 
 // mock d3-array
 jest.mock('d3-array', () => ({
@@ -73,7 +81,7 @@ export class BlobPolyfill extends Blob {
   get type() {
     return this.mimeType;
   }
-  
+
   /**
    * @param [init]
    * @param [options]
@@ -201,7 +209,7 @@ export class BlobPolyfill extends Blob {
   /**
    */
   // @ts-ignore
-  stream(): BlobStream<any> {
+  stream(): any {
     // return new BlobStream<any>(this.parts);
   }
 
@@ -265,4 +273,3 @@ export class FilePolyfill extends BlobPolyfill {
 
 global.Blob = BlobPolyfill;
 global.File = FilePolyfill;
-
