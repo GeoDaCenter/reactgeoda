@@ -27,6 +27,10 @@ export type UiStateProps = {
   openAIKey: string;
   isOpenAIKeyChecked: boolean;
   screenCaptured: string;
+  isPrompting: boolean;
+  userAction: string;
+  userActionScreenshot: string;
+  isGuidingUser: boolean;
   startScreenCapture: boolean;
   defaultPromptText: string;
   table: {
@@ -50,8 +54,12 @@ export const INITIAL_UI_STATE = {
   showChatPanel: false,
   propertyPanelName: '',
   openAIKey: LOCAL_API_KEY,
+  isPrompting: false,
   isOpenAIKeyChecked: false,
   screenCaptured: '',
+  userAction: '',
+  userActionScreenshot: '',
+  isGuidingUser: false,
   startScreenCapture: false,
   defaultPromptText: '',
   table: {
@@ -175,6 +183,26 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
           ...state.table,
           queryCode: action.payload as string
         }
+      };
+    case UI_ACTIONS.SET_USER_ACTION:
+      return {
+        ...state,
+        userAction: action.payload as string
+      };
+    case UI_ACTIONS.SET_USER_ACTION_SCREENSHOT:
+      return {
+        ...state,
+        userActionScreenshot: action.payload as string
+      };
+    case UI_ACTIONS.SET_GUIDING_USER:
+      return {
+        ...state,
+        isGuidingUser: action.payload as boolean
+      };
+    case UI_ACTIONS.SET_IS_PROMPTING:
+      return {
+        ...state,
+        isPrompting: action.payload as boolean
       };
     default:
       return state;

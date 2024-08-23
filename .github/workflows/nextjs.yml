@@ -62,11 +62,12 @@ jobs:
           cd loaders.gl
           PUPPETEER_SKIP_DOWNLOAD=true yarn
           cd ..
-      - name: Run Lint
+      - name: Run Lint and Test
         run: |
           cd geoda-ai
           yarn
           yarn lint
+          yarn test
       # - name: Create Sentry Release
       #   uses: getsentry/action-release@v1
       #   env:

@@ -121,12 +121,18 @@ export type StreamMessageCallback = (
   isCompleted?: boolean
 ) => void;
 
+export type UserActionProps = {
+  role: string;
+  text: string;
+};
+
 /**
  * Type of ProcessMessageProps
  */
 export type ProcessMessageProps = {
   textMessage: string;
   imageMessage?: string;
+  userActions?: UserActionProps[];
   customFunctions: CustomFunctions;
   customFunctionContext: CustomFunctionContext;
   customMessageCallback: CustomMessageCallback;

@@ -1,7 +1,13 @@
-import {MessageModel, MessagePayload} from '@chatscope/chat-ui-kit-react';
 import {CUSTOM_FUNCTIONS} from '@/ai/assistant/custom-functions';
 import {initOpenAI, processMessage, translateVoiceToText} from '@/ai/openai-utils';
-import {CustomFunctionContext, CustomFunctionOutputProps, CustomFunctions} from '@/ai/types';
+import {
+  MessageModel,
+  MessagePayload,
+  CustomFunctionContext,
+  CustomFunctionOutputProps,
+  CustomFunctions,
+  UserActionProps
+} from '@/ai/types';
 
 /**
  * Create a message from custom function call
@@ -43,6 +49,32 @@ function createMessageFromCustomFunctionCall({
     };
   }
   return null;
+}
+
+export async function sendMessage({
+  textMessage,
+  streamMessage,
+  imageMessage,
+  userActions,
+  customFunctions,
+  customFunctionContext
+}: {
+  textMessage: string;
+  streamMessage: (delta: string, customMessage?: MessagePayload) => void;
+  imageMessage?: string;
+  userActions?: UserActionProps[];
+  customFunctions: CustomFunctions;
+  customFunctionContext: CustomFunctionContext;
+}) {
+  await processMessage({
+    textMessage,
+    imageMessage,
+    userActions,
+    customFunctions,
+    customFunctionContext,
+    customMessageCallback: createMessageFromCustomFunctionCall,
+    streamMessageCallback: streamMessage
+  });
 }
 
 /**

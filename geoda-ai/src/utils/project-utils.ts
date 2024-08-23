@@ -182,7 +182,12 @@ export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
       ...geodaConfig.uiState,
       showSaveProjectModal: false
     },
-    weights: savedWeights
+    weights: savedWeights,
+    ai: {
+      ...geodaConfig.ai,
+      // remove guidenceMessages
+      guidenceMessages: undefined
+    }
   };
 
   return outputConfig;
