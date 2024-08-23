@@ -24,7 +24,6 @@ import {
 } from '@nextui-org/react';
 import React, {useState} from 'react';
 import {SignUpButton} from '@/components/user/signup';
-import {cn} from '@/components/common/cn';
 
 type SocialIconProps = Omit<IconProps, 'icon'>;
 
