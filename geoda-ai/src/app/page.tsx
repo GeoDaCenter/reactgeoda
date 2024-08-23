@@ -8,7 +8,20 @@ import {Icon} from '@iconify/react';
 import '@/styles/globals.css';
 import '@/styles/landing-guide.css';
 import '@/styles/landing.css';
-import {Button, Link, Spacer, Modal, ModalContent, ModalHeader, ModalBody} from '@nextui-org/react';
+import {
+  Button,
+  Link,
+  Spacer,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Card,
+  CardHeader,
+  CardBody,
+  Avatar,
+  CardFooter
+} from '@nextui-org/react';
 import React, {useState} from 'react';
 import {SignUpButton} from '@/components/user/signup';
 
@@ -32,6 +45,50 @@ const socialItems = [
   }
 ];
 
+const highlights = [
+  {
+    icon: 'hugeicons:ai-chat-02',
+    title: 'Chat with GeoDa.AI',
+    demoLink: 'img/highlight-prompt.mp4',
+    content:
+      'Simply prompt GeoDa.AI to run spatial statistics, generate maps and charts, create spatial weights, find spatial clusters, and apply spatial regressions.'
+  },
+  {
+    icon: 'solar:gallery-minimalistic-linear',
+    title: 'Take a Screenshot to Ask',
+    demoLink: 'img/highlight-screenshot.mp4',
+    content:
+      'You can capture a screenshot anywhere on the web app and let GeoDa.AI analyze it to deliver insights and analysis based on the visual content.'
+  },
+  {
+    icon: 'solar:soundwave-linear',
+    title: 'Talk with GeoDa.AI',
+    demoLink: 'img/highlight-ai-talk.mp4',
+    content:
+      'Interact with GeoDa.AI via voice chat in your own language; GeoDa.AI will translate your voice into English text and provide answers to your questions.'
+  },
+  {
+    icon: 'hugeicons:ai-book',
+    title: 'Ask AI for Help',
+    demoLink: 'img/highlight-ai-help.mp4',
+    content:
+      'Need help configuring settings? Just click this icon and GeoDa.AI will help you on using the app and adjusting settings.'
+  },
+  {
+    icon: 'ri:gemini-fill',
+    title: 'Get AI Insights',
+    demoLink: 'img/highlight-ai-insight.mp4',
+    content:
+      'Get insights from your charts and plots by clicking the AI insights button. GeoDa.AI will analyze the chart and provide insights based on the visual content.'
+  },
+  {
+    icon: 'tabler:windmill',
+    title: 'AI User Guidance',
+    demoLink: 'img/highlight-ai-guide.mp4',
+    content:
+      'New to spatial data analysis? Click the guidance button, and GeoDa.AI will guide you through the process of spatial data analysis step by step.'
+  }
+];
 const mainItems = [
   {
     image: 'img/ask-1.gif',
@@ -68,18 +125,21 @@ const mainItems = [
 
 export default function Page() {
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoLink, setDemoLink] = useState('');
+
   return (
     <div className="flex w-screen items-center justify-center bg-gradient-to-br from-black via-rose-950 to-black">
       <div className="flex w-full max-w-full flex-col gap-4">
-        <div className="mt-10 flex flex-col items-center justify-center gap-2 p-4 md:mt-20 md:gap-8 xl:mb-40 xl:flex-row">
+        <div className="mb-10 mt-10 flex flex-col items-center justify-center gap-2 p-4 md:mt-20 md:gap-8 xl:mb-20 xl:flex-row">
           <div className="flex flex-col items-center gap-4 xl:ml-6 xl:items-start">
             <div className="flex flex-row items-start gap-4">
-              <h2 className="inline bg-gradient-to-br from-foreground-800 to-foreground-200 bg-clip-text text-7xl font-semibold tracking-tight text-transparent dark:to-foreground-200">
+              <h2 className="inline bg-gradient-to-br from-foreground-800 to-foreground-200 bg-clip-text text-7xl font-semibold tracking-tight text-transparent">
                 GeoDa.AI
               </h2>
               <img className="relative" alt="Geoda ai logo" src="img/geoda-ai-logo.png" />
             </div>
-            <h2 className="max-w-[500px] bg-gradient-to-br from-foreground-800 to-foreground-200 bg-clip-text pl-2 text-4xl font-normal leading-relaxed text-slate-50 dark:to-foreground-200">
+            <h2 className="max-w-[500px] bg-gradient-to-br from-foreground-800 to-foreground-200 bg-clip-text pl-2 text-4xl font-normal leading-relaxed text-slate-50">
               Free, Open-Sourced and AI Powered Spatial Data Analysis
             </h2>
             <Button
@@ -115,11 +175,56 @@ export default function Page() {
             </div>
           </div>
         </div>
-        <div className="main-content flex flex-col gap-10 text-stone-800 dark:text-stone-300">
+        <div className="main-content flex flex-col items-center gap-10 text-stone-300">
+          <div
+            className="flex w-full flex-col bg-cover bg-center bg-no-repeat pb-6 pt-8 text-center"
+            style={{backgroundImage: "url('/img/curved-lines.png')"}}
+          >
+            <h1 className="text-4xl font-medium tracking-tight">Generative AI + GeoDa</h1>
+            <Spacer y={2} />
+            <h2 className="text-large text-slate-400">
+              the powerful AI agent for spatial data analysis
+            </h2>
+            <Spacer y={10} />
+            <div className="flex flex-wrap justify-center gap-4">
+              {highlights.map((highlight, i) => (
+                <Card key={i} className={'h-[280px] max-w-[320px] bg-pink-950/70 p-3'} shadow="lg">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        className="border-small border-white/20 bg-transparent"
+                        icon={<Icon className="text-white" icon={highlight.icon} width={22} />}
+                      />
+                      <p className="text-large font-medium text-white">{highlight.title}</p>
+                    </div>
+                  </CardHeader>
+                  <CardBody className="px-3">
+                    <div className="flex flex-col gap-2 px-2">
+                      <p className="text-small text-white/60">{highlight.content}</p>
+                    </div>
+                  </CardBody>
+                  <CardFooter className="justify-end gap-2">
+                    <Button
+                      fullWidth
+                      className="border-small border-white/20 bg-white/10 text-white"
+                      startContent={<Icon icon="tdesign:play-demo" />}
+                      onClick={() => {
+                        setDemoLink(highlight.demoLink);
+                        setShowDemo(true);
+                      }}
+                    >
+                      See a Demo
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+            <Spacer y={8} />
+          </div>
           {mainItems.map((item, i) => (
             <div
               key={i}
-              className="backdrop-saturate-5 m-2 flex flex-col-reverse items-center gap-10 rounded-2xl bg-background/60 shadow-xl backdrop-blur-xl backdrop-saturate-200 md:m-auto md:flex-row md:items-start md:p-10"
+              className="m-2 flex flex-col-reverse items-center gap-10 rounded-2xl bg-red-950/20 shadow-lg md:m-auto md:flex-row md:items-start md:p-10"
             >
               <div className="min-w-[360px] max-w-[360px] gap-3 rounded-xl">
                 <img className="rounded-xl" alt="Img intro" src={item.image} />
@@ -139,12 +244,17 @@ export default function Page() {
           <div className="flex w-full flex-col items-center justify-center px-6 py-12 lg:px-8">
             <div className="flex items-center justify-center gap-4">
               <img className="" alt="Geoda ai logo" src="img/geoda-ai-logo.png" />
-              <span className="text-2xl font-semibold text-stone-50 dark:text-stone-500">
-                GeoDa.AI
-              </span>
+              <span className="text-2xl font-semibold text-stone-500">GeoDa.AI</span>
             </div>
-            <Spacer y={6} />
-
+            <Spacer y={4} />
+            <div className="flex justify-center gap-x-4 pl-2">
+              {socialItems.map(item => (
+                <Link key={item.name} isExternal className="text-default-400" href={item.href}>
+                  <span className="sr-only">{item.name}</span>
+                  <item.icon aria-hidden="true" className="w-5" style={{width: 30, height: 30}} />
+                </Link>
+              ))}
+            </div>
             <Spacer y={4} />
             <p className="mt-1 text-center text-small text-default-400">
               &copy; 2024 GeoDa.AI All rights reserved.
@@ -165,6 +275,22 @@ export default function Page() {
           </ModalHeader>
           <ModalBody>
             <SignUpButton />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Modal
+        size="4xl"
+        isOpen={showDemo}
+        isDismissable={true}
+        onClose={() => setShowDemo(false)}
+        backdrop="blur"
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1"></ModalHeader>
+          <ModalBody>
+            <video controls className="w-full">
+              <source src={demoLink} type="video/mp4" />
+            </video>
           </ModalBody>
         </ModalContent>
       </Modal>

@@ -1,4 +1,9 @@
-import {setScreenCaptured, setStartScreenCapture} from '@/actions';
+import {
+  setScreenCaptured,
+  setStartScreenCapture,
+  setUserAction,
+  setUserActionScreenshot
+} from '@/actions';
 import {MouseEvent, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import html2canvas from 'html2canvas';
@@ -14,9 +19,12 @@ const OpenFileModal = dynamic(() => import('@/components/open-file-modal'), {ssr
 const GridLayout = dynamic(() => import('@/components/dashboard/grid-layout'), {ssr: false});
 import {AddDatasetModal} from '@/components/open-file-modal';
 import {GeoDaState} from '@/store';
+import {takeSnapshotWithCrop} from '@/utils/ui-utils';
 
 export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl: string | null}) {
   const dispatch = useDispatch();
+
+  const isGuidingUser = useSelector((state: GeoDaState) => state.root.uiState.isGuidingUser);
 
   // get startScreenCapture from redux state
   const startScreenCapture = useSelector(
@@ -180,8 +188,33 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
     setCrossHairsTop(0);
   };
 
+  const handleClick = async (e: MouseEvent<HTMLDivElement>) => {
+    if (isGuidingUser && (e.target instanceof HTMLElement || e.target instanceof SVGElement)) {
+      const nodeElement = e.target instanceof SVGElement ? e.target.parentElement : e.target;
+      if (nodeElement) {
+        // get the global position of nodeElement
+        const rect = nodeElement.getBoundingClientRect();
+        const x = rect.left + window.scrollX;
+        const y = rect.top + window.scrollY;
+        // get the size of the nodeElement
+        const width = rect.width;
+        const height = rect.height;
+        // make a screenshot of the clicked element
+        const screenshot = await takeSnapshotWithCrop(x, y, width, height);
+        dispatch(setUserActionScreenshot(screenshot));
+        // dispatch the outerHTML of the clicked element
+        dispatch(setUserAction(e.target.outerHTML));
+      }
+    }
+  };
+
   return (
-    <div onMouseMove={handleMouseMove} onMouseDown={handleMouseDown} onMouseUp={handleMoouseUp}>
+    <div
+      onClickCapture={handleClick}
+      onMouseMove={handleMouseMove}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMoouseUp}
+    >
       <div className="min-w-100 relative flex h-screen w-screen flex-row items-start border-none">
         <Navigator />
         <div className="shadow-[rgba(0,0,15,0.5)_10px_0px_10px_0px]">

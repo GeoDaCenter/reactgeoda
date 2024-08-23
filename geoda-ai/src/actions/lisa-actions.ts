@@ -1,5 +1,5 @@
 import {RunAnalysisProps} from '@/components/lisa/univariate-lisa-config';
-import {addColumnWithValues} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {runLisa, runQuantileLisa} from '@/utils/lisa-functions';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {addLayer, addTableColumn} from '@kepler.gl/actions';
@@ -24,7 +24,7 @@ export function runLisaAsync(payload: RunLisaAsyncProps) {
     dispatch(addTableColumn(dataset.id, newField, values));
 
     // add new column to duckdb
-    await addColumnWithValues({
+    await DuckDB.getInstance().addColumnWithValues({
       tableName: dataset.label,
       columnName: newFieldName,
       columnType: 'NUMERIC',
@@ -63,7 +63,7 @@ export function runQuantileLisaAsync(payload: RunQuantileLisaAsyncProps) {
     dispatch(addTableColumn(dataset.id, newField, values));
 
     // add new column to duckdb
-    await addColumnWithValues({
+    await DuckDB.getInstance().addColumnWithValues({
       tableName: dataset.label,
       columnName: newFieldName,
       columnType: 'NUMERIC',

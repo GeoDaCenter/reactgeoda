@@ -68,6 +68,10 @@ export async function loadGeoDaProject(geodaFile: File): Promise<ProcessDropFile
   const geodaFileContent = await geodaFile.text();
   const geodaFileData: GeoDaProject = JSON.parse(geodaFileContent);
 
+  if (!geodaFileData.datasets) {
+    throw new Error('Invalid GeoDa project file');
+  }
+
   // process datasets
   const datasets: Array<DatasetProps> = [];
   for (let i = 0; i < geodaFileData.datasets.length; i++) {
@@ -160,6 +164,11 @@ function loadWeights(savedWeights: SavedWeightsProps[]): WeightsProps[] {
   return weights;
 }
 
+/**
+ * Save the GeoDa redux state to a GeoDa project file
+ * @param root The GeoDa RootState
+ * @returns Filered redux state, witouth datasets
+ */
 export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {datasets, ...geodaConfig} = root;
@@ -173,7 +182,12 @@ export function saveGeoDaConfig(root: GeoDaState['root']): SavedGeoDaConfig {
       ...geodaConfig.uiState,
       showSaveProjectModal: false
     },
-    weights: savedWeights
+    weights: savedWeights,
+    ai: {
+      ...geodaConfig.ai,
+      // remove guidenceMessages
+      guidenceMessages: undefined
+    }
   };
 
   return outputConfig;

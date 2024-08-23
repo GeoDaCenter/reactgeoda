@@ -144,14 +144,14 @@ const MessageCard = React.forwardRef<HTMLDivElement, MessageCardProps>(
         <div className="flex w-full flex-col gap-4">
           <div
             className={cn(
-              'relative w-full rounded-medium bg-content2 px-4 py-3 text-default-600',
+              'relative w-full rounded-medium bg-content2 px-4 py-3 text-default-600 ',
               failedMessageClassName,
               messageClassName
             )}
           >
-            <div ref={messageRef} className={'whitespace-pre-line pr-20 text-small'}>
+            <div ref={messageRef} className={'min-h-8 whitespace-pre-line pr-20 text-small'}>
               {/* <Markdown className="flex flex-col gap-4">{message as string}</Markdown> */}
-              {status === 'pending' && <Spinner color="default" size="sm" />}
+              {status === 'pending' && <Spinner color="default" size="sm" className="p-2" />}
               {hasFailed ? failedMessage : message}
               {customMessage &&
                 isCustomMessagePayload(customMessage) &&

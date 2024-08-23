@@ -1,14 +1,24 @@
 import {AI_ACTIONS, AIConfigProps, DatasetMetaPayloadProps} from '@/actions';
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import {GUIDENCE_INSTRUCTIONS} from '@/ai/constants';
+import {UserActionProps, MessageModel} from '@/ai/types';
+
+export const DEFAULT_GUIDENCE_MESSAGES: UserActionProps[] = [
+  {
+    role: 'system',
+    text: GUIDENCE_INSTRUCTIONS
+  }
+];
 
 export type AiStateProps = {
   messages: MessageModel[];
+  guidenceMessages?: UserActionProps[];
   datasetMeta?: DatasetMetaPayloadProps;
   config?: AIConfigProps;
 };
 
 const initialState: AiStateProps = {
-  messages: []
+  messages: [],
+  guidenceMessages: DEFAULT_GUIDENCE_MESSAGES
 };
 
 export type AiAction = {
@@ -40,6 +50,11 @@ export const aiReducer = (state = initialState, action: AiAction) => {
           ...state.config,
           ...action.payload
         }
+      };
+    case AI_ACTIONS.SET_GUIDENCE_MESSAGES:
+      return {
+        ...state,
+        guidenceMessages: action.payload
       };
     default:
       return state;

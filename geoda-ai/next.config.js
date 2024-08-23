@@ -141,18 +141,21 @@ const nextConfig = {
   }
 };
 
-module.exports = withSentryConfig(nextConfig, {
-  org: 'geoda',
-  project: 'reactgeoda',
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: false,
-  sourcemaps: true,
-  // Use `hidden-source-map` rather than `source-map` as the Webpack `devtool`
-  // for client-side builds. (This will be the default starting in
-  // `@sentry/nextjs` version 8.0.0.) See
-  // https://webpack.js.org/configuration/devtool/ and
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
-  // for more information.
-  hideSourceMaps: true,
-  telemetry: false
-});
+module.exports =
+  process.env.BUILD_WITH_SENTRY === 'true'
+    ? withSentryConfig(nextConfig, {
+        org: 'geoda',
+        project: 'reactgeoda',
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        silent: false,
+        sourcemaps: true,
+        // Use `hidden-source-map` rather than `source-map` as the Webpack `devtool`
+        // for client-side builds. (This will be the default starting in
+        // `@sentry/nextjs` version 8.0.0.) See
+        // https://webpack.js.org/configuration/devtool/ and
+        // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#use-hidden-source-map
+        // for more information.
+        // hideSourceMaps: true,
+        telemetry: false
+      })
+    : nextConfig;

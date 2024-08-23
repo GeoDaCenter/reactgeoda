@@ -11,7 +11,7 @@ import {
   Utf8 as ArrowString,
   makeVector,
   vectorFromArray,
-  Vector as ArrowVector,
+  Data as ArrowData,
   Schema as ArrowSchema,
   Table as ArrowTable,
   makeBuilder,
@@ -31,7 +31,7 @@ import {
   readBatch,
   readFileInBatches
 } from '@kepler.gl/processors';
-import {ProcessDropFilesOutput} from './project-utils';
+import {loadGeoDaProject, ProcessDropFilesOutput} from './project-utils';
 
 const CSV_LOADER_OPTIONS = {
   shape: 'object-row-table',
@@ -58,40 +58,62 @@ const SHAPEFILE_LOADER_OPTIONS = {
 };
 
 export async function loadArrowFile(file: File) {
-  // const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
-  const loadOptions = {
-    arrow: ARROW_LOADER_OPTIONS,
-    metadata: true,
-    gis: {reproject: true}
-  };
-  const loaders = [ArrowLoader];
-  const batchIterator = await parseInBatches(file, loaders, loadOptions);
-  const progressIterator = makeProgressIterator(batchIterator, {size: file.size});
-  const batches = readBatch(progressIterator, file.name);
+  try {
+    // const batches = await readFileInBatches({file, fileCache, loaders, loadOptions});
+    const loadOptions = {
+      arrow: ARROW_LOADER_OPTIONS,
+      metadata: true,
+      gis: {reproject: true}
+    };
+    const loaders = [ArrowLoader];
+    const batchIterator = await parseInBatches(file, loaders, loadOptions);
+    const progressIterator = makeProgressIterator(batchIterator, {size: file.size});
+    const batches = readBatch(progressIterator, file.name);
 
-  let result = await batches.next();
-  let content: ProcessFileDataContent = {data: [], fileName: ''};
-  let parsedData: FileCacheItem[] = [];
+    let result = await batches.next();
+    let content: ProcessFileDataContent = {data: [], fileName: ''};
+    let parsedData: FileCacheItem[] = [];
 
-  while (!result.done) {
-    content = result.value as ProcessFileDataContent;
-    result = await batches.next();
-    if (result.done) {
-      parsedData = await processFileData({
-        content,
-        fileCache: []
-      });
-      break;
+    while (!result.done) {
+      content = result.value as ProcessFileDataContent;
+      result = await batches.next();
+      if (result.done) {
+        parsedData = await processFileData({
+          content,
+          fileCache: []
+        });
+        break;
+      }
     }
+
+    const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
+    return {
+      fileName: content.fileName,
+      dataId: parsedData[0].info.id,
+      arrowTable,
+      arrowFormatData: parsedData[0]
+    };
+  } catch (e: any) {
+    throw new Error('Failed to load arrow file. Details: ' + e.message);
+  }
+}
+
+export async function processDropFiles(
+  files: File[],
+  isAddingDataset = false
+): Promise<ProcessDropFilesOutput> {
+  // check if there is a file with extension .geoda
+  const geodaFile = files.find(file => file.name.endsWith('.geoda'));
+  if (geodaFile) {
+    if (isAddingDataset === true) {
+      throw new Error('GeoDa project file cannot be added to the current project.');
+    }
+    // process project file
+    return await loadGeoDaProject(geodaFile);
   }
 
-  const arrowTable = new ArrowTable(content.data as ArrowRecordBatch[]);
-  return {
-    fileName: content.fileName,
-    dataId: parsedData[0].info.id,
-    arrowTable,
-    arrowFormatData: parsedData[0]
-  };
+  // otherwise check if there is a file with extension .shp
+  return await loadDroppedFile(files);
 }
 
 /**
@@ -107,6 +129,14 @@ export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOu
 
   // otherwise check if there is a file with extension .shp
   const shpFile = files.find(file => file.name.endsWith('.shp'));
+  // check if there are associated .dbf, .shx, .prj files with the .shp file
+  if (shpFile) {
+    const dbfFile = files.find(file => file.name.endsWith('.dbf'));
+    const prjFile = files.find(file => file.name.endsWith('.prj'));
+    if (!dbfFile || !prjFile) {
+      throw new Error('Shapefile must have associated .dbf and .prj files. Please drop all files.');
+    }
+  }
   // use shpFile if it exists, otherwise use the first file
   const file = shpFile || files[0];
 
@@ -182,22 +212,20 @@ export function convertFileCacheItemToArrowTable(fileCacheItem: FileCacheItem) {
   }
   // get field and vector from data.fields and columnValues
   const fields: ArrowField[] = [];
-  const vectors: {[key: string]: ArrowVector} = {};
-  // const arrowColumns: {[key: string]: ArrowData} = {};
+  const vectors: {[key: string]: ArrowData} = {};
 
   for (let i = 0; i < data.fields.length; i++) {
     const field: Field = data.fields[i];
     const {name, type} = field;
     const {arrowField, arrowVector} = KeplerFieldTypeToArrowFieldType(name, type, columnValues[i]);
     fields.push(arrowField);
-    vectors[name] = arrowVector;
-    // arrowColumns[name] = arrowVector.data[0];
+    vectors[name] = arrowVector.data[0];
   }
   // make a new ArrowTable
   const schema = new ArrowSchema(fields);
   // construct arrow Batches from vectors
   // const batches = new ArrowRecordBatch(arrowColumns);
-  // @ts-ignore TODO fix me
+  // @ts-ignore TODO fix me distributeVectorsIntoRecordBatches
   const arrowTable = new ArrowTable(schema, vectors);
   // append metadata from geoarrow fields to fileCacheItem.data.fields for geometry field
   for (let i = 0; i < fields.length; i++) {

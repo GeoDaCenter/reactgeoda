@@ -9,6 +9,7 @@ import {cn} from '../common/cn';
 
 import PromptInput from './prompt-input';
 import VoiceChatButton from './voice-chat-button';
+import GuidanceButton from './ai-guidence-button';
 
 type PromptInputWithBottomActionsProps = {
   onSendMessage: (message: string) => void;
@@ -180,19 +181,22 @@ export default function Component({
               variant="flat"
               onClick={onScreenshotClick}
             >
-              Take a Screenshot to Ask
+              Screenshot to Ask
             </Button>
             <VoiceChatButton onRecordingComplete={onRecordingComplete} />
             {enableAttachFile && (
-              <Button
-                size="sm"
-                startContent={
-                  <Icon className="text-default-500" icon="solar:paperclip-linear" width={18} />
-                }
-                variant="flat"
-              >
-                Attach
-              </Button>
+              <>
+                <GuidanceButton />
+                <Button
+                  size="sm"
+                  startContent={
+                    <Icon className="text-default-500" icon="solar:paperclip-linear" width={18} />
+                  }
+                  variant="flat"
+                >
+                  Attach
+                </Button>
+              </>
             )}
           </div>
           <p className="py-1 text-tiny text-default-400">{prompt.length}/2000</p>

@@ -1,4 +1,4 @@
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {GeoDaState} from '@/store';
 import {getQueryBuilderFields} from '@/utils/table-utils';
 import {Button, Card, CardBody, CardHeader, Checkbox} from '@nextui-org/react';
@@ -37,8 +37,6 @@ export function TableQueryComponent({
   const id = 'table-query';
 
   const dispatch = useDispatch();
-  // get duckdb hook
-  const {query} = useDuckDB();
 
   const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
   const queryCode = useSelector((state: GeoDaState) => state.root.uiState.table.queryCode);
@@ -79,7 +77,7 @@ export function TableQueryComponent({
 
   // write callback function onQueryClick
   const onQueryClick = async () => {
-    const selectedIndexes = await query(tableName, code);
+    const selectedIndexes = await DuckDB.getInstance().query(tableName, code);
 
     if (selectedIndexes) {
       dispatch(geodaBrushLink({sourceId: id, dataId: datasetId, filteredIndex: selectedIndexes}));

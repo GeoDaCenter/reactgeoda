@@ -2,6 +2,8 @@ export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
   SET_DEFAULT_DATASET_ID = 'SET_DEFAULT_DATASET_ID',
   SET_OPEN_FILE_MODAL = 'SET_OPEN_FILE_MODAL',
+  SET_OPEN_FILE_MODAL_IS_LOADING = 'SET_OPEN_FILE_MODAL_IS_LOADING',
+  SET_OPEN_FILE_MODAL_ERROR = 'SET_OPEN_FILE_MODAL_ERROR',
   SET_ADD_DATASET_MODAL = 'SET_ADD_DATASET_MODAL',
   SET_SAVE_PROJECT_MODAL = 'SET_SAVE_PROJECT_MODAL',
   SET_KEPLER_TABLE_MODAL = 'SET_KEPLER_TABLE_MODAL',
@@ -15,7 +17,11 @@ export enum UI_ACTIONS {
   SET_QUERY_CODE = 'SET_QUERY_CODE',
   SET_SCREEN_CAPTURED = 'SET_SCREEN_CAPTURED',
   SET_START_SCREEN_CAPTURE = 'SET_START_SCREEN_CAPTURE',
-  SET_DEFAULT_PROMPT_TEXT = 'SET_DEFAULT_PROMPT_TEXT'
+  SET_DEFAULT_PROMPT_TEXT = 'SET_DEFAULT_PROMPT_TEXT',
+  SET_USER_ACTION = 'SET_USER_ACTION',
+  SET_USER_ACTION_SCREENSHOT = 'SET_USER_ACTION_SCREENSHOT',
+  SET_GUIDING_USER = 'SET_GUIDING_USER',
+  SET_IS_PROMPTING = 'SET_IS_PROMPTING'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -30,6 +36,16 @@ export const setDefaultDatasetId = (payload: string) => ({
 
 export const setOpenFileModal = (payload: boolean) => ({
   type: UI_ACTIONS.SET_OPEN_FILE_MODAL,
+  payload
+});
+
+export const setOpenFileModalIsLoading = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_OPEN_FILE_MODAL_IS_LOADING,
+  payload
+});
+
+export const setOpenFileModalError = (payload: string) => ({
+  type: UI_ACTIONS.SET_OPEN_FILE_MODAL_ERROR,
   payload
 });
 
@@ -100,5 +116,25 @@ export const setStartScreenCapture = (payload: boolean) => ({
 
 export const setDefaultPromptText = (payload: string) => ({
   type: UI_ACTIONS.SET_DEFAULT_PROMPT_TEXT,
+  payload
+});
+
+export const setUserAction = (payload: string) => ({
+  type: UI_ACTIONS.SET_USER_ACTION,
+  payload
+});
+
+export const setUserActionScreenshot = (payload: string) => ({
+  type: UI_ACTIONS.SET_USER_ACTION_SCREENSHOT,
+  payload
+});
+
+export const setGuidingUser = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_GUIDING_USER,
+  payload
+});
+
+export const setIsPrompting = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_IS_PROMPTING,
   payload
 });

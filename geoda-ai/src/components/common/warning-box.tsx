@@ -122,6 +122,7 @@ export function WarningBox(props: WarningBoxProps) {
     <div
       className="warning-box flex cursor-pointer flex-row  bg-yellow-50 p-2 text-sm text-yellow-800 dark:bg-gray-800 dark:text-yellow-300"
       onClick={onClick}
+      data-testid="warning-message"
     >
       <div className="warning-icon p-1">
         {props.type === 'error' && <ErrorIcon />}

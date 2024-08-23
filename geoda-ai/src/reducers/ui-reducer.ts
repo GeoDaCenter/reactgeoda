@@ -14,14 +14,23 @@ export type UiStateProps = {
   showPropertyPanel: boolean;
   showChatPanel: boolean;
   propertyPanelName: string;
-  showOpenFileModal: boolean;
-  showAddDatasetModal: boolean;
+  openFileModal: {
+    showOpenFileModal: boolean;
+    openFileModalError?: string;
+    showAddDatasetModal: boolean;
+    addDatasetModalError?: string;
+    isLoading?: boolean;
+  };
   showSaveProjectModal: boolean;
   showKeplerTable: boolean;
   showGridView: boolean;
   openAIKey: string;
   isOpenAIKeyChecked: boolean;
   screenCaptured: string;
+  isPrompting: boolean;
+  userAction: string;
+  userActionScreenshot: string;
+  isGuidingUser: boolean;
   startScreenCapture: boolean;
   defaultPromptText: string;
   table: {
@@ -34,8 +43,10 @@ export type UiStateProps = {
 export const INITIAL_UI_STATE = {
   theme: 'dark',
   defaultDatasetId: '',
-  showOpenFileModal: true,
-  showAddDatasetModal: false,
+  openFileModal: {
+    showOpenFileModal: true,
+    showAddDatasetModal: false
+  },
   showSaveProjectModal: false,
   showKeplerTable: false,
   showGridView: false,
@@ -43,8 +54,12 @@ export const INITIAL_UI_STATE = {
   showChatPanel: false,
   propertyPanelName: '',
   openAIKey: LOCAL_API_KEY,
+  isPrompting: false,
   isOpenAIKeyChecked: false,
   screenCaptured: '',
+  userAction: '',
+  userActionScreenshot: '',
+  isGuidingUser: false,
   startScreenCapture: false,
   defaultPromptText: '',
   table: {
@@ -82,12 +97,34 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
     case UI_ACTIONS.SET_OPEN_FILE_MODAL:
       return {
         ...state,
-        showOpenFileModal: action.payload as boolean
+        openFileModal: {
+          ...state.openFileModal,
+          showOpenFileModal: action.payload as boolean
+        }
+      };
+    case UI_ACTIONS.SET_OPEN_FILE_MODAL_IS_LOADING:
+      return {
+        ...state,
+        openFileModal: {
+          ...state.openFileModal,
+          isLoading: action.payload as boolean
+        }
+      };
+    case UI_ACTIONS.SET_OPEN_FILE_MODAL_ERROR:
+      return {
+        ...state,
+        openFileModal: {
+          ...state.openFileModal,
+          openFileModalError: action.payload as string
+        }
       };
     case UI_ACTIONS.SET_ADD_DATASET_MODAL:
       return {
         ...state,
-        showAddDatasetModal: action.payload as boolean
+        openFileModal: {
+          ...state.openFileModal,
+          showAddDatasetModal: action.payload as boolean
+        }
       };
     case UI_ACTIONS.SET_SAVE_PROJECT_MODAL:
       return {
@@ -146,6 +183,26 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
           ...state.table,
           queryCode: action.payload as string
         }
+      };
+    case UI_ACTIONS.SET_USER_ACTION:
+      return {
+        ...state,
+        userAction: action.payload as string
+      };
+    case UI_ACTIONS.SET_USER_ACTION_SCREENSHOT:
+      return {
+        ...state,
+        userActionScreenshot: action.payload as string
+      };
+    case UI_ACTIONS.SET_GUIDING_USER:
+      return {
+        ...state,
+        isGuidingUser: action.payload as boolean
+      };
+    case UI_ACTIONS.SET_IS_PROMPTING:
+      return {
+        ...state,
+        isPrompting: action.payload as boolean
       };
     default:
       return state;

@@ -35,12 +35,14 @@ import {IconAddDataset} from '../icons/add';
 export function Navigator() {
   const dispatch = useDispatch();
 
-  const showOpenModal = useSelector((state: GeoDaState) => state.root.uiState.showOpenFileModal);
+  const showOpenModal = useSelector(
+    (state: GeoDaState) => state.root.uiState.openFileModal.showOpenFileModal
+  );
   const showSaveProjectModal = useSelector(
     (state: GeoDaState) => state.root.uiState.showSaveProjectModal
   );
   const showAddDatasetModal = useSelector(
-    (state: GeoDaState) => state.root.uiState.showAddDatasetModal
+    (state: GeoDaState) => state.root.uiState.openFileModal.showAddDatasetModal
   );
   const isFileLoaded = useSelector((state: GeoDaState) => state.root.datasets?.length > 0);
 

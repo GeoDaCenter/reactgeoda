@@ -1,5 +1,5 @@
 import {MAP_ID, MappingTypes} from '@/constants';
-import {addColumnWithValues} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {createMapUpdater, createRatesMapUpdater} from '@/reducers/maps-updater';
 import {GeoDaState} from '@/store';
 import {addKeplerColumn} from '@/utils/table-utils';
@@ -62,7 +62,7 @@ export function createRatesMapAsync(payload: CreateRatesMapPayloadProps) {
     const keplerDataset = getState().keplerGl[MAP_ID].visState.datasets[payload.dataId];
     if (newLayer) {
       // add new column to duckdb
-      await addColumnWithValues({
+      await DuckDB.getInstance().addColumnWithValues({
         tableName: keplerDataset.label,
         columnName: newLayer.config.colorField.name,
         columnValues: columnValues,

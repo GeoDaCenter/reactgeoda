@@ -18,7 +18,7 @@ import {
   validataColumnType,
   validateColumnName
 } from '@/utils/table-utils';
-import {useDuckDB} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {GeoDaState} from '@/store';
 import {DefaultValueComponent} from './column-default-component';
 import {PreviewDataTable} from './preview-data-table';
@@ -48,7 +48,6 @@ export function AddColumn({
   const [values, setValues] = useState<unknown | unknown[]>(null);
   const [previewTab, setPreviewTab] = useState('preview-table');
 
-  const {addColumn, addColumnWithValues} = useDuckDB();
   const dispatch = useDispatch();
   const editorRef = useRef<SQLEditorRefProps>(null);
 
@@ -133,14 +132,14 @@ export function AddColumn({
     if (Array.isArray(values)) {
       // check if values are array of string
       const isStringArray = values.some(v => typeof v === 'string');
-      addColumnWithValues({
+      DuckDB.getInstance().addColumnWithValues({
         tableName,
         columnName,
         columnValues: values,
         columnType: isStringArray ? 'VARCHAR' : 'NUMERIC'
       });
     } else {
-      addColumn(code);
+      DuckDB.getInstance().addColumn(code);
     }
 
     // add column to kepler.gl

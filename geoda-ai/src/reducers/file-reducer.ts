@@ -1,11 +1,16 @@
 import {FileCacheItem} from '@kepler.gl/processors';
 import {Table as ArrowTable} from 'apache-arrow';
 
-import {FILE_ACTIONS} from '../actions';
+import {FILE_ACTIONS} from '../actions/file-actions';
+
+type ImportArrowFilePayload = {
+  fileName: string;
+  arrowTable: ArrowTable;
+};
 
 export type DatasetsAction = {
   type: string;
-  payload: DatasetProps;
+  payload: DatasetProps | ImportArrowFilePayload;
 };
 
 export type DatasetProps = {

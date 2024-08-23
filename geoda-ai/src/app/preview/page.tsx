@@ -9,7 +9,7 @@ import '@/styles/style.css';
 import '@/styles/superfine.css';
 import '@/styles/maplibre-gl.css';
 
-import {useRef} from 'react';
+import {useEffect, useRef} from 'react';
 import {Provider as ReduxProvider} from 'react-redux';
 import {RootContext} from '@kepler.gl/components';
 
@@ -18,6 +18,8 @@ import IntlProviderWrapper from '@/components/intl-provider-wrapper';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {useSearchParams} from 'next/navigation';
 import dynamic from 'next/dynamic';
+import {DuckDB} from '@/hooks/use-duckdb';
+import {useGeoDa} from '@/hooks/use-geoda';
 const MainConatiner = dynamic(() => import('@/components/main-container'), {ssr: false});
 // import MainConatiner from '@/components/main-container';
 
@@ -27,6 +29,13 @@ export default function Home() {
   const searchParams = useSearchParams();
 
   const projectUrl = searchParams.get('project');
+
+  useGeoDa();
+
+  // run initDuckDB before rendering the app
+  useEffect(() => {
+    DuckDB.getInstance().initDuckDB();
+  }, []);
 
   return (
     <RootContext.Provider value={rootNode}>

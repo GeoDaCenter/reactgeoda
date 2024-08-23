@@ -28,7 +28,6 @@ export function scatterCallback(
   {variableX, variableY, datasetName}: ScatterCallbackProps,
   {visState}: {visState: KeplerGlState['visState']}
 ): ScatterCallbackOutput | ErrorOutput {
-  console.log('scatterCallback', variableX, variableY, datasetName);
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(datasetName, variableX, visState.datasets);
   if (!keplerDataset) {

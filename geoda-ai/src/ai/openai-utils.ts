@@ -3,7 +3,8 @@ import {
   CustomFunctions,
   CustomMessageCallback,
   ProcessMessageProps,
-  StreamMessageCallback
+  StreamMessageCallback,
+  UserActionProps
 } from './types';
 
 import OpenAI from 'openai';
@@ -104,7 +105,6 @@ export async function initOpenAI(
         const version = assistant.metadata.version;
         if (currentVersion && version !== currentVersion) {
           // update assistant
-          console.log('updating assistant');
           assistant = await openai.beta.assistants.update(assistantId, assistantContent);
         }
       }
@@ -193,8 +193,52 @@ export async function setAdditionalInstructions(message: string) {
       });
     await run.finalMessages();
     await run.finalRun();
-    console.log('additional instructions are set');
   }
+}
+
+async function processUserActions({
+  userActions,
+  streamMessageCallback
+}: {
+  userActions: Array<UserActionProps>;
+  streamMessageCallback: StreamMessageCallback;
+}) {
+  const release = await mutex.acquire();
+  lastMessage = '';
+
+  const messages = userActions.map(action => ({
+    role: action.role,
+    content: [
+      {
+        type: 'text',
+        text: action.text
+      }
+    ]
+  })) as OpenAI.Chat.Completions.ChatCompletionMessageParam[];
+  // request chat completion
+  await openai?.beta.chat.completions
+    .stream({
+      model: 'gpt-4o',
+      messages
+    })
+    .on('chunk', chunk => {
+      const delta = chunk.choices[0]?.delta?.content;
+      lastMessage += delta;
+      streamMessageCallback(lastMessage);
+    })
+    .on('finalChatCompletion', completion => {
+      streamMessageCallback(completion.choices[0]?.message.content || '', undefined, true);
+    })
+    .on('end', async () => {
+      release();
+    })
+    .on('error', async err => {
+      console.error(err);
+      release();
+    })
+    .on('abort', async () => {
+      release();
+    });
 }
 
 /**
@@ -303,6 +347,7 @@ async function processImageMessage({
 export async function processMessage({
   textMessage,
   imageMessage,
+  userActions,
   customFunctions,
   customFunctionContext,
   customMessageCallback,
@@ -330,6 +375,12 @@ export async function processMessage({
   if (imageMessage) {
     // process image message
     return processImageMessage({imageMessage, textMessage, streamMessageCallback});
+  }
+
+  if (userActions) {
+    // process user actions
+    console.log('Processing user actions:', userActions);
+    return processUserActions({userActions, streamMessageCallback});
   }
 
   const release = await mutex.acquire();
@@ -380,6 +431,11 @@ export async function processMessage({
         lastMessage += textContent || '';
         // stream the message back to the UI
         streamMessageCallback(lastMessage);
+      }
+      if (event.event === 'thread.run.failed') {
+        streamMessageCallback('Sorry, run failed.', undefined, true);
+        console.error('run failed:', event.data);
+        break;
       }
     }
 
@@ -486,7 +542,9 @@ async function submitAllToolOutputs(
   customMessageCallback: CustomMessageCallback,
   streamMessageCallback: StreamMessageCallback
 ) {
+  // add a space between messages
   if (lastMessage.length > 0) lastMessage += '\n\n';
+
   const toolOutputs = functionOutput.map(output => ({
     tool_call_id: toolCallId,
     output: JSON.stringify(output.result)

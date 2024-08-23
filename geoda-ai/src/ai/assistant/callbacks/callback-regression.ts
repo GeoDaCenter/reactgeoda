@@ -4,8 +4,7 @@ import {WeightsProps} from '@/reducers/weights-reducer';
 import {VisState} from '@kepler.gl/schemas';
 import {CHAT_DATASET_NOT_FOUND, CHAT_WEIGHTS_NOT_FOUND} from '@/constants';
 import {createErrorResult, ErrorOutput} from '../custom-functions';
-import {runRegression} from '@/utils/regression-utils';
-import {printRegressionResult} from '@/components/spreg/spreg-report';
+import {printRegressionResult, runRegression} from '@/utils/regression-utils';
 import {CustomFunctionOutputProps} from '@/ai/types';
 import {isCustomWeightsOutput} from '@/components/chatgpt/custom-weights-message';
 

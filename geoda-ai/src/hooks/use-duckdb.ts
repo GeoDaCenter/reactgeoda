@@ -1,4 +1,3 @@
-import {useCallback} from 'react';
 import {tableFromArrays} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
@@ -24,57 +23,39 @@ const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   }
 };
 
-// keep a global duckdb instance, so it willbe only instantiated once using init()
-let db: duckdb.AsyncDuckDB | null = null;
-
-// store table name in global scope, so it can be reused
-let tableName: string | null = null;
-
-// store the table summary in global scope, so it can be reused
-let tableSummary: string | null = null;
-
-/**
- * Initialize DuckDB
- */
-export async function initDuckDB() {
-  if (db === null) {
-    // call initDuckDB() in background after 2000 ms
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    // Select a bundle based on browser checks
-    const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
-    // Instantiate the asynchronus version of DuckDB-Wasm
-    const worker = new Worker(bundle.mainWorker!);
-    const logger = new duckdb.ConsoleLogger();
-    db = new duckdb.AsyncDuckDB(logger, worker);
-    await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-    return db;
+export class DuckDB {
+  // singleton pattern to create a DuckDB instance
+  static instance: DuckDB;
+  static getInstance() {
+    if (!DuckDB.instance) {
+      DuckDB.instance = new DuckDB();
+    }
+    return DuckDB.instance;
   }
-  return null;
-}
 
-export function getDuckDB() {
-  return db;
-}
+  private db: duckdb.AsyncDuckDB | null = null;
 
-// initial the global duckdb instance, delay 200ms to avoid blocking loading default page
-setTimeout(async () => {
-  db = await initDuckDB();
-}, 200);
+  public async initDuckDB() {
+    if (this.db === null) {
+      // call initDuckDB() in background after 2000 ms
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Select a bundle based on browser checks
+      const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+      // Instantiate the asynchronus version of DuckDB-Wasm
+      const worker = new Worker(bundle.mainWorker!);
+      const logger = new duckdb.ConsoleLogger();
+      this.db = new duckdb.AsyncDuckDB(logger, worker);
+      await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+    }
+  }
 
-/**
- * Get the summary of a table by passing the table name
- * @param tableName
- *  @returns {Promise<string>} summary of the table
- */
-export async function getTableSummary(inputTableName?: string): Promise<string> {
-  if (db) {
-    if (!tableSummary) {
-      if (!tableName && inputTableName) {
-        tableName = inputTableName;
-      }
+  public getDuckDB = () => this.db;
+
+  public getTableSummary = async (tableName: string) => {
+    if (this.db) {
       try {
         // connect to the database
-        const conn = await db.connect();
+        const conn = await this.db.connect();
         // Query
         const arrowResult = await conn.query(`SUMMARIZE "${tableName}"`);
         // Convert arrow table to json FIXME
@@ -85,225 +66,100 @@ export async function getTableSummary(inputTableName?: string): Promise<string> 
         const csv = result.map((row: any) => Object.values(row).join(',')).join('\n');
         // prepend the header
         const header = Object.keys(result[0]).join(',');
-        tableSummary = `${header}\n${csv}`;
+        const tableSummary = `${header}\n${csv}`;
         return tableSummary;
       } catch (error) {
-        console.error(error);
-        return 'Error: can not get summary of the table because table name is not found';
+        throw new Error(`Error: can not get summary of the table: ${error}`);
       }
     }
-    return tableSummary;
-  }
-  return 'Error: can not get summary of the table because the duckdb is not working properly.';
-}
+    return '';
+  };
 
-export function getTableNameSync(): string | null {
-  return tableName;
-}
+  public getColumnData = async (tableName: string, columnName: string) => {
+    if (this.db) {
+      // connect to the database
+      const conn = await this.db.connect();
+      // Query
+      const arrowResult = await conn.query(`SELECT "${columnName}" FROM "${tableName}"`);
+      // Convert arrow table to json
+      const result = arrowResult.toArray().map((row: any) => row.toArray()[0]);
+      // close the connection
+      await conn.close();
+      return result;
+    }
+    return [];
+  };
 
-/**
- * Get the data from column by passing the column name
- */
-export async function getColumnData(columnName: string): Promise<number[]> {
-  if (db) {
-    // connect to the database
-    const conn = await db.connect();
-    // Query
-    const arrowResult = await conn.query(`SELECT "${columnName}" FROM "${tableName}"`);
-    // Convert arrow table to json
-    const result = arrowResult.toArray().map((row: any) => row.toArray()[0]);
-    // close the connection
-    await conn.close();
-    return result;
-  }
-  return [];
-}
-
-export async function addColumnWithValues({
-  tableName,
-  columnName,
-  columnType,
-  columnValues
-}: {
-  tableName: string;
-  columnName: string;
-  columnType: 'NUMERIC' | 'VARCHAR';
-  columnValues: unknown[];
-}) {
-  if (db) {
-    try {
-      const conn = await db.connect();
-      // create a temporary arrow table with the column name and values
-      const arrowTable = tableFromArrays({[columnName]: columnValues});
-      // create a temporary duckdb table using the arrow table
-      await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
+  public addColumnWithValues = async ({
+    tableName,
+    columnName,
+    columnType,
+    columnValues
+  }: {
+    tableName: string;
+    columnName: string;
+    columnType: 'NUMERIC' | 'VARCHAR';
+    columnValues: unknown[];
+  }) => {
+    if (this.db) {
       try {
-        // add a new column from the temporary table to the main table
-        await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnType}`);
+        const conn = await this.db.connect();
+        // create a temporary arrow table with the column name and values
+        const arrowTable = tableFromArrays({[columnName]: columnValues});
+        // create a temporary duckdb table using the arrow table
+        await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
+        try {
+          // add a new column from the temporary table to the main table
+          await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnType}`);
+        } catch (error) {
+          // do nothing if can't add a new column since it might already exist
+        }
+        // update the new column with the values from the temporary table
+        await conn.query(
+          `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
+        );
+        // drop the temporary table
+        await conn.query(`DROP TABLE "temp_${columnName}"`);
+        await conn.close();
       } catch (error) {
-        // do nothing if can't add a new column since it might already exist
+        console.error(error);
+        throw new Error("Can't add a new column with values to the table, Error: " + error);
       }
-      // update the new column with the values from the temporary table
-      await conn.query(
-        `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
-      );
-      // drop the temporary table
-      await conn.query(`DROP TABLE "temp_${columnName}"`);
-      await conn.close();
-    } catch (error) {
-      console.error(error);
-      throw new Error("Can't add a new column with values to the table, Error: " + error);
     }
-  }
-}
+  };
 
-export async function addColumnBySQL(sql: string) {
-  if (db) {
-    try {
-      // remove \n from sql
-      const sqlString = sql.replace(/\n/g, '');
-
-      const conn = await db.connect();
-      await conn.query(sqlString);
-      await conn.close();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-}
-
-export async function queryValuesBySQL(queryString: string): Promise<unknown[]> {
-  if (!db) {
-    throw new Error('DuckDB is not initialized');
-  }
-  try {
-    // remove \n from sql
-    const sqlString = queryString.replace(/\n/g, '');
-
-    const conn = await db.connect();
-    const arrowResult = await conn.query<{v: any}>(sqlString);
-    const result = arrowResult.getChildAt(0)?.toArray();
-    await conn.close();
-    return result || [];
-  } catch (error) {
-    console.error(error);
-    throw new Error('Error: can not query the values from the table. Details: ' + error);
-  }
-}
-
-/**
- * custom hook to use DuckDB
- *
- * @returns {query, importTable} functions to query and import data
- */
-export function useDuckDB() {
-  /**
-   * Add a new column to the table with the column name and values.
-   * Note: using a bulk appended table:
-   * Using a temporary table to store the values and then update the main table
-   */
-  const addColumnWithValues = useCallback(
-    async ({
-      tableName,
-      columnName,
-      columnType,
-      columnValues
-    }: {
-      tableName: string;
-      columnName: string;
-      columnType: 'NUMERIC' | 'VARCHAR';
-      columnValues: unknown[];
-    }) => {
-      if (db) {
-        try {
-          const conn = await db.connect();
-          // create a temporary arrow table with the column name and values
-          const arrowTable = tableFromArrays({[columnName]: columnValues});
-          // create a temporary duckdb table using the arrow table
-          await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
-          try {
-            // add a new column from the temporary table to the main table
-            await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnType}`);
-          } catch (error) {
-            // do nothing if can't add a new column since it might already exist
-          }
-          // update the new column with the values from the temporary table
-          await conn.query(
-            `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
-          );
-          // drop the temporary table
-          await conn.query(`DROP TABLE "temp_${columnName}"`);
-          await conn.close();
-        } catch (error) {
-          console.error(error);
-          throw new Error("Can't add a new column with values to the table, Error: " + error);
-        }
-      }
-    },
-    []
-  );
-
-  const updateColumnWidthValues = useCallback(
-    async (tableName: string, columnName: string, columnValues: number[]) => {
-      if (db) {
-        try {
-          const conn = await db.connect();
-          // create a temporary arrow table with the column name and values
-          const arrowTable = tableFromArrays({[columnName]: columnValues});
-          // create a temporary duckdb table using the arrow table
-          await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
-          // update the new column with the values from the temporary table
-          await conn.query(
-            `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
-          );
-          // drop the temporary table
-          await conn.query(`DROP TABLE "temp_${columnName}"`);
-          await conn.close();
-        } catch (error) {
-          console.error(error);
-          throw new Error("Can't update the column with values to the table, Error: " + error);
-        }
-      }
-    },
-    []
-  );
-
-  const addColumn = useCallback(async (sql: string) => {
-    if (db) {
+  public addColumnBySQL = async (sql: string) => {
+    if (this.db) {
       try {
         // remove \n from sql
         const sqlString = sql.replace(/\n/g, '');
 
-        const conn = await db.connect();
+        const conn = await this.db.connect();
         await conn.query(sqlString);
         await conn.close();
       } catch (error) {
         console.error(error);
       }
     }
-  }, []);
+  };
 
-  const queryValues = useCallback(async (queryString: string): Promise<unknown[]> => {
-    if (!db) {
-      throw new Error('DuckDB is not initialized');
+  public addColumn = async (sql: string) => {
+    if (this.db) {
+      try {
+        // remove \n from sql
+        const sqlString = sql.replace(/\n/g, '');
+
+        const conn = await this.db.connect();
+        await conn.query(sqlString);
+        await conn.close();
+      } catch (error) {
+        console.error(error);
+      }
     }
-    try {
-      // remove \n from sql
-      const sqlString = queryString.replace(/\n/g, '');
+  };
 
-      const conn = await db.connect();
-      const arrowResult = await conn.query<{v: any}>(sqlString);
-      const result = arrowResult.getChildAt(0)?.toArray();
-      await conn.close();
-      return result || [];
-    } catch (error) {
-      console.error(error);
-      throw new Error('Error: can not query the values from the table. Details: ' + error);
-    }
-  }, []);
-
-  const query = useCallback(async (tableName: string, queryString: string): Promise<number[]> => {
-    if (!db) {
+  public query = async (tableName: string, queryString: string) => {
+    if (!this.db) {
       throw new Error('DuckDB is not initialized');
     }
     // remove \n from queryString
@@ -315,7 +171,7 @@ export function useDuckDB() {
 
     try {
       // connect to the database
-      const conn = await db.connect();
+      const conn = await this.db.connect();
       // Query
       const arrowResult = await conn.query<{v: any}>(sql);
       // Convert arrow table to json
@@ -329,11 +185,30 @@ export function useDuckDB() {
       console.error(error);
       throw new Error('Error: can not query the values from the table. Details: ' + error);
     }
-  }, []);
+  };
 
-  const importArrowFile = useCallback(async ({fileName: tableName, arrowTable}: DatasetProps) => {
-    if (db) {
-      const conn = await db.connect();
+  public queryValuesBySQL = async (queryString: string) => {
+    if (!this.db) {
+      throw new Error('DuckDB is not initialized');
+    }
+    try {
+      // remove \n from sql
+      const sqlString = queryString.replace(/\n/g, '');
+
+      const conn = await this.db.connect();
+      const arrowResult = await conn.query<{v: any}>(sqlString);
+      const result = arrowResult.getChildAt(0)?.toArray();
+      await conn.close();
+      return result || [];
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error: can not query the values from the table. Details: ' + error);
+    }
+  };
+
+  public importArrowFile = async ({fileName: tableName, arrowTable}: DatasetProps) => {
+    if (this.db) {
+      const conn = await this.db.connect();
 
       const arrowResult = await conn.query('select * from information_schema.tables');
       const allTables = arrowResult.toArray().map((row: any) => row.toJSON());
@@ -361,14 +236,5 @@ export function useDuckDB() {
       // close the connection
       await conn.close();
     }
-  }, []);
-
-  return {
-    query,
-    queryValues,
-    addColumn,
-    importArrowFile,
-    addColumnWithValues,
-    updateColumnWidthValues
   };
 }

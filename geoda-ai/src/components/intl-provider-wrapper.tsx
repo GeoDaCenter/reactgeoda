@@ -7,11 +7,12 @@ import MESSAGES from '../translations/translations';
 import {GeoDaState} from '../store';
 
 type IntelProviderWrapperProps = {
+  locale?: string;
   children?: React.ReactNode;
 };
 
 const IntlProviderWrapper = ({children}: IntelProviderWrapperProps) => {
-  const language = useSelector((state: GeoDaState) => state.root.language || 'en');
+  const language = useSelector((state: GeoDaState) => state.root.language);
 
   // combine MESSAGES[language] and messages[language]
   const combinedMessages = {
@@ -20,7 +21,7 @@ const IntlProviderWrapper = ({children}: IntelProviderWrapperProps) => {
   };
 
   return (
-    <IntlProvider messages={combinedMessages} locale={language}>
+    <IntlProvider messages={combinedMessages} locale={language || 'en'}>
       {children}
     </IntlProvider>
   );

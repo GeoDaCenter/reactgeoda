@@ -1,6 +1,6 @@
 // thunk action creators
 
-import {addColumnWithValues} from '@/hooks/use-duckdb';
+import {DuckDB} from '@/hooks/use-duckdb';
 import {
   spatialAssign,
   SpatialAssignProps,
@@ -92,7 +92,7 @@ export function runSpatialAssignAsync(props: RunSpatialAssignAsyncProps) {
       // add new column to duckdb
       // check if values are array of string
       const isStringArray = values.some(v => typeof v === 'string');
-      addColumnWithValues({
+      DuckDB.getInstance().addColumnWithValues({
         tableName: leftTableName,
         columnName: newColumnName,
         columnValues: values,
@@ -166,7 +166,7 @@ export function runSpatialCountAsync(props: RunSpatialCountAsyncProps) {
 
       // add new column to duckdb
       // check if values are array of string
-      addColumnWithValues({
+      DuckDB.getInstance().addColumnWithValues({
         tableName: leftTableName,
         columnName: newColumnName,
         columnValues: values,
