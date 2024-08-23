@@ -6,7 +6,6 @@ const KeplerPackage = require('../../csds_kepler/package.json');
 const resolve = require('path').resolve;
 
 module.exports = (env) => {
-  console.log('env', env);
   return {
     entry: {
       app: env.ai ? './src/ai.tsx' : './src/main.js'

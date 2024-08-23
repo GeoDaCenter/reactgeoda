@@ -105,7 +105,6 @@ export async function initOpenAI(
         const version = assistant.metadata.version;
         if (currentVersion && version !== currentVersion) {
           // update assistant
-          console.log('updating assistant');
           assistant = await openai.beta.assistants.update(assistantId, assistantContent);
         }
       }
@@ -194,7 +193,6 @@ export async function setAdditionalInstructions(message: string) {
       });
     await run.finalMessages();
     await run.finalRun();
-    console.log('additional instructions are set');
   }
 }
 

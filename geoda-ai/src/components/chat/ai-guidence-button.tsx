@@ -37,7 +37,6 @@ export default function GuidanceButton() {
   useEffect(() => {
     if (isGuidingUser && userAction.length > 0 && guidenceMessages) {
       const updatedGuidanceMessages = [...guidenceMessages, {role: 'user', text: userAction}];
-      console.log('updatedGuidanceMessages', updatedGuidanceMessages);
       // add user action to the guidence messages
       setGuidanceMessages(updatedGuidanceMessages);
       // send user action to the LLM

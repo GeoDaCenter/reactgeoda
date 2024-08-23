@@ -283,7 +283,6 @@ describe('OpenFileModal', () => {
       const actionHistory = await getActionHistoryAsync(); // need to wait async thunk (all inner dispatch)
 
       expect(actionHistory).toHaveLength(4);
-      console.log(actionHistory);
       expect(actionHistory[0]).toEqual({type: 'SET_OPEN_FILE_MODAL_ERROR', payload: ''});
       expect(actionHistory[1]).toEqual({type: 'SET_OPEN_FILE_MODAL_IS_LOADING', payload: true});
       expect(actionHistory[2]).toEqual({

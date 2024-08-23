@@ -128,7 +128,6 @@ function MappingPanel() {
   };
 
   const onInteractionConfigChange = (newConfig: any) => {
-    console.log(newConfig);
     dispatch(
       interactionConfigChange({
         ...interactionConfig.tooltip,

@@ -50,7 +50,6 @@ export const ParallelCoordinatePlot = ({props}: {props: ParallelCoordinateStateP
         setRendered(true);
       },
       axisareaselected: function (params: any) {
-        console.log('axisareaselected', params);
         if (eChartsRef.current) {
           const chartInstance = eChartsRef.current.getEchartsInstance();
           // @ts-ignore todo: will fix later

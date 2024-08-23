@@ -21,7 +21,7 @@ const nextConfig = {
   },
   compiler: {
     // remove console.log in production
-    // removeConsole: process.env.NODE_ENV === 'production'
+    removeConsole: process.env.NODE_ENV === 'production'
   },
   webpack: config => {
     // Support WASM modules for duckdb and geoda
