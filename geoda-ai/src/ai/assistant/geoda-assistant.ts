@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 
-export const GPT_MODEL = 'gpt-4o-2024-05-13';
-// export const GPT_MODEL = 'gpt-4o-mini';
+// export const GPT_MODEL = 'gpt-4o-2024-05-13';
+export const GPT_MODEL = 'gpt-4o-mini';
 export const GEODA_AI_ASSISTANT_NAME =
   process.env.NODE_ENV === 'production' ? 'geoda.ai-openai-agent' : 'geoda.ai-openai-agent-dev';
 export const GEODA_AI_ASSISTANT_VERSION = '0.0.1';

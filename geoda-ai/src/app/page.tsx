@@ -251,7 +251,7 @@ export default function Page() {
             <Spacer y={4} />
             <p className="mt-1 text-center text-small text-default-400">
               &copy; 2024 GeoDa.AI All rights reserved. Maintained by&nbsp;
-              <a href="github.com/lixun910">lixun910</a>.
+              <a href="https://github.com/lixun910">@lixun910</a>.
             </p>
           </div>
         </footer>
