@@ -21,11 +21,16 @@ export function SignUpModal() {
 
     setStatus('sending');
     jsonp(url, {param: 'c'}, (err, data) => {
-      if (data.msg.includes('already subscribed') || data.msg.includes('too many recent signup')) {
+      const message = data?.msg;
+      if (
+        message &&
+        typeof message === 'string' &&
+        (message.includes('already subscribed') || message.includes('too many recent signup'))
+      ) {
         setStatus('duplicate');
       } else if (err) {
         setStatus('error');
-      } else if (data.result !== 'success') {
+      } else if (data && data.result !== 'success') {
         setStatus('error');
       } else {
         setStatus('success');
