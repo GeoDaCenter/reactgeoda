@@ -1,9 +1,9 @@
-import {useMemo, useState} from 'react';
+import {ReactNode, useMemo, useState} from 'react';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
 import {Field} from '@kepler.gl/types';
 import {addLayer, addTableColumn, reorderLayer} from '@kepler.gl/actions';
 
-import {LisaCallbackOutput} from '@/ai/assistant/callbacks/callback-lisa';
+import {LisaCallbackOutput, LisaCallbackResult} from '@/ai/assistant/callbacks/callback-lisa';
 import {MAP_ID} from '@/constants';
 import {createUniqueValuesMap} from '@/utils/mapping-functions';
 import {useDispatch, useSelector} from 'react-redux';
@@ -11,7 +11,7 @@ import {GeoDaState} from '@/store';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {selectKeplerDataset} from '@/store/selectors';
 import {KeplerMapContainer} from '../common/kepler-map-container';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
 
 export function isCustomLisaOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>
@@ -19,10 +19,20 @@ export function isCustomLisaOutput(
   return functionOutput.type === 'lisa';
 }
 
+export function customLisaMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomLisaOutput(output)) {
+    return <CustomLisaMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
+}
+
 /**
  * Custom LISA Message
  */
-export const CustomLocalMoranMessage = ({
+export const CustomLisaMessage = ({
   functionOutput,
   functionArgs
 }: {
@@ -37,7 +47,7 @@ export const CustomLocalMoranMessage = ({
     variableName,
     permutations,
     clusters: metaDataOfClusters
-  } = functionOutput.result;
+  } = functionOutput.result as LisaCallbackResult;
 
   // use selector to get layerOrder
   const layerOrder = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID].visState.layerOrder);
@@ -119,7 +129,7 @@ export const CustomLocalMoranMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       {!hide && (
         <>
           <div className="pointer-events-none h-[180px] w-full">

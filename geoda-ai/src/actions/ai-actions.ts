@@ -51,11 +51,12 @@ export type DatasetMetaProps = {
 };
 
 export type AIConfigProps = {
-  provider: string;
-  model: string;
-  apiKey: string;
-  temperature: number;
-  topP: number;
+  provider?: string;
+  model?: string;
+  apiKey?: string;
+  temperature?: number;
+  topP?: number;
+  baseUrl?: string;
 };
 
 export type DatasetMetaPayloadProps = Array<DatasetMetaProps>;
@@ -113,96 +114,4 @@ export const addDatasetToAI =
         }
       }
     }
-  };
-
-export const sendMessageToAI =
-  (message: string, userActions?: UserActionProps[]) =>
-  async (dispatch: Dispatch<UnknownAction>, getState: () => GeoDaState) => {
-    const geodaState = getState();
-    const messages = geodaState.root.ai.messages;
-    const screenCaptured = geodaState.root.uiState.screenCaptured;
-    const visState = geodaState.keplerGl[MAP_ID].visState;
-    const weights = geodaState.root.weights;
-    const userActionScreenshot = geodaState.root.uiState.userActionScreenshot || '';
-
-    dispatch(setIsPrompting(true));
-
-    // add user input message
-    const newMessage: MessageModel = {
-      message:
-        userActions && userActionScreenshot.startsWith('data:image')
-          ? userActionScreenshot
-          : message,
-      direction: 'outgoing',
-      sender: 'user',
-      position: 'normal'
-    };
-    const newMessages: Array<MessageModel> = [...messages, newMessage];
-    dispatch(setMessages(newMessages));
-
-    // add an empty return message to show typing indicator for chatbot
-    dispatch(
-      setMessages([
-        ...newMessages,
-        {message: '', direction: 'incoming', sender: 'ChatGPT', position: 'normal'}
-      ])
-    );
-
-    let screenshotImage: string | undefined = undefined;
-
-    // prepare image message if screenCaptured is set
-    if (screenCaptured && screenCaptured.length > 0) {
-      screenshotImage = screenCaptured || undefined;
-      // dispatch action to set screenCaptured to empty
-      dispatch(setScreenCaptured(''));
-    }
-
-    let lastMessage = '';
-    // send user message to chatbot
-    await sendMessage({
-      textMessage: message,
-      streamMessage: (
-        deltaMessage: string,
-        customMessage?: MessagePayload,
-        isCompleted?: boolean
-      ) => {
-        lastMessage = deltaMessage;
-        dispatch(
-          setMessages([
-            ...newMessages,
-            {
-              message: deltaMessage,
-              direction: 'incoming',
-              sender: userActions ? 'action' : 'ChatGPT',
-              position: 'normal',
-              payload: customMessage
-            }
-          ])
-        );
-        if (isCompleted && userActions) {
-          // add last message to the guidence messages
-          dispatch(setGuidanceMessages([...userActions, {role: 'assistant', text: lastMessage}]));
-          // reset userActionScreenshot
-          dispatch(setUserActionScreenshot(''));
-          // reset userAction
-          dispatch(setUserAction(''));
-        }
-      },
-      imageMessage: screenshotImage,
-      userActions,
-      customFunctions: CUSTOM_FUNCTIONS,
-      customFunctionContext: {
-        visState,
-        weights,
-        queryValuesBySQL: DuckDB.getInstance().queryValuesBySQL
-      }
-    });
-
-    dispatch(setIsPrompting(false));
-
-    // TODO: this should be in sendMessage()
-    // if last message is not a custom message and is empty, remove it
-    // if (lastMessage.trim() === '' && !customMessage) {
-    //   setMessages(newMessages);
-    // }
   };

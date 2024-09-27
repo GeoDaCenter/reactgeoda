@@ -1,10 +1,10 @@
-import {useEffect, useState} from 'react';
+import {ReactNode, useEffect, useState} from 'react';
 
 import {addWeights} from '@/actions';
 import {useDispatch} from 'react-redux';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {WeightsCallbackOutput} from '@/ai/assistant/callbacks/callback-weights';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
 
 /**
  * Type guard for Custom Weights Output
@@ -15,6 +15,16 @@ export function isCustomWeightsOutput(
   props: CustomFunctionOutputProps<unknown, unknown>
 ): props is WeightsCallbackOutput {
   return props.type === 'weights';
+}
+
+export function customWeightsMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomWeightsOutput(output)) {
+    return <CustomWeightsMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
 }
 
 /**
@@ -28,17 +38,14 @@ export const CustomWeightsMessage = ({
 }) => {
   const dispatch = useDispatch();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {datasetId, success, ...weightsMeta} = functionOutput.result;
-
-  const weights = functionOutput.data;
+  const {datasetId, weights, weightsMeta} = functionOutput.data || {};
 
   const [hide, setHide] = useState(functionOutput.isIntermediate || false);
 
   // dispatch action to add weights when isInermediate is true when mounting the component
   useEffect(() => {
     if (functionOutput.isIntermediate) {
-      if (weights) {
+      if (datasetId && weights && weightsMeta) {
         dispatch(addWeights({datasetId, weights, weightsMeta, isNew: true}));
         setHide(true);
       }
@@ -48,7 +55,7 @@ export const CustomWeightsMessage = ({
 
   // handle click event
   const onClick = () => {
-    if (weights) {
+    if (datasetId && weights && weightsMeta) {
       // dispatch action to update redux state state.root.weights
       dispatch(addWeights({datasetId, weights, weightsMeta, isNew: true}));
       // hide the button once clicked
@@ -57,7 +64,7 @@ export const CustomWeightsMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       {/* <WeightsMetaTable weightsMeta={output.data as WeightsMeta} /> */}
       <CustomCreateButton onClick={onClick} hide={hide} label="Click to Add This Spatial Weights" />
     </div>

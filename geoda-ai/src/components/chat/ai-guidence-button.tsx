@@ -3,7 +3,7 @@ import {Icon} from '@iconify/react';
 import {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
-import {sendMessageToAI, setGuidanceMessages, setGuidingUser} from '@/actions';
+import {setGuidanceMessages, setGuidingUser} from '@/actions';
 import {DEFAULT_GUIDENCE_MESSAGES} from '@/reducers/ai-reducer';
 
 export default function GuidanceButton() {
@@ -22,10 +22,10 @@ export default function GuidanceButton() {
     if (isGuidingUser === false) {
       // start guiding the user
       dispatch(setGuidingUser(true));
-      // send initial guidence messages to the LLM
-      dispatch(
-        sendMessageToAI('Please guide me how to create a thematic map.', DEFAULT_GUIDENCE_MESSAGES)
-      );
+      // // send initial guidence messages to the LLM
+      // dispatch(
+      //   sendMessageToAI('Please guide me how to create a thematic map.', DEFAULT_GUIDENCE_MESSAGES)
+      // );
     } else {
       // stop guiding the user
       dispatch(setGuidingUser(false));
@@ -39,8 +39,6 @@ export default function GuidanceButton() {
       const updatedGuidanceMessages = [...guidenceMessages, {role: 'user', text: userAction}];
       // add user action to the guidence messages
       setGuidanceMessages(updatedGuidanceMessages);
-      // send user action to the LLM
-      dispatch(sendMessageToAI('', updatedGuidanceMessages));
     }
   }, [dispatch, guidenceMessages, isGuidingUser, userAction]);
 

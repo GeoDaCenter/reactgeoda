@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   Accordion,
@@ -15,10 +15,16 @@ import {
 } from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 import {GeoDaState} from '../../store';
-import {setIsOpenAIKeyChecked, setOpenAIKey} from '../../actions';
+import {setAIConfig, setIsOpenAIKeyChecked} from '../../actions';
 import {accordionItemClasses} from '@/constants';
-import {testOpenAIKey} from '@/ai/openai-utils';
 import {WarningBox, WarningType} from '../common/warning-box';
+import {testApiKey} from 'soft-ai';
+
+const PROVIDER_MODELS = {
+  openai: ['gpt-4o', 'gpt-4o-mini'],
+  google: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'],
+  ollama: ['llama3.2', 'llama3.1', 'llama3.1:70b', 'qwen2', 'llava', 'mistral', 'gemma2', 'phi3.5']
+};
 
 export function ChatGPTConfigComponent({
   setShowConfig
@@ -27,60 +33,136 @@ export function ChatGPTConfigComponent({
 }) {
   const dispatch = useDispatch();
 
+  const [temperature, setTemperature] = useState<number>(1.0);
+
+  const [topP, setTopP] = useState<number>(0.8);
+
   // state for openAIKey error
-  const [openAIKeyError, setOpenAIKeyError] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState(false);
 
   // state for error message
   const [errorMessage, setErrorMessage] = useState('');
 
-  // define state openAIKey
-  const openAIKey = useSelector((state: GeoDaState) => state.root.uiState.openAIKey);
+  // ai config
+  const aiConfig = useSelector((state: GeoDaState) => state.root.ai.config);
 
   // define useState for key
-  const [key, setKey] = React.useState(openAIKey || '');
+  const [key, setKey] = React.useState(aiConfig?.apiKey || '');
 
-  const onOpenAIKeyChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama'>('openai');
+
+  const [model, setModel] = useState<string>('gpt-4o');
+
+  const [baseUrl, setBaseUrl] = useState<string>('http://127.0.0.1:11434');
+
+  const [isRunning, setIsRunning] = useState(false);
+
+  const onApiKeyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const keyValue = event.target.value;
     setKey(keyValue);
 
     // reset openAIKeyError
-    setOpenAIKeyError(false);
+    setApiKeyError(false);
+
     // reset errorMessage
     setErrorMessage('');
-  }, []);
+  };
 
-  const onConfirmClick = useCallback(async () => {
-    // check if openai key is valid by trying to call testOpenAI function
-    // if key is not valid, show error message
-    const isValidKey = await testOpenAIKey(key);
-    if (!isValidKey) {
-      setOpenAIKeyError(true);
-      setErrorMessage(
-        'Incorrect API key provided. You can find your API key at https://platform.openai.com/account/api-keys.'
-      );
-      dispatch(setOpenAIKey(undefined));
-      dispatch(setIsOpenAIKeyChecked(false));
-    } else {
-      // dispatch action to update redux state state.root.uiState.openAIKey
-      dispatch(setOpenAIKey(key));
-      // dispatch action to update state.root.uiState.isOpenAIKeyChecked
-      dispatch(setIsOpenAIKeyChecked(true));
-      // close the config panel
-      setShowConfig(false);
+  const onBaseUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const baseUrlValue = event.target.value;
+    setBaseUrl(baseUrlValue);
+  };
+
+  const checkInputsAreValid = () => {
+    // check if provider is valid
+    if (!(provider in PROVIDER_MODELS)) {
+      return false;
     }
-  }, [dispatch, key, setShowConfig]);
+    // check if model is valid
+    if (!PROVIDER_MODELS[provider].includes(model)) {
+      return false;
+    }
+    // check if apiKey is valid
+    if (key.length === 0 || key === 'Enter your OpenAI key here') {
+      return false;
+    }
+
+    return true;
+  };
+
+  const onConfirmClick = async () => {
+    setIsRunning(true);
+    checkInputsAreValid();
+
+    if (provider !== 'ollama') {
+      // check if openai key is valid by trying to call testOpenAI function
+      // if key is not valid, show error message
+      const isValidKey = await testApiKey({
+        modelProvider: provider,
+        modelName: model,
+        apiKey: key,
+        baseUrl: baseUrl
+      });
+      dispatch(setIsOpenAIKeyChecked(isValidKey));
+      if (!isValidKey) {
+        setApiKeyError(true);
+        setErrorMessage('Incorrect API key provided. Please check your API key and try again.');
+      }
+    } else {
+      dispatch(setIsOpenAIKeyChecked(true));
+    }
+
+    dispatch(
+      setAIConfig({
+        provider: provider,
+        model: model,
+        apiKey: key,
+        temperature: temperature,
+        topP: topP,
+        baseUrl: baseUrl
+      })
+    );
+
+    setIsRunning(false);
+    setShowConfig(false);
+  };
 
   const onNoOpenAIKeyMessageClick = () => {
     // dispatch to show settings panel
-    setOpenAIKeyError(true);
+    setApiKeyError(true);
     setErrorMessage('');
     setShowConfig(true);
   };
 
-  const onLlmModelChange = useCallback((keys: Selection) => {
-    // @ts-ignore FIXME
-    keys.currentKey;
-  }, []);
+  const onProviderChange = (selection: Selection) => {
+    if (typeof selection === 'object' && 'currentKey' in selection) {
+      const provider = selection.currentKey as 'openai' | 'google' | 'ollama';
+      if (provider in PROVIDER_MODELS) {
+        setProvider(provider);
+        const defaultModel = PROVIDER_MODELS[provider][0];
+        setModel(defaultModel);
+      }
+    }
+  };
+
+  const onLlmModelInputChange = (value: Selection) => {
+    // @ts-ignore
+    setModel(value.currentKey as string);
+  };
+
+  const onTemparatureChange = (value: number | number[]) => {
+    if (typeof value !== 'number') {
+      return;
+    }
+    setTemperature(value);
+  };
+
+  const onTopPChange = (value: number | number[]) => {
+    if (typeof value !== 'number') {
+      return;
+    }
+    setTopP(value);
+  };
 
   return (
     <>
@@ -94,52 +176,67 @@ export function ChatGPTConfigComponent({
           >
             <div className="flex flex-col gap-4">
               <Select
-                selectedKeys={['openai']}
-                disabledKeys={['gemini', 'llama', 'qwen', 'custom']}
+                selectedKeys={[provider]}
                 label="AI Provider"
                 placeholder="Select AI provider"
                 className="max-w-full"
+                onSelectionChange={onProviderChange}
               >
                 <SelectItem key="openai">OpenAI ChatGPT</SelectItem>
-                <SelectItem key="gemini">Google Gemini</SelectItem>
-                <SelectItem key="llama">Meta Llama</SelectItem>
-                <SelectItem key="qwen">Alibaba QWen</SelectItem>
-                <SelectItem key="custom">Custom Llama</SelectItem>
+                <SelectItem key="google">Google Gemini</SelectItem>
+                <SelectItem key="ollama">Ollama</SelectItem>
               </Select>
               <Select
-                selectedKeys={['gpt-4o-2024-05-13']}
                 label="LLM Model"
                 placeholder="Select LLM model"
                 className="max-w-full"
-                onSelectionChange={onLlmModelChange}
+                onSelectionChange={onLlmModelInputChange}
+                isInvalid={!PROVIDER_MODELS[provider].includes(model)}
+                selectedKeys={model ? [model] : []}
               >
-                <SelectItem key="gpt-4o-2024-05-13">gpt-4o-2024-05-13</SelectItem>
-                <SelectItem key="gpt-4o-mini">gpt-4o-mini</SelectItem>
+                {PROVIDER_MODELS[provider].map(model => (
+                  <SelectItem key={model}>{model}</SelectItem>
+                ))}
               </Select>
-              {openAIKeyError && errorMessage.length > 0 && (
+              {provider !== 'ollama' && apiKeyError && errorMessage.length > 0 && (
                 <WarningBox
                   message={errorMessage}
                   type={WarningType.WARNING}
                   onClick={onNoOpenAIKeyMessageClick}
                 />
               )}
-              <Input
-                type="string"
-                label="API Key"
-                defaultValue="Enter your OpenAI key here"
-                className="max-w-full"
-                onChange={onOpenAIKeyChange}
-                value={key || ''}
-                required
-                isInvalid={openAIKeyError || key.length === 0}
-              />
+              {provider !== 'ollama' && (
+                <Input
+                  type="string"
+                  label="API Key"
+                  defaultValue="Enter your OpenAI key here"
+                  className="max-w-full"
+                  onChange={onApiKeyChange}
+                  value={key || ''}
+                  required
+                  isInvalid={apiKeyError || key.length === 0}
+                />
+              )}
+              {provider === 'ollama' && (
+                <Input
+                  type="string"
+                  label="Base URL"
+                  defaultValue="http://127.0.0.1:11434"
+                  placeholder="Enter your Ollama API URL here"
+                  className="max-w-full"
+                  required
+                  onChange={onBaseUrlChange}
+                />
+              )}
               <Slider
                 label="Temperature"
                 step={0.1}
-                maxValue={1}
+                maxValue={2}
                 minValue={0}
-                defaultValue={0.8}
+                defaultValue={1.0}
+                value={temperature}
                 className="max-w-full"
+                onChange={onTemparatureChange}
               />
               <Slider
                 label="Top P"
@@ -147,7 +244,9 @@ export function ChatGPTConfigComponent({
                 maxValue={1}
                 minValue={0}
                 defaultValue={0.8}
+                value={topP}
                 className="max-w-full"
+                onChange={onTopPChange}
               />
             </div>
           </AccordionItem>
@@ -161,10 +260,11 @@ export function ChatGPTConfigComponent({
         <Button
           radius="sm"
           color="danger"
-          className="mt-4 bg-rose-900"
+          className="mt-4 cursor-pointer bg-rose-900"
           onClick={onConfirmClick}
-          isDisabled={openAIKeyError || errorMessage.length > 0}
+          isDisabled={checkInputsAreValid() == false}
           startContent={<Icon icon="hugeicons:ai-chat-02" className="h-5 w-5" />}
+          isLoading={isRunning}
         >
           Let&apos;s Chat
         </Button>

@@ -1,20 +1,29 @@
 import {Button} from '@nextui-org/react';
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 
 import {addPlot} from '@/actions/plot-actions';
 import {HeartIcon} from '../icons/heart';
-import {BoxPlotCallbackOutput} from '@/ai/assistant/callbacks/callback-box';
+import {
+  BoxPlotCallbackOutput,
+  BoxPlotCallbackResult,
+  isBoxPlotCallbackResult,
+  isCustomBoxPlotOutput
+} from '@/ai/assistant/callbacks/callback-box';
 import {BoxPlot} from '../plots/box-plot';
 import {useDispatch, useSelector} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {GeoDaState} from '@/store';
 import {BoxPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall} from '@/ai/types';
 
-export function isCustomBoxPlotOutput(
-  props: CustomFunctionOutputProps<unknown, unknown>
-): props is BoxPlotCallbackOutput {
-  return props.type === 'boxplot';
+export function customBoxPlotMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomBoxPlotOutput(output)) {
+    return <CustomBoxplotMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
 }
 
 /**
@@ -28,12 +37,15 @@ export const CustomBoxplotMessage = ({
 }) => {
   const dispatch = useDispatch();
 
-  const {id, datasetId, variables, boundIQR} = functionOutput.result;
+  const {id, datasetId, variables, boundIQR} = functionOutput.result as BoxPlotCallbackResult;
   const boxplot = functionOutput.data;
 
-  // get plot from redux store
   const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
   const [hide, setHide] = useState(Boolean(plot) || false);
+
+  if (!isBoxPlotCallbackResult(functionOutput.result)) {
+    return null;
+  }
 
   // handle click event
   const onClick = () => {
@@ -57,7 +69,7 @@ export const CustomBoxplotMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       {!hide && (
         <div className="h-[280px] w-full">
           <BoxPlot props={boxPlotProps} />

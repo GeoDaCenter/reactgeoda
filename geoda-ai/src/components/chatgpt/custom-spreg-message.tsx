@@ -1,11 +1,11 @@
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useDispatch} from 'react-redux';
 
 import {addRegression} from '@/actions/regression-actions';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {RegressionCallbackOutput} from '@/ai/assistant/callbacks/callback-regression';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
 
 export function isCustomRegressionOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>
@@ -13,10 +13,20 @@ export function isCustomRegressionOutput(
   return functionOutput.type === 'regression';
 }
 
+export function customSpatialRegressionMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomRegressionOutput(output)) {
+    return <CustomSpatialRegressionMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
+}
+
 /**
  * Custom Spreg Message
  */
-export const CustomSpregMessage = ({
+export const CustomSpatialRegressionMessage = ({
   functionOutput
 }: {
   functionOutput: RegressionCallbackOutput;
@@ -40,7 +50,7 @@ export const CustomSpregMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       <CustomCreateButton
         onClick={onClick}
         hide={hide}

@@ -4,7 +4,7 @@ import {
   getColumnDataFromKeplerDataset,
   isNumberArray
 } from '@/utils/data-utils';
-import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {createErrorResult} from '../custom-functions';
 import {
   CHAT_COLUMN_DATA_NOT_FOUND,
   CHAT_DATASET_NOT_FOUND,
@@ -13,25 +13,65 @@ import {
 } from '@/constants';
 import {createMapBreaks} from '@/utils/mapping-functions';
 import {VisState} from '@kepler.gl/schemas';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {
+  CallbackFunctionProps,
+  CustomFunctionContext,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult,
+  RegisterFunctionCallingProps
+} from 'soft-ai';
+import {customMapMessageCallback} from '@/components/chatgpt/custom-map-message';
 
-// LLM will return functionName and functionArgs
-// CustomFunctions {functionName: callbackFunction}
-// CustomFunctionContext e.g. visState
-// CustomFunctionOutput, includes `result` for LLM  and `data` for custom UI
+export const createMapFunctionDefinition = (
+  context: CustomFunctionContext<VisState>
+): RegisterFunctionCallingProps => ({
+  name: 'createMap',
+  description: 'Create a thematic map',
+  properties: {
+    mapType: {
+      type: 'string',
+      description:
+        'The name of the map type. It should be one of the following types: quantile, natural breaks, equal interval, percentile, box, standard deviation, unique values. The default value is quantile.'
+    },
+    k: {
+      type: 'number',
+      description:
+        'The number of bins or classes that the numeric values will be groupped into. The default value of k is 5.'
+    },
+    variableName: {
+      type: 'string',
+      description: 'The variable name.'
+    },
+    hinge: {
+      type: 'number',
+      description:
+        'This property is only for box map. This numeric value defines the lower and upper edges of the box known as hinges. It could be either 1.5 or 3.0, and the default value is 1.5'
+    },
+    datasetName: {
+      type: 'string',
+      description:
+        'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
+    }
+  },
+  required: ['mapType', 'variableName', 'datasetName'],
+  callbackFunction: createMapCallback,
+  callbackFunctionContext: context,
+  callbackMessage: customMapMessageCallback
+});
 
-type MapResult = {
+export type MapCallbackResult = {
   datasetId: string;
   classificationMethod: string;
   classificationValues: Array<number | string>;
 };
 
-export type MapCallbackOutput = CustomFunctionOutputProps<MapResult, unknown> & {
-  type: 'mapping';
-};
+export type MapCallbackOutput = CustomFunctionOutputProps<
+  MapCallbackResult | ErrorCallbackResult,
+  unknown
+>;
 
 type CreateMapCallbackProps = {
-  method:
+  mapType:
     | 'quantile'
     | 'natural breaks'
     | 'equal interval'
@@ -45,11 +85,32 @@ type CreateMapCallbackProps = {
   datasetName?: string;
 };
 
-export async function createMapCallback(
-  functionName: string,
-  {method, variableName, k = 5, hinge, datasetName}: CreateMapCallbackProps,
-  {visState}: {visState: VisState}
-): Promise<MapCallbackOutput | ErrorOutput> {
+export async function createMapCallback({
+  functionName,
+  functionArgs,
+  functionContext
+}: CallbackFunctionProps): Promise<MapCallbackOutput> {
+  const {
+    mapType,
+    variableName,
+    k: inputK,
+    hinge: inputHinge,
+    datasetName
+  } = functionArgs as CreateMapCallbackProps;
+  const {visState} = functionContext as {visState: VisState};
+
+  // convert inputK to number if it is not
+  let k = inputK || 5;
+  if (typeof inputK === 'string') {
+    k = parseInt(inputK, 10);
+  }
+
+  // convert inputHinge to number if it is not
+  let hinge = inputHinge || 1.5;
+  if (typeof inputHinge === 'string') {
+    hinge = parseFloat(inputHinge);
+  }
+
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(
     datasetName,
@@ -76,7 +137,7 @@ export async function createMapCallback(
   let classificationValues: Array<number | string> | null = null;
 
   // special case for unique values
-  if (method === 'unique values') {
+  if (mapType === 'unique values') {
     const uniqueValues = Array.from(new Set(columnData));
     classificationValues = uniqueValues;
     // check if the number of unique values is more than 100
@@ -92,7 +153,7 @@ export async function createMapCallback(
       return {
         type: 'mapping',
         name: functionName,
-        result: {datasetId, classificationMethod: method, classificationValues}
+        result: {datasetId, classificationMethod: mapType, classificationValues}
       };
     }
   }
@@ -106,26 +167,26 @@ export async function createMapCallback(
   }
 
   // need the value of k
-  if (['quantile', 'natural breaks', 'equal interval'].includes(method)) {
+  if (['quantile', 'natural breaks', 'equal interval'].includes(mapType)) {
     if (!k || k < 2) {
       return createErrorResult({
         name: functionName,
-        result: `Error: k value should be greater than 1 for ${method} map.`
+        result: `Error: k value should be greater than 1 for ${mapType} map.`
       });
     }
-    if (method === 'quantile') {
+    if (mapType === 'quantile') {
       classificationValues = await createMapBreaks({
         mappingType: MappingTypes.QUANTILE,
         k,
         values: columnData
       });
-    } else if (method === 'natural breaks') {
+    } else if (mapType === 'natural breaks') {
       classificationValues = await createMapBreaks({
         mappingType: MappingTypes.NATURAL_BREAK,
         k,
         values: columnData
       });
-    } else if (method === 'equal interval') {
+    } else if (mapType === 'equal interval') {
       classificationValues = await createMapBreaks({
         mappingType: MappingTypes.EQUAL_INTERVAL,
         k,
@@ -134,17 +195,17 @@ export async function createMapCallback(
     }
   }
   // no need the value of k
-  if (method === 'percentile') {
+  if (mapType === 'percentile') {
     classificationValues = await createMapBreaks({
       mappingType: MappingTypes.PERCENTILE,
       values: columnData
     });
-  } else if (method === 'box') {
+  } else if (mapType === 'box') {
     classificationValues = await createMapBreaks({
       mappingType: hinge === 1.5 ? MappingTypes.BOX_MAP_15 : MappingTypes.BOX_MAP_30,
       values: columnData
     });
-  } else if (method === 'standard deviation') {
+  } else if (mapType === 'standard deviation') {
     classificationValues = await createMapBreaks({
       mappingType: MappingTypes.STD_MAP,
       values: columnData
@@ -158,7 +219,7 @@ export async function createMapCallback(
       name: functionName,
       result: {
         classificationValues,
-        classificationMethod: method,
+        classificationMethod: mapType,
         datasetId
       }
     };

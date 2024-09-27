@@ -52,17 +52,16 @@ export const LISA_COLORS = Object.keys(LISA_LEGEND);
 export const LISA_LABELS = Object.values(LISA_LEGEND);
 
 // openAI responses
-export const CHAT_DATASET_NOT_FOUND =
-  'Error: dataset is not found. Please make sure the variable name is correct.';
+export const CHAT_DATASET_NOT_FOUND = 'Error: dataset is not found or specified.';
 
 export const CHAT_FIELD_NAME_NOT_FOUND =
-  'Error: field name is not found. User may forget to mention a field name.';
+  'Error: field name is not found. Prompt to user that specify a valid field name.';
 
 export const CHAT_COLUMN_DATA_NOT_FOUND =
-  'Error: column data is empty. User may forget to mention a field name, or the field type does not match the required data type.';
+  'Error: column data is empty. Prompt to user that specify a valid field name.';
 
 export const CHAT_WEIGHTS_NOT_FOUND =
-  'Error: spatial weights is not found. User may forget to create a spatial weights. User can create a spatial weights using "create spatial weights" command.';
+  'Error: spatial weights is not found. Prompt to user that create a spatial weights first.';
 
 export const CHAT_NOT_ENOUGH_COLUMNS =
   'Error: there was an incorrect field name or plot requires more field names than were listed. User may need to add one or more field names';

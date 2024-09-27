@@ -48,6 +48,7 @@ const nextConfig = {
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
       'styled-components': resolve(__dirname, '../../csds_kepler/node_modules/styled-components'),
       'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js'),
+      'soft-ai': resolve(__dirname, '../../ai-assistant/src'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,

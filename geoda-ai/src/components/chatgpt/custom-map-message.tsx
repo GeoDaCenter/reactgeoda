@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {ReactNode, useMemo, useState} from 'react';
 import {Layer} from '@kepler.gl/layers';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
@@ -10,19 +10,24 @@ import {ColorSelector} from '../common/color-selector';
 import {getDefaultColorRange} from '@/utils/color-utils';
 import {ColorRange} from '@kepler.gl/constants';
 import {CustomCreateButton} from '../common/custom-create-button';
-import {MapCallbackOutput} from '@/ai/assistant/callbacks/callback-map';
+import {MapCallbackOutput, MapCallbackResult} from '@/ai/assistant/callbacks/callback-map';
 import {selectKeplerDataset} from '@/store/selectors';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
 
-/**
- * Type guard for Custom Map Output
- * @param functionOutput The function output
- * @returns The flag indicates the function output is a custom map output
- */
+export function customMapMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomMapOutput(output)) {
+    return <CustomMapMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
+}
+
 export function isCustomMapOutput(
-  functionOutput: CustomFunctionOutputProps<unknown, unknown>
-): functionOutput is MapCallbackOutput {
-  return functionOutput.type === 'mapping';
+  props: CustomFunctionOutputProps<unknown, unknown>
+): props is MapCallbackOutput {
+  return props.type === 'mapping';
 }
 
 /**
@@ -41,7 +46,9 @@ export const CustomMapMessage = ({
     datasetId,
     classificationMethod: mappingType,
     classificationValues
-  } = functionOutput.result;
+  } = functionOutput.result as MapCallbackResult;
+
+  const {variableName} = functionArgs;
 
   const k =
     mappingType === MappingTypes.UNIQUE_VALUES
@@ -61,7 +68,6 @@ export const CustomMapMessage = ({
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
   const updateLayer = useMemo(() => {
-    const {variableName} = functionArgs;
     const colorFieldName = variableName;
     const label = `${mappingType}-${colorFieldName}-${k}`;
     // check if there is already a layer with the same label
@@ -144,7 +150,7 @@ export const CustomMapMessage = ({
   };
 
   return (
-    <div className="mt-2 w-full">
+    <div className="mt-4 w-full">
       {!hide && (
         <>
           <div className="pointer-events-none h-[180px] w-full">

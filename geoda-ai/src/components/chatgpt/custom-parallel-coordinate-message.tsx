@@ -1,18 +1,38 @@
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {addPlot} from '@/actions/plot-actions';
-import {ParallelCoordinateCallbackOutput} from '@/ai/assistant/callbacks/callback-pcp';
+import {
+  ParallelCoordinateCallbackOutput,
+  ParallelCoordinateCallbackResult
+} from '@/ai/assistant/callbacks/callback-pcp';
 import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinateStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from '@/ai/types';
+import {ErrorCallbackResult} from 'soft-ai';
+
+export function customPCPMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomParallelCoordinateOutput(output)) {
+    return <CustomParallelCoordinateMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
+}
 
 export function isCustomParallelCoordinateOutput(
   props: CustomFunctionOutputProps<unknown, unknown>
 ): props is ParallelCoordinateCallbackOutput {
   return props.type === 'parallel-coordinate';
+}
+
+function isPCPCallbackResult(
+  props: ParallelCoordinateCallbackResult | ErrorCallbackResult
+): props is ParallelCoordinateCallbackResult {
+  return (props as ParallelCoordinateCallbackResult).variables !== undefined;
 }
 
 /**
@@ -26,7 +46,16 @@ export const CustomParallelCoordinateMessage = ({
 }) => {
   const dispatch = useDispatch();
 
-  const {id, datasetId, variables} = functionOutput.result;
+  const {id, datasetId, variables} =
+    (functionOutput.result as ParallelCoordinateCallbackResult) || {};
+
+  // get plot from redux store
+  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
+  const [hide, setHide] = useState(Boolean(plot) || false);
+
+  if (!isPCPCallbackResult(functionOutput.result)) {
+    return null;
+  }
 
   const parallelCoordinateProps: ParallelCoordinateStateProps = {
     id,
@@ -34,10 +63,6 @@ export const CustomParallelCoordinateMessage = ({
     type: 'parallel-coordinate',
     variables
   };
-
-  // get plot from redux store
-  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
-  const [hide, setHide] = useState(Boolean(plot) || false);
 
   // handle click event
   const onClick = () => {
@@ -48,7 +73,7 @@ export const CustomParallelCoordinateMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       {!hide && (
         <div className="h-[280px] w-full">
           <ParallelCoordinatePlot props={parallelCoordinateProps} />

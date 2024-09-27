@@ -3,7 +3,51 @@ import {generateNormalDistributionData, generateUniformRandomData} from '@/utils
 import {createErrorResult, ErrorOutput} from '../custom-functions';
 import {CHAT_DATASET_NOT_FOUND} from '@/constants';
 import {VisState} from '@kepler.gl/schemas';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {
+  CallbackFunctionProps,
+  CustomFunctionContext,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult,
+  RegisterFunctionCallingProps
+} from 'soft-ai';
+import { customCreateVariableMessageCallback } from '@/components/chatgpt/custom-create-variable-message';
+
+export const createVariableFunctionDefinition = (
+  context: CustomFunctionContext<VisState | ((queryString: string) => Promise<unknown[]>)>
+): RegisterFunctionCallingProps => ({
+  name: 'createVariable',
+  description: 'Create a new variable or column.',
+  properties: {
+    variableName: {
+      type: 'string',
+      description: 'The name of the new variable or column.'
+    },
+    dataType: {
+      type: 'string',
+      description:
+        'The data type of the new variable or column. It could be integer, string or real.'
+    },
+    defaultValue: {
+      type: 'string',
+      description:
+        "The default value that is assigned to the new variable or column. It could be a number, e.g. 0 or 1. It could be a description, e.g. random numbers or normal random. Please return 'uniform_random' for random numbers, return 'normal_random' for normal random numbers."
+    },
+    expression: {
+      type: 'string',
+      description:
+        'The expression that is used to create the new variable by composing with other variables.  For example, (A + B), or (A / B). Please add round brackets to the expression. Please return the expression within a pair of round brackets.'
+    },
+    datasetName: {
+      type: 'string',
+      description:
+        'The name of the dataset. If not provided, please try to use the first dataset. Otherwise, please prompt the user to provide the dataset name for the new variable.'
+    }
+  },
+  required: ['dataType', 'variableName', 'datasetName'],
+  callbackFunction: createVariableCallBack,
+  callbackFunctionContext: context,
+  callbackMessage: customCreateVariableMessageCallback
+});
 
 type CreateVariableResult = {
   newColumn: string;
@@ -24,12 +68,9 @@ type CreateVariableData = {
 };
 
 export type CreateVariableCallbackOutput = CustomFunctionOutputProps<
-  CreateVariableResult,
+  CreateVariableResult | ErrorCallbackResult,
   CreateVariableData
-> & {
-  type: 'createVariable';
-  data: CreateVariableData;
-};
+>;
 
 type CreateVariableCallBackProps = {
   tableName: string;
@@ -40,11 +81,18 @@ type CreateVariableCallBackProps = {
   datasetName?: string;
 };
 
-export async function createVariableCallBack(
-  functionName: string,
-  {variableName, dataType, defaultValue, expression, datasetName}: CreateVariableCallBackProps,
-  {visState, queryValues}: {visState: VisState; queryValues: (sql: string) => Promise<unknown[]>}
-): Promise<CreateVariableCallbackOutput | ErrorOutput> {
+export async function createVariableCallBack({
+  functionName,
+  functionArgs,
+  functionContext
+}: CallbackFunctionProps): Promise<CreateVariableCallbackOutput> {
+  const {variableName, dataType, defaultValue, expression, datasetName} =
+    functionArgs as CreateVariableCallBackProps;
+  const {visState, queryValues} = functionContext as {
+    visState: VisState;
+    queryValues: (sql: string) => Promise<unknown[]>;
+  };
+
   if (!datasetName) {
     return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
   }

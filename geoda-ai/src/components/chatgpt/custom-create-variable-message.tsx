@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {ReactNode, useMemo, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {DuckDB} from '@/hooks/use-duckdb';
@@ -8,7 +8,17 @@ import {PreviewDataTable} from '../table/preview-data-table';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {selectKeplerDataset} from '@/store/selectors';
 import {addTableColumn} from '@kepler.gl/actions';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
+
+export function customCreateVariableMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomCreateVariableOutput(output)) {
+    return <CustomCreateVariableMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
+}
 
 export function isCustomCreateVariableOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>
@@ -28,21 +38,27 @@ export const CustomCreateVariableMessage = ({
   const dispatch = useDispatch();
   const [hide, setHide] = useState(false);
 
-  const {newColumn, columnType, values, datasetName, datasetId} = functionOutput.data;
+  const {newColumn, columnType, values, datasetName, datasetId} = functionOutput.data || {};
 
   // get dataset from redux store
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
   const sql = useMemo(
     () =>
-      generateSQLUpdateColumn({
-        tableName: datasetName,
-        columnName: newColumn,
-        columnType: columnType,
-        values: values
-      }),
+      datasetName && newColumn && columnType
+        ? generateSQLUpdateColumn({
+            tableName: datasetName,
+            columnName: newColumn,
+            columnType: columnType,
+            values: values
+          })
+        : '',
     [columnType, datasetName, newColumn, values]
   );
+
+  if (!functionOutput.data || !newColumn || !columnType || !values) {
+    return null;
+  }
 
   // handle click event
   const onClick = () => {
@@ -64,7 +80,7 @@ export const CustomCreateVariableMessage = ({
   };
 
   return keplerDataset ? (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       {!hide && (
         <div className="w-full">
           <PreviewDataTable

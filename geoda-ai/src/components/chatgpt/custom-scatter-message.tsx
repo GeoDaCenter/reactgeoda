@@ -1,18 +1,38 @@
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {addPlot} from '@/actions/plot-actions';
-import {ScatterCallbackOutput} from '@/ai/assistant/callbacks/callback-scatter';
+import {
+  ScatterCallbackOutput,
+  ScatterCallbackResult
+} from '@/ai/assistant/callbacks/callback-scatter';
 import {Scatterplot} from '../plots/scatter-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ScatterPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionCall, CustomFunctionOutputProps} from '@/ai/types';
+import {ErrorCallbackResult} from 'soft-ai';
+
+export function customScatterPlotMessageCallback({
+  functionArgs,
+  output
+}: CustomFunctionCall): ReactNode | null {
+  if (isCustomScatterPlotOutput(output)) {
+    return <CustomScatterPlotMessage functionOutput={output} functionArgs={functionArgs} />;
+  }
+  return null;
+}
 
 export function isCustomScatterPlotOutput(
   props: CustomFunctionOutputProps<unknown, unknown>
 ): props is ScatterCallbackOutput {
   return props.type === 'scatter';
+}
+
+export function isScatterPlotCallbackResult(
+  props: ScatterCallbackResult | ErrorCallbackResult
+): props is ScatterCallbackResult {
+  return (props as ScatterCallbackResult).variableX !== undefined;
 }
 
 /**
@@ -26,7 +46,15 @@ export const CustomScatterPlotMessage = ({
 }) => {
   const dispatch = useDispatch();
 
-  const {id, datasetId, variableX, variableY} = functionOutput.result;
+  const {id, datasetId, variableX, variableY} = functionOutput.result as ScatterCallbackResult;
+
+  // get plot from redux store
+  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
+  const [hide, setHide] = useState(Boolean(plot) || false);
+
+  if (!isScatterPlotCallbackResult(functionOutput.result)) {
+    return null;
+  }
 
   const scatterPlotProps: ScatterPlotStateProps = {
     id,
@@ -35,10 +63,6 @@ export const CustomScatterPlotMessage = ({
     variableX: variableX,
     variableY: variableY
   };
-
-  // get plot from redux store
-  const plot = useSelector((state: GeoDaState) => state.root.plots.find(p => p.id === id));
-  const [hide, setHide] = useState(Boolean(plot) || false);
 
   // handle click event
   const onClick = () => {
@@ -49,7 +73,7 @@ export const CustomScatterPlotMessage = ({
   };
 
   return (
-    <div className="w-full">
+    <div className="mt-4 w-full">
       {!hide && (
         <div className="h-[280px] w-full">
           <Scatterplot props={scatterPlotProps} />
