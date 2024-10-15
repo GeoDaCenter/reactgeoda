@@ -32,6 +32,25 @@ const GEODA_INSTRUCTIONS =
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI agent! Let's do spatial analysis! How can I help you today?";
 
+const DEFAULT_PROMPT_IDEAS = [
+  {
+    title: 'Create a quantile map ',
+    description: 'using variable X'
+  },
+  {
+    title: 'Create a histogram ',
+    description: 'using variable X'
+  },
+  {
+    title: 'Create a spatial weights ',
+    description: 'queen, rook, or k-nearest neighbor'
+  },
+  {
+    title: 'Run regression analysis ',
+    description: 'Y ~ X1 + X2 + X3'
+  }
+];
+
 export const ChatGPTComponent = () => {
   const intl = useIntl();
   const dispatch = useDispatch<any>();
@@ -189,6 +208,7 @@ export const ChatGPTComponent = () => {
       welcomeMessage={welcomeMessage}
       historyMessages={messages}
       instructions={GEODA_INSTRUCTIONS}
+      ideas={DEFAULT_PROMPT_IDEAS}
       assistantAvatar="/img/geoda-ai-chat.png"
       functions={functions}
       isMessageDraggable={isMessageDraggable}
