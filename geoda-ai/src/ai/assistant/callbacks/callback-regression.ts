@@ -107,7 +107,7 @@ export async function spatialRegressionCallback({
   if (previousOutput && previousOutput.length > 0) {
     const weightsOutput = previousOutput.find(output => isCustomWeightsOutput(output));
     if (weightsOutput && weightsOutput.data) {
-      const {datasetId, weightsMeta, weights} = weightsOutput.data;
+      const {weightsMeta, weights} = weightsOutput.data;
       selectWeight = {
         datasetId: keplerDataset.id,
         weightsMeta,

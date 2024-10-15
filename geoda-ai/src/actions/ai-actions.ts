@@ -7,21 +7,13 @@ import {
   GEODA_AI_ASSISTANT_NAME,
   GEODA_AI_ASSISTANT_VERSION
 } from '@/ai/assistant/geoda-assistant';
-import {CUSTOM_FUNCTIONS, ErrorOutput} from '@/ai/assistant/custom-functions';
+import {ErrorOutput} from '@/ai/assistant/custom-functions';
 import {initOpenAI, setAdditionalInstructions} from '@/ai/openai-utils';
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
 import {MessageModel} from '@chatscope/chat-ui-kit-react';
 import {Dispatch, UnknownAction} from 'redux';
-import {
-  setIsPrompting,
-  setScreenCaptured,
-  setUserAction,
-  setUserActionScreenshot
-} from './ui-actions';
-import {MessagePayload, UserActionProps} from '@/ai/types';
-import {sendMessage} from '@/hooks/use-chatgpt';
-import {DuckDB} from '@/hooks/use-duckdb';
+import {UserActionProps} from '@/ai/types';
 
 export enum AI_ACTIONS {
   SET_MESSAGES = 'SET_MESSAGES',

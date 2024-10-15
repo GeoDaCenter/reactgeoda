@@ -1,6 +1,6 @@
 import {DUCKDB_AGGREGATE_FUNCTIONS, DUCKDB_STATS_FUNCTIONS} from '@/components/table/sql-constant';
 import {generateNormalDistributionData, generateUniformRandomData} from '@/utils/table-utils';
-import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {createErrorResult} from '../custom-functions';
 import {CHAT_DATASET_NOT_FOUND} from '@/constants';
 import {VisState} from '@kepler.gl/schemas';
 import {
@@ -10,7 +10,7 @@ import {
   ErrorCallbackResult,
   RegisterFunctionCallingProps
 } from 'soft-ai';
-import { customCreateVariableMessageCallback } from '@/components/chatgpt/custom-create-variable-message';
+import {customCreateVariableMessageCallback} from '@/components/chatgpt/custom-create-variable-message';
 
 export const createVariableFunctionDefinition = (
   context: CustomFunctionContext<VisState | ((queryString: string) => Promise<unknown[]>)>
