@@ -27,9 +27,17 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {testApiKey} from 'soft-ai';
 
 const PROVIDER_MODELS = {
-  openai: ['gpt-4o', 'gpt-4o-mini'],
+  openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo-0125', 'gpt-3.5-turbo'],
   google: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'],
-  ollama: ['llama3.2', 'llama3.1', 'llama3.1:70b', 'qwen2', 'llava', 'mistral', 'gemma2', 'phi3.5']
+  ollama: ['llama3.2', 'llama3.1', 'llama3.1:70b', 'qwen2', 'llava', 'mistral', 'gemma2', 'phi3.5'],
+  anthropic: [
+    'claude-3-5-sonnet-20240620',
+    'claude-3-opus-20240229',
+    'claude-3-sonnet-20240229',
+    'claude-3-haiku-20240307',
+    'claude-2.1',
+    'claude-2.0'
+  ]
 };
 
 export function ChatGPTConfigComponent({
