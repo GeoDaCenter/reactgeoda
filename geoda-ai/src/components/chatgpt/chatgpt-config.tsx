@@ -11,11 +11,17 @@ import {
   Select,
   SelectItem,
   Slider,
-  Selection
+  Selection,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure
 } from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 import {GeoDaState} from '../../store';
-import {setAIConfig, setIsOpenAIKeyChecked} from '../../actions';
+import {setAIConfig, setIsOpenAIKeyChecked, setMessages} from '../../actions';
 import {accordionItemClasses} from '@/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {testApiKey} from 'soft-ai';
@@ -33,9 +39,9 @@ export function ChatGPTConfigComponent({
 }) {
   const dispatch = useDispatch();
 
-  const [temperature, setTemperature] = useState<number>(1.0);
+  const {isOpen, onOpen: onShowRestart, onOpenChange} = useDisclosure();
 
-  const [topP, setTopP] = useState<number>(0.8);
+  const [showModalRestart, setShowModalRestart] = useState(false);
 
   // state for openAIKey error
   const [apiKeyError, setApiKeyError] = useState(false);
@@ -47,13 +53,19 @@ export function ChatGPTConfigComponent({
   const aiConfig = useSelector((state: GeoDaState) => state.root.ai.config);
 
   // define useState for key
+  const [temperature, setTemperature] = useState<number>(aiConfig?.temperature || 1.0);
+
+  const [topP, setTopP] = useState<number>(aiConfig?.topP || 0.8);
+
   const [key, setKey] = React.useState(aiConfig?.apiKey || '');
 
-  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama'>('openai');
+  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama'>(
+    (aiConfig?.provider as 'openai' | 'google' | 'ollama') || 'openai'
+  );
 
-  const [model, setModel] = useState<string>('gpt-4o');
+  const [model, setModel] = useState<string>(aiConfig?.model || 'gpt-4o');
 
-  const [baseUrl, setBaseUrl] = useState<string>('http://127.0.0.1:11434');
+  const [baseUrl, setBaseUrl] = useState<string>(aiConfig?.baseUrl || 'http://127.0.0.1:11434');
 
   const [isRunning, setIsRunning] = useState(false);
 
@@ -79,7 +91,7 @@ export function ChatGPTConfigComponent({
       return false;
     }
     // check if model is valid
-    if (!PROVIDER_MODELS[provider].includes(model)) {
+    if (!PROVIDER_MODELS[provider as keyof typeof PROVIDER_MODELS].includes(model)) {
       return false;
     }
     // check if apiKey is valid
@@ -90,10 +102,29 @@ export function ChatGPTConfigComponent({
     return true;
   };
 
-  const onConfirmClick = async () => {
-    setIsRunning(true);
-    checkInputsAreValid();
+  const checkIfNeedRestart = () => {
+    if (
+      aiConfig?.provider !== undefined &&
+      aiConfig?.model !== undefined &&
+      aiConfig?.temperature !== undefined &&
+      aiConfig?.topP !== undefined &&
+      (provider !== aiConfig?.provider ||
+        model !== aiConfig?.model ||
+        temperature !== aiConfig?.temperature ||
+        topP !== aiConfig?.topP)
+    ) {
+      return true;
+    }
+    return false;
+  };
 
+  const onConfirmClick = async () => {
+    if (checkInputsAreValid() === false) {
+      setErrorMessage('Please check your model configuration and try again.');
+      return;
+    }
+
+    setIsRunning(true);
     if (provider !== 'ollama') {
       // check if openai key is valid by trying to call testOpenAI function
       // if key is not valid, show error message
@@ -112,6 +143,12 @@ export function ChatGPTConfigComponent({
       dispatch(setIsOpenAIKeyChecked(true));
     }
 
+    // if need restart, clear the messages
+    if (checkIfNeedRestart() === true) {
+      dispatch(setMessages([]));
+    }
+
+    // set ai config, and start the chat
     dispatch(
       setAIConfig({
         provider: provider,
@@ -134,6 +171,19 @@ export function ChatGPTConfigComponent({
     setShowConfig(true);
   };
 
+  const onModelChange = () => {
+    // if model is changed, tell users that they need to restart the chat
+    if (
+      showModalRestart === false &&
+      aiConfig?.provider !== undefined &&
+      aiConfig?.model !== undefined
+    ) {
+      onShowRestart();
+      // don't show the modal again
+      setShowModalRestart(true);
+    }
+  };
+
   const onProviderChange = (selection: Selection) => {
     if (typeof selection === 'object' && 'currentKey' in selection) {
       const provider = selection.currentKey as 'openai' | 'google' | 'ollama';
@@ -141,6 +191,7 @@ export function ChatGPTConfigComponent({
         setProvider(provider);
         const defaultModel = PROVIDER_MODELS[provider][0];
         setModel(defaultModel);
+        onModelChange();
       }
     }
   };
@@ -148,6 +199,7 @@ export function ChatGPTConfigComponent({
   const onLlmModelInputChange = (value: Selection) => {
     // @ts-ignore
     setModel(value.currentKey as string);
+    onModelChange();
   };
 
   const onTemparatureChange = (value: number | number[]) => {
@@ -155,6 +207,7 @@ export function ChatGPTConfigComponent({
       return;
     }
     setTemperature(value);
+    onModelChange();
   };
 
   const onTopPChange = (value: number | number[]) => {
@@ -162,6 +215,7 @@ export function ChatGPTConfigComponent({
       return;
     }
     setTopP(value);
+    onModelChange();
   };
 
   return (
@@ -268,6 +322,28 @@ export function ChatGPTConfigComponent({
         >
           Let&apos;s Chat
         </Button>
+        <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
+          <ModalContent>
+            {onClose => (
+              <>
+                <ModalHeader className="flex flex-col gap-2">Restart Chat</ModalHeader>
+                <ModalBody>
+                  <p>Changing the AI provider or model requires restarting the chat.</p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    color="primary"
+                    onPress={() => {
+                      onClose();
+                    }}
+                  >
+                    OK
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </>
   );

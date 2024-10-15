@@ -42,7 +42,7 @@ export const createPlotFunctionDefinition = (
     plotType: {
       type: 'string',
       description:
-        'The type of plot to be created. The available options are scatter, histogram, boxplot, parallelCoordinate, and bubble.'
+        'The type of plot to be created. The available options are scatter plot, histogram, box plot, parallel coordinate plot (PCP), and bubble chart.'
     },
     k: {
       type: 'number',

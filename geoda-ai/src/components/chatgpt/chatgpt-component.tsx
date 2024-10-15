@@ -91,6 +91,7 @@ export const ChatGPTComponent = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
+  // NOTE: ollama with e.g. llama3.1 cannot support more than 4 complex functions
   const functions: RegisterFunctionCallingProps[] =
     llmConfig?.provider === 'ollama'
       ? [
@@ -102,18 +103,13 @@ export const ChatGPTComponent = () => {
       : [
           createMapFunctionDefinition({visState}),
           createPlotFunctionDefinition({visState}),
-          // createHistogramFunctionDefinition({visState}),
-          // createBoxPlotFunctionDefinition({visState}),
-          // createBubbleChartFunctionDefinition({visState}),
-          // createPCPFunctionDefinition({visState}),
-          // createScatterPlotFunctionDefinition({visState}),
           createWeightsFunctionDefinition({visState}),
           lisaFunctionDefinition(getFunctionContext),
           createVariableFunctionDefinition({visState, queryValues: queryValuesBySQL}),
           spatialRegressionFunctionDefinition({visState, weights})
         ];
 
-  const {initializeAssistant, addAdditionalContext, apiKeyStatus} = useAssistant({
+  const {initializeAssistant, restartChat, addAdditionalContext, apiKeyStatus} = useAssistant({
     modelProvider: llmConfig?.provider || 'openai',
     model: llmConfig?.model || 'gpt-4o',
     apiKey: llmConfig?.apiKey || '',
@@ -125,6 +121,18 @@ export const ChatGPTComponent = () => {
 
   const datasetMeta = useSelector((state: GeoDaState) => state.root.ai.datasetMeta);
 
+  // restart chat if messages are empty
+  useEffect(() => {
+    const restartChatIfEmpty = async () => {
+      await restartChat();
+    };
+
+    if (messages.length === 0) {
+      restartChatIfEmpty();
+    }
+  }, [messages, restartChat]);
+
+  // add dataset metadata to AI model as additional instructions/context
   useEffect(() => {
     async function addDatasetToAI() {
       await initializeAssistant();
