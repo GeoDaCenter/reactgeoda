@@ -37,7 +37,8 @@ const PROVIDER_MODELS = {
     'claude-3-haiku-20240307',
     'claude-2.1',
     'claude-2.0'
-  ]
+  ],
+  phoenixai: ['gpt-4o']
 };
 
 export function ChatGPTConfigComponent({
@@ -247,6 +248,8 @@ export function ChatGPTConfigComponent({
                 <SelectItem key="openai">OpenAI ChatGPT</SelectItem>
                 <SelectItem key="google">Google Gemini</SelectItem>
                 <SelectItem key="ollama">Ollama</SelectItem>
+                <SelectItem key="anthropic">Anthropic</SelectItem>
+                <SelectItem key="phoenixai">UChicago PhoenixAI</SelectItem>
               </Select>
               <Select
                 label="LLM Model"
