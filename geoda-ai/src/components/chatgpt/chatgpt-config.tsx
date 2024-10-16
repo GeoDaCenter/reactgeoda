@@ -67,8 +67,8 @@ export function ChatGPTConfigComponent({
 
   const [key, setKey] = React.useState(aiConfig?.apiKey || '');
 
-  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama'>(
-    (aiConfig?.provider as 'openai' | 'google' | 'ollama') || 'openai'
+  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama' | 'anthropic'>(
+    (aiConfig?.provider as 'openai' | 'google' | 'ollama' | 'anthropic') || 'openai'
   );
 
   const [model, setModel] = useState<string>(aiConfig?.model || 'gpt-4o');
@@ -103,7 +103,10 @@ export function ChatGPTConfigComponent({
       return false;
     }
     // check if apiKey is valid
-    if (key.length === 0 || key === 'Enter your OpenAI key here') {
+    if (
+      aiConfig?.provider !== 'ollama' &&
+      (key.length === 0 || key === 'Enter your OpenAI key here')
+    ) {
       return false;
     }
 
