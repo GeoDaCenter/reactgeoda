@@ -103,10 +103,7 @@ export function ChatGPTConfigComponent({
       return false;
     }
     // check if apiKey is valid
-    if (
-      aiConfig?.provider !== 'ollama' &&
-      (key.length === 0 || key === 'Enter your OpenAI key here')
-    ) {
+    if (provider !== 'ollama' && (key.length === 0 || key === 'Enter your OpenAI key here')) {
       return false;
     }
 
