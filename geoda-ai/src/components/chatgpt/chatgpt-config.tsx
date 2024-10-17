@@ -29,16 +29,7 @@ import {testApiKey} from 'soft-ai';
 const PROVIDER_MODELS = {
   openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo-0125', 'gpt-3.5-turbo'],
   google: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'],
-  ollama: ['llama3.2', 'llama3.1', 'llama3.1:70b', 'qwen2', 'llava', 'mistral', 'gemma2', 'phi3.5'],
-  anthropic: [
-    'claude-3-5-sonnet-20240620',
-    'claude-3-opus-20240229',
-    'claude-3-sonnet-20240229',
-    'claude-3-haiku-20240307',
-    'claude-2.1',
-    'claude-2.0'
-  ],
-  phoenixai: ['gpt-4o']
+  ollama: ['llama3.2', 'llama3.1', 'llama3.1:70b', 'qwen2', 'llava', 'mistral', 'gemma2', 'phi3.5']
 };
 
 export function ChatGPTConfigComponent({
@@ -68,8 +59,8 @@ export function ChatGPTConfigComponent({
 
   const [key, setKey] = React.useState(aiConfig?.apiKey || '');
 
-  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama' | 'anthropic'>(
-    (aiConfig?.provider as 'openai' | 'google' | 'ollama' | 'anthropic') || 'openai'
+  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama'>(
+    (aiConfig?.provider as 'openai' | 'google' | 'ollama') || 'openai'
   );
 
   const [model, setModel] = useState<string>(aiConfig?.model || 'gpt-4o');
@@ -248,8 +239,6 @@ export function ChatGPTConfigComponent({
                 <SelectItem key="openai">OpenAI ChatGPT</SelectItem>
                 <SelectItem key="google">Google Gemini</SelectItem>
                 <SelectItem key="ollama">Ollama</SelectItem>
-                <SelectItem key="anthropic">Anthropic</SelectItem>
-                <SelectItem key="phoenixai">UChicago PhoenixAI</SelectItem>
               </Select>
               <Select
                 label="LLM Model"

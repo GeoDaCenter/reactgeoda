@@ -2,7 +2,13 @@ import React, {useCallback, useEffect, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {AiAssistant, RegisterFunctionCallingProps, MessageModel, useAssistant} from 'soft-ai';
 import {GeoDaState} from '@/store';
-import {addDatasetMeta, setMessages, setScreenCaptured, setStartScreenCapture} from '@/actions';
+import {
+  addDatasetMeta,
+  setDefaultPromptText,
+  setMessages,
+  setScreenCaptured,
+  setStartScreenCapture
+} from '@/actions';
 import {DuckDB} from '@/hooks/use-duckdb';
 import {MAP_ID} from '@/constants';
 import {useIntl} from 'react-intl';
@@ -63,18 +69,26 @@ export const ChatGPTComponent = () => {
   // if in dashboard mode, the message should be draggable
   const isMessageDraggable = useSelector((state: GeoDaState) => state.root.uiState.showGridView);
 
+  const theme = useSelector((state: GeoDaState) => state.root.uiState.theme);
+
   const llmConfig = useSelector((state: GeoDaState) => state.root.ai.config);
 
   const messages = useSelector((state: GeoDaState) => state.root.ai.messages);
 
   const screenCaptured = useSelector((state: GeoDaState) => state.root.uiState.screenCaptured);
 
+  // TODO: we can't use entire visState because it contains too many variables that change too often
   const visState = useSelector((state: GeoDaState) => state.keplerGl[MAP_ID]?.visState);
 
   const weights = useSelector((state: GeoDaState) => state.root.weights);
 
+  const screenCapturedPrompt = useSelector(
+    (state: GeoDaState) => state.root.uiState.defaultPromptText
+  );
+
   const queryValuesBySQL = DuckDB.getInstance().queryValuesBySQL;
 
+  // use ref to store visState and weights so that they can be updated in useEffect e.g. getFunctionContext()
   const visStateRef = useRef(visState);
   visStateRef.current = visState;
 
@@ -100,6 +114,7 @@ export const ChatGPTComponent = () => {
 
   const onRemoveScreenshot = useCallback(() => {
     dispatch(setScreenCaptured(''));
+    dispatch(setDefaultPromptText(''));
   }, [dispatch]);
 
   // handle report question
@@ -128,7 +143,7 @@ export const ChatGPTComponent = () => {
           spatialRegressionFunctionDefinition({visState, weights})
         ];
 
-  const {initializeAssistant, restartChat, addAdditionalContext, apiKeyStatus} = useAssistant({
+  const {initializeAssistant, addAdditionalContext, apiKeyStatus} = useAssistant({
     modelProvider: llmConfig?.provider || 'openai',
     model: llmConfig?.model || 'gpt-4o',
     apiKey: llmConfig?.apiKey || '',
@@ -139,17 +154,6 @@ export const ChatGPTComponent = () => {
   const datasets = useSelector(datasetsSelector);
 
   const datasetMeta = useSelector((state: GeoDaState) => state.root.ai.datasetMeta);
-
-  // restart chat if messages are empty
-  useEffect(() => {
-    const restartChatIfEmpty = async () => {
-      await restartChat();
-    };
-
-    if (messages.length === 0) {
-      restartChatIfEmpty();
-    }
-  }, [messages, restartChat]);
 
   // add dataset metadata to AI model as additional instructions/context
   useEffect(() => {
@@ -200,6 +204,7 @@ export const ChatGPTComponent = () => {
     <WarningBox message={CONNECT_OPENAI_API} type={WarningType.WAIT} />
   ) : (
     <AiAssistant
+      theme={theme as 'dark' | 'light'}
       modelProvider={llmConfig?.provider || 'openai'}
       model={llmConfig?.model || 'gpt-4o'}
       apiKey={llmConfig?.apiKey || ''}
@@ -213,6 +218,7 @@ export const ChatGPTComponent = () => {
       functions={functions}
       isMessageDraggable={isMessageDraggable}
       screenCapturedBase64={screenCaptured}
+      screenCapturedPrompt={screenCapturedPrompt}
       onScreenshotClick={() => onScreenshotClick()}
       onRemoveScreenshot={() => onRemoveScreenshot()}
       onFeedback={onFeedback}
