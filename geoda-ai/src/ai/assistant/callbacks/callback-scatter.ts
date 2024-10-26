@@ -1,21 +1,61 @@
 import {generateRandomId} from '@/utils/ui-utils';
-import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {createErrorResult} from '../custom-functions';
 import {findKeplerDatasetByVariableName, getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {CHAT_COLUMN_DATA_NOT_FOUND} from '@/constants';
-import {KeplerGlState} from '@kepler.gl/reducers';
+import {
+  CallbackFunctionProps,
+  CustomFunctionContext,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult,
+  RegisterFunctionCallingProps
+} from 'soft-ai';
+import {VisState} from '@kepler.gl/schemas';
+import {customScatterPlotMessageCallback} from '@/components/chatgpt/custom-scatter-message';
 
-export type ScatterCallbackOutput = {
-  type: 'scatter';
-  name: string;
-  result: {
-    id: string;
-    datasetId: string;
-    datasetName: string;
-    variableX: string;
-    variableY: string;
-  };
-  // data is not needed for classic scatter plot, but when linear regression is added, it will be used
+export const createScatterPlotFunctionDefinition = (
+  context: CustomFunctionContext<VisState>
+): RegisterFunctionCallingProps => ({
+  name: 'scatter',
+  description:
+    'Generate a scatterplot to visualize the relationship between two numerical variables.',
+  properties: {
+    variableX: {
+      type: 'string',
+      description:
+        'The name of the variable to be plotted along the X-axis, representing the independent variable.'
+    },
+    variableY: {
+      type: 'string',
+      description:
+        'The name of the variable to be plotted along the Y-axis, representing the dependent variable or the variable of interest.'
+    },
+    datasetName: {
+      type: 'string',
+      description:
+        'The name of the dataset. If not provided, please try to find the dataset name that contains the variableX and variableY.'
+    }
+  },
+  required: ['variableX', 'variableY', 'datasetName'],
+  callbackFunction: scatterCallback,
+  callbackFunctionContext: context,
+  callbackMessage: customScatterPlotMessageCallback
+});
+
+export type ScatterCallbackResult = {
+  id: string;
+  datasetId: string;
+  datasetName: string;
+  variableX: string;
+  variableY: string;
 };
+
+// data is not needed for classic scatter plot, but when linear regression is added, it will be used
+export type ScatterCallbackData = unknown;
+
+export type ScatterCallbackOutput = CustomFunctionOutputProps<
+  ScatterCallbackResult | ErrorCallbackResult,
+  ScatterCallbackData
+>;
 
 export type ScatterCallbackProps = {
   variableX: string;
@@ -23,11 +63,14 @@ export type ScatterCallbackProps = {
   datasetName?: string;
 };
 
-export function scatterCallback(
-  functionName: string,
-  {variableX, variableY, datasetName}: ScatterCallbackProps,
-  {visState}: {visState: KeplerGlState['visState']}
-): ScatterCallbackOutput | ErrorOutput {
+export function scatterCallback({
+  functionName,
+  functionArgs,
+  functionContext
+}: CallbackFunctionProps): ScatterCallbackOutput {
+  const {variableX, variableY, datasetName} = functionArgs as ScatterCallbackResult;
+  const {visState} = functionContext as {visState: VisState};
+
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(datasetName, variableX, visState.datasets);
   if (!keplerDataset) {

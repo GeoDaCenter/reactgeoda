@@ -18,7 +18,11 @@ export type AiStateProps = {
 
 const initialState: AiStateProps = {
   messages: [],
-  guidenceMessages: DEFAULT_GUIDENCE_MESSAGES
+  guidenceMessages: DEFAULT_GUIDENCE_MESSAGES,
+  config: {
+    apiKey: process.env.NEXT_PUBLIC_API_KEY || '',
+    baseUrl: 'http://127.0.0.1:11434'
+  }
 };
 
 export type AiAction = {

@@ -3,12 +3,59 @@ import {findKeplerDatasetByVariableName} from '@/utils/data-utils';
 import {WeightsProps} from '@/reducers/weights-reducer';
 import {VisState} from '@kepler.gl/schemas';
 import {CHAT_DATASET_NOT_FOUND, CHAT_WEIGHTS_NOT_FOUND} from '@/constants';
-import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {createErrorResult} from '../custom-functions';
 import {printRegressionResult, runRegression} from '@/utils/regression-utils';
-import {CustomFunctionOutputProps} from '@/ai/types';
 import {isCustomWeightsOutput} from '@/components/chatgpt/custom-weights-message';
+import {
+  CallbackFunctionProps,
+  CustomFunctionContext,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult,
+  RegisterFunctionCallingProps
+} from 'soft-ai';
+import {customSpatialRegressionMessageCallback} from '@/components/chatgpt/custom-spreg-message';
 
-type RegressionResult = {
+export const spatialRegressionFunctionDefinition = (
+  context: CustomFunctionContext<VisState | WeightsProps[]>
+): RegisterFunctionCallingProps => ({
+  name: 'spatialRegression',
+  description:
+    'Apply spatial regression analysis to find a linear relationship between a dependent variable Y and a set of explanatory or independent variables X. The equation is Y ~ X1 + X2 + ... Xn. The spatial regression model could be classic, spatial-lag or spatial-error model.',
+  properties: {
+    independentVariables: {
+      type: 'array',
+      items: {
+        type: 'string'
+      },
+      description: 'A list of the independent or explanatory variable names X'
+    },
+    dependentVariable: {
+      type: 'string',
+      description: 'The name of dependent variable Y'
+    },
+    modelType: {
+      type: 'string',
+      description:
+        'The type of regression model. It could be classic, spatial-lag or spatial-error. The default model type is classic. If not provided, please use classic model.'
+    },
+    weightsId: {
+      type: 'string',
+      description:
+        'The id of the specified spatial weights. For classic model, the optional weightsId is for spatial diagnostics. For spatial-lag and spatial-error model, the weightsId is required. Please prompt user to provide spatial weights if needed.'
+    },
+    datasetName: {
+      type: 'string',
+      description:
+        'The name of the dataset. If not provided, please try to find the dataset name that contains the independentVariables and dependentVariable.'
+    }
+  },
+  required: ['independentVariables', 'dependentVariable', 'modelType', 'datasetName'],
+  callbackFunction: spatialRegressionCallback,
+  callbackFunctionContext: context,
+  callbackMessage: customSpatialRegressionMessageCallback
+});
+
+export type RegressionCallbackResult = {
   dependentVariable: string;
   independentVariables: string[];
   weights: string;
@@ -16,14 +63,12 @@ type RegressionResult = {
   modelType?: string;
 };
 
-type RegressionData = RegressionDataProps;
+export type RegressionData = RegressionDataProps;
 
 export type RegressionCallbackOutput = CustomFunctionOutputProps<
-  RegressionResult,
+  RegressionCallbackResult | ErrorCallbackResult,
   RegressionData
-> & {
-  type: 'regression';
-};
+>;
 
 type SpatialRegressionCallbackFuncProps = {
   dependentVariable: string;
@@ -34,18 +79,17 @@ type SpatialRegressionCallbackFuncProps = {
   report?: string;
 };
 
-export async function spatialRegressionCallback(
-  functionName: string,
-  {
-    dependentVariable,
-    independentVariables,
-    weightsId,
-    modelType,
-    datasetName
-  }: SpatialRegressionCallbackFuncProps,
-  {visState, weights}: {visState: VisState; weights: WeightsProps[]},
-  previousOutput?: CustomFunctionOutputProps<unknown, unknown>[]
-): Promise<RegressionCallbackOutput | ErrorOutput> {
+export async function spatialRegressionCallback({
+  functionName,
+  functionArgs,
+  functionContext,
+  previousOutput
+}: CallbackFunctionProps): Promise<RegressionCallbackOutput> {
+  const {dependentVariable, independentVariables, weightsId, modelType, datasetName} =
+    functionArgs as SpatialRegressionCallbackFuncProps;
+
+  const {visState, weights} = functionContext as {visState: VisState; weights: WeightsProps[]};
+
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(
     datasetName,
@@ -62,13 +106,12 @@ export async function spatialRegressionCallback(
   // get weights from previous LLM output if weights creation is an intermediate step
   if (previousOutput && previousOutput.length > 0) {
     const weightsOutput = previousOutput.find(output => isCustomWeightsOutput(output));
-    if (weightsOutput) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {datasetId, success, ...weightsMeta} = weightsOutput.result;
+    if (weightsOutput && weightsOutput.data) {
+      const {weightsMeta, weights} = weightsOutput.data;
       selectWeight = {
         datasetId: keplerDataset.id,
         weightsMeta,
-        weights: weightsOutput.data as number[][]
+        weights
       };
     }
   }

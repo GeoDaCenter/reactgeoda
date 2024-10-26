@@ -1,5 +1,5 @@
 import {BinaryGeometryType, WeightsMeta} from 'geoda-wasm';
-import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {createErrorResult} from '../custom-functions';
 import {isGeojsonLayer, isPointLayer} from '@/utils/data-utils';
 import {
   createContiguityWeights,
@@ -14,18 +14,83 @@ import {
   getBinaryGeometryTypeFromLayer
 } from '@/components/spatial-operations/spatial-join-utils';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {
+  CallbackFunctionProps,
+  CustomFunctionContext,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult,
+  RegisterFunctionCallingProps
+} from 'soft-ai';
+import {customWeightsMessageCallback} from '@/components/chatgpt/custom-weights-message';
 
-export type WeightsResult = {
+export const createWeightsFunctionDefinition = (
+  context: CustomFunctionContext<VisState>
+): RegisterFunctionCallingProps => ({
+  name: 'createWeights',
+  description:
+    'Create a spatial weights, which could be k nearest neighbor (knn) weights, queen contiguity weights, rook contiguity weights, distance based weights or kernel weights.',
+  properties: {
+    type: {
+      type: 'string',
+      description: 'The type of spatial weights. It could be knn, queen, rook, distance or kernel.'
+    },
+    k: {
+      type: 'number',
+      description:
+        'This parameter is only used in k nearest neighbor (knn) weights creation. It represents the number of nearby neighbors that are closest to each observation. The number of k should be larger than 1.'
+    },
+    orderOfContiguity: {
+      type: 'number',
+      description:
+        'This parameter is only used in queen or rook weights creation. It represents the order or distance of contiguity from each geometry. The default order of contiguity is 1.'
+    },
+    includeLowerOrder: {
+      type: 'boolean',
+      description:
+        'This parameter is only used in queen or rook weights creation. It represents whether or not the lower order neighbors should be included. The default value is False.'
+    },
+    precisionThreshold: {
+      type: 'number',
+      description:
+        'This parameter only used in queen or rook weights creation. It represnts the precision threshold that allow for an exact match of coordinates, so we can use it to determine which polygons are neighbors that sharing the proximate coordinates or edges. The default value is 0.'
+    },
+    distanceThreshold: {
+      type: 'number',
+      description:
+        'This parameter only used in distance based weights creation. It represents the distance threshold used to search nearby neighbors for each geometry. The unit should be either kilometer (KM) or mile.'
+    },
+    isMile: {
+      type: 'boolean',
+      description:
+        'This parameter only used in distance based weights creation. It represents whether the distance threshold is in mile or not. The default value is False.'
+    },
+    datasetName: {
+      type: 'string',
+      description:
+        'The name of the dataset. If not provided, please try to use the first dataset name.'
+    }
+  },
+  required: ['type', 'datasetName'],
+  callbackFunction: createWeightsCallback,
+  callbackFunctionContext: context,
+  callbackMessage: customWeightsMessageCallback
+});
+
+export type WeightsCallbackResult = {
   success: true;
   datasetId: string;
 } & WeightsMeta;
 
-type WeightsData = number[][];
-
-export type WeightsCallbackOutput = CustomFunctionOutputProps<WeightsResult, WeightsData> & {
-  type: 'weights';
+type WeightsData = {
+  weightsMeta: WeightsMeta;
+  weights: number[][];
+  datasetId: string;
 };
+
+export type WeightsCallbackOutput = CustomFunctionOutputProps<
+  WeightsCallbackResult | ErrorCallbackResult,
+  WeightsData
+>;
 
 type CreateWeightsCallbackProps = {
   type: 'knn' | 'queen' | 'rook' | 'distance' | 'kernel';
@@ -38,24 +103,60 @@ type CreateWeightsCallbackProps = {
   isMile?: boolean;
 };
 
-export async function createWeightsCallback(
-  functionName: string,
-  {
+export async function createWeightsCallback({
+  functionName,
+  functionArgs,
+  functionContext
+}: CallbackFunctionProps): Promise<WeightsCallbackOutput> {
+  const {
     type,
-    k,
-    orderOfContiguity,
-    includeLowerOrder,
-    precisionThreshold,
-    distanceThreshold,
-    isMile,
+    k: inputK,
+    orderOfContiguity: inputOrderOfContiguity,
+    includeLowerOrder: inputIncludeLowerOrder,
+    precisionThreshold: inputPrecisionThreshold,
+    distanceThreshold: inputDistanceThreshold,
+    isMile: inputIsMile,
     datasetName
-  }: CreateWeightsCallbackProps,
-  {visState}: {visState: VisState}
-): Promise<WeightsCallbackOutput | ErrorOutput> {
-  // get dataset using dataset name from visState
-  const keplerDataset = Object.values(visState.datasets).find(d => d.label === datasetName);
+  } = functionArgs as CreateWeightsCallbackProps;
+  const {visState} = functionContext as {visState: VisState};
 
-  if (!datasetName || !keplerDataset) {
+  // convert inputK to number if it is not
+  let k = inputK;
+  if (typeof inputK === 'string') {
+    k = parseInt(inputK, 10);
+  }
+  // convert inputOrderOfContiguity to number if it is not
+  let orderOfContiguity = inputOrderOfContiguity;
+  if (typeof inputOrderOfContiguity === 'string') {
+    orderOfContiguity = parseInt(inputOrderOfContiguity, 10);
+  }
+  // convert inputIncludeLowerOrder to boolean if it is not
+  let includeLowerOrder = inputIncludeLowerOrder;
+  if (typeof inputIncludeLowerOrder === 'string') {
+    includeLowerOrder = inputIncludeLowerOrder === 'true';
+  }
+  // convert inputPrecisionThreshold to number if it is not
+  let precisionThreshold = inputPrecisionThreshold;
+  if (typeof inputPrecisionThreshold === 'string') {
+    precisionThreshold = parseFloat(inputPrecisionThreshold);
+  }
+  // convert inputDistanceThreshold to number if it is not
+  let distanceThreshold = inputDistanceThreshold;
+  if (typeof inputDistanceThreshold === 'string') {
+    distanceThreshold = parseFloat(inputDistanceThreshold);
+  }
+  // convert inputIsMile to boolean if it is not
+  let isMile = inputIsMile;
+  if (typeof inputIsMile === 'string') {
+    isMile = inputIsMile === 'true';
+  }
+
+  // get dataset using dataset name from visState
+  const keplerDataset =
+    Object.values(visState.datasets).find(d => d.label === datasetName) ||
+    Object.values(visState.datasets)[0];
+
+  if (!keplerDataset) {
     return createErrorResult({name: functionName, result: CHAT_DATASET_NOT_FOUND});
   }
 
@@ -114,7 +215,11 @@ export async function createWeightsCallback(
         datasetId: keplerDataset.id,
         ...w.weightsMeta
       },
-      data: w.weights
+      data: {
+        datasetId: keplerDataset.id,
+        weights: w.weights,
+        weightsMeta: w.weightsMeta
+      }
     };
   }
 

@@ -42,6 +42,9 @@ export const selectKeplerLayer = (dataId?: string) =>
     return layer;
   });
 
+// create a memorized selector to get kepler visState
+export const keplerVisStateSelector = (state: GeoDaState) => state.keplerGl[MAP_ID].visState;
+
 export const keplerUIStateSelector = (state: GeoDaState) => state.keplerGl[MAP_ID].uiState;
 
 export const keplerDatasetsSelector = (state: GeoDaState) =>

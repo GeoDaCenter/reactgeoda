@@ -8,7 +8,7 @@ import {
 } from 'geoda-wasm';
 
 import {WeightsProps} from '@/reducers/weights-reducer';
-import {createErrorResult, ErrorOutput} from '../custom-functions';
+import {createErrorResult} from '../custom-functions';
 import {
   CHAT_COLUMN_DATA_NOT_FOUND,
   CHAT_DATASET_NOT_FOUND,
@@ -20,10 +20,76 @@ import {
   isNumberArray
 } from '@/utils/data-utils';
 import {VisState} from '@kepler.gl/schemas';
-import {CustomFunctionOutputProps} from '@/ai/types';
 import {isCustomWeightsOutput} from '@/components/chatgpt/custom-weights-message';
+import {
+  CallbackFunctionProps,
+  CustomFunctionContextCallback,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult,
+  RegisterFunctionCallingProps
+} from 'soft-ai';
+import {customLisaMessageCallback} from '@/components/chatgpt/custom-lisa-message';
 
-export type LisaResultToLLM = {
+export const lisaFunctionDefinition = (
+  context: CustomFunctionContextCallback<VisState | WeightsProps[]>
+): RegisterFunctionCallingProps => ({
+  name: 'lisa',
+  description:
+    'Apply local indicators of spatial association (LISA) statistics, which inlcude local moran, local G, local G*, local Geary and Quantile LISA, to identify local clusters (e.g. hot spots and cold spots) or local spatial outliers of a specific variable and a specific spatial weights.',
+  properties: {
+    method: {
+      type: 'string',
+      description:
+        "The name of the LISA method. It could be one of the following methods: localMoran, localGeary, localG, localGStar, quantileLisa. The localG is for local Getis-Ord's G"
+    },
+    weightsID: {
+      type: 'string',
+      description:
+        'The weightsID that is mapping to user created spatial weights based on the dataset name, type and properties when creating the spatial weights. If no weightsID can be found, please try to call function tool to create spatial weights if weights type is provided. Otherwise, please prompt user to create spatial weights first.'
+    },
+    variableName: {
+      type: 'string',
+      description: 'The variable name.'
+    },
+    multiVariableNames: {
+      type: 'array',
+      items: {
+        type: 'string'
+      },
+      description:
+        "A list of the variable names. This property is only used in multivariate LISA methods: e.g. multivariate local moran. If multivariate LISA is specified, please don't use variableName."
+    },
+    biVariableNames: {
+      type: 'array',
+      items: {
+        type: 'string'
+      },
+      description:
+        "A list of the variable names. This property is only used in bivariate LISA methods: e.g. bivariate local moran. If bivariate LISA is specified, please don't use variableName."
+    },
+    permutation: {
+      type: 'number',
+      description:
+        'The number of possible arrangements or permutations in the conditional permutation test carried out in local moran statistics. Default permutation number is 999'
+    },
+    significanceThreshold: {
+      type: 'number',
+      description:
+        'The significance threshold is a value between 0 and 1 that is used to determine whether a probability is significant or not. Default value is 0.05'
+    },
+    datasetName: {
+      type: 'string',
+      description:
+        'The name of the dataset. If not provided, please try to find the dataset name that contains the variableName.'
+    }
+  },
+  required: ['method', 'weightsID', 'variableName', 'datasetName'],
+  callbackFunction: lisaCallback,
+  callbackFunctionContext: context,
+  callbackMessage: customLisaMessageCallback
+});
+
+export type LisaCallbackResult = {
   lisaMethod: string;
   success: true;
   datasetId: string;
@@ -38,11 +104,12 @@ export type LisaResultToLLM = {
   }>;
 };
 
-type LisaData = LisaResult;
+export type LisaData = LisaResult;
 
-export type LisaCallbackOutput = CustomFunctionOutputProps<LisaResultToLLM, LisaData> & {
-  type: 'lisa';
-};
+export type LisaCallbackOutput = CustomFunctionOutputProps<
+  LisaCallbackResult | ErrorCallbackResult,
+  LisaData
+>;
 
 type LisaCallbackProps = {
   method: string;
@@ -55,19 +122,46 @@ type LisaCallbackProps = {
   datasetName?: string;
 };
 
-export async function lisaCallback(
-  functionName: string,
-  {
+export async function lisaCallback({
+  functionName,
+  functionArgs,
+  functionContext,
+  previousOutput
+}: CallbackFunctionProps): Promise<LisaCallbackOutput> {
+  const {
     method,
     datasetName,
     variableName,
     weightsID,
-    permutations = 999,
-    significanceThreshold = 0.05
-  }: LisaCallbackProps,
-  {visState, weights}: {visState: VisState; weights: WeightsProps[]},
-  previousOutput?: CustomFunctionOutputProps<unknown, unknown>[]
-): Promise<LisaCallbackOutput | ErrorOutput> {
+    permutations: inputPermutations,
+    significanceThreshold: inputSignificanceThreshold
+  } = functionArgs as LisaCallbackProps;
+
+  const context =
+    typeof functionContext === 'function'
+      ? (functionContext as CustomFunctionContextCallback<VisState | WeightsProps[]>)()
+      : functionContext;
+
+  const {visState, weights} = context as {
+    visState: VisState;
+    weights: WeightsProps[];
+  };
+
+  // convert inputPermutations to number if it is not
+  let permutations = inputPermutations || 999;
+  if (typeof inputPermutations === 'string') {
+    permutations = parseInt(inputPermutations, 10);
+  }
+
+  // convert inputSignificanceThreshold to number if it is not
+  let significanceThreshold = inputSignificanceThreshold || 0.05;
+  if (typeof inputSignificanceThreshold === 'string') {
+    significanceThreshold = parseFloat(inputSignificanceThreshold);
+    if (significanceThreshold <= 0 || significanceThreshold >= 1) {
+      significanceThreshold = 0.05;
+    }
+  }
+
   // get dataset using dataset name from visState
   const keplerDataset = findKeplerDatasetByVariableName(
     datasetName,
@@ -84,13 +178,12 @@ export async function lisaCallback(
   // get weights from previous LLM output if weights creation is an intermediate step
   if (previousOutput && previousOutput.length > 0) {
     const weightsOutput = previousOutput.find(output => isCustomWeightsOutput(output));
-    if (weightsOutput) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {datasetId, success, ...weightsMeta} = weightsOutput.result;
+    if (weightsOutput && weightsOutput.data) {
+      const {datasetId, weightsMeta, weights} = weightsOutput.data;
       selectWeight = {
         datasetId,
         weightsMeta,
-        weights: weightsOutput.data as number[][]
+        weights
       };
     }
   }

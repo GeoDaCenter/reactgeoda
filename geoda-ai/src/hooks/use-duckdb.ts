@@ -187,7 +187,7 @@ export class DuckDB {
     }
   };
 
-  public queryValuesBySQL = async (queryString: string) => {
+  public queryValuesBySQL = async (queryString: string): Promise<unknown[]> => {
     if (!this.db) {
       throw new Error('DuckDB is not initialized');
     }

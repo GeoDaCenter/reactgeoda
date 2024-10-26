@@ -54,6 +54,13 @@ jobs:
         run: |
           cd ..
           git clone https://oauth2:${{ secrets.GEODA_LIB_TOKEN }}@github.com/GeoDaCenter/geoda-lib.git geoda-lib
+      - name: Install ai-assistant
+        run: |
+          cd ..
+          git clone https://oauth2:${{ secrets.OLEANDERAI_TOKEN }}@github.com/oleanderai/ai-assistant.git ai-assistant
+          cd ai-assistant
+          yarn
+          cd ..
       - name: Install loaders.gl
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
         run: |
