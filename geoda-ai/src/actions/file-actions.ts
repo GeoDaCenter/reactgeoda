@@ -7,6 +7,7 @@ import {UnknownAction} from 'redux';
 import {setOpenFileModal, setOpenFileModalError, setOpenFileModalIsLoading} from './ui-actions';
 import {GeoDaState} from '@/store';
 import {DuckDB} from '@/hooks/use-duckdb';
+import {toast} from 'react-toastify';
 
 export enum FILE_ACTIONS {
   ADD_DATASET = 'ADD_DATASET',
@@ -54,13 +55,24 @@ export const loadDroppedFilesAsync =
           throw new Error('Dataset already exists in the project');
         }
       }
+      // check if there is a shapefile
+      const shapefileExists = acceptedFiles.some(file => file.name.endsWith('.shp'));
+      const prjFileExists = acceptedFiles.some(file => file.name.endsWith('.prj'));
+      const useNoBasemap = shapefileExists && !prjFileExists;
+      if (useNoBasemap) {
+        // show warning message in open file modal
+        toast.warning(
+          'Shapefile is dropped without a corresponding .prj file. Basemap has been turned off.'
+        );
+      }
+
       const keplerDatasets: ProtoDataset[] = [];
       for (let i = 0; i < datasets.length; i++) {
         const {fileName, arrowTable, arrowFormatData} = datasets[i];
         // add arrowTable to duckdb
         await DuckDB.getInstance().importArrowFile({fileName, arrowTable});
         // append duckdb instance to arrowFormatData
-        const keplerDataset: ProtoDataset | undefined = arrowFormatData;
+        const keplerDataset = arrowFormatData;
         if (keplerDataset) {
           keplerDatasets.push(keplerDataset);
         }
@@ -74,6 +86,7 @@ export const loadDroppedFilesAsync =
           addDataToMap({
             datasets: keplerDatasets || [],
             options: {centerMap: true},
+            ...(useNoBasemap && {config: {mapStyle: {styleType: 'no_map'}}}),
             ...(keplerConfig && {config: keplerConfig})
           })
         );

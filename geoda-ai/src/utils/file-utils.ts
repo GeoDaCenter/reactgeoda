@@ -129,12 +129,12 @@ export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOu
 
   // otherwise check if there is a file with extension .shp
   const shpFile = files.find(file => file.name.endsWith('.shp'));
+  const prjFile = files.find(file => file.name.endsWith('.prj'));
   // check if there are associated .dbf, .shx, .prj files with the .shp file
   if (shpFile) {
     const dbfFile = files.find(file => file.name.endsWith('.dbf'));
-    const prjFile = files.find(file => file.name.endsWith('.prj'));
-    if (!dbfFile || !prjFile) {
-      throw new Error('Shapefile must have associated .dbf and .prj files. Please drop all files.');
+    if (!dbfFile) {
+      throw new Error('Shapefile must have associated .dbf file. Please drop all files.');
     }
   }
   // use shpFile if it exists, otherwise use the first file
@@ -147,7 +147,7 @@ export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOu
     shapefile: SHAPEFILE_LOADER_OPTIONS,
     metadata: true,
     fetch: droppedFilesFS.fetch,
-    gis: {reproject: true},
+    gis: {reproject: prjFile ? true : false},
     shp: {_maxDimensions: Number.MAX_SAFE_INTEGER}
   };
 

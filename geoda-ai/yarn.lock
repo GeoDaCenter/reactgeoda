@@ -6918,6 +6918,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/redux-mock-store@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@types/redux-mock-store@npm:1.0.6"
+  dependencies:
+    redux: ^4.0.5
+  checksum: 5c799d2fc5b3f0f84bfcd6243c56b1ac98be6707057f570b5e51e9d305f446978cc2958c7e0b629ebf73293f15a79765517e6d0a1df0371fd27551f7128325c7
+  languageName: node
+  linkType: hard
+
 "@types/semver@npm:^7.3.12, @types/semver@npm:^7.5.0":
   version: 7.5.8
   resolution: "@types/semver@npm:7.5.8"
@@ -10414,6 +10423,7 @@ __metadata:
     "@types/react-dom": ^18
     "@types/react-grid-layout": ^1.3.5
     "@types/redux-logger": ^3.0.12
+    "@types/redux-mock-store": ^1.0.6
     "@typescript-eslint/eslint-plugin": ^7.5.0
     "@typescript-eslint/parser": ^7.5.0
     "@typescript-eslint/typescript-estree": ^7.5.0
@@ -10465,9 +10475,11 @@ __metadata:
     react-querybuilder: ^7.1.0
     react-redux: ^9.0.4
     react-responsive-modal: ^6.4.2
+    react-toastify: ^10.0.6
     react-virtualized-auto-sizer: ^1.0.20
     redux: ^5.0.1
     redux-logger: ^3.0.6
+    redux-mock-store: ^1.5.5
     redux-thunk: ^3.1.0
     redux-thunk-tester: ^3.1.4
     remark-gfm: ^4.0.0
@@ -12628,6 +12640,13 @@ __metadata:
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
   checksum: e403047ddb03181c9d0e92df9556570e2b67e0f0a930fcbbbd779370972368f5568e914f913e93f3b08f6d492abc71e14d4e9b7a18916c31fa04bd2306efe545
+  languageName: node
+  linkType: hard
+
+"lodash.isplainobject@npm:^4.0.6":
+  version: 4.0.6
+  resolution: "lodash.isplainobject@npm:4.0.6"
+  checksum: 29c6351f281e0d9a1d58f1a4c8f4400924b4c79f18dfc4613624d7d54784df07efaff97c1ff2659f3e085ecf4fff493300adc4837553104cef2634110b0d5337
   languageName: node
   linkType: hard
 
@@ -15183,6 +15202,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-toastify@npm:^10.0.6":
+  version: 10.0.6
+  resolution: "react-toastify@npm:10.0.6"
+  dependencies:
+    clsx: ^2.1.0
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 89fa24718eba0800e2bc1f88121a6e119efd87df26344d5b3c86442d4a13fbd65b67932e01bd6442758f4fe3f5eca6c8fc80c1dfb51c8dc2a4ec06bdaf9762da
+  languageName: node
+  linkType: hard
+
 "react-virtualized-auto-sizer@npm:^1.0.20":
   version: 1.0.24
   resolution: "react-virtualized-auto-sizer@npm:1.0.24"
@@ -15259,6 +15290,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"redux-mock-store@npm:^1.5.5":
+  version: 1.5.5
+  resolution: "redux-mock-store@npm:1.5.5"
+  dependencies:
+    lodash.isplainobject: ^4.0.6
+  peerDependencies:
+    redux: "*"
+  checksum: a6e1dda7abc96066344b7f9fa8726c40dff6ea31b8393ead26c0525663528af257bfef85c38af8beb4e549c189bd90fde5dcb5729b16057de7fffc0c43881ca6
+  languageName: node
+  linkType: hard
+
 "redux-thunk-tester@npm:^3.1.4":
   version: 3.1.4
   resolution: "redux-thunk-tester@npm:3.1.4"
@@ -15276,6 +15318,15 @@ __metadata:
   peerDependencies:
     redux: ^5.0.0
   checksum: bea96f8233975aad4c9f24ca1ffd08ac7ec91eaefc26e7ba9935544dc55d7f09ba2aa726676dab53dc79d0c91e8071f9729cddfea927f4c41839757d2ade0f50
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.0.5":
+  version: 4.2.1
+  resolution: "redux@npm:4.2.1"
+  dependencies:
+    "@babel/runtime": ^7.9.2
+  checksum: f63b9060c3a1d930ae775252bb6e579b42415aee7a23c4114e21a0b4ba7ec12f0ec76936c00f546893f06e139819f0e2855e0d55ebfce34ca9c026241a6950dd
   languageName: node
   linkType: hard
 
