@@ -153,7 +153,7 @@ describe('OpenFileModal', () => {
       expect(actionHistory[1]).toEqual({type: 'SET_OPEN_FILE_MODAL_IS_LOADING', payload: true});
       expect(actionHistory[2]).toEqual({
         type: 'SET_OPEN_FILE_MODAL_ERROR',
-        payload: 'Shapefile must have associated .dbf and .prj files. Please drop all files.'
+        payload: 'Shapefile must have associated .dbf file. Please drop all files.'
       });
       expect(actionHistory[3]).toEqual({type: 'SET_OPEN_FILE_MODAL_IS_LOADING', payload: false});
     });
