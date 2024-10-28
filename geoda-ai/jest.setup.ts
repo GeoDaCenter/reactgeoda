@@ -273,3 +273,15 @@ export class FilePolyfill extends BlobPolyfill {
 
 global.Blob = BlobPolyfill;
 global.File = FilePolyfill;
+
+// mock duckdb module
+jest.mock('./src/hooks/use-duckdb', () => {
+  return {
+    DuckDB: {
+      getInstance: jest.fn(() => ({
+        initDuckDB: jest.fn(),
+        importArrowFile: jest.fn()
+      }))
+    }
+  };
+});

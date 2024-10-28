@@ -77,3 +77,8 @@ export function updateColorRanges(): ColorRange[] {
 }
 
 export const ALL_COLOR_RANGES = updateColorRanges();
+
+// export unique color types from ALL_COLOR_RANGES
+export const UNIQUE_COLOR_TYPES = Array.from(
+  new Set(ALL_COLOR_RANGES.map(colorRange => colorRange.type))
+);
