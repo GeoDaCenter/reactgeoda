@@ -17,7 +17,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   store?: any;
 }
 
-function configureTestStore(preloadedState = {}) {
+export function configureTestStore(preloadedState = {}) {
   const reduxThunkTester = new ReduxThunkTester();
 
   const store = createStore(

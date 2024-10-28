@@ -8,9 +8,11 @@ import '@/styles/globals.css';
 import '@/styles/style.css';
 import '@/styles/superfine.css';
 import '@/styles/maplibre-gl.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 import {useState, useEffect, useRef} from 'react';
 import {Provider as ReduxProvider} from 'react-redux';
+import {Bounce, ToastContainer} from 'react-toastify';
 import {RootContext} from '@kepler.gl/components';
 import {Icon} from '@iconify/react';
 import store from '@/store';
@@ -56,6 +58,19 @@ export default function Home() {
         <ThemeProviderWrapper>
           <IntlProviderWrapper>
             <MainConatiner projectUrl={projectUrl} />
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+              transition={Bounce}
+            />
           </IntlProviderWrapper>
         </ThemeProviderWrapper>
       </ReduxProvider>
