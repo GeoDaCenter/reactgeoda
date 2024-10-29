@@ -40,7 +40,7 @@ const LoadShapefilesVideo = () => {
         className="absolute right-0 top-[-4px] h-6 w-6 cursor-pointer"
         onClick={onShapefileErrorClose}
       />
-      <span className="absolute left-0 top-[-4px] text-tiny flex items-center gap-x-1">
+      <span className="absolute left-0 top-[-4px] flex items-center gap-x-1 text-tiny">
         <Icon icon="mdi:idea" style={{color: '#eaf2b1'}} />
         See how to drop Shapefiles in this video:
       </span>
