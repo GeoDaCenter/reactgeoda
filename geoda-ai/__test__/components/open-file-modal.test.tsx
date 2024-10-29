@@ -8,18 +8,6 @@ import {pointCsvFile, pointFile} from '../data/samples';
 import testProject from '../data/test.geoda.json';
 import {loadDroppedFilesAsync} from '@/actions/file-actions';
 
-// mock duckdb module
-jest.mock('../../src/hooks/use-duckdb', () => {
-  return {
-    DuckDB: {
-      getInstance: jest.fn(() => ({
-        initDuckDB: jest.fn(),
-        importArrowFile: jest.fn()
-      }))
-    }
-  };
-});
-
 describe('OpenFileModal', () => {
   it('renders without crashing', async () => {
     const {queryByText} = renderWithProviders(<OpenFileModal projectUrl={null} />);

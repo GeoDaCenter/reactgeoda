@@ -6,18 +6,6 @@ import {configureTestStore} from '../test-utils';
 import {Table as ArrowTable} from 'apache-arrow';
 import {Dispatch} from 'react';
 
-// mock duckdb module
-jest.mock('../../src/hooks/use-duckdb', () => {
-  return {
-    DuckDB: {
-      getInstance: jest.fn(() => ({
-        initDuckDB: jest.fn(),
-        importArrowFile: jest.fn()
-      }))
-    }
-  };
-});
-
 // Add this mock before the describe block
 jest.mock('@/utils/file-utils', () => ({
   processDropFiles: jest.fn()

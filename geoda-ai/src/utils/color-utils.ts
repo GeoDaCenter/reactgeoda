@@ -3,7 +3,7 @@ import {HexColor} from '@kepler.gl/types';
 import colorbrewer from 'colorbrewer';
 import interpolate from 'color-interpolate';
 
-const MAX_COLOR_RANGE_LENGTH = 20;
+export const MAX_COLOR_RANGE_LENGTH = 20;
 
 export function getDefaultColorRange(numberOfColors: number): ColorRange {
   const foundColorRange = ALL_COLOR_RANGES.find(colorRange => {
@@ -77,3 +77,21 @@ export function updateColorRanges(): ColorRange[] {
 }
 
 export const ALL_COLOR_RANGES = updateColorRanges();
+
+// export unique color types from ALL_COLOR_RANGES
+export const UNIQUE_COLOR_TYPES = Array.from(
+  new Set(ALL_COLOR_RANGES.map(colorRange => colorRange.type))
+);
+
+// export get color ranges by number of colors and color type
+export function getColorRanges(numberOfColors: number, colorType: string): ColorRange[] {
+  const clampedColors =
+    numberOfColors > MAX_COLOR_RANGE_LENGTH ? MAX_COLOR_RANGE_LENGTH : numberOfColors;
+  return ALL_COLOR_RANGES.filter(colorRange => {
+    return (
+      colorRange.colors.length === clampedColors &&
+      // filter by color type if provided
+      (colorType && colorType !== '' && colorType !== 'all' ? colorRange.type === colorType : true)
+    );
+  });
+}
