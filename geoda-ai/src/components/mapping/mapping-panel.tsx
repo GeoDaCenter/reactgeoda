@@ -1,5 +1,5 @@
 import {useIntl} from 'react-intl';
-import {Tabs, Tab, Card, CardBody, CardHeader} from '@nextui-org/react';
+import {Tabs, Tab, Card, CardBody, CardHeader, Badge, Chip} from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   appInjector,
@@ -108,7 +108,13 @@ function MappingPanel() {
               key="map-layers"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Manage Maps</span>
+                  <Badge
+                    content={layers.length > 0 ? layers.length : ''}
+                    color="danger"
+                    className="top-0 right-[-10px]"
+                  >
+                    <span>Manage Maps</span>
+                  </Badge>
                 </div>
               }
             >
