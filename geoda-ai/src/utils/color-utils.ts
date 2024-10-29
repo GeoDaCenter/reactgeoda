@@ -71,7 +71,7 @@ export function updateColorRanges(): ColorRange[] {
         if (!existingColorRange) {
           colorRanges.push({
             name: `ColorBrewer ${keyName}-${i}`,
-          type: colorBrewerMap[keyName],
+            type: colorBrewerMap[keyName],
             category: 'ColorBrewer',
             colors: hexColors as HexColor[]
           });
