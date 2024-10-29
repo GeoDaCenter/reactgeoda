@@ -233,7 +233,9 @@ export class DuckDB {
           await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
         } catch (error) {
           console.error(error);
-          throw new Error('Error: can not import the arrow file to the database. Details: ' + error);
+          throw new Error(
+            'Error: can not import the arrow file to the database. Details: ' + error
+          );
         }
       }
       // close the connection
