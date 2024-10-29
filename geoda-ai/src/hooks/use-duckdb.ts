@@ -225,12 +225,15 @@ export class DuckDB {
 
           // add a new column to the table for the row index
           await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
+          // drop the sequence if it exists
+          await conn.query('DROP SEQUENCE IF EXISTS serial');
           // generate an ascending sequence starting from 1
           await conn.query('CREATE SEQUENCE serial');
           // Use nextval to update the row_index column
           await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
         } catch (error) {
           console.error(error);
+          throw new Error('Error: can not import the arrow file to the database. Details: ' + error);
         }
       }
       // close the connection

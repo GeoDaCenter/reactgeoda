@@ -81,7 +81,7 @@ describe('File Actions', () => {
     const actionHistory = await reduxThunkTester.getActionHistoryAsync(); // need to wait async thunk (all inner dispatch)
     expect(actionHistory).toContainEqual({
       type: 'SET_OPEN_FILE_MODAL_ERROR',
-      payload: 'Dataset already exists in the project'
+      payload: 'Dataset already exists in the project.'
     });
   });
 
