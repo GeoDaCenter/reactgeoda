@@ -22,6 +22,7 @@ import {useSearchParams} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {DuckDB} from '@/hooks/use-duckdb';
 import {useGeoDa} from '@/hooks/use-geoda';
+import {GeoDaLogo} from '@/components/navigator/geoda-logo';
 const MainConatiner = dynamic(() => import('@/components/main-container'), {ssr: false});
 // import MainConatiner from '@/components/main-container';
 
@@ -47,7 +48,12 @@ export default function Home() {
       <div
         style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}
       >
-        <Icon icon="eos-icons:three-dots-loading" width="120" height="120" />
+        <div className="animate-pulse">
+          <GeoDaLogo />
+        </div>
+        <div className="h-[80px] w-[80px]">
+          <Icon icon="eos-icons:three-dots-loading" width="80" height="80" />
+        </div>
       </div>
     );
   }
