@@ -25,25 +25,12 @@ export function ColorSelector({
   defaultColorRange,
   onSelectColorRange
 }: ColorSelectorProps) {
-  const [selectedColorType, setSelectedColorType] = useState(colorType || '');
+  const [selectedColorType, setSelectedColorType] = useState(colorType || 'all');
 
   // Add this effect to update selectedColorType when colorType changes
   useEffect(() => {
     setSelectedColorType(colorType || '');
   }, [colorType]);
-
-  // // filter color ranges by number of colors and color type
-  // const colorRanges = ALL_COLOR_RANGES.filter(colorRange => {
-  //   return (
-  //     colorRange.colors.length === numberOfColors &&
-  //     // filter by color type if provided
-  //     (selectedColorType && selectedColorType !== '' ? colorRange.type === selectedColorType : true)
-  //   );
-  // });
-
-  // // find the default color range
-  // const selectedColorRange =
-  //   colorRanges.find(colorRange => colorRange.name === defaultColorRange) || colorRanges[0];
 
   // handle color scheme selection change
   const onColorSchemeSelectionChange = (
@@ -83,7 +70,7 @@ export function ColorSelector({
           className="max-w"
           size="sm"
           selectedKeys={
-            selectedColorType && selectedColorType !== '' ? [`${selectedColorType}`] : []
+            selectedColorType && selectedColorType !== 'all' ? [`${selectedColorType}`] : ['all']
           }
           onSelectionChange={onColorTypeSelectionChange}
           aria-label="Select color type"
