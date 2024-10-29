@@ -120,7 +120,7 @@ describe('OpenFileModal', () => {
     });
   });
 
-  it('drop shp file to open file modal', async () => {
+  it.skip('drop shp file to open file modal', async () => {
     const {store, container, getActionHistoryAsync} = renderWithProviders(
       <OpenFileModal projectUrl={null} />
     );

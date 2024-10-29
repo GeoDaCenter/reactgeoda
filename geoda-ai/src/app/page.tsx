@@ -282,7 +282,7 @@ export default function Page() {
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1"></ModalHeader>
           <ModalBody>
-            <video controls className="w-full">
+            <video controls className="w-full" muted>
               <source src={demoLink} type="video/mp4" />
             </video>
           </ModalBody>
