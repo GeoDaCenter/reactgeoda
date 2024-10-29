@@ -51,7 +51,7 @@ const highlights = [
     title: 'Chat with GeoDa.AI',
     demoLink: 'img/highlight-prompt.mp4',
     content:
-      'Simply prompt GeoDa.AI to run spatial statistics, generate maps and charts, create spatial weights, find spatial clusters, and apply spatial regressions.'
+      'Simply prompt GeoDa.AI to generate maps and charts, spatial weights, find spatial clusters, and apply spatial regressions with ChatGPT, Gemini or even your local Ollama models.'
   },
   {
     icon: 'solar:gallery-minimalistic-linear',
