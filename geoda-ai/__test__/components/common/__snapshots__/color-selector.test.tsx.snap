@@ -16,7 +16,9 @@ exports[`ColorSelector renders with default props 1`] = `
       </span>
       <div
         class="group inline-flex flex-col relative w-full transition-background motion-reduce:transition-none !duration-150 max-w"
+        data-filled="true"
         data-has-label="true"
+        data-has-value="true"
         data-slot="base"
       >
         <div
@@ -29,7 +31,7 @@ exports[`ColorSelector renders with default props 1`] = `
             style="font-size: 16px;"
             tabindex="-1"
             type="text"
-            value=""
+            value="all"
           />
           <label>
             Color Type
@@ -96,7 +98,9 @@ exports[`ColorSelector renders with default props 1`] = `
                 class="text-foreground-500 font-normal w-full text-left rtl:text-right text-small truncate group-data-[has-value=true]:text-default-foreground"
                 data-slot="value"
                 id="react-aria-:r7:"
-              />
+              >
+                all
+              </span>
             </div>
             <svg
               aria-hidden="true"
