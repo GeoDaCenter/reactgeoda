@@ -1,19 +1,25 @@
 import {MappingTypes} from '@/constants';
 import {ColorSelector} from './color-selector';
-import {Select, SelectItem, Spacer, Tab, Tabs} from '@nextui-org/react';
+import {Select, SelectItem, SharedSelection, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {ColorRange} from '@kepler.gl/constants';
 import {RateUIComponent, RateUIProps} from './rate-component';
-import {findColorRange, getDefaultColorRange} from '@/utils/color-utils';
+import {
+  findColorRange,
+  getColorRanges,
+  getDefaultColorRange,
+  MAX_COLOR_RANGE_LENGTH
+} from '@/utils/color-utils';
 import {
   DatasetVariableSelector,
   onDatasetVariableSelectionChangeProps
 } from './dataset-variable-selector';
 import {RatesOptions} from 'geoda-wasm';
 import {Key, useMemo, useState} from 'react';
-import {defaultDatasetIdSelector} from '@/store/selectors';
+import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {useDispatch, useSelector} from 'react-redux';
 import {CreateButton} from './create-button';
 import {createMapAsync, createRatesMapAsync} from '@/actions';
+import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 
 export const ClassificationTypes = [
   {
@@ -94,10 +100,12 @@ export function ClassificationPanel() {
   // get default datasetId
   const defaultDatasetId = useSelector(defaultDatasetIdSelector);
   const [datasetId, setDatasetId] = useState(defaultDatasetId);
+  const dataset = useSelector(selectKeplerDataset(datasetId));
 
   // handle classification config changes
   const [isRatesMap, setIsRatesMap] = useState(false);
   const [k, setK] = useState(5);
+  const [numberOfUniqueValues, setNumberOfUniqueValues] = useState(5);
   const [variable, setVariable] = useState('');
   const [baseVariable, setBaseVariable] = useState('');
   const [eventVariable, setEventVariable] = useState('');
@@ -105,6 +113,7 @@ export function ClassificationPanel() {
   const [mappingType, setMappingType] = useState(MappingTypes.QUANTILE);
   const [selectedColorRange, setSelectedColorRange] = useState(getDefaultColorRange(k));
   const [ratesMethod, setRatesMethod] = useState(RatesOptions.RawRates);
+  const [selectedColorType, setSelectedColorType] = useState('');
 
   const isCreateButtonDisabled = useMemo(() => {
     if (isRatesMap) {
@@ -114,13 +123,25 @@ export function ClassificationPanel() {
   }, [isRatesMap, baseVariable, eventVariable, variable, mappingType, k]);
 
   // handle map type change
-  const onMapTypeChange = (value: any) => {
-    const selectValue = value.currentKey;
+  const onMapTypeChange = (value: SharedSelection) => {
+    const selectValue = value.currentKey as MappingTypes;
     setMappingType(selectValue);
+    // set color type to 'qualitative' when mapping type is 'Unique Values'
+    setSelectedColorType('');
+    setSelectedColorRange(getDefaultColorRange(k));
+    if (selectValue === MappingTypes.UNIQUE_VALUES) {
+      // get number of colors based on unique values of the variable
+      const columnData = getColumnDataFromKeplerDataset(variable, dataset);
+      const uniqueValues = new Set(columnData);
+      const uniqueValuesCount = Math.min(uniqueValues.size, MAX_COLOR_RANGE_LENGTH);
+      setNumberOfUniqueValues(uniqueValuesCount);
+      setSelectedColorType('qualitative');
+      setSelectedColorRange(getColorRanges(uniqueValuesCount, 'qualitative')[0]);
+    }
   };
 
   // handle number of bins change
-  const onKSelectionChange = (value: any) => {
+  const onKSelectionChange = (value: SharedSelection) => {
     const kValue = Number(value.currentKey);
     setK(kValue);
     // get color range based on k value when number of bins change
@@ -150,6 +171,7 @@ export function ClassificationPanel() {
     if (!datasetId) {
       return;
     }
+    const numberOfColors = mappingType === MappingTypes.UNIQUE_VALUES ? numberOfUniqueValues : k;
 
     if (isRatesMap === false) {
       dispatch(
@@ -157,7 +179,7 @@ export function ClassificationPanel() {
           dataId: datasetId,
           variable,
           classficationMethod: mappingType,
-          numberOfCategories: k,
+          numberOfCategories: numberOfColors,
           colorRange: selectedColorRange
         })
       );
@@ -176,7 +198,7 @@ export function ClassificationPanel() {
           eventVariable,
           baseVariable,
           classficationMethod: mappingType,
-          numberOfCategories: k,
+          numberOfCategories: numberOfColors,
           colorRange: selectedColorRange,
           weightsId
         })
@@ -219,6 +241,7 @@ export function ClassificationPanel() {
       </Tabs>
       <Select
         label="Classification Method"
+        disallowEmptySelection={true}
         className="max-w"
         onSelectionChange={onMapTypeChange}
         selectedKeys={[mappingType]}
@@ -230,20 +253,24 @@ export function ClassificationPanel() {
           </SelectItem>
         ))}
       </Select>
-      <Select
-        label="Number of Categories"
-        className="max-w"
-        onSelectionChange={onKSelectionChange}
-        selectedKeys={[`${k}`]}
-      >
-        {DefaultNumberOfCategories.map(bin => (
-          <SelectItem key={bin.value} value={bin.value}>
-            {bin.label}
-          </SelectItem>
-        ))}
-      </Select>
+      {mappingType !== MappingTypes.UNIQUE_VALUES && (
+        <Select
+          label="Number of Categories"
+          disallowEmptySelection={true}
+          className="max-w"
+          onSelectionChange={onKSelectionChange}
+          selectedKeys={[`${k}`]}
+        >
+          {DefaultNumberOfCategories.map(bin => (
+            <SelectItem key={bin.value} value={bin.value}>
+              {bin.label}
+            </SelectItem>
+          ))}
+        </Select>
+      )}
       <ColorSelector
-        numberOfColors={k}
+        numberOfColors={mappingType !== MappingTypes.UNIQUE_VALUES ? k : numberOfUniqueValues}
+        colorType={selectedColorType}
         defaultColorRange={selectedColorRange?.name}
         onSelectColorRange={onSelectColorRange}
       />

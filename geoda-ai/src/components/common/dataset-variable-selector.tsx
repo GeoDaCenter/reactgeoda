@@ -43,13 +43,15 @@ export function DatasetVariableSelector({
   );
 
   // handle variable change
-  const onVariableSelectionChange = (value: Key) => {
+  const onVariableSelectionChange = (value: Key | null) => {
+    if (!value) return;
     const selectValue = value as string;
     onSelectionChange({variable: selectValue, dataId: keplerDataset?.id});
     setVariable(selectValue);
   };
 
-  const onDatasetSelectionChange = (value: Key) => {
+  const onDatasetSelectionChange = (value: Key | null) => {
+    if (!value) return;
     const selectValue = value as string;
     onSelectionChange({dataId: selectValue, variable});
     setDatasetId(selectValue);

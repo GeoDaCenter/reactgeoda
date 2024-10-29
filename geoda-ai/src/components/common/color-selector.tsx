@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Card, CardBody, Select, SelectItem} from '@nextui-org/react';
 import {ColorRange} from '@kepler.gl/constants';
 import {ColorPalette} from '@kepler.gl/components';
-import {ALL_COLOR_RANGES, UNIQUE_COLOR_TYPES} from '@/utils/color-utils';
+import {getColorRanges, UNIQUE_COLOR_TYPES} from '@/utils/color-utils';
 
 type ColorSelectorProps = {
   numberOfColors?: number;
@@ -25,20 +25,25 @@ export function ColorSelector({
   defaultColorRange,
   onSelectColorRange
 }: ColorSelectorProps) {
-  const [selectedColorType, setSelectedColorType] = useState(colorType);
+  const [selectedColorType, setSelectedColorType] = useState(colorType || '');
 
-  // filter color ranges by number of colors and color type
-  const colorRanges = ALL_COLOR_RANGES.filter(colorRange => {
-    return (
-      colorRange.colors.length === numberOfColors &&
-      // filter by color type if provided
-      (selectedColorType ? colorRange.type === selectedColorType : true)
-    );
-  });
+  // Add this effect to update selectedColorType when colorType changes
+  useEffect(() => {
+    setSelectedColorType(colorType || '');
+  }, [colorType]);
 
-  // find the default color range
-  const selectedColorRange =
-    colorRanges.find(colorRange => colorRange.name === defaultColorRange) || colorRanges[0];
+  // // filter color ranges by number of colors and color type
+  // const colorRanges = ALL_COLOR_RANGES.filter(colorRange => {
+  //   return (
+  //     colorRange.colors.length === numberOfColors &&
+  //     // filter by color type if provided
+  //     (selectedColorType && selectedColorType !== '' ? colorRange.type === selectedColorType : true)
+  //   );
+  // });
+
+  // // find the default color range
+  // const selectedColorRange =
+  //   colorRanges.find(colorRange => colorRange.name === defaultColorRange) || colorRanges[0];
 
   // handle color scheme selection change
   const onColorSchemeSelectionChange = (
@@ -46,6 +51,7 @@ export function ColorSelector({
   ) => {
     if (keys === 'all') return;
     const selectValue = keys.currentKey;
+    const colorRanges = getColorRanges(numberOfColors, selectedColorType);
     const selectedColorRange = colorRanges.find(colorRange => colorRange.name === selectValue);
     if (selectedColorRange) {
       onSelectColorRange(selectedColorRange);
@@ -58,27 +64,31 @@ export function ColorSelector({
   ) => {
     if (keys === 'all') return;
     const selectValue = keys.currentKey;
-    setSelectedColorType(selectValue);
+    setSelectedColorType(selectValue as string);
     // trigger color scheme selection change
+    const colorRanges = getColorRanges(numberOfColors, selectValue as string);
     const selectedColorRange = colorRanges.find(colorRange => colorRange.type === selectValue);
     if (selectedColorRange) {
       onSelectColorRange(selectedColorRange);
     }
   };
 
-  return selectedColorRange ? (
+  return (
     <Card className="w-full bg-default-100">
       <CardBody>
         <span className="mb-2 text-tiny">Color Scheme</span>
         <Select
           label="Color Type"
+          disallowEmptySelection={true}
           className="max-w"
           size="sm"
-          selectedKeys={selectedColorType ? [`${selectedColorType}`] : []}
+          selectedKeys={
+            selectedColorType && selectedColorType !== '' ? [`${selectedColorType}`] : []
+          }
           onSelectionChange={onColorTypeSelectionChange}
           aria-label="Select color type"
         >
-          {UNIQUE_COLOR_TYPES.map(_colorType => (
+          {['all', ...UNIQUE_COLOR_TYPES].map(_colorType => (
             <SelectItem key={`${_colorType}`} textValue={_colorType}>
               {_colorType}
             </SelectItem>
@@ -87,18 +97,19 @@ export function ColorSelector({
         <Select
           label=""
           className="max-w"
-          items={colorRanges}
+          disallowEmptySelection={true}
+          items={getColorRanges(numberOfColors, selectedColorType)}
           renderValue={items => {
-            return items.map(item => (
+            return items.map((item, index) => (
               <ColorPalette
-                key={item.data?.name}
+                key={`${item.data?.name}-${index}`}
                 colors={item.data?.colors || []}
                 isReversed={false}
-                isSelected={item.data?.name === selectedColorRange.name}
+                isSelected={item.data?.name === defaultColorRange}
               />
             ));
           }}
-          selectedKeys={[`${selectedColorRange.name}`]}
+          selectedKeys={[`${defaultColorRange}`]}
           onSelectionChange={onColorSchemeSelectionChange}
           aria-label="Select color scheme"
         >
@@ -111,12 +122,12 @@ export function ColorSelector({
               <ColorPalette
                 colors={colorRange.colors}
                 isReversed={false}
-                isSelected={colorRange.name === selectedColorRange.name}
+                isSelected={colorRange.name === defaultColorRange}
               />
             </SelectItem>
           )}
         </Select>
       </CardBody>
     </Card>
-  ) : null;
+  );
 }
