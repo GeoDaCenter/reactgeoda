@@ -110,7 +110,7 @@ function MappingPanel() {
                 <div className="flex items-center space-x-2">
                   <Badge
                     content={layers.length > 0 ? layers.length : ''}
-                    color="danger"
+                    color={layers.length > 1 ? 'danger' : 'default'}
                     className="right-[-10px] top-0"
                   >
                     <span>Manage Maps</span>

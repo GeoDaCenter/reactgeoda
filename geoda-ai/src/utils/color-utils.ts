@@ -52,7 +52,7 @@ export function hexToRgb(hex: string): number[] {
 export function updateColorRanges(): ColorRange[] {
   // update the COLOR_RANGES array by adding missing color ranges with length of colors that are not in the array
   const colorRanges = COLOR_RANGES;
-  const missingColorStartIndex = 13; // colorbrewer schemes have at most 12 colors
+  const missingColorStartIndex = 12; // colorbrewer schemes have at most 12 colors
   for (let i = missingColorStartIndex; i <= MAX_COLOR_RANGE_LENGTH; i++) {
     for (const [keyName, colorScheme] of Object.entries(colorbrewer)) {
       if (keyName !== 'schemeGroups') {
@@ -64,12 +64,18 @@ export function updateColorRanges(): ColorRange[] {
           const rgb = color.match(/\d+/g);
           return `#${rgb?.map(c => parseInt(c).toString(16).padStart(2, '0')).join('')}`;
         });
-        colorRanges.push({
-          name: `ColorBrewer ${keyName}-${i}`,
-          type: colorBrewerMap[keyName],
-          category: 'ColorBrewer',
-          colors: hexColors as HexColor[]
+        // check if the color range already exists
+        const existingColorRange = colorRanges.find(colorRange => {
+          return colorRange.name === `ColorBrewer ${keyName}-${i}`;
         });
+        if (!existingColorRange) {
+          colorRanges.push({
+            name: `ColorBrewer ${keyName}-${i}`,
+          type: colorBrewerMap[keyName],
+            category: 'ColorBrewer',
+            colors: hexColors as HexColor[]
+          });
+        }
       }
     }
   }
