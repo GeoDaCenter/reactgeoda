@@ -134,7 +134,9 @@ export async function loadDroppedFile(files: File[]): Promise<ProcessDropFilesOu
   if (shpFile) {
     const dbfFile = files.find(file => file.name.endsWith('.dbf'));
     if (!dbfFile) {
-      throw new Error('Shapefile must have associated .dbf file. Please drop all files.');
+      throw new Error(
+        'Shapefile must have associated .dbf, .shx and .prj files. Please drop all files.'
+      );
     }
   }
   // use shpFile if it exists, otherwise use the first file

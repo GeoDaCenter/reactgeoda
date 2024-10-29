@@ -17,10 +17,36 @@ import {useDropzone} from 'react-dropzone';
 import {FormattedMessage} from 'react-intl';
 
 import {GeoDaState} from '../store';
-import {setAddDatasetModal, setOpenFileModal} from '../actions/ui-actions';
+import {setAddDatasetModal, setOpenFileModal, setOpenFileModalError} from '../actions/ui-actions';
 import {IconUpload} from './icons/upload';
 import {loadDroppedFilesAsync, loadProjectUrlAsync} from '../actions/file-actions';
 import {WarningBox, WarningType} from './common/warning-box';
+import {Icon} from '@iconify/react';
+
+const LoadShapefilesVideo = () => {
+  const dispatch = useDispatch();
+
+  const onShapefileErrorClose = () => {
+    dispatch(setOpenFileModalError(''));
+  };
+
+  return (
+    <div className="relative flex h-[300px] w-full place-content-center">
+      <video controls className="w-full" muted>
+        <source src="img/drop-shapefiles.mp4" type="video/mp4" />
+      </video>
+      <Icon
+        icon="icon-park:close-one"
+        className="absolute right-0 top-[-4px] h-6 w-6 cursor-pointer"
+        onClick={onShapefileErrorClose}
+      />
+      <span className="absolute left-0 top-[-4px] flex items-center gap-x-1 text-tiny">
+        <Icon icon="mdi:idea" style={{color: '#eaf2b1'}} />
+        See how to drop Shapefiles in this video:
+      </span>
+    </div>
+  );
+};
 
 /**
  * Open File Component
@@ -47,28 +73,32 @@ const OpenFileComponent = ({isAddingDataset = false}: {isAddingDataset?: boolean
   return (
     <Card className="bg-gray-100 dark:bg-stone-900">
       <CardBody>
-        <div
-          className="flex h-[200px] w-full place-content-center bg-slate-300"
-          {...getRootProps()}
-          style={{
-            backgroundColor: '#eeeeee',
-            opacity: 0.8
-          }}
-        >
-          <input {...getInputProps()} />
-          <div className="flex flex-col items-center justify-center gap-y-2 text-black opacity-70">
-            <IconUpload />
-            <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
-            {loading && (
-              <Progress
-                size="sm"
-                isIndeterminate
-                aria-label="Loading..."
-                className="progress mt-2 max-w-md"
-              />
-            )}
+        {error && error !== '' && error.includes('Shapefile') ? (
+          <LoadShapefilesVideo />
+        ) : (
+          <div
+            className="flex h-[200px] w-full place-content-center bg-slate-300"
+            {...getRootProps()}
+            style={{
+              backgroundColor: '#eeeeee',
+              opacity: 0.8
+            }}
+          >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center justify-center gap-y-2 text-black opacity-70">
+              <IconUpload />
+              <FormattedMessage id="fileUpload.dropHere" defaultMessage="Drop the files here ..." />
+              {loading && (
+                <Progress
+                  size="sm"
+                  isIndeterminate
+                  aria-label="Loading..."
+                  className="progress mt-2 max-w-md"
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </CardBody>
       <CardFooter className="flex flex-col justify-between gap-3 text-small">
         <div>
@@ -76,9 +106,9 @@ const OpenFileComponent = ({isAddingDataset = false}: {isAddingDataset?: boolean
             Supported formates: GeoArrow, GeoJSON, ESRI Shapefiles, CSV and GeoDa.Ai Project file
           </p>
         </div>
-        {error && (
+        {error && error !== '' && (
           <WarningBox
-            message={`Failed to open dropped file: ${error}. If the problem persists, please submit an issue at github.com/geodaai.`}
+            message={`Failed to open dropped file: ${error} If the problem persists, please submit an issue at github.com/geodaai.`}
             type={WarningType.ERROR}
           />
         )}
@@ -152,7 +182,7 @@ function OpenFileModal({projectUrl}: {projectUrl: string | null}) {
       onClose={onCloseModal}
       size="3xl"
       placement="center"
-      className="min-w-80 bg-gray-50 dark:bg-stone-800"
+      className="z-[10000] min-w-80 bg-gray-50 dark:bg-stone-800"
       isDismissable={false}
     >
       <ModalContent>
