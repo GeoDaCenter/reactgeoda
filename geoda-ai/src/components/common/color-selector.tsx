@@ -96,7 +96,7 @@ export function ColorSelector({
               />
             ));
           }}
-          selectedKeys={[`${defaultColorRange}`]}
+          selectedKeys={defaultColorRange ? [`${defaultColorRange}`] : []}
           onSelectionChange={onColorSchemeSelectionChange}
           aria-label="Select color scheme"
         >
