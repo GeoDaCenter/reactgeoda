@@ -52,7 +52,7 @@ export const loadDroppedFilesAsync =
           existingDatasetNames.includes(dataset.fileName)
         );
         if (datasetAlreadyExist) {
-          throw new Error('Dataset already exists in the project');
+          throw new Error('Dataset already exists in the project.');
         }
       }
       // check if there is a shapefile
