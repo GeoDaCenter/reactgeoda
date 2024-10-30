@@ -46,6 +46,13 @@ export class DuckDB {
       const logger = new duckdb.ConsoleLogger();
       this.db = new duckdb.AsyncDuckDB(logger, worker);
       await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      // load spatial extension
+      const conn = await this.db.connect();
+      await conn.query(`
+        INSTALL spatial;
+        LOAD spatial;
+      `);
+      await conn.close();
     }
   }
 
@@ -233,9 +240,9 @@ export class DuckDB {
           await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
         } catch (error) {
           console.error(error);
-          // throw new Error(
-          //   'Error: can not import the arrow file to the database. Details: ' + error
-          // );
+          throw new Error(
+            'Error: can not import the arrow file to the database. Details: ' + error
+          );
         }
       }
       // close the connection
