@@ -35,6 +35,36 @@ export class DuckDB {
 
   private db: duckdb.AsyncDuckDB | null = null;
 
+  // load spatial extension, which takes about 5.8MB compressed size
+  // we should take advantage of this extension to expose spatial operations to the frontend
+  private async loadSpatial() {
+    if (!this.db) {
+      throw new Error('DuckDB is not initialized');
+    }
+    // load spatial extension with error handling
+    const conn = await this.db.connect();
+    try {
+      await conn.query(`INSTALL spatial;`);
+      await conn.query(`LOAD spatial;`);
+    } catch (error) {
+      console.error('Error installing spatial extension:', error);
+      // Attempt to load if it's already installed
+      try {
+        await conn.query(`LOAD spatial;`);
+      } catch (loadError) {
+        console.error('Error loading spatial extension:', loadError);
+        throw new Error('Failed to initialize spatial extension');
+      }
+    } finally {
+      // test spatial extension
+      const result = await conn.query(
+        `SELECT st_distance('POINT(0 0)'::GEOMETRY, 'POINT(1 1)'::GEOMETRY);`
+      );
+      console.log(result.toArray());
+      await conn.close();
+    }
+  }
+
   public async initDuckDB() {
     if (this.db === null) {
       // call initDuckDB() in background after 2000 ms
@@ -46,24 +76,6 @@ export class DuckDB {
       const logger = new duckdb.ConsoleLogger();
       this.db = new duckdb.AsyncDuckDB(logger, worker);
       await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-
-      // load spatial extension with error handling
-      const conn = await this.db.connect();
-      try {
-        await conn.query(`INSTALL spatial;`);
-        await conn.query(`LOAD spatial;`);
-      } catch (error) {
-        console.error('Error installing spatial extension:', error);
-        // Attempt to load if it's already installed
-        try {
-          await conn.query(`LOAD spatial;`);
-        } catch (loadError) {
-          console.error('Error loading spatial extension:', loadError);
-          throw new Error('Failed to initialize spatial extension');
-        }
-      } finally {
-        await conn.close();
-      }
     }
   }
 
@@ -269,13 +281,6 @@ export class DuckDB {
           await conn.query('CREATE SEQUENCE serial');
           // Use nextval to update the row_index column
           await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
-
-          // convert geometry fields to GEOMETRY type
-          geometryFields.forEach(async (field: string) => {
-            await conn.query(
-              `ALTER TABLE "${tableName}" ALTER COLUMN "${field}" TYPE GEOMETRY USING "${field}"::GEOMETRY`
-            );
-          });
         } catch (error) {
           console.error(error);
           throw new Error(
