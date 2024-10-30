@@ -14,7 +14,6 @@ import {useState, useEffect, useRef} from 'react';
 import {Provider as ReduxProvider} from 'react-redux';
 import {Bounce, ToastContainer} from 'react-toastify';
 import {RootContext} from '@kepler.gl/components';
-import {Icon} from '@iconify/react';
 import store from '@/store';
 import IntlProviderWrapper from '@/components/intl-provider-wrapper';
 import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
@@ -31,6 +30,7 @@ export default function Home() {
   const searchParams = useSearchParams();
   const projectUrl = searchParams.get('project');
   const [isDuckDBReady, setIsDuckDBReady] = useState(false);
+  const [showPulse, setShowPulse] = useState(false);
 
   useGeoDa();
 
@@ -43,16 +43,22 @@ export default function Home() {
     initDuckDB();
   }, []);
 
+  // Add this effect for pulse animation timing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowPulse(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   if (!isDuckDBReady) {
     return (
       <div
         style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh'}}
       >
-        <div className="animate-pulse">
-          <GeoDaLogo />
-        </div>
-        <div className="h-[80px] w-[80px]">
-          <Icon icon="eos-icons:three-dots-loading" width="80" height="80" />
+        <div className={showPulse ? 'animate-pulse' : ''}>
+          <GeoDaLogo height={64} width={64} showAnimation={true} />
         </div>
       </div>
     );
