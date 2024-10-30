@@ -1,4 +1,4 @@
-import {tableFromArrays} from 'apache-arrow';
+import {tableFromArrays, Field as ArrowField} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
@@ -46,13 +46,24 @@ export class DuckDB {
       const logger = new duckdb.ConsoleLogger();
       this.db = new duckdb.AsyncDuckDB(logger, worker);
       await this.db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-      // load spatial extension
+
+      // load spatial extension with error handling
       const conn = await this.db.connect();
-      await conn.query(`
-        INSTALL spatial;
-        LOAD spatial;
-      `);
-      await conn.close();
+      try {
+        await conn.query(`INSTALL spatial;`);
+        await conn.query(`LOAD spatial;`);
+      } catch (error) {
+        console.error('Error installing spatial extension:', error);
+        // Attempt to load if it's already installed
+        try {
+          await conn.query(`LOAD spatial;`);
+        } catch (loadError) {
+          console.error('Error loading spatial extension:', loadError);
+          throw new Error('Failed to initialize spatial extension');
+        }
+      } finally {
+        await conn.close();
+      }
     }
   }
 
@@ -223,12 +234,32 @@ export class DuckDB {
       // check if tableName is already in the database
       if (!allTables.some((table: any) => table.table_name === tableName)) {
         try {
-          // file to ArrayBuffer
-          // const buffer = await file.arrayBuffer();
-          // create a arrow table from File object
-          // const arrowTable = tableFromIPC(buffer);
-          // create a table in the database from arrowTable
+          // The following code is to fix the issue that DuckDB doesn't support the geoarrow ARROW:extension
+          // See: https://github.com/duckdb/duckdb/blob/7f34190f3f94fc1b1575af829a9a0ccead87dc99/src/function/table/arrow.cpp#L118
+          // update arrowTable and change the fields in schema temporarily that if metadata has key 'ARROW:extension:name' and value starts with 'geoarrow'
+          const geometryFields: string[] = [];
+          let extensionName = '';
+          arrowTable.schema.fields.forEach((field: ArrowField) => {
+            if (
+              field.metadata &&
+              field.metadata.get('ARROW:extension:name') &&
+              field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow')
+            ) {
+              geometryFields.push(field.name);
+              extensionName = field.metadata.get('ARROW:extension:name') || '';
+              field.metadata.set('ARROW:extension:name', '');
+            }
+          });
+
+          // insert the arrow table to the database
           await conn.insertArrowTable(arrowTable, {name: tableName});
+
+          // restore arrowTable schema fields metadata
+          arrowTable.schema.fields.forEach((field: ArrowField) => {
+            if (field.metadata && field.metadata.get('ARROW:extension:name') === '') {
+              field.metadata.set('ARROW:extension:name', extensionName);
+            }
+          });
 
           // add a new column to the table for the row index
           await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);
@@ -238,6 +269,13 @@ export class DuckDB {
           await conn.query('CREATE SEQUENCE serial');
           // Use nextval to update the row_index column
           await conn.query(`UPDATE "${tableName}" SET row_index = nextval('serial') - 1`);
+
+          // convert geometry fields to GEOMETRY type
+          geometryFields.forEach(async (field: string) => {
+            await conn.query(
+              `ALTER TABLE "${tableName}" ALTER COLUMN "${field}" TYPE GEOMETRY USING "${field}"::GEOMETRY`
+            );
+          });
         } catch (error) {
           console.error(error);
           throw new Error(
