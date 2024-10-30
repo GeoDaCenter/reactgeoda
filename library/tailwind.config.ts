@@ -11,6 +11,18 @@ const config: Config = {
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+      },
+      keyframes: {
+        fadeInOut: {
+          '0%, 100%': {opacity: '0'},
+          '16%, 33%': {opacity: '1'},
+          '50%': {opacity: '0'}
+        }
+      },
+      animation: {
+        'fade-in-out-1': 'fadeInOut 3s ease-in-out infinite',
+        'fade-in-out-2': 'fadeInOut 3s ease-in-out infinite 1s',
+        'fade-in-out-3': 'fadeInOut 3s ease-in-out infinite 2s'
       }
     }
   },

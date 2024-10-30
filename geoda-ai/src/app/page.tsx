@@ -80,6 +80,13 @@ const highlights = [
     demoLink: 'img/highlight-ai-insight.mp4',
     content:
       'Get insights from your charts and plots by clicking the AI insights button. GeoDa.AI will analyze the chart and provide insights based on the visual content.'
+  },
+  {
+    icon: 'tabler:windmill',
+    title: 'AI User Guidance',
+    demoLink: 'img/highlight-ai-guide.mp4',
+    content:
+      'New to spatial data analysis? Click the guidance button, and GeoDa.AI will guide you through the process of spatial data analysis step by step.'
   }
 ];
 const mainItems = [
