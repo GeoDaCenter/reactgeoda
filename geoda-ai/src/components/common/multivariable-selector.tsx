@@ -50,7 +50,7 @@ export function MultiVariableSelector(props: MultiVariableSelectorProps) {
         ))}
       </ScrollShadow>
     );
-  }, [selectedVariables.length]);
+  }, [selectedVariables]);
 
   return (
     <div className="flex w-full flex-col gap-2">
