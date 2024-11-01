@@ -22,7 +22,7 @@ export function DatasetSelector({
   const dispatch = useDispatch();
   const datasets = useSelector(datasetsSelector);
 
-  const onDatasetSelectionChange = (value: Key) => {
+  const onDatasetSelectionChange = (value: Key | null) => {
     const selectValue = value as string;
     if (selectValue && selectValue.length > 0) {
       // update variable in state

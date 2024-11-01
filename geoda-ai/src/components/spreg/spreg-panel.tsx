@@ -11,30 +11,32 @@ import {runRegressionAsync, updateRegression} from '@/actions/regression-actions
 import {RegressionReport} from './spreg-report';
 import {CreateButton} from '../common/create-button';
 import {WeightsSelector} from '../weights/weights-management';
-import {datasetsSelector, selectKeplerDataset, selectWeightsByDataId} from '@/store/selectors';
+import {selectWeightsByDataId} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {VariableSelector} from '../common/variable-selector';
 import {RegressionProps} from '@/reducers/regression-reducer';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before running regression analysis.';
 
 export function SpregPanel() {
+  // use intl
   const intl = useIntl();
+
   // use dispatch
   const dispatch = useDispatch<any>();
 
-  // get data from redux store
-  const datasets = useSelector(datasetsSelector);
-  const [datasetId, setDatasetId] = useState(datasets?.[0]?.dataId || '');
-  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
-  const weights = useSelector(selectWeightsByDataId(datasetId));
+  // use custom hook
+  const {datasetId, keplerDataset, numericFieldNames} = useDatasetFields();
 
+  // get selectors
+  const weights = useSelector(selectWeightsByDataId(datasetId));
   const regressions = useSelector((state: GeoDaState) => state.root.regressions);
   const newRegressionCount = regressions?.filter((reg: any) => reg.isNew).length || 0;
 
-  // useState for tab change
+  // useState
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
   const [showRegressionManagement, setShowRegressionManagement] = useState(newRegressionCount > 0);
-  // useState for variable name
   const [yVariable, setYVariable] = useState('');
   const [weightsId, setWeightsId] = useState<string>(
     weights.length > 0 ? weights[weights.length - 1].weightsMeta.id || '' : ''
@@ -121,7 +123,10 @@ export function SpregPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <DatasetSelector
+                      datasetId={selectedDatasetId}
+                      setDatasetId={setSelectedDatasetId}
+                    />
                     <VariableSelector
                       dataId={datasetId}
                       setVariable={onSetYVariable}
@@ -129,7 +134,7 @@ export function SpregPanel() {
                       label="Select dependent variable (Y)"
                     />
                     <MultiVariableSelector
-                      datasetId={datasetId}
+                      variables={numericFieldNames}
                       excludeVariables={[yVariable]}
                       setVariables={setXVariables}
                       label="Select independent variables (X)"

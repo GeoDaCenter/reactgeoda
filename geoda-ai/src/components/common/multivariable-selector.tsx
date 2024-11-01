@@ -1,12 +1,8 @@
-import {selectKeplerDataset} from '@/store/selectors';
-import {getNumericFieldNamesFromDataset} from '@/utils/data-utils';
 import {Chip, Listbox, ListboxItem, ScrollShadow} from '@nextui-org/react';
 import {useMemo, useState} from 'react';
-import {useSelector} from 'react-redux';
 
 type MultiVariableSelectorProps = {
-  datasetId: string;
-  variables?: string[];
+  variables: string[];
   excludeVariables?: string[];
   setVariables: (variables: string[]) => void;
   label?: string;
@@ -14,21 +10,17 @@ type MultiVariableSelectorProps = {
 };
 
 export function MultiVariableSelector(props: MultiVariableSelectorProps) {
-  const {datasetId, label, isInvalid, setVariables, excludeVariables} = props;
+  const {variables, label, isInvalid, setVariables, excludeVariables} = props;
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const selectedVariables = Array.from(selectedKeys);
-  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
-  // get numeric columns from redux store
-  const numericColumns = useMemo(() => {
-    const fieldNames = getNumericFieldNamesFromDataset(keplerDataset);
+  const columns= useMemo(() => {
     if (excludeVariables) {
-      return fieldNames.filter(column => !excludeVariables.includes(column));
+      return variables.filter(column => !excludeVariables.includes(column));
     }
-    return fieldNames;
-  }, [excludeVariables, keplerDataset]);
+    return variables;
+  }, [excludeVariables, variables]);
 
-  // handle variable change
   function onVariableSelectionChange(keys: any) {
     setSelectedKeys(keys);
     setVariables(Array.from(keys));
@@ -69,7 +61,7 @@ export function MultiVariableSelector(props: MultiVariableSelectorProps) {
           selectedKeys={selectedKeys}
           onSelectionChange={onVariableSelectionChange}
         >
-          {numericColumns.map(column => (
+          {columns.map(column => (
             <ListboxItem key={column} value={column}>
               {column}
             </ListboxItem>
