@@ -128,7 +128,7 @@ export function SpregPanel() {
                       setDatasetId={setSelectedDatasetId}
                     />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={onSetYVariable}
                       size="sm"
                       label="Select dependent variable (Y)"

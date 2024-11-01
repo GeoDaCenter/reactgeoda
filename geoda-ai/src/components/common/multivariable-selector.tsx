@@ -14,7 +14,7 @@ export function MultiVariableSelector(props: MultiVariableSelectorProps) {
   const [selectedKeys, setSelectedKeys] = useState(new Set([]));
   const selectedVariables = Array.from(selectedKeys);
 
-  const columns= useMemo(() => {
+  const columns = useMemo(() => {
     if (excludeVariables) {
       return variables.filter(column => !excludeVariables.includes(column));
     }

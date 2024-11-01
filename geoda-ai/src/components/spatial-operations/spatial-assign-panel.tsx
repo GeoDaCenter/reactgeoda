@@ -12,32 +12,27 @@ import {
 } from '@/store/selectors';
 import {getDatasetName} from '@/utils/data-utils';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {VARIABLE_TYPE, VariableSelector} from '../common/variable-selector';
+import {VariableSelector} from '../common/variable-selector';
 import {runSpatialAssignAsync} from '@/actions/spatial-join-actions';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 export function SpatialAssignPanel() {
   const dispatch = useDispatch<any>();
 
+  // use selector
   const datasets = useSelector(datasetsSelector);
-
   const spatialAssignConfig = useSelector(selectSpatialAssignConfig);
 
+  // use state
   const [firstDatasetId, setFirstDatasetId] = useState(
     spatialAssignConfig?.leftDatasetId || datasets?.[0]?.dataId || ''
   );
-
   const [secondDatasetId, setSecondDatasetId] = useState(spatialAssignConfig?.rightDatasetId || '');
-
   const [secondVariable, setSecondVariable] = useState(spatialAssignConfig?.rightColumnName || '');
-
   const [newColumnName, setNewColumnName] = useState(spatialAssignConfig?.newColumnName || '');
-
   const [status, setStatus] = useState(spatialAssignConfig?.status || '');
-
   const [errorMessage, setErrorMessage] = useState(spatialAssignConfig?.errorMessage || '');
-
   const [isRunning, setIsRunning] = useState(false);
-
   const [currentStep, setCurrentStep] = useState(1);
 
   // get layers and datasets
@@ -45,6 +40,10 @@ export function SpatialAssignPanel() {
   const rightLayer = useSelector(selectKeplerLayer(secondDatasetId));
   const leftDataset = useSelector(selectKeplerDataset(firstDatasetId));
   const rightDataset = useSelector(selectKeplerDataset(secondDatasetId));
+
+  // get integer or string field names from the second dataset
+  const {integerOrStringFieldNames: secondDatasetIntegerOrStringFieldNames} =
+    useDatasetFields(secondDatasetId);
 
   const resetRunningState = () => {
     setIsRunning(false);
@@ -134,9 +133,8 @@ export function SpatialAssignPanel() {
                 'The column in the second dataset that contains the values (e.g. zip codes or city names) to be assigned to the geometries in the first dataset.',
               element: (
                 <VariableSelector
-                  dataId={secondDatasetId}
+                  variables={secondDatasetIntegerOrStringFieldNames}
                   setVariable={onSelectSecondVariable}
-                  variableType={VARIABLE_TYPE.IntegerOrString}
                   isInvalid={secondVariable === null || secondVariable.length === 0}
                 />
               )

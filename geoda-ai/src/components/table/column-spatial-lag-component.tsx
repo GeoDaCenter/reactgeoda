@@ -6,6 +6,7 @@ import {GeoDaState} from '@/store';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {useState} from 'react';
 import KeplerTable from '@kepler.gl/table';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 export type SpatialLagValueProps = {
   tableName: string;
@@ -18,7 +19,7 @@ export type SpatialLagValueProps = {
  */
 export function SpatialLagValueComponent({keplerDataset, setValues}: SpatialLagValueProps) {
   const weights = useSelector((state: GeoDaState) => state.root.weights);
-
+  const {numericFieldNames} = useDatasetFields();
   const [variableValues, setVariableValues] = useState<number[] | null>(null);
   const [neighbors, setNeighbors] = useState<number[][] | undefined>(weights?.[0]?.weights);
 
@@ -53,7 +54,7 @@ export function SpatialLagValueComponent({keplerDataset, setValues}: SpatialLagV
 
   return (
     <div className="flex flex-col gap-1">
-      <VariableSelector setVariable={onVariableSelectionChange} />
+      <VariableSelector variables={numericFieldNames} setVariable={onVariableSelectionChange} />
       <WeightsSelector weights={weights} onSelectWeights={onWeightsSelectionChange} />
     </div>
   );

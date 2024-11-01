@@ -24,7 +24,7 @@ export function ParallelCoordinatePanel() {
   // use custom hook
   const {datasetId, keplerDataset, numericFieldNames} = useDatasetFields();
 
-  // use state 
+  // use state
   const [variables, setVariables] = useState<string[]>([]);
   const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 

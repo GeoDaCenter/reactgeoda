@@ -4,7 +4,7 @@ import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
-import {Key, useEffect, useMemo, useState} from 'react';
+import {Key, useEffect, useState} from 'react';
 import {Card, CardBody, Chip, Spacer, Tab, Tabs, RadioGroup, Radio} from '@nextui-org/react';
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';

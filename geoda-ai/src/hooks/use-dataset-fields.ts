@@ -1,11 +1,20 @@
 import {useMemo} from 'react';
 import {useSelector} from 'react-redux';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
-import {getNumericFieldNamesFromDataset} from '@/utils/data-utils';
+import {
+  getIntegerFieldNamesFromDataset,
+  getIntegerAndStringFieldNamesFromDataset,
+  getNumericFieldNamesFromDataset
+} from '@/utils/data-utils';
 
-export function useDatasetFields() {
+/**
+ * Hook to get dataset fields
+ * @param selectedDatasetId - the id of the selected dataset, if not provided, the default dataset id will be used
+ * @returns
+ */
+export function useDatasetFields(selectedDatasetId?: string) {
   const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
+  const keplerDataset = useSelector(selectKeplerDataset(selectedDatasetId || defaultDatasetId));
   const datasetId = keplerDataset?.id || '';
 
   const numericFieldNames = useMemo(
@@ -13,9 +22,21 @@ export function useDatasetFields() {
     [keplerDataset]
   );
 
+  const integerFieldNames = useMemo(
+    () => getIntegerFieldNamesFromDataset(keplerDataset),
+    [keplerDataset]
+  );
+
+  const integerOrStringFieldNames = useMemo(
+    () => getIntegerAndStringFieldNamesFromDataset(keplerDataset),
+    [keplerDataset]
+  );
+
   return {
     datasetId,
     keplerDataset,
-    numericFieldNames
+    numericFieldNames,
+    integerFieldNames,
+    integerOrStringFieldNames
   };
 }

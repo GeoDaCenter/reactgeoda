@@ -11,6 +11,7 @@ import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
 import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -22,9 +23,7 @@ export function ScatterplotPanel() {
   const [variableX, setVariableX] = useState<string | undefined>(undefined);
   const [variableY, setVariableY] = useState<string | undefined>(undefined);
 
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+  const {datasetId, numericFieldNames, keplerDataset} = useDatasetFields();
 
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
@@ -84,12 +83,12 @@ export function ScatterplotPanel() {
                   <div className="flex flex-col gap-4">
                     <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={setVariableX}
                       label="Select Independent Variable X"
                     />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={setVariableY}
                       label="Select Dependent Variable Y"
                     />
