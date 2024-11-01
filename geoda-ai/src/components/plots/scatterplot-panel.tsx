@@ -9,7 +9,6 @@ import {VariableSelector} from '../common/variable-selector';
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
@@ -20,12 +19,14 @@ export function ScatterplotPanel() {
   const dispatch = useDispatch();
 
   // State for x and y variables
-  const [variableX, setVariableX] = useState<string | undefined>(undefined);
-  const [variableY, setVariableY] = useState<string | undefined>(undefined);
+  const [variableX, setVariableX] = useState<string | null>(null);
+  const [variableY, setVariableY] = useState<string | null>(null);
 
   const {datasetId, numericFieldNames, keplerDataset} = useDatasetFields();
 
   const plots = useSelector((state: GeoDaState) => state.root.plots);
+
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
   // Function to handle creation of scatterplot
   const onCreateScatterplot = () => {
@@ -81,7 +82,10 @@ export function ScatterplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <DatasetSelector
+                      datasetId={selectedDatasetId}
+                      setDatasetId={setSelectedDatasetId}
+                    />
                     <VariableSelector
                       variables={numericFieldNames}
                       setVariable={setVariableX}

@@ -3,16 +3,13 @@ import {Key, useState} from 'react';
 import {accordionItemClasses} from '@/constants';
 import {useSelector} from 'react-redux';
 import {CreateButton} from '../common/create-button';
-import {
-  defaultDatasetIdSelector,
-  selectKeplerDataset,
-  selectWeightsByDataId
-} from '@/store/selectors';
+import {selectWeightsByDataId} from '@/store/selectors';
 import KeplerTable from '@kepler.gl/table';
-import {WeightsProps} from '@/actions';
 import {DatasetSelector} from '../common/dataset-selector';
 import {WeightsSelector} from '../weights/weights-management';
 import {VariableSelector} from '../common/variable-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 export type RunAnalysisProps = {
   dataset: KeplerTable;
@@ -28,9 +25,8 @@ export type UnivariateLisaConfigProps = {
 };
 
 export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+  const {datasetId, numericFieldNames, keplerDataset} = useDatasetFields();
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
   const [isRunning, setIsRunning] = useState(false);
   // useState for variable name
@@ -70,7 +66,8 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
   const [permValue, setPermValue] = useState<string>('');
   const [, setSelectedPermKey] = useState<Key | null>(null);
 
-  const onPermutationSelectionChange = (key: Key) => {
+  const onPermutationSelectionChange = (key: Key | null) => {
+    if (!key) return;
     setSelectedPermKey(key);
     setPermValue(key as string);
   };
@@ -82,7 +79,8 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
   const [threshold, setThreshold] = useState<string>('');
   const [, setSelectedThresholdKey] = useState<Key | null>(null);
 
-  const onThresholdSelectionChange = (key: Key) => {
+  const onThresholdSelectionChange = (key: Key | null) => {
+    if (!key) return;
     setSelectedThresholdKey(key);
     setThreshold(key as string);
   };
@@ -99,8 +97,8 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
-      <VariableSelector dataId={datasetId} setVariable={setVariable} size="sm" />
+      <DatasetSelector datasetId={selectedDatasetId} setDatasetId={setSelectedDatasetId} />
+      <VariableSelector variables={numericFieldNames} setVariable={setVariable} size="sm" />
       <WeightsSelector weights={weights} weightsId={weightsId} onSelectWeights={onSelectWeights} />
       <Accordion
         className="w-full px-0.5 text-small shadow-none"
