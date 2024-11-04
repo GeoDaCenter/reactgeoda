@@ -57,6 +57,8 @@ export const selectDefaultKeplerDataset = createSelector(
   }
 );
 
+export const selectDefaultWeightsId = (state: GeoDaState) => state.root.uiState.defaultWeightsId;
+
 export const selectKeplerDataset = (dataId?: string) =>
   createSelector(
     [(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets],

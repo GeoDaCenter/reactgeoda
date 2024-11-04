@@ -15,9 +15,14 @@ import {
 import {Layer} from '@kepler.gl/layers';
 import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
 
-import {addWeights} from '@/actions';
+import {addWeights, setDefaultWeightsId} from '@/actions';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {createWeights} from '@/utils/weights-utils';
+import {
+  checkWeightsIdExist,
+  createWeights,
+  CreateWeightsProps,
+  getWeightsId
+} from '@/utils/weights-utils';
 import {CreateButton} from '../common/create-button';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
 import {
@@ -25,13 +30,22 @@ import {
   getBinaryGeometriesFromLayer
 } from '../spatial-operations/spatial-join-utils';
 import KeplerTable from '@kepler.gl/table';
+import {WeightsProps} from '@/reducers/weights-reducer';
+
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
   keplerLayer: Layer;
   keplerDataset: KeplerTable;
+  weightsData: WeightsProps[];
+  onWeightsCreated: () => void;
 };
 
-export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCreationProps) {
+export function WeightsCreationComponent({
+  keplerLayer,
+  keplerDataset,
+  weightsData,
+  onWeightsCreated
+}: WeightsCreationProps) {
   const dispatch = useDispatch<any>();
 
   const [error, setError] = useState<string | null>(null);
@@ -87,7 +101,7 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
   const onCreateWeights = async () => {
     setError(null);
     try {
-      const result = await createWeights({
+      const weightsProps: CreateWeightsProps = {
         datasetId,
         weightsType,
         contiguityType,
@@ -99,16 +113,24 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
         k: inputK,
         distanceThreshold: sliderValue,
         isMile
-      });
-      if (!result) {
-        throw new Error('weights type is not supported');
+      };
+      const isWeightsIdExist = checkWeightsIdExist(weightsProps, weightsData);
+      if (!isWeightsIdExist) {
+        const result = await createWeights(weightsProps);
+        if (!result) {
+          throw new Error('weights type is not supported');
+        }
+        const {weights, weightsMeta} = result;
+        // dispatch action to update redux state state.root.weights
+        dispatch(addWeights({weights, weightsMeta, datasetId}));
       }
-      const {weights, weightsMeta} = result;
-      // dispatch action to update redux state state.root.weights
-      dispatch(addWeights({weights, weightsMeta, datasetId}));
+      // set the default weights id
+      dispatch(setDefaultWeightsId(getWeightsId(weightsProps)));
+      // run callback after weights created
+      onWeightsCreated();
     } catch (e) {
       console.error(e);
-      setError(`Create weights error: ${e}`);
+      setError(`Create weights error. ${e}`);
     }
   };
 

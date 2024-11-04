@@ -11,6 +11,7 @@ export type UiAction = {
 export type UiStateProps = {
   theme: string;
   defaultDatasetId: string;
+  defaultWeightsId?: string;
   showPropertyPanel: boolean;
   showChatPanel: boolean;
   propertyPanelName: string;
@@ -78,6 +79,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
       return {
         ...state,
         defaultDatasetId: action.payload as string
+      };
+    case UI_ACTIONS.SET_DEFAULT_WEIGHTS_ID:
+      return {
+        ...state,
+        defaultWeightsId: action.payload as string
       };
     case UI_ACTIONS.SET_SCREEN_CAPTURED:
       return {

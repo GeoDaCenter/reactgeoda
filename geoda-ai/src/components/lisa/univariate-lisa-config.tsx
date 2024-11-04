@@ -1,4 +1,10 @@
-import {Autocomplete, AutocompleteItem, Accordion, AccordionItem} from '@nextui-org/react';
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Accordion,
+  AccordionItem,
+  SharedSelection
+} from '@nextui-org/react';
 import {Key, useState} from 'react';
 import {accordionItemClasses} from '@/constants';
 import {useSelector} from 'react-redux';
@@ -38,8 +44,11 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
   );
 
   // handle select weights
-  const onSelectWeights = (id: string) => {
-    setWeightsId(id);
+  const onSelectWeights = (value: SharedSelection) => {
+    const id = value.currentKey;
+    if (id) {
+      setWeightsId(id);
+    }
   };
 
   // handle onCreateMap

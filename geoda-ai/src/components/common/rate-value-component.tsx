@@ -1,5 +1,5 @@
 import {RatesOptions, calculateRates} from 'geoda-wasm';
-import {Select, SelectItem, Selection} from '@nextui-org/react';
+import {Select, SelectItem, Selection, SharedSelection} from '@nextui-org/react';
 import {VariableSelector} from './variable-selector';
 import {useState} from 'react';
 import {WeightsSelector} from '../weights/weights-management';
@@ -71,7 +71,8 @@ export function RateValueComponent({keplerDataset, onValuesChange}: RateValuePro
   };
 
   // handle weights selection change
-  const onWeightsSelectionChange = (id: string) => {
+  const onWeightsSelectionChange = (value: SharedSelection) => {
+    const id = value.currentKey;
     const selectedW = weights.find(w => w.weightsMeta.id === id);
     if (selectedW) {
       setNeighbors(selectedW.weights);

@@ -1,5 +1,14 @@
 import {useIntl} from 'react-intl';
-import {Tabs, Tab, Card, CardBody, Chip, RadioGroup, Radio} from '@nextui-org/react';
+import {
+  Tabs,
+  Tab,
+  Card,
+  CardBody,
+  Chip,
+  RadioGroup,
+  Radio,
+  SharedSelection
+} from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Key, useEffect, useState} from 'react';
 
@@ -45,8 +54,11 @@ export function SpregPanel() {
   const [xVariables, setXVariables] = useState<string[]>([]);
 
   // handle select weights
-  const onSelectWeights = (id: string) => {
-    setWeightsId(id);
+  const onSelectWeights = (value: SharedSelection) => {
+    const id = value.currentKey;
+    if (id) {
+      setWeightsId(id);
+    }
   };
 
   // handle onRunRegression callback

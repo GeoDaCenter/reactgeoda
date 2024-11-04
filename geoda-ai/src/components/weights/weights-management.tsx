@@ -10,14 +10,15 @@ import {
   Card,
   CardBody,
   Select,
-  SelectItem
+  SelectItem,
+  SharedSelection
 } from '@nextui-org/react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {WeightsMeta} from 'geoda-wasm';
 import {WarningBox, WarningType} from '../common/warning-box';
 import {setPropertyPanel} from '@/actions';
 import {PanelName} from '../panel/panel-container';
-import {selectWeightsByDataId} from '@/store/selectors';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 // weightsMeta: mapping its key to descriptive label
 const WeightsMetaLables: Record<string, string> = {
@@ -86,7 +87,7 @@ export function WeightsMetaTable({weightsMeta}: {weightsMeta: WeightsMeta}): Rea
 export type WeightsSelectorProps = {
   weights: {weightsMeta: WeightsMeta}[];
   weightsId?: string;
-  onSelectWeights: (value: any) => void;
+  onSelectWeights: (value: SharedSelection) => void;
   label?: string;
   showWarningBox?: boolean;
 };
@@ -99,14 +100,6 @@ export function WeightsSelector({
   showWarningBox = true
 }: WeightsSelectorProps) {
   const dispatch = useDispatch();
-  const [selectedWeight, setSelectedWeight] = useState(weightsId);
-
-  // handle select weights
-  const onSelectionChange = (value: any) => {
-    const selectValue = value.currentKey;
-    setSelectedWeight(selectValue);
-    onSelectWeights(selectValue);
-  };
 
   // handle warning box click
   const onWarningBoxClick = () => {
@@ -118,8 +111,8 @@ export function WeightsSelector({
     <Select
       label={label || 'Select Spatial Weights'}
       className="max-w mb-6"
-      onSelectionChange={onSelectionChange}
-      selectedKeys={[selectedWeight ?? weights[weights.length - 1].weightsMeta.id ?? '']}
+      onSelectionChange={onSelectWeights}
+      selectedKeys={[weightsId ?? weights[weights.length - 1].weightsMeta.id ?? '']}
     >
       {weights.map(({weightsMeta}, i) => (
         <SelectItem key={weightsMeta.id ?? i} value={weightsMeta.id}>
@@ -143,10 +136,15 @@ export function WeightsSelector({
  * @component
  * @description Component for managing spatial weights
  */
-export function WeightsManagementComponent({datasetId}: {datasetId: string}): React.ReactElement {
-  const [selectedWeight, setSelectedWeight] = useState<string | null>(null);
-
-  const weights = useSelector(selectWeightsByDataId(datasetId));
+export function WeightsManagementComponent({
+  weights,
+  selectedWeightsId
+}: {
+  weights: WeightsProps[];
+  selectedWeightsId: string | null;
+}): React.ReactElement {
+  console.log('selectedWeightsId', selectedWeightsId);
+  const [selectedWeight, setSelectedWeight] = useState<string | null>(selectedWeightsId);
 
   // create rows from weightsMeta using useMemo
   const weightsMeta = useMemo(() => {
@@ -162,9 +160,11 @@ export function WeightsManagementComponent({datasetId}: {datasetId: string}): Re
   }, [selectedWeight, weights]);
 
   // handle select weights
-  const onSelectWeights = (value: any) => {
+  const onSelectWeights = (value: SharedSelection) => {
     const selectValue = value.currentKey;
-    setSelectedWeight(selectValue);
+    if (selectValue) {
+      setSelectedWeight(selectValue);
+    }
   };
 
   return (
@@ -172,7 +172,11 @@ export function WeightsManagementComponent({datasetId}: {datasetId: string}): Re
       <CardBody>
         {weights?.length > 0 ? (
           <>
-            <WeightsSelector weights={weights} onSelectWeights={onSelectWeights} />
+            <WeightsSelector
+              weights={weights}
+              onSelectWeights={onSelectWeights}
+              weightsId={selectedWeightsId ?? undefined}
+            />
             {weightsMeta && <WeightsMetaTable weightsMeta={weightsMeta} />}
           </>
         ) : (

@@ -10,6 +10,7 @@ import {WeightsCreationComponent} from './weights-creation';
 import {getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
 import {
   selectDefaultKeplerDataset,
+  selectDefaultWeightsId,
   selectKeplerDataset,
   selectKeplerLayer,
   selectWeightsByDataId
@@ -24,6 +25,7 @@ export function WeightsPanel() {
   const intl = useIntl();
 
   const defaultKeplerDataset = useSelector(selectDefaultKeplerDataset);
+  const defaultWeightsId = useSelector(selectDefaultWeightsId);
   const [datasetId, setDatasetId] = useState(defaultKeplerDataset?.id || '');
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
   const keplerLayer = useSelector(selectKeplerLayer(datasetId));
@@ -38,7 +40,7 @@ export function WeightsPanel() {
   const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
   const [showWeightsManagement, setShowWeightsManagement] = useState(newWeightsCount > 0);
 
-  // reset isNew flag of weights
+  // reset isNew flag of weights after switching to weights management tab
   useEffect(() => {
     if (newWeightsCount > 0) {
       weights.forEach((weight: WeightsProps) => {
@@ -49,13 +51,12 @@ export function WeightsPanel() {
     }
   }, [newWeightsCount, weights]);
 
-  // monitor state.root.weights, if weights.length changed, update the tab title
-  const weightsLength = weights?.length;
+  // show weights management tab if weights added from chatbot
   useEffect(() => {
-    if (weightsLength) {
+    if (defaultWeightsId || weights.length > 0) {
       setShowWeightsManagement(true);
     }
-  }, [weightsLength]);
+  }, [defaultWeightsId, weights.length]);
 
   const onTabChange = (key: React.Key) => {
     if (key === 'weights-creation') {
@@ -63,6 +64,10 @@ export function WeightsPanel() {
     } else {
       setShowWeightsManagement(true);
     }
+  };
+
+  const onWeightsCreated = () => {
+    setShowWeightsManagement(true);
   };
 
   return (
@@ -104,6 +109,8 @@ export function WeightsPanel() {
                     validFieldNames={validFieldNames}
                     keplerLayer={keplerLayer}
                     keplerDataset={keplerDataset}
+                    weightsData={weights}
+                    onWeightsCreated={onWeightsCreated}
                   />
                 </CardBody>
               </Card>
@@ -122,7 +129,10 @@ export function WeightsPanel() {
               }
             >
               <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
-              <WeightsManagementComponent datasetId={datasetId} />
+              <WeightsManagementComponent
+                weights={weights}
+                selectedWeightsId={defaultWeightsId || null}
+              />
             </Tab>
           </Tabs>
         </div>

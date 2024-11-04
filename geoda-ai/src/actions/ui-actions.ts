@@ -21,7 +21,8 @@ export enum UI_ACTIONS {
   SET_USER_ACTION = 'SET_USER_ACTION',
   SET_USER_ACTION_SCREENSHOT = 'SET_USER_ACTION_SCREENSHOT',
   SET_GUIDING_USER = 'SET_GUIDING_USER',
-  SET_IS_PROMPTING = 'SET_IS_PROMPTING'
+  SET_IS_PROMPTING = 'SET_IS_PROMPTING',
+  SET_DEFAULT_WEIGHTS_ID = 'SET_DEFAULT_WEIGHTS_ID'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -136,5 +137,10 @@ export const setGuidingUser = (payload: boolean) => ({
 
 export const setIsPrompting = (payload: boolean) => ({
   type: UI_ACTIONS.SET_IS_PROMPTING,
+  payload
+});
+
+export const setDefaultWeightsId = (payload: string) => ({
+  type: UI_ACTIONS.SET_DEFAULT_WEIGHTS_ID,
   payload
 });
