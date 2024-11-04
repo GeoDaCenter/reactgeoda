@@ -38,5 +38,21 @@
   "toolbar.localG": "G Local",
   "toolbar.localGStar": "G* Local",
   "toolbar.localJoinCount": "Cuenta de Join Local",
-  "toolbar.quantileLisa": "Cuantil LISA"
+  "toolbar.quantileLisa": "Cuantil LISA",
+  "table.noRows": "No hay filas para mostrar.",
+  "weights.meta.id": "ID",
+  "weights.meta.name": "Nombre",
+  "weights.meta.type": "Tipo",
+  "weights.meta.symmetry": "Simetría",
+  "weights.meta.numberOfObservations": "# Observaciones",
+  "weights.meta.k": "Vecinos",
+  "weights.meta.order": "Orden",
+  "weights.meta.incLowerOrder": "Incluir Orden Inferior",
+  "weights.meta.threshold": "Umbral",
+  "weights.meta.distanceMetric": "Métrica de Distancia",
+  "weights.meta.minNeighbors": "Mín. Vecinos",
+  "weights.meta.maxNeighbors": "Máx. Vecinos",
+  "weights.meta.meanNeighbors": "Media de Vecinos",
+  "weights.meta.medianNeighbors": "Mediana de Vecinos",
+  "weights.meta.pctNoneZero": "% No Cero"
 }

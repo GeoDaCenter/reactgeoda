@@ -48,3 +48,24 @@ export async function takeSnapshotWithCrop(
   const dataURL = croppedCanvas.toDataURL();
   return dataURL;
 }
+
+/**
+ * Format a number according to the current locale
+ * @param value - The number to format
+ * @param locale - The locale to use (e.g., 'en-US', 'de-DE')
+ * @param options - Optional Intl.NumberFormatOptions
+ * @returns Formatted number string
+ */
+export function formatNumberOrString(
+  value: unknown,
+  locale: string,
+  options: Intl.NumberFormatOptions = {
+    maximumFractionDigits: 4,
+    minimumFractionDigits: 0
+  }
+) {
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat(locale, options).format(value);
+  }
+  return value;
+}

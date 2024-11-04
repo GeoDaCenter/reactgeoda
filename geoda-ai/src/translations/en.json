@@ -38,5 +38,21 @@
   "toolbar.localG": "Local G",
   "toolbar.localGStar": "Local G*",
   "toolbar.localJoinCount": "Local Join Count",
-  "toolbar.quantileLisa": "Quantile LISA"
+  "toolbar.quantileLisa": "Quantile LISA",
+  "table.noRows": "No rows to display.",
+  "weights.meta.id": "ID",
+  "weights.meta.name": "Name",
+  "weights.meta.type": "Type",
+  "weights.meta.symmetry": "Symmetry",
+  "weights.meta.numberOfObservations": "# Observations",
+  "weights.meta.k": "Neighbors",
+  "weights.meta.order": "Order",
+  "weights.meta.incLowerOrder": "Include Lower Order",
+  "weights.meta.threshold": "Threshold",
+  "weights.meta.distanceMetric": "Distance Metric",
+  "weights.meta.minNeighbors": "Min Neighbors",
+  "weights.meta.maxNeighbors": "Max Neighbors",
+  "weights.meta.meanNeighbors": "Mean Neighbors",
+  "weights.meta.medianNeighbors": "Median Neighbors",
+  "weights.meta.pctNoneZero": "% Non-Zero"
 }

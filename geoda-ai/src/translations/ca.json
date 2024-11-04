@@ -38,5 +38,21 @@
   "toolbar.localG": "G Local",
   "toolbar.localGStar": "G* Local",
   "toolbar.localJoinCount": "Compte d'Unió Local",
-  "toolbar.quantileLisa": "Quantil LISA"
+  "toolbar.quantileLisa": "Quantil LISA",
+  "table.noRows": "No hi ha files per mostrar.",
+  "weights.meta.id": "ID",
+  "weights.meta.name": "Nom",
+  "weights.meta.type": "Tipus",
+  "weights.meta.symmetry": "Simetria",
+  "weights.meta.numberOfObservations": "# Observacions",
+  "weights.meta.k": "Veïns",
+  "weights.meta.order": "Ordre",
+  "weights.meta.incLowerOrder": "Incloure Ordre Inferior",
+  "weights.meta.threshold": "Llindar",
+  "weights.meta.distanceMetric": "Mètrica de Distància",
+  "weights.meta.minNeighbors": "Mín. Veïns",
+  "weights.meta.maxNeighbors": "Màx. Veïns",
+  "weights.meta.meanNeighbors": "Mitjana de Veïns",
+  "weights.meta.medianNeighbors": "Mediana de Veïns",
+  "weights.meta.pctNoneZero": "% No Zero"
 }

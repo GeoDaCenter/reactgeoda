@@ -19,8 +19,22 @@ const initialState: Array<WeightsProps> = [];
 
 export const weightsReducer = (state = initialState, action: WeightsAction) => {
   switch (action.type) {
-    case WEIGHTS_ACTIONS.ADD_WEIGHS:
+    case WEIGHTS_ACTIONS.ADD_WEIGHS: {
+      // check if the weights already exists
+      const existingWeights = state.find(
+        weights => weights.weightsMeta.id === (action.payload as WeightsProps).weightsMeta.id
+      );
+      // if the weights already exists, update the weights by setting isNew to true
+      if (existingWeights) {
+        return state.map(weights =>
+          weights.weightsMeta.id === (action.payload as WeightsProps).weightsMeta.id
+            ? {...weights, isNew: true}
+            : weights
+        );
+      }
+      // if the weights does not exist, add the new weights to the state
       return [...state, action.payload];
+    }
     case WEIGHTS_ACTIONS.REMOVE_WEIGHTS: {
       const {id} = action.payload as RemoveWeightsProps;
       return state.filter(weights => weights.weightsMeta.id !== id);

@@ -38,5 +38,21 @@
   "toolbar.localG": "Локальный G",
   "toolbar.localGStar": "Локальный G*",
   "toolbar.localJoinCount": "Локальный счетчик соединений",
-  "toolbar.quantileLisa": "Квантиль LISA"
+  "toolbar.quantileLisa": "Квантиль LISA",
+  "table.noRows": "Нет данных для отображения.",
+  "weights.meta.id": "ID",
+  "weights.meta.name": "Название",
+  "weights.meta.type": "Тип",
+  "weights.meta.symmetry": "Симметрия",
+  "weights.meta.numberOfObservations": "# Наблюдений",
+  "weights.meta.k": "Соседи",
+  "weights.meta.order": "Порядок",
+  "weights.meta.incLowerOrder": "Включить низший порядок",
+  "weights.meta.threshold": "Порог",
+  "weights.meta.distanceMetric": "Метрика расстояния",
+  "weights.meta.minNeighbors": "Мин. соседей",
+  "weights.meta.maxNeighbors": "Макс. соседей",
+  "weights.meta.meanNeighbors": "Среднее соседей",
+  "weights.meta.medianNeighbors": "Медиана соседей",
+  "weights.meta.pctNoneZero": "% Ненулевых"
 }

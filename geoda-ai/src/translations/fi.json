@@ -38,5 +38,21 @@
   "toolbar.localG": "Paikallinen G",
   "toolbar.localGStar": "Paikallinen G*",
   "toolbar.localJoinCount": "Paikallinen Liittymislaskenta",
-  "toolbar.quantileLisa": "Kvanttiili LISA"
+  "toolbar.quantileLisa": "Kvanttiili LISA",
+  "table.noRows": "Ei näytettäviä rivejä.",
+  "weights.meta.id": "ID",
+  "weights.meta.name": "Nimi",
+  "weights.meta.type": "Tyyppi",
+  "weights.meta.symmetry": "Symmetria",
+  "weights.meta.numberOfObservations": "# Havaintoja",
+  "weights.meta.k": "Naapurit",
+  "weights.meta.order": "Järjestys",
+  "weights.meta.incLowerOrder": "Sisällytä alempi järjestys",
+  "weights.meta.threshold": "Kynnysarvo",
+  "weights.meta.distanceMetric": "Etäisyysmitta",
+  "weights.meta.minNeighbors": "Min. naapurit",
+  "weights.meta.maxNeighbors": "Max. naapurit",
+  "weights.meta.meanNeighbors": "Keskimääräiset naapurit",
+  "weights.meta.medianNeighbors": "Mediaani naapurit",
+  "weights.meta.pctNoneZero": "% Ei-nolla"
 }
