@@ -7,6 +7,7 @@ import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import KeplerTable from '@kepler.gl/table';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 export type RateValueProps = {
   tableName: string;
@@ -16,6 +17,7 @@ export type RateValueProps = {
 };
 
 export function RateValueComponent({keplerDataset, onValuesChange}: RateValueProps) {
+  const {numericFieldNames} = useDatasetFields(keplerDataset.id);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
 
   const [method, setMethod] = useState(RatesOptions.RawRates);
@@ -101,12 +103,14 @@ export function RateValueComponent({keplerDataset, onValuesChange}: RateValuePro
       </Select>
 
       <VariableSelector
+        variables={numericFieldNames}
         defaultVariable={eventVariableName}
         setVariable={onEventVariableChange}
         label="Event Variable"
         size="sm"
       />
       <VariableSelector
+        variables={numericFieldNames}
         defaultVariable={baseVariableName}
         setVariable={onBaseVariableChange}
         label="Base Variable"

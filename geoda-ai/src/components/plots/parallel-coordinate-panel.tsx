@@ -1,6 +1,6 @@
 import {useIntl} from 'react-intl';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {WarningBox} from '../common/warning-box';
+import {WarningBox, WarningType} from '../common/warning-box';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {MultiVariableSelector} from '../common/multivariable-selector';
@@ -9,32 +9,32 @@ import {Card, CardBody, Chip, Spacer, Tab, Tabs} from '@nextui-org/react';
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
 export function ParallelCoordinatePanel() {
-  // Updated function name
+  // use intl
   const intl = useIntl();
 
   // use dispatch
   const dispatch = useDispatch();
 
-  // use state for variable
+  // use custom hook
+  const {datasetId, keplerDataset, numericFieldNames} = useDatasetFields();
+
+  // use state
   const [variables, setVariables] = useState<string[]>([]);
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
-
-  // use selector to get plots
+  // use selector
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   // on create pcp
   const onCreateParallelCoordinate = () => {
     // Must have at least 2 variables in order to create a pcp
-    if (variables.length === 2) {
+    if (variables.length >= 2) {
       // dispatch action to create pcp and add to store
       dispatch(addPlot({type: 'parallel-coordinate', variables, datasetId}));
       // Show the plots management panel
@@ -70,7 +70,7 @@ export function ParallelCoordinatePanel() {
       icon={null}
     >
       {!keplerDataset ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type="warning" />
+        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
       ) : (
         <div className="h-full overflow-y-auto p-4">
           <Tabs
@@ -92,9 +92,12 @@ export function ParallelCoordinatePanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <DatasetSelector
+                      datasetId={selectedDatasetId}
+                      setDatasetId={setSelectedDatasetId}
+                    />
                     <MultiVariableSelector
-                      datasetId={datasetId}
+                      variables={numericFieldNames}
                       setVariables={setVariables}
                       label="Select at least 2 variables"
                       isInvalid={variables.length < 2}

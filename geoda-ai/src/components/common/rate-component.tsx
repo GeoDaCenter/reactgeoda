@@ -5,6 +5,7 @@ import {WeightsSelector} from '../weights/weights-management';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {DatasetSelector} from './dataset-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 export type RateUIProps = {
   props: {
@@ -34,7 +35,7 @@ export function RateUIComponent({props}: RateUIProps) {
     weightsId,
     setWeightsId
   } = props;
-
+  const {numericFieldNames} = useDatasetFields(datasetId);
   const weights = useSelector((state: GeoDaState) => state.root.weights);
 
   const onEventVariableChange = (variable: string) => {
@@ -77,14 +78,14 @@ export function RateUIComponent({props}: RateUIProps) {
       </Select>
       <DatasetSelector datasetId={datasetId} setDatasetId={onDatasetIdSelect} />
       <VariableSelector
-        dataId={datasetId}
+        variables={numericFieldNames}
         setVariable={onEventVariableChange}
         label="Event Variable"
         size="sm"
         defaultVariable={eventVariable}
       />
       <VariableSelector
-        dataId={datasetId}
+        variables={numericFieldNames}
         setVariable={onBaseVariableChange}
         label="Base Variable"
         size="sm"

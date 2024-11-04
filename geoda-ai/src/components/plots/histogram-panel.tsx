@@ -9,8 +9,8 @@ import {Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react'
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
@@ -25,9 +25,8 @@ export function HistogramPanel() {
   // use state for intervals
   const [intervals, setIntervals] = useState(7);
 
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+  const {datasetId, numericFieldNames, keplerDataset} = useDatasetFields();
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
@@ -98,8 +97,11 @@ export function HistogramPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-2">
-                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
-                    <VariableSelector dataId={datasetId} setVariable={setVariable} />
+                    <DatasetSelector
+                      datasetId={selectedDatasetId}
+                      setDatasetId={setSelectedDatasetId}
+                    />
+                    <VariableSelector variables={numericFieldNames} setVariable={setVariable} />
                     <Input
                       type="number"
                       label="Intervals in histogram"

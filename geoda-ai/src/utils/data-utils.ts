@@ -369,3 +369,23 @@ export function findKeplerDatasetByVariableName(
   }
   return keplerDataset;
 }
+
+export enum VARIABLE_TYPE {
+  Numeric = 'numeric',
+  Integer = 'integer',
+  String = 'string',
+  IntegerOrString = 'integer_or_string'
+}
+
+export function getFieldNames(dataset: KeplerTable, variableType: VARIABLE_TYPE) {
+  if (variableType === VARIABLE_TYPE.Numeric) {
+    return getNumericFieldNamesFromDataset(dataset);
+  } else if (variableType === VARIABLE_TYPE.Integer) {
+    return getIntegerFieldNamesFromDataset(dataset);
+  } else if (variableType === VARIABLE_TYPE.String) {
+    return getStringFieldNamesFromDataset(dataset);
+  } else if (variableType === VARIABLE_TYPE.IntegerOrString) {
+    return getIntegerAndStringFieldNamesFromDataset(dataset);
+  }
+  return [];
+}

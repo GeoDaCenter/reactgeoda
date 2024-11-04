@@ -9,30 +9,28 @@ import {GeoDaState} from '@/store';
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
 export function BubbleChartPanel() {
   const intl = useIntl();
   const dispatch = useDispatch();
 
-  const [variableX, setVariableX] = useState<string>('');
-  const [variableY, setVariableY] = useState<string>('');
-  const [variableSize, setVariableSize] = useState<string>('');
-  const [variableColor, setVariableColor] = useState<string>('');
+  const [variableX, setVariableX] = useState<string | null>(null);
+  const [variableY, setVariableY] = useState<string | null>(null);
+  const [variableSize, setVariableSize] = useState<string | null>(null);
+  const [variableColor, setVariableColor] = useState<string | null>(null);
 
   // boolean variable to check if variables are selected for bubble chart
-  const isVariablesSelected =
-    variableX.length > 0 && variableY.length > 0 && variableSize.length > 0;
+  const isVariablesSelected = variableX && variableY && variableSize;
 
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+  const {datasetId, numericFieldNames, keplerDataset} = useDatasetFields();
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
   const plots = useSelector((state: GeoDaState) => state.root.plots);
 
   const onCreateBubbleChart = () => {
-    if (isVariablesSelected) {
+    if (isVariablesSelected && variableX && variableY && variableSize) {
       dispatch(
         addPlot({
           datasetId,
@@ -40,7 +38,7 @@ export function BubbleChartPanel() {
           variableX,
           variableY,
           variableSize,
-          variableColor
+          ...(variableColor ? {variableColor} : {})
         })
       );
     }
@@ -97,24 +95,27 @@ export function BubbleChartPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4">
-                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
+                    <DatasetSelector
+                      datasetId={selectedDatasetId}
+                      setDatasetId={setSelectedDatasetId}
+                    />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={setVariableX}
                       label="Select variable for X-axis"
                     />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={setVariableY}
                       label="Select variable for Y-axis"
                     />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={setVariableSize}
                       label="Select variable for bubble size"
                     />
                     <VariableSelector
-                      dataId={datasetId}
+                      variables={numericFieldNames}
                       setVariable={setVariableColor}
                       label="Select variable for bubble color (optional)"
                       optional

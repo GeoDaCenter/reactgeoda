@@ -9,26 +9,25 @@ import {Card, CardBody, Chip, Spacer, Tab, Tabs, RadioGroup, Radio} from '@nextu
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
 import {DatasetSelector} from '../common/dataset-selector';
 
 const NO_MAP_LOADED_MESSAGE = 'Please load a map first before creating and managing your plots.';
 
 export function BoxplotPanel() {
-  // Updated function name
+  // use intl
   const intl = useIntl();
 
   // use dispatch
   const dispatch = useDispatch();
 
-  // use state for variable
-  const [variables, setVariables] = useState<string[]>([]);
-  // useState for hingeValue
-  const [hingeValue, setHingeValue] = useState('1.5');
+  // use custom hook
+  const {datasetId, keplerDataset, numericFieldNames} = useDatasetFields();
 
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(defaultDatasetId));
-  const [datasetId, setDatasetId] = useState(keplerDataset?.id || '');
+  // use state
+  const [variables, setVariables] = useState<string[]>([]);
+  const [hingeValue, setHingeValue] = useState('1.5');
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
   // use selector to get plots
   const plots = useSelector((state: GeoDaState) => state.root.plots);
@@ -100,8 +99,14 @@ export function BoxplotPanel() {
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-4 text-sm">
-                    <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
-                    <MultiVariableSelector datasetId={datasetId} setVariables={setVariables} />
+                    <DatasetSelector
+                      datasetId={selectedDatasetId}
+                      setDatasetId={setSelectedDatasetId}
+                    />
+                    <MultiVariableSelector
+                      variables={numericFieldNames}
+                      setVariables={setVariables}
+                    />
                     <RadioGroup
                       orientation="horizontal"
                       value={hingeValue}
