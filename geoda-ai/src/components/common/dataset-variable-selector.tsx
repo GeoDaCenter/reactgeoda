@@ -1,8 +1,8 @@
 import {selectKeplerDataset, datasetsSelector} from '@/store/selectors';
+import {getFieldNames, VARIABLE_TYPE} from '@/utils/data-utils';
 import {Autocomplete, AutocompleteItem} from '@nextui-org/react';
 import {Key, useMemo} from 'react';
 import {useSelector} from 'react-redux';
-import {getFieldNames, VARIABLE_TYPE} from './variable-selector';
 
 export type onDatasetVariableSelectionChangeProps = {
   dataId?: string;

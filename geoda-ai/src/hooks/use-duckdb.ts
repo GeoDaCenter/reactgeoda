@@ -1,4 +1,4 @@
-import {tableFromArrays, Field as ArrowField} from 'apache-arrow';
+import {tableFromArrays, Field as ArrowField, Table as ArrowTable} from 'apache-arrow';
 import * as duckdb from '@duckdb/duckdb-wasm';
 // @ts-expect-error
 import duckdb_wasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm';
@@ -135,21 +135,28 @@ export class DuckDB {
       try {
         const conn = await this.db.connect();
         // create a temporary arrow table with the column name and values
-        const arrowTable = tableFromArrays({[columnName]: columnValues});
+        const row_index = Array.from({length: columnValues.length}, (_, i) => i);
+        const arrowTable = tableFromArrays({[columnName]: columnValues, row_index});
         // create a temporary duckdb table using the arrow table
-        await conn.insertArrowTable(arrowTable, {name: `temp_${columnName}`});
+        const tempTableName = `temp_${columnName}`;
+        await this.insertArrowTable({
+          tableName: tempTableName,
+          arrowTable,
+          conn
+        });
         try {
           // add a new column from the temporary table to the main table
           await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN "${columnName}" ${columnType}`);
         } catch (error) {
           // do nothing if can't add a new column since it might already exist
+          console.error(error);
         }
         // update the new column with the values from the temporary table
         await conn.query(
-          `UPDATE "${tableName}" SET "${columnName}" = (SELECT "${columnName}" FROM "temp_${columnName}")`
+          `UPDATE "${tableName}" SET "${columnName}" = "${tempTableName}"."${columnName}" FROM "${tempTableName}" WHERE "${tableName}".row_index = "${tempTableName}".row_index`
         );
         // drop the temporary table
-        await conn.query(`DROP TABLE "temp_${columnName}"`);
+        await conn.query(`DROP TABLE "${tempTableName}"`);
         await conn.close();
       } catch (error) {
         console.error(error);
@@ -236,6 +243,43 @@ export class DuckDB {
     }
   };
 
+  private insertArrowTable = async ({
+    tableName,
+    arrowTable,
+    conn
+  }: {
+    tableName: string;
+    arrowTable: ArrowTable;
+    conn: duckdb.AsyncDuckDBConnection;
+  }) => {
+    // The following code is to fix the issue that DuckDB doesn't support the geoarrow ARROW:extension
+    // See: https://github.com/duckdb/duckdb/blob/7f34190f3f94fc1b1575af829a9a0ccead87dc99/src/function/table/arrow.cpp#L118
+    // update arrowTable and change the fields in schema temporarily that if metadata has key 'ARROW:extension:name' and value starts with 'geoarrow'
+    const geometryFields: string[] = [];
+    let extensionName = '';
+    arrowTable.schema.fields.forEach((field: ArrowField) => {
+      if (
+        field.metadata &&
+        field.metadata.get('ARROW:extension:name') &&
+        field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow')
+      ) {
+        geometryFields.push(field.name);
+        extensionName = field.metadata.get('ARROW:extension:name') || '';
+        field.metadata.set('ARROW:extension:name', '');
+      }
+    });
+
+    // insert the arrow table to the database
+    await conn.insertArrowTable(arrowTable, {name: tableName});
+
+    // restore arrowTable schema fields metadata
+    arrowTable.schema.fields.forEach((field: ArrowField) => {
+      if (field.metadata && field.metadata.get('ARROW:extension:name') === '') {
+        field.metadata.set('ARROW:extension:name', extensionName);
+      }
+    });
+  };
+
   public importArrowFile = async ({fileName: tableName, arrowTable}: DatasetProps) => {
     if (this.db) {
       const conn = await this.db.connect();
@@ -246,32 +290,7 @@ export class DuckDB {
       // check if tableName is already in the database
       if (!allTables.some((table: any) => table.table_name === tableName)) {
         try {
-          // The following code is to fix the issue that DuckDB doesn't support the geoarrow ARROW:extension
-          // See: https://github.com/duckdb/duckdb/blob/7f34190f3f94fc1b1575af829a9a0ccead87dc99/src/function/table/arrow.cpp#L118
-          // update arrowTable and change the fields in schema temporarily that if metadata has key 'ARROW:extension:name' and value starts with 'geoarrow'
-          const geometryFields: string[] = [];
-          let extensionName = '';
-          arrowTable.schema.fields.forEach((field: ArrowField) => {
-            if (
-              field.metadata &&
-              field.metadata.get('ARROW:extension:name') &&
-              field.metadata.get('ARROW:extension:name')?.startsWith('geoarrow')
-            ) {
-              geometryFields.push(field.name);
-              extensionName = field.metadata.get('ARROW:extension:name') || '';
-              field.metadata.set('ARROW:extension:name', '');
-            }
-          });
-
-          // insert the arrow table to the database
-          await conn.insertArrowTable(arrowTable, {name: tableName});
-
-          // restore arrowTable schema fields metadata
-          arrowTable.schema.fields.forEach((field: ArrowField) => {
-            if (field.metadata && field.metadata.get('ARROW:extension:name') === '') {
-              field.metadata.set('ARROW:extension:name', extensionName);
-            }
-          });
+          await this.insertArrowTable({tableName, arrowTable, conn});
 
           // add a new column to the table for the row index
           await conn.query(`ALTER TABLE "${tableName}" ADD COLUMN row_index INTEGER DEFAULT 0`);

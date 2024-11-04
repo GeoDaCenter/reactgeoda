@@ -9,7 +9,6 @@ import {Card, CardBody, Chip, Input, Spacer, Tab, Tabs} from '@nextui-org/react'
 import {PlotActionProps, addPlot, updatePlot} from '@/actions/plot-actions';
 import {PlotManagementPanel} from './plot-management';
 import {CreateButton} from '../common/create-button';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {useDatasetFields} from '@/hooks/use-dataset-fields';
 

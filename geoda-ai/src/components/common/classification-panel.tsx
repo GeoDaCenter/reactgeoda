@@ -9,17 +9,15 @@ import {
   getDefaultColorRange,
   MAX_COLOR_RANGE_LENGTH
 } from '@/utils/color-utils';
-import {
-  DatasetVariableSelector,
-  onDatasetVariableSelectionChangeProps
-} from './dataset-variable-selector';
 import {RatesOptions} from 'geoda-wasm';
 import {Key, useMemo, useState} from 'react';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {CreateButton} from './create-button';
 import {createMapAsync, createRatesMapAsync} from '@/actions';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
+import {DatasetSelector} from './dataset-selector';
+import {useDatasetFields} from '@/hooks/use-dataset-fields';
+import {VariableSelector} from './variable-selector';
 
 export const ClassificationTypes = [
   {
@@ -97,10 +95,8 @@ export type ClassificationPanelProps = {
 export function ClassificationPanel() {
   const dispatch = useDispatch<any>();
 
-  // get default datasetId
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const [datasetId, setDatasetId] = useState(defaultDatasetId);
-  const dataset = useSelector(selectKeplerDataset(datasetId));
+  const {datasetId, numericFieldNames, keplerDataset} = useDatasetFields();
+  const [selectedDatasetId, setSelectedDatasetId] = useState(datasetId);
 
   // handle classification config changes
   const [isRatesMap, setIsRatesMap] = useState(false);
@@ -131,7 +127,7 @@ export function ClassificationPanel() {
     setSelectedColorRange(getDefaultColorRange(k));
     if (selectValue === MappingTypes.UNIQUE_VALUES) {
       // get number of colors based on unique values of the variable
-      const columnData = getColumnDataFromKeplerDataset(variable, dataset);
+      const columnData = getColumnDataFromKeplerDataset(variable, keplerDataset);
       const uniqueValues = new Set(columnData);
       const uniqueValuesCount = Math.min(uniqueValues.size, MAX_COLOR_RANGE_LENGTH);
       setNumberOfUniqueValues(uniqueValuesCount);
@@ -154,21 +150,13 @@ export function ClassificationPanel() {
     setSelectedColorRange(p);
   };
 
-  const onDatasetVariableSelectionChange = ({
-    variable,
-    dataId
-  }: onDatasetVariableSelectionChangeProps) => {
-    setVariable(variable || '');
-    setDatasetId(dataId || '');
-  };
-
   const onSelectionChange = (key: Key) => {
     setIsRatesMap?.(key === 'rate-mapping');
   };
 
   // handle onCreateMap
   const onCreateMap = async () => {
-    if (!datasetId) {
+    if (!selectedDatasetId) {
       return;
     }
     const numberOfColors = mappingType === MappingTypes.UNIQUE_VALUES ? numberOfUniqueValues : k;
@@ -176,7 +164,7 @@ export function ClassificationPanel() {
     if (isRatesMap === false) {
       dispatch(
         createMapAsync({
-          dataId: datasetId,
+          dataId: selectedDatasetId,
           variable,
           classficationMethod: mappingType,
           numberOfCategories: numberOfColors,
@@ -193,7 +181,7 @@ export function ClassificationPanel() {
     ) {
       dispatch(
         createRatesMapAsync({
-          dataId: datasetId,
+          dataId: selectedDatasetId,
           method: ratesMethod,
           eventVariable,
           baseVariable,
@@ -214,21 +202,22 @@ export function ClassificationPanel() {
         onSelectionChange={onSelectionChange}
       >
         <Tab key="basic-mapping" title="Basic Mapping">
-          <DatasetVariableSelector
-            datasetId={datasetId}
-            setDatasetId={setDatasetId}
-            variable={variable}
-            setVariable={setVariable}
-            onSelectionChange={onDatasetVariableSelectionChange}
-          />
+          <div className="flex flex-col gap-1">
+            <DatasetSelector
+              datasetId={selectedDatasetId}
+              setDatasetId={setSelectedDatasetId}
+              size="sm"
+            />
+            <VariableSelector variables={numericFieldNames} setVariable={setVariable} />
+          </div>
         </Tab>
         <Tab key="rate-mapping" title="Rate Mapping">
           <RateUIComponent
             props={{
               ratesMethod,
               setRatesMethod,
-              datasetId,
-              setDatasetId,
+              datasetId: selectedDatasetId,
+              setDatasetId: setSelectedDatasetId,
               eventVariable,
               setEventVariable,
               baseVariable,
