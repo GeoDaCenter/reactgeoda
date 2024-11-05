@@ -1,8 +1,8 @@
 import {RatesOptions, calculateRates} from 'geoda-wasm';
 import {Select, SelectItem, Selection, SharedSelection} from '@nextui-org/react';
-import {VariableSelector} from './variable-selector';
+import {VariableSelector} from '@/components/common/variable-selector';
 import {useState} from 'react';
-import {WeightsSelector} from '../weights/weights-management';
+import {WeightsSelector} from '@/components/weights/weights-selector';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';

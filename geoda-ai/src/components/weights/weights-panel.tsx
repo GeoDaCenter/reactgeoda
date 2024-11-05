@@ -18,9 +18,6 @@ import {
 import {DatasetSelector} from '../common/dataset-selector';
 import {WeightsProps} from '@/reducers/weights-reducer';
 
-const NO_MAP_LOADED_MESSAGE =
-  'Please load a map first before creating and managing spatial weights.';
-
 export function WeightsPanel() {
   const intl = useIntl();
 
@@ -82,7 +79,13 @@ export function WeightsPanel() {
       })}
     >
       {!keplerDataset ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
+        <WarningBox
+          message={intl.formatMessage({
+            id: 'weights.noMap',
+            defaultMessage: 'Please load a map first before creating and managing spatial weights.'
+          })}
+          type={WarningType.WARNING}
+        />
       ) : (
         <div className="flex w-full flex-col p-4">
           <Tabs
@@ -98,7 +101,12 @@ export function WeightsPanel() {
               key="weights-creation"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Weights Creation</span>
+                  <span>
+                    {intl.formatMessage({
+                      id: 'weights.creation.title',
+                      defaultMessage: 'Weights Creation'
+                    })}
+                  </span>
                 </div>
               }
             >
@@ -119,7 +127,12 @@ export function WeightsPanel() {
               key="weights-management"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Weights Management</span>
+                  <span>
+                    {intl.formatMessage({
+                      id: 'weights.management.title',
+                      defaultMessage: 'Weights Management'
+                    })}
+                  </span>
                   {weights?.length > 0 && (
                     <Chip size="sm" variant="faded">
                       {weights.length}

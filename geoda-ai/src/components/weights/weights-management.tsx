@@ -3,6 +3,7 @@ import {Card, CardBody, SharedSelection} from '@nextui-org/react';
 import {WeightsProps} from '@/reducers/weights-reducer';
 import {WeightsMetaTable} from './weights-meta-table';
 import {WeightsSelector} from './weights-selector';
+import {useIntl} from 'react-intl';
 
 /**
  * WeightsManagementComponent
@@ -16,7 +17,7 @@ export function WeightsManagementComponent({
   weights: WeightsProps[];
   selectedWeightsId: string | null;
 }): React.ReactElement {
-  console.log('selectedWeightsId', selectedWeightsId);
+  const intl = useIntl();
   const [selectedWeight, setSelectedWeight] = useState<string | null>(selectedWeightsId);
 
   // create rows from weightsMeta using useMemo
@@ -53,7 +54,12 @@ export function WeightsManagementComponent({
             {weightsMeta && <WeightsMetaTable weightsMeta={weightsMeta} />}
           </>
         ) : (
-          <p className="text-small">No Spatial Weights</p>
+          <p className="text-small">
+            {intl.formatMessage({
+              id: 'weights.management.noWeights',
+              defaultMessage: 'No Spatial Weights'
+            })}
+          </p>
         )}
       </CardBody>
     </Card>

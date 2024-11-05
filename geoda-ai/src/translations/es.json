@@ -54,5 +54,19 @@
   "weights.meta.maxNeighbors": "Máx. Vecinos",
   "weights.meta.meanNeighbors": "Media de Vecinos",
   "weights.meta.medianNeighbors": "Mediana de Vecinos",
-  "weights.meta.pctNoneZero": "% No Cero"
+  "weights.meta.pctNoneZero": "% No Cero",
+  "weights.contiguity.title": "Peso de Contigüidad",
+  "weights.contiguity.queen": "Contigüidad reina",
+  "weights.contiguity.rook": "Contigüidad torre",
+  "weights.contiguity.order": "Orden de contigüidad",
+  "weights.contiguity.precision": "Umbral de precisión",
+  "weights.distance.title": "Peso de Distancia",
+  "weights.distance.method": "Método:",
+  "weights.distance.knn": "K-vecinos más cercanos",
+  "weights.distance.neighbors": "Número de vecinos:",
+  "weights.distance.band": "Banda de distancia",
+  "weights.distance.bandwidth": "Especificar ancho de banda",
+  "weights.distance.inverse": "Usar distancia inversa",
+  "weights.distance.power": "Potencia:",
+  "weights.create.button": "Crear Pesos Espaciales"
 }

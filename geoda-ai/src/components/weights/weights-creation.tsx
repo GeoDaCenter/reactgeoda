@@ -14,6 +14,7 @@ import {
 } from '@nextui-org/react';
 import {Layer} from '@kepler.gl/layers';
 import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
+import {useIntl} from 'react-intl';
 
 import {addWeights, setDefaultWeightsId} from '@/actions';
 import {WarningBox, WarningType} from '../common/warning-box';
@@ -47,6 +48,7 @@ export function WeightsCreationComponent({
   onWeightsCreated
 }: WeightsCreationProps) {
   const dispatch = useDispatch<any>();
+  const intl = useIntl();
 
   const [error, setError] = useState<string | null>(null);
   const [weightsType, setWeightsType] = useState<'contiguity' | 'knn' | 'band'>('contiguity');
@@ -143,7 +145,13 @@ export function WeightsCreationComponent({
             onSelectionChange={onWeightsSelectionChange}
             defaultSelectedKey={weightsType || 'contiguity'}
           >
-            <Tab key="contiguity" title="Contiguity Weight">
+            <Tab
+              key="contiguity"
+              title={intl.formatMessage({
+                id: 'weights.contiguity.title',
+                defaultMessage: 'Contiguity Weight'
+              })}
+            >
               <Card className="rounded">
                 <CardBody>
                   <div className="flex flex-col gap-2 ">
@@ -153,11 +161,26 @@ export function WeightsCreationComponent({
                       defaultValue={contiguityType}
                       onValueChange={onContiguityTypeChange}
                     >
-                      <Radio value="queen">Queen contiguity</Radio>
-                      <Radio value="rook">Rook contiguity</Radio>
+                      <Radio value="queen">
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.queen',
+                          defaultMessage: 'Queen contiguity'
+                        })}
+                      </Radio>
+                      <Radio value="rook">
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.rook',
+                          defaultMessage: 'Rook contiguity'
+                        })}
+                      </Radio>
                     </RadioGroup>
                     <div className="flex flex-row items-center gap-2">
-                      <p className="text-small text-default-600 ">Order of contiguity</p>
+                      <p className="text-small text-default-600 ">
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.order',
+                          defaultMessage: 'Order of contiguity'
+                        })}
+                      </p>
                       <Input
                         size="sm"
                         type="number"
@@ -173,11 +196,17 @@ export function WeightsCreationComponent({
                       isSelected={includeLowerOrder}
                       onValueChange={e => setIncludeLowerOrder(e)}
                     >
-                      Include lower Orders
+                      {intl.formatMessage({
+                        id: 'weights.meta.incLowerOrder',
+                        defaultMessage: 'Include Lower Order'
+                      })}
                     </Checkbox>
                     <div className="flex flex-row items-center gap-2">
                       <Checkbox size="sm" className="grow">
-                        Precivion threshold
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.precision',
+                          defaultMessage: 'Precision threshold'
+                        })}
                       </Checkbox>
                       <Input
                         size="sm"
@@ -195,27 +224,56 @@ export function WeightsCreationComponent({
                 </CardBody>
               </Card>
             </Tab>
-            <Tab key="distance" title="Distance Weight">
+            <Tab
+              key="distance"
+              title={intl.formatMessage({
+                id: 'weights.distance.title',
+                defaultMessage: 'Distance Weight'
+              })}
+            >
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-2 ">
                     <div className="space-y-1">
-                      <p className="text-small text-default-600">Method:</p>
+                      <p className="text-small text-default-600">
+                        {intl.formatMessage({
+                          id: 'weights.distance.method',
+                          defaultMessage: 'Method:'
+                        })}
+                      </p>
                     </div>
                     <Tabs aria-label="distance-method" onSelectionChange={onWeightsSelectionChange}>
-                      <Tab key="knn" title="K-Nearest neighbors">
+                      <Tab
+                        key="knn"
+                        title={intl.formatMessage({
+                          id: 'weights.distance.knn',
+                          defaultMessage: 'K-Nearest neighbors'
+                        })}
+                      >
                         <Input
                           type="number"
-                          label="Number of neighbors:"
+                          label={intl.formatMessage({
+                            id: 'weights.distance.neighbors',
+                            defaultMessage: 'Number of neighbors:'
+                          })}
                           placeholder="4"
                           defaultValue="4"
                           value={`${inputK}`}
                           onInput={e => setInputK(parseInt(e.currentTarget.value))}
                         />
                       </Tab>
-                      <Tab key="band" title="Distance band">
+                      <Tab
+                        key="band"
+                        title={intl.formatMessage({
+                          id: 'weights.distance.band',
+                          defaultMessage: 'Distance band'
+                        })}
+                      >
                         <Slider
-                          label="Specify bandwidth"
+                          label={intl.formatMessage({
+                            id: 'weights.distance.bandwidth',
+                            defaultMessage: 'Specify bandwidth'
+                          })}
                           step={0.01}
                           maxValue={maxSliderValue}
                           minValue={minSliderValue}
@@ -226,13 +284,19 @@ export function WeightsCreationComponent({
                         />
                         <div className="mt-6 flex flex-row gap-2">
                           <Checkbox className="flex grow" size="sm">
-                            Use inverse distance
+                            {intl.formatMessage({
+                              id: 'weights.distance.inverse',
+                              defaultMessage: 'Use inverse distance'
+                            })}
                           </Checkbox>
                           <Input
                             size="sm"
                             className="flex w-32 shrink"
                             type="number"
-                            label="Power:"
+                            label={intl.formatMessage({
+                              id: 'weights.distance.power',
+                              defaultMessage: 'Power:'
+                            })}
                             placeholder="1"
                             defaultValue="1"
                             labelPlacement="outside-left"
@@ -249,7 +313,10 @@ export function WeightsCreationComponent({
         {error && <WarningBox type={WarningType.ERROR} message={error} />}
         <Spacer y={8} />
         <CreateButton onClick={onCreateWeights} isDisabled={false}>
-          Create Spatial Weights
+          {intl.formatMessage({
+            id: 'weights.create.button',
+            defaultMessage: 'Create Spatial Weights'
+          })}
         </CreateButton>
       </div>
     </>

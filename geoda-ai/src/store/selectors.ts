@@ -47,6 +47,9 @@ export const keplerVisStateSelector = (state: GeoDaState) => state.keplerGl[MAP_
 
 export const keplerUIStateSelector = (state: GeoDaState) => state.keplerGl[MAP_ID].uiState;
 
+export const keplerLocaleSelector = (state: GeoDaState) =>
+  state.keplerGl[MAP_ID]?.uiState?.locale || 'en';
+
 export const keplerDatasetsSelector = (state: GeoDaState) =>
   state.keplerGl[MAP_ID].visState.datasets;
 

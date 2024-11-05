@@ -7,6 +7,7 @@ import {
   injectComponents
 } from '@kepler.gl/components';
 import {themeLT, theme as themeDK} from '@kepler.gl/styles';
+import {messages} from '@kepler.gl/localization';
 import {useTheme as useNextTheme} from 'next-themes';
 
 import {MAPBOX_TOKEN, MAP_ID} from '../constants';
@@ -71,6 +72,7 @@ const KeplerMap = () => {
               theme={theme === 'light' ? themeLT : themeDK}
               // when a `KeplerGl` component is unmounted, don't remove the map from the DOM
               mint={false}
+              localeMessages={messages}
             />
           );
         }}

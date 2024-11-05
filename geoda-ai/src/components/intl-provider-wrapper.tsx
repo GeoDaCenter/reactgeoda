@@ -4,7 +4,8 @@ import {IntlProvider} from 'react-intl';
 
 import {messages} from '@kepler.gl/localization';
 import MESSAGES from '../translations/translations';
-import {GeoDaState} from '../store';
+// import {GeoDaState} from '../store';
+import {keplerLocaleSelector} from '@/store/selectors';
 
 type IntelProviderWrapperProps = {
   locale?: string;
@@ -12,16 +13,17 @@ type IntelProviderWrapperProps = {
 };
 
 const IntlProviderWrapper = ({children}: IntelProviderWrapperProps) => {
-  const language = useSelector((state: GeoDaState) => state.root.language);
+  // const language = useSelector((state: GeoDaState) => state.root.language);
+  const keplerLocale = useSelector(keplerLocaleSelector);
 
   // combine MESSAGES[language] and messages[language]
   const combinedMessages = {
-    ...MESSAGES[language],
-    ...messages[language]
+    ...MESSAGES[keplerLocale],
+    ...messages[keplerLocale]
   };
 
   return (
-    <IntlProvider messages={combinedMessages} locale={language || 'en'}>
+    <IntlProvider messages={combinedMessages} locale={keplerLocale || 'en'}>
       {children}
     </IntlProvider>
   );
