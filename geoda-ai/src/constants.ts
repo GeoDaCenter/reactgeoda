@@ -113,3 +113,19 @@ export const SQL_KEYWORDS = [
   'ELSE',
   'END'
 ];
+
+export enum PanelName {
+  SETTINGS = 'Settings',
+  TABLE = 'Table',
+  MAPPING = 'Mapping',
+  WEIGHTS = 'Weights',
+  LISA = 'Lisa',
+  HISTOGRAM = 'Histogram',
+  SCATTERPLOT = 'Scatterplot',
+  BOXPLOT = 'Boxplot',
+  SPREG = 'Spatial Regression',
+  PARALLEL_COORDINATE = 'Parallel Coordinate',
+  BUBBLE_CHART = 'Bubble Chart',
+  DASHBOARD = 'Dashboard',
+  SPATIAL_JOIN = 'Spatial Join'
+}

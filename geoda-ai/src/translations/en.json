@@ -76,5 +76,7 @@
   "weights.description": "Create and manage spatial weights",
   "weights.noMap": "Please load a map first before creating and managing spatial weights.",
   "weights.creation.title": "Weights Creation",
-  "weights.management.title": "Weights Management"
+  "weights.management.title": "Weights Management",
+  "weights.error.typeNotSupported": "weights type is not supported",
+  "weights.error.create": "Create weights error."
 }

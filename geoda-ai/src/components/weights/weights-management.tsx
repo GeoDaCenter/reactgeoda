@@ -1,8 +1,8 @@
 import React, {useMemo, useState} from 'react';
 import {Card, CardBody, SharedSelection} from '@nextui-org/react';
 import {WeightsProps} from '@/reducers/weights-reducer';
-import {WeightsMetaTable} from './weights-meta-table';
-import {WeightsSelector} from './weights-selector';
+import {WeightsMetaTable} from '@/components/weights/weights-meta-table';
+import {WeightsSelector} from '@/components/weights/weights-selector';
 import {useIntl} from 'react-intl';
 
 /**

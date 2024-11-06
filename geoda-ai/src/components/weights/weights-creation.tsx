@@ -17,21 +17,23 @@ import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
 import {useIntl} from 'react-intl';
 
 import {addWeights, setDefaultWeightsId} from '@/actions';
-import {WarningBox, WarningType} from '../common/warning-box';
+import {WarningBox, WarningType} from '@/components/common/warning-box';
 import {
   checkWeightsIdExist,
   createWeights,
   CreateWeightsProps,
   getWeightsId
 } from '@/utils/weights-utils';
-import {CreateButton} from '../common/create-button';
+import {CreateButton} from '@/components/common/create-button';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
 import {
   getBinaryGeometryTypeFromLayer,
   getBinaryGeometriesFromLayer
-} from '../spatial-operations/spatial-join-utils';
+} from '@/components/spatial-operations/spatial-join-utils';
 import KeplerTable from '@kepler.gl/table';
 import {WeightsProps} from '@/reducers/weights-reducer';
+
+export type WeightsType = 'contiguity' | 'knn' | 'band';
 
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
@@ -51,7 +53,7 @@ export function WeightsCreationComponent({
   const intl = useIntl();
 
   const [error, setError] = useState<string | null>(null);
-  const [weightsType, setWeightsType] = useState<'contiguity' | 'knn' | 'band'>('contiguity');
+  const [weightsType, setWeightsType] = useState<WeightsType>('contiguity');
   const [inputK, setInputK] = useState<number>(4);
   const [contiguityType, setContiguityType] = useState<string>('queen');
   const [orderOfContiguity, setOrderContiguity] = useState<number>(1);
@@ -61,6 +63,7 @@ export function WeightsCreationComponent({
   const [minSliderValue, setMinSliderValue] = useState<number>(0);
   const [maxSliderValue, setMaxSliderValue] = useState<number>(0);
   const [sliderValue, setSliderValue] = useState<number>(0);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
 
   const binaryGeometryType: BinaryGeometryType = useMemo(
     () => getBinaryGeometryTypeFromLayer(keplerLayer) as BinaryGeometryType,
@@ -77,7 +80,7 @@ export function WeightsCreationComponent({
   const isMile = false;
 
   const onWeightsSelectionChange = async (key: Key) => {
-    setWeightsType(key as 'contiguity' | 'knn' | 'band');
+    setWeightsType(key as WeightsType);
     if (key === 'distance' && binaryGeometries && binaryGeometryType) {
       // compute the distanceThreshold
       const {minDistance, maxDistance, maxPairDistance} = await getDistanceThresholds({
@@ -102,6 +105,9 @@ export function WeightsCreationComponent({
 
   const onCreateWeights = async () => {
     setError(null);
+    setIsRunning(true);
+    // wait for 0.1 second so the UI can update
+    await new Promise(resolve => setTimeout(resolve, 100));
     try {
       const weightsProps: CreateWeightsProps = {
         datasetId,
@@ -120,7 +126,12 @@ export function WeightsCreationComponent({
       if (!isWeightsIdExist) {
         const result = await createWeights(weightsProps);
         if (!result) {
-          throw new Error('weights type is not supported');
+          throw new Error(
+            intl.formatMessage({
+              id: 'weights.error.typeNotSupported',
+              defaultMessage: 'weights type is not supported'
+            })
+          );
         }
         const {weights, weightsMeta} = result;
         // dispatch action to update redux state state.root.weights
@@ -132,7 +143,14 @@ export function WeightsCreationComponent({
       onWeightsCreated();
     } catch (e) {
       console.error(e);
-      setError(`Create weights error. ${e}`);
+      setError(
+        intl.formatMessage({
+          id: 'weights.error.create',
+          defaultMessage: 'Create weights error.'
+        })
+      );
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -312,7 +330,7 @@ export function WeightsCreationComponent({
         </div>
         {error && <WarningBox type={WarningType.ERROR} message={error} />}
         <Spacer y={8} />
-        <CreateButton onClick={onCreateWeights} isDisabled={false}>
+        <CreateButton isRunning={isRunning} onClick={onCreateWeights} isDisabled={false}>
           {intl.formatMessage({
             id: 'weights.create.button',
             defaultMessage: 'Create Spatial Weights'

@@ -76,5 +76,7 @@
   "weights.description": "空間重みの作成と管理",
   "weights.noMap": "空間重みの作成と管理の前に、まずマップを読み込んでください。",
   "weights.creation.title": "重みの作成",
-  "weights.management.title": "重みの管理"
+  "weights.management.title": "重みの管理",
+  "weights.error.typeNotSupported": "重みタイプはサポートされていません",
+  "weights.error.create": "重みの作成エラー。"
 }

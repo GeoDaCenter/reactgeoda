@@ -76,5 +76,7 @@
   "weights.description": "Luo ja hallitse spatiaalisia painoja",
   "weights.noMap": "Lataa ensin kartta ennen spatiaalisten painojen luomista ja hallintaa.",
   "weights.creation.title": "Painojen Luonti",
-  "weights.management.title": "Painojen Hallinta"
+  "weights.management.title": "Painojen Hallinta",
+  "weights.error.typeNotSupported": "painotyyppiä ei tueta",
+  "weights.error.create": "Painojen luontivirhe."
 }

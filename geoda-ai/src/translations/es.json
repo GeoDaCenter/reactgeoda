@@ -68,5 +68,7 @@
   "weights.distance.bandwidth": "Especificar ancho de banda",
   "weights.distance.inverse": "Usar distancia inversa",
   "weights.distance.power": "Potencia:",
-  "weights.create.button": "Crear Pesos Espaciales"
+  "weights.create.button": "Crear Pesos Espaciales",
+  "weights.error.typeNotSupported": "el tipo de pesos no es compatible",
+  "weights.error.create": "Error al crear pesos."
 }

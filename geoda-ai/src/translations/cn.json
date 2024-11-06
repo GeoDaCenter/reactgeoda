@@ -76,5 +76,7 @@
   "weights.description": "创建和管理空间权重",
   "weights.noMap": "请先加载地图，然后再创建和管理空间权重。",
   "weights.creation.title": "创建权重",
-  "weights.management.title": "权重管理"
+  "weights.management.title": "权重管理",
+  "weights.error.typeNotSupported": "不支持该权重类型",
+  "weights.error.create": "创建权重时出错。"
 }

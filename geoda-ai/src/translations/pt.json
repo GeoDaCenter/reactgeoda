@@ -76,5 +76,7 @@
   "weights.description": "Criar e gerenciar pesos espaciais",
   "weights.noMap": "Por favor, carregue um mapa primeiro antes de criar e gerenciar pesos espaciais.",
   "weights.creation.title": "Criação de Pesos",
-  "weights.management.title": "Gerenciamento de Pesos"
+  "weights.management.title": "Gerenciamento de Pesos",
+  "weights.error.typeNotSupported": "tipo de pesos não é suportado",
+  "weights.error.create": "Erro ao criar pesos."
 }

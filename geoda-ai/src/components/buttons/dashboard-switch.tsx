@@ -2,7 +2,7 @@ import {setGridView, setPropertyPanel, setShowPropertyPanel} from '@/actions';
 import {Button, Tooltip} from '@nextui-org/react';
 import {useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {PanelName} from '../panel/panel-container';
+import {PanelName} from '@/constants';
 import {GeoDaState} from '@/store';
 
 // An svg icon of dashboard composed by 4 squares

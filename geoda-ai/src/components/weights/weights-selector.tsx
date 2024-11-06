@@ -4,7 +4,7 @@ import {WeightsMeta} from 'geoda-wasm';
 import {WarningBox, WarningType} from '@/components/common/warning-box';
 import {useDispatch} from 'react-redux';
 import {setPropertyPanel} from '@/actions';
-import {PanelName} from '@/components/panel/panel-container';
+import {PanelName} from '@/constants';
 import {useIntl} from 'react-intl';
 
 export type WeightsSelectorProps = {
@@ -45,9 +45,7 @@ export function WeightsSelector({
       selectedKeys={[weightsId ?? weights[weights.length - 1].weightsMeta.id ?? '']}
     >
       {weights.map(({weightsMeta}, i) => (
-        <SelectItem key={weightsMeta.id ?? i} value={weightsMeta.id}>
-          {weightsMeta.id}
-        </SelectItem>
+        <SelectItem key={weightsMeta.id ?? i}>{weightsMeta.id}</SelectItem>
       ))}
     </Select>
   ) : (

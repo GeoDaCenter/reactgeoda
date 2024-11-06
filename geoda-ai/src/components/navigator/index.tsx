@@ -25,12 +25,12 @@ import {
   setPropertyPanel,
   setSaveProjectModal,
   setShowChatPanel
-} from '../../actions';
-import {GeoDaState} from '../../store';
-import {PanelName} from '../panel/panel-container';
-import {ThemeSwitcher} from '../buttons/theme-switch';
-import {DashboardSwitcher} from '../buttons/dashboard-switch';
-import {IconAddDataset} from '../icons/add';
+} from '@/actions';
+import {GeoDaState} from '@/store';
+import {PanelName} from '@/constants';
+import {ThemeSwitcher} from '@/components/buttons/theme-switch';
+import {DashboardSwitcher} from '@/components/buttons/dashboard-switch';
+import {IconAddDataset} from '@/components/icons/add';
 
 export function Navigator() {
   const dispatch = useDispatch();

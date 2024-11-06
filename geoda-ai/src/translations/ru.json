@@ -76,5 +76,7 @@
   "weights.description": "Создание и управление пространственными весами",
   "weights.noMap": "Пожалуйста, сначала загрузите карту, прежде чем создавать и управлять пространственными весами.",
   "weights.creation.title": "Создание весов",
-  "weights.management.title": "Управление весами"
+  "weights.management.title": "Управление весами",
+  "weights.error.typeNotSupported": "тип весов не поддерживается",
+  "weights.error.create": "Ошибка создания весов."
 }
