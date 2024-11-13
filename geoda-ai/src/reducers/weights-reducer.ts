@@ -17,23 +17,25 @@ export type WeightsProps = {
 
 const initialState: Array<WeightsProps> = [];
 
-export const weightsReducer = (state = initialState, action: WeightsAction) => {
+export const weightsReducer = (
+  state = initialState,
+  action: WeightsAction
+): Array<WeightsProps> => {
   switch (action.type) {
     case WEIGHTS_ACTIONS.ADD_WEIGHS: {
+      const payload = action.payload as WeightsProps;
       // check if the weights already exists
       const existingWeights = state.find(
-        weights => weights.weightsMeta.id === (action.payload as WeightsProps).weightsMeta.id
+        weights => weights.weightsMeta.id === payload.weightsMeta.id
       );
       // if the weights already exists, update the weights by setting isNew to true
       if (existingWeights) {
         return state.map(weights =>
-          weights.weightsMeta.id === (action.payload as WeightsProps).weightsMeta.id
-            ? {...weights, isNew: true}
-            : weights
+          weights.weightsMeta.id === payload.weightsMeta.id ? {...weights, isNew: true} : weights
         );
       }
       // if the weights does not exist, add the new weights to the state
-      return [...state, action.payload];
+      return [...state, payload];
     }
     case WEIGHTS_ACTIONS.REMOVE_WEIGHTS: {
       const {id} = action.payload as RemoveWeightsProps;

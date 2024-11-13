@@ -13,6 +13,8 @@ export async function createWeightsUpdater(
     }
     return result;
   }
+  // if the weights already exists, return null
+  return null;
 }
 
 export function addWeightsUpdater(state: WeightsProps[], action: WeightsAction) {
