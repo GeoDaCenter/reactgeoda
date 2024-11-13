@@ -313,7 +313,7 @@ describe('WeightsCreationComponent', () => {
     });
   });
 
-  it.skip('handles distance band threshold changes', async () => {
+  it('handles distance band threshold changes', async () => {
     (weightsUtils.createWeights as jest.Mock).mockResolvedValue(mockWeightsResult);
     (weightsUtils.checkWeightsIdExist as jest.Mock).mockReturnValue(false);
 
@@ -327,9 +327,13 @@ describe('WeightsCreationComponent', () => {
 
     // Change threshold value
     const slider = screen.getByTestId('distance-band-slider');
-    const onChangeEvent = new Event('onChange');
-    Object.defineProperty(onChangeEvent, 'value', {value: 20});
-    fireEvent.change(slider, onChangeEvent);
+    // get input element from slider
+    const sliderInput = slider.querySelector('input');
+    if (!sliderInput) throw new Error('Slider input not found');
+
+    // fire change event
+    fireEvent.change(sliderInput, {target: {value: '20'}});
+
     // Click create button
     const createButton = screen.getByText('Create Spatial Weights');
     fireEvent.click(createButton);
@@ -338,7 +342,7 @@ describe('WeightsCreationComponent', () => {
       expect(weightsUtils.createWeights).toHaveBeenCalledWith(
         expect.objectContaining({
           weightsType: 'band',
-          threshold: 20,
+          distanceThreshold: 20,
           datasetId: 'test-dataset'
         })
       );

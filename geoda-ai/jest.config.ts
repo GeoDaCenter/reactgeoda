@@ -91,7 +91,7 @@ const config: Config = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^geoda-wasm$': '<rootDir>/../../geoda-lib/js',
+    '^geoda-wasm$': '<rootDir>/../../geoda-lib/src/js',
     '^@kepler.gl/(.*)$': '<rootDir>../../csds_kepler/src/$1/src',
     // '@kepler.gl/actions': '<rootDir>/__mocks__/kepler.gl/actions.ts',
     // '@kepler.gl/components': '<rootDir>/__mocks__/kepler.gl/components.ts',

@@ -82,7 +82,21 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
   };
 
   const onOrderOfContiguityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrderContiguity(parseInt(e.currentTarget.value));
+    const value = parseInt(e.currentTarget.value);
+    if (value < 1) {
+      setOrderContiguity(1);
+    } else {
+      setOrderContiguity(value);
+    }
+  };
+
+  const onKChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.currentTarget.value);
+    if (value < 1) {
+      setInputK(1);
+    } else {
+      setInputK(value);
+    }
   };
 
   const onCreateWeights = async () => {
@@ -232,7 +246,7 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                           placeholder="4"
                           defaultValue="4"
                           value={`${inputK}`}
-                          onInput={e => setInputK(parseInt(e.currentTarget.value))}
+                          onInput={onKChange}
                         />
                       </Tab>
                       <Tab
