@@ -233,6 +233,7 @@ describe('WeightsCreationComponent', () => {
 
   it('handles existing weights ID', async () => {
     (weightsUtils.checkWeightsIdExist as jest.Mock).mockReturnValue(true);
+    (weightsUtils.getWeightsId as jest.Mock).mockReturnValue('w-id');
 
     const {getActionHistoryAsync} = renderComponent();
 

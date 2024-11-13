@@ -17,7 +17,7 @@ const config: Config = {
   // cacheDirectory: "/private/var/folders/rg/ws3_nnq169d3k9rg16vbt61h0000gn/T/jest_dx",
 
   // Automatically clear mock calls, instances, contexts and results before every test
-  // clearMocks: false,
+  // clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
@@ -91,10 +91,11 @@ const config: Config = {
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^geoda-wasm$': '<rootDir>/../../geoda-lib/src/js',
-    '^@kepler.gl/(.*)$': '<rootDir>../../csds_kepler/src/$1/src',
-    // '@kepler.gl/actions': '<rootDir>/__mocks__/kepler.gl/actions.ts',
-    // '@kepler.gl/components': '<rootDir>/__mocks__/kepler.gl/components.ts',
+    // '^geoda-wasm$': '<rootDir>/__mocks__/geoda-wasm.ts',
+    // '^geoda-wasm$': '<rootDir>/../../geoda-lib/src/js/src',
+    '^@kepler.gl/(.*)$': '<rootDir>/../../csds_kepler/src/$1/src',
+    '@kepler.gl/actions': '<rootDir>/__mocks__/kepler.gl/actions.ts',
+    '@kepler.gl/components': '<rootDir>/__mocks__/kepler.gl/components.ts',
     // '^@kepler.gl/tasks$': '<rootDir>../../csds_kepler/src/tasks/src',
     '^@mapbox/tiny-sdf$': '<rootDir>/../../csds_kepler/node_modules/@mapbox/tiny-sdf/index.cjs',
     '^d3-dsv$': '<rootDir>/../../csds_kepler/node_modules/d3-dsv',
@@ -122,7 +123,7 @@ const config: Config = {
   // reporters: undefined,
 
   // Automatically reset mock state before every test
-  // resetMocks: false,
+  // resetMocks: true,
 
   // Reset the module registry before running each individual test
   // resetModules: false,
@@ -131,7 +132,7 @@ const config: Config = {
   // resolver: undefined,
 
   // Automatically restore mock state and implementation before every test
-  // restoreMocks: false,
+  // restoreMocks: true,
 
   // The root directory that Jest should scan for tests and modules within
   // rootDir: undefined,
