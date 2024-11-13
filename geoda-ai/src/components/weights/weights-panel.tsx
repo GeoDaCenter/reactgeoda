@@ -17,6 +17,7 @@ import {
 } from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {WeightsProps} from '@/reducers/weights-reducer';
+import {GeoDaState} from '@/store';
 
 export function WeightsPanel() {
   const intl = useIntl();
@@ -24,9 +25,11 @@ export function WeightsPanel() {
   const defaultKeplerDataset = useSelector(selectDefaultKeplerDataset);
   const defaultWeightsId = useSelector(selectDefaultWeightsId);
   const [datasetId, setDatasetId] = useState(defaultKeplerDataset?.id || '');
+
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
   const keplerLayer = useSelector(selectKeplerLayer(datasetId));
   const weights = useSelector(selectWeightsByDataId(datasetId));
+  const weightsCreation = useSelector((state: GeoDaState) => state.root.uiState.weights);
 
   const validFieldNames = useMemo(() => {
     const fieldNames = keplerDataset ? getIntegerAndStringFieldNamesFromDataset(keplerDataset) : [];
@@ -35,7 +38,9 @@ export function WeightsPanel() {
 
   // check if there is any newly added weights, if there is, show weights management tab
   const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
-  const [showWeightsManagement, setShowWeightsManagement] = useState(newWeightsCount > 0);
+  const [showWeightsManagement, setShowWeightsManagement] = useState(
+    newWeightsCount > 0 || weightsCreation.showWeightsPanel
+  );
 
   // reset isNew flag of weights after switching to weights management tab
   useEffect(() => {

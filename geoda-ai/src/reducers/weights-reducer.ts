@@ -1,6 +1,5 @@
 import {WEIGHTS_ACTIONS, RemoveWeightsProps, SelectWeightsProps} from '@/actions/weights-actions';
 import {WeightsMeta} from 'geoda-wasm';
-import {createWeightsUpdater} from './weights-updaters';
 
 export type WeightsAction = {
   type: string;
@@ -20,11 +19,6 @@ const initialState: Array<WeightsProps> = [];
 
 export const weightsReducer = (state = initialState, action: WeightsAction) => {
   switch (action.type) {
-    case WEIGHTS_ACTIONS.CREATE_WEIGHTS: {
-      const newWeights = createWeightsUpdater(state, action);
-      // add weights to the state
-      return [...state, ...newWeights];
-    }
     case WEIGHTS_ACTIONS.ADD_WEIGHS: {
       // check if the weights already exists
       const existingWeights = state.find(

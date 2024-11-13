@@ -78,5 +78,6 @@
   "weights.creation.title": "Painojen Luonti",
   "weights.management.title": "Painojen Hallinta",
   "weights.error.typeNotSupported": "painotyyppiä ei tueta",
-  "weights.error.create": "Painojen luontivirhe."
+  "weights.error.create": "Painojen luontivirhe.",
+  "weights.error.noGeometry": "Geometriatietoja ei ole saatavilla."
 }

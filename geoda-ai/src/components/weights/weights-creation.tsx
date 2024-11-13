@@ -1,5 +1,5 @@
-import React, {Key, useMemo, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, {Key, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   Tabs,
   Tab,
@@ -13,25 +13,20 @@ import {
   Radio
 } from '@nextui-org/react';
 import {Layer} from '@kepler.gl/layers';
-import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
 import {useIntl} from 'react-intl';
 
-import {addWeights, setDefaultWeightsId} from '@/actions';
+import {
+  calculateDistanceThresholdsAsync,
+  createWeightsAsync,
+  setWeightsCreationError
+} from '@/actions';
 import {WarningBox, WarningType} from '@/components/common/warning-box';
-import {
-  checkWeightsIdExist,
-  createWeights,
-  CreateWeightsProps,
-  getWeightsId
-} from '@/utils/weights-utils';
+import {CreateWeightsProps} from '@/utils/weights-utils';
 import {CreateButton} from '@/components/common/create-button';
-import {BinaryFeatureCollection} from '@loaders.gl/schema';
-import {
-  getBinaryGeometryTypeFromLayer,
-  getBinaryGeometriesFromLayer
-} from '@/components/spatial-operations/spatial-join-utils';
 import KeplerTable from '@kepler.gl/table';
 import {WeightsProps} from '@/reducers/weights-reducer';
+import {GeoDaState} from '@/store';
+import {selectGeometryData} from '@/store/selectors';
 
 export type WeightsType = 'contiguity' | 'knn' | 'band';
 
@@ -40,58 +35,41 @@ type WeightsCreationProps = {
   keplerLayer: Layer;
   keplerDataset: KeplerTable;
   weightsData: WeightsProps[];
-  onWeightsCreated: () => void;
 };
 
-export function WeightsCreationComponent({
-  keplerLayer,
-  keplerDataset,
-  weightsData,
-  onWeightsCreated
-}: WeightsCreationProps) {
+export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCreationProps) {
   const dispatch = useDispatch<any>();
   const intl = useIntl();
 
-  const [error, setError] = useState<string | null>(null);
+  const {weightsCreation, distanceThresholds} = useSelector(
+    (state: GeoDaState) => state.root.uiState.weights
+  );
+
+  const {binaryGeometryType, binaryGeometries} = useSelector((state: GeoDaState) =>
+    selectGeometryData({state, layer: keplerLayer, dataset: keplerDataset})
+  );
+
   const [weightsType, setWeightsType] = useState<WeightsType>('contiguity');
   const [inputK, setInputK] = useState<number>(4);
   const [contiguityType, setContiguityType] = useState<string>('queen');
   const [orderOfContiguity, setOrderContiguity] = useState<number>(1);
   const [precisionThreshold, setPrecisionThreshold] = useState<number>(0);
   const [includeLowerOrder, setIncludeLowerOrder] = useState<boolean>(false);
+  const [sliderValue, setSliderValue] = useState<number>(distanceThresholds.maxPairDistance);
 
-  const [minSliderValue, setMinSliderValue] = useState<number>(0);
-  const [maxSliderValue, setMaxSliderValue] = useState<number>(0);
-  const [sliderValue, setSliderValue] = useState<number>(0);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
-
-  const binaryGeometryType: BinaryGeometryType = useMemo(
-    () => getBinaryGeometryTypeFromLayer(keplerLayer) as BinaryGeometryType,
-    [keplerLayer]
-  );
-
-  const binaryGeometries = useMemo(
-    () => getBinaryGeometriesFromLayer(keplerLayer, keplerDataset) as BinaryFeatureCollection[],
-    [keplerLayer, keplerDataset]
-  );
-
-  const datasetId = keplerLayer.config.dataId;
-
+  // TODO: add a switch to toggle between mile and kilometer
   const isMile = false;
 
-  const onWeightsSelectionChange = async (key: Key) => {
+  const onWeightsSelectionChange = (key: Key) => {
     setWeightsType(key as WeightsType);
-    if (key === 'distance' && binaryGeometries && binaryGeometryType) {
-      // compute the distanceThreshold
-      const {minDistance, maxDistance, maxPairDistance} = await getDistanceThresholds({
-        isMile,
-        binaryGeometryType,
-        // @ts-ignore
-        binaryGeometries
-      });
-      setMinSliderValue(minDistance);
-      setSliderValue(maxDistance);
-      setMaxSliderValue(maxPairDistance);
+    if (weightsType === 'band' && binaryGeometries && binaryGeometryType) {
+      dispatch(
+        calculateDistanceThresholdsAsync({
+          isMile,
+          binaryGeometryType,
+          binaryGeometries
+        })
+      );
     }
   };
 
@@ -103,55 +81,31 @@ export function WeightsCreationComponent({
     setContiguityType(value);
   };
 
+  const onOrderOfContiguityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrderContiguity(parseInt(e.currentTarget.value));
+  };
+
   const onCreateWeights = async () => {
-    setError(null);
-    setIsRunning(true);
-    // wait for 0.1 second so the UI can update
-    await new Promise(resolve => setTimeout(resolve, 100));
-    try {
-      const weightsProps: CreateWeightsProps = {
-        datasetId,
-        weightsType,
-        contiguityType,
-        binaryGeometryType,
-        binaryGeometries,
-        precisionThreshold,
-        orderOfContiguity,
-        includeLowerOrder,
-        k: inputK,
-        distanceThreshold: sliderValue,
-        isMile
-      };
-      const isWeightsIdExist = checkWeightsIdExist(weightsProps, weightsData);
-      if (!isWeightsIdExist) {
-        const result = await createWeights(weightsProps);
-        if (!result) {
-          throw new Error(
-            intl.formatMessage({
-              id: 'weights.error.typeNotSupported',
-              defaultMessage: 'weights type is not supported'
-            })
-          );
-        }
-        const {weights, weightsMeta} = result;
-        // dispatch action to update redux state state.root.weights
-        dispatch(addWeights({weights, weightsMeta, datasetId}));
-      }
-      // set the default weights id
-      dispatch(setDefaultWeightsId(getWeightsId(weightsProps)));
-      // run callback after weights created
-      onWeightsCreated();
-    } catch (e) {
-      console.error(e);
-      setError(
-        intl.formatMessage({
-          id: 'weights.error.create',
-          defaultMessage: 'Create weights error.'
-        })
-      );
-    } finally {
-      setIsRunning(false);
+    if (!binaryGeometryType || !binaryGeometries) {
+      dispatch(setWeightsCreationError('weights.error.noGeometry'));
+      return;
     }
+
+    const weightsProps: CreateWeightsProps = {
+      datasetId: keplerLayer.config.dataId,
+      weightsType,
+      contiguityType,
+      binaryGeometryType,
+      binaryGeometries,
+      precisionThreshold,
+      orderOfContiguity,
+      includeLowerOrder,
+      k: inputK,
+      distanceThreshold: sliderValue,
+      isMile
+    };
+
+    dispatch(createWeightsAsync(weightsProps));
   };
 
   return (
@@ -203,10 +157,11 @@ export function WeightsCreationComponent({
                         size="sm"
                         type="number"
                         label=""
+                        data-testid="order-of-contiguity"
                         labelPlacement="outside-left"
                         className="w-[120px]"
                         value={`${orderOfContiguity}`}
-                        onInput={e => setOrderContiguity(parseInt(e.currentTarget.value))}
+                        onInput={onOrderOfContiguityChange}
                       />
                     </div>
                     <Checkbox
@@ -288,14 +243,15 @@ export function WeightsCreationComponent({
                         })}
                       >
                         <Slider
+                          data-testid="distance-band-slider"
                           label={intl.formatMessage({
                             id: 'weights.distance.bandwidth',
                             defaultMessage: 'Specify bandwidth'
                           })}
                           step={0.01}
-                          maxValue={maxSliderValue}
-                          minValue={minSliderValue}
-                          defaultValue={sliderValue}
+                          maxValue={distanceThresholds.maxPairDistance}
+                          minValue={distanceThresholds.minDistance}
+                          defaultValue={distanceThresholds.maxDistance}
                           formatOptions={{style: 'unit', unit: isMile ? 'mile' : 'kilometer'}}
                           className="max-w-md"
                           onChange={onSliderValueChange}
@@ -328,9 +284,21 @@ export function WeightsCreationComponent({
             </Tab>
           </Tabs>
         </div>
-        {error && <WarningBox type={WarningType.ERROR} message={error} />}
+        {weightsCreation.error && (
+          <WarningBox
+            type={WarningType.ERROR}
+            message={intl.formatMessage({
+              id: weightsCreation.error,
+              defaultMessage: `Create weights failed. ${weightsCreation.error}`
+            })}
+          />
+        )}
         <Spacer y={8} />
-        <CreateButton isRunning={isRunning} onClick={onCreateWeights} isDisabled={false}>
+        <CreateButton
+          isRunning={weightsCreation.isRunning}
+          onClick={onCreateWeights}
+          isDisabled={false}
+        >
           {intl.formatMessage({
             id: 'weights.create.button',
             defaultMessage: 'Create Spatial Weights'

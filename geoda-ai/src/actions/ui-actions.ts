@@ -1,3 +1,5 @@
+import {DistanceThresholdsProps} from '@/reducers/ui-reducer';
+
 export enum UI_ACTIONS {
   SET_THEME = 'SET_THEME',
   SET_DEFAULT_DATASET_ID = 'SET_DEFAULT_DATASET_ID',
@@ -22,7 +24,11 @@ export enum UI_ACTIONS {
   SET_USER_ACTION_SCREENSHOT = 'SET_USER_ACTION_SCREENSHOT',
   SET_GUIDING_USER = 'SET_GUIDING_USER',
   SET_IS_PROMPTING = 'SET_IS_PROMPTING',
-  SET_DEFAULT_WEIGHTS_ID = 'SET_DEFAULT_WEIGHTS_ID'
+  SET_DEFAULT_WEIGHTS_ID = 'SET_DEFAULT_WEIGHTS_ID',
+  SET_SHOW_WEIGHTS_PANEL = 'SET_SHOW_WEIGHTS_PANEL',
+  SET_START_WEIGHTS_CREATION = 'SET_START_WEIGHTS_CREATION',
+  SET_WEIGHTS_CREATION_ERROR = 'SET_WEIGHTS_CREATION_ERROR',
+  SET_WEIGHTS_DISTANCE_CONFIG = 'SET_WEIGHTS_DISTANCE_CONFIG'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -142,5 +148,25 @@ export const setIsPrompting = (payload: boolean) => ({
 
 export const setDefaultWeightsId = (payload: string) => ({
   type: UI_ACTIONS.SET_DEFAULT_WEIGHTS_ID,
+  payload
+});
+
+export const setShowWeightsPanel = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_SHOW_WEIGHTS_PANEL,
+  payload
+});
+
+export const setStartWeightsCreation = (payload: boolean) => ({
+  type: UI_ACTIONS.SET_START_WEIGHTS_CREATION,
+  payload
+});
+
+export const setWeightsCreationError = (payload: string | null) => ({
+  type: UI_ACTIONS.SET_WEIGHTS_CREATION_ERROR,
+  payload
+});
+
+export const setWeightsDistanceConfig = (payload: DistanceThresholdsProps) => ({
+  type: UI_ACTIONS.SET_WEIGHTS_DISTANCE_CONFIG,
   payload
 });

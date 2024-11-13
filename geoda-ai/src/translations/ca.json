@@ -78,5 +78,6 @@
   "weights.creation.title": "Creació de Pesos",
   "weights.management.title": "Gestió de Pesos",
   "weights.error.typeNotSupported": "el tipus de pesos no és compatible",
-  "weights.error.create": "Error en crear pesos."
+  "weights.error.create": "Error en crear pesos.",
+  "weights.error.noGeometry": "No hi ha dades de geometria disponibles."
 }

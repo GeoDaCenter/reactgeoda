@@ -70,5 +70,6 @@
   "weights.distance.power": "Potencia:",
   "weights.create.button": "Crear Pesos Espaciales",
   "weights.error.typeNotSupported": "el tipo de pesos no es compatible",
-  "weights.error.create": "Error al crear pesos."
+  "weights.error.create": "Error al crear pesos.",
+  "weights.error.noGeometry": "No hay datos de geometría disponibles."
 }

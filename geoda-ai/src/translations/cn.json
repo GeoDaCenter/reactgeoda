@@ -78,5 +78,6 @@
   "weights.creation.title": "创建权重",
   "weights.management.title": "权重管理",
   "weights.error.typeNotSupported": "不支持该权重类型",
-  "weights.error.create": "创建权重时出错。"
+  "weights.error.create": "创建权重时出错。",
+  "weights.error.noGeometry": "没有可用的几何数据。"
 }

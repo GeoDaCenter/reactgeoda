@@ -16,7 +16,7 @@ export function WeightsManagementComponent({
 }: {
   weights: WeightsProps[];
   selectedWeightsId: string | null;
-}): React.ReactElement {
+}) {
   const intl = useIntl();
   const [selectedWeight, setSelectedWeight] = useState<string | null>(selectedWeightsId);
 
