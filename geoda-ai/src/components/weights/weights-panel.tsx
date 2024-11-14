@@ -68,10 +68,6 @@ export function WeightsPanel() {
     }
   };
 
-  const onWeightsCreated = () => {
-    setShowWeightsManagement(true);
-  };
-
   return (
     <RightPanelContainer
       title={intl.formatMessage({
@@ -123,7 +119,6 @@ export function WeightsPanel() {
                     keplerLayer={keplerLayer}
                     keplerDataset={keplerDataset}
                     weightsData={weights}
-                    onWeightsCreated={onWeightsCreated}
                   />
                 </CardBody>
               </Card>

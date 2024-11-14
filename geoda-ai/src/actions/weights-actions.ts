@@ -47,7 +47,6 @@ export const selectWeights = (id: string) => ({
 // action creators for async actions
 export function createWeightsAsync(payload: CreateWeightsProps) {
   return async (dispatch: Dispatch<UnknownAction>, getState: () => GeoDaState) => {
-    dispatch(setStartWeightsCreation(true));
     try {
       const weightsData = getState().root.weights;
       const newWeights = await createWeightsUpdater(payload, weightsData);

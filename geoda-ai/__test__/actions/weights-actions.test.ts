@@ -91,17 +91,15 @@ describe('weights actions', () => {
 
       const actions = store.getActions();
 
-      expect(actions.length).toBe(5);
-      expect(actions[0].type).toBe(UI_ACTIONS.SET_START_WEIGHTS_CREATION);
-      expect(actions[0].payload).toEqual(true);
-      expect(actions[1].type).toBe(WEIGHTS_ACTIONS.ADD_WEIGHS);
-      expect(actions[1].payload).toEqual(mockWeights);
-      expect(actions[2].type).toBe(UI_ACTIONS.SET_DEFAULT_WEIGHTS_ID);
-      expect(actions[2].payload).toEqual(getWeightsId(payload));
-      expect(actions[3].type).toBe(UI_ACTIONS.SET_SHOW_WEIGHTS_PANEL);
-      expect(actions[3].payload).toEqual(true);
-      expect(actions[4].type).toBe(UI_ACTIONS.SET_START_WEIGHTS_CREATION);
-      expect(actions[4].payload).toEqual(false);
+      expect(actions.length).toBe(4);
+      expect(actions[0].type).toBe(WEIGHTS_ACTIONS.ADD_WEIGHS);
+      expect(actions[0].payload).toEqual(mockWeights);
+      expect(actions[1].type).toBe(UI_ACTIONS.SET_DEFAULT_WEIGHTS_ID);
+      expect(actions[1].payload).toEqual(getWeightsId(payload));
+      expect(actions[2].type).toBe(UI_ACTIONS.SET_SHOW_WEIGHTS_PANEL);
+      expect(actions[2].payload).toEqual(true);
+      expect(actions[3].type).toBe(UI_ACTIONS.SET_START_WEIGHTS_CREATION);
+      expect(actions[3].payload).toEqual(false);
     });
 
     it('should handle weights creation error', async () => {
@@ -129,12 +127,10 @@ describe('weights actions', () => {
 
       const actions = store.getActions();
 
-      expect(actions[0].type).toBe(UI_ACTIONS.SET_START_WEIGHTS_CREATION);
-      expect(actions[0].payload).toEqual(true);
-      expect(actions[1].type).toBe(UI_ACTIONS.SET_WEIGHTS_CREATION_ERROR);
-      expect(actions[1].payload).toEqual(errorMessage);
-      expect(actions[2].type).toBe(UI_ACTIONS.SET_START_WEIGHTS_CREATION);
-      expect(actions[2].payload).toEqual(false);
+      expect(actions[0].type).toBe(UI_ACTIONS.SET_WEIGHTS_CREATION_ERROR);
+      expect(actions[0].payload).toEqual(errorMessage);
+      expect(actions[1].type).toBe(UI_ACTIONS.SET_START_WEIGHTS_CREATION);
+      expect(actions[1].payload).toEqual(false);
     });
 
     it('should handle distance thresholds calculation error', async () => {

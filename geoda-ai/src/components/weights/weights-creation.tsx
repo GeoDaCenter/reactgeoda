@@ -19,6 +19,7 @@ import {
   calculateDistanceThresholdsAsync,
   createWeightsAsync,
   setDistanceUnit,
+  setStartWeightsCreation,
   setWeightsCreationError
 } from '@/actions';
 import {WarningBox, WarningType} from '@/components/common/warning-box';
@@ -120,6 +121,10 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
       dispatch(setWeightsCreationError('weights.error.noGeometry'));
       return;
     }
+    dispatch(setStartWeightsCreation(true));
+
+    // wait for 100ms to show the loading state
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const weightsProps: CreateWeightsProps = {
       datasetId: keplerLayer.config.dataId,

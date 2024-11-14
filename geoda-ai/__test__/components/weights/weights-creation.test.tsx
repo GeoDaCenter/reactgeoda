@@ -115,6 +115,8 @@ describe('WeightsCreationComponent', () => {
 
     const actionHistory = await getActionHistoryAsync(); // need to wait async thunk (all inner dispatch)
 
+    // there is a await for 100ms after click create button, so we need to wait for 5 actions
+    await new Promise(resolve => setTimeout(resolve, 100));
     expect(actionHistory).toHaveLength(5);
     expect(actionHistory[0]).toEqual({type: 'SET_START_WEIGHTS_CREATION', payload: true});
     expect(actionHistory[1]).toEqual({
@@ -142,6 +144,9 @@ describe('WeightsCreationComponent', () => {
     fireEvent.click(createButton);
 
     const actionHistory = await getActionHistoryAsync(); // need to wait async thunk (all inner dispatch)
+
+    // there is a await for 100ms after click create button, so we need to wait for 5 actions
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(actionHistory).toHaveLength(3);
     expect(actionHistory[0]).toEqual({type: 'SET_START_WEIGHTS_CREATION', payload: true});
@@ -235,6 +240,9 @@ describe('WeightsCreationComponent', () => {
     fireEvent.click(createButton);
 
     const actionHistory = await getActionHistoryAsync();
+
+    // there is a await for 100ms after click create button, so we need to wait for 5 actions
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(actionHistory).toHaveLength(4);
     expect(actionHistory[0]).toEqual({type: 'SET_START_WEIGHTS_CREATION', payload: true});

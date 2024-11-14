@@ -251,7 +251,10 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
         ...state,
         weights: {
           ...state.weights,
-          weightsCreation: {isRunning: action.payload as boolean, error: null}
+          weightsCreation: {
+            ...state.weights.weightsCreation,
+            isRunning: action.payload as boolean
+          }
         }
       };
     case UI_ACTIONS.SET_WEIGHTS_CREATION_ERROR:
