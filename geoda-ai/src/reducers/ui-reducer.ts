@@ -52,6 +52,7 @@ export type UiStateProps = {
       error: string | null;
     };
     distanceThresholds: DistanceThresholdsProps;
+    distanceUnit: 'mile' | 'kilometer';
   };
 };
 
@@ -90,7 +91,8 @@ export const INITIAL_UI_STATE = {
       minDistance: 0,
       maxDistance: 0,
       maxPairDistance: 0
-    }
+    },
+    distanceUnit: 'mile' as 'mile' | 'kilometer'
   }
 };
 
@@ -266,6 +268,14 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
         weights: {
           ...state.weights,
           distanceThresholds: action.payload as DistanceThresholdsProps
+        }
+      };
+    case UI_ACTIONS.SET_DISTANCE_UNIT:
+      return {
+        ...state,
+        weights: {
+          ...state.weights,
+          distanceUnit: action.payload as 'mile' | 'kilometer'
         }
       };
     default:

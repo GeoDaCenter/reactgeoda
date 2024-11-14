@@ -61,6 +61,19 @@ describe('WeightsCreationComponent', () => {
     onWeightsCreated: mockOnWeightsCreated
   };
 
+  const DefaultWeightsCreationUi = {
+    weightsCreation: {
+      isRunning: false,
+      error: null
+    },
+    distanceThresholds: {
+      maxPairDistance: 100,
+      minDistance: 0,
+      maxDistance: 50
+    },
+    distanceUnit: 'mile'
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -70,17 +83,7 @@ describe('WeightsCreationComponent', () => {
     // mock useSelector
     (useSelector as unknown as jest.Mock).mockImplementation(selector => {
       if (selector.toString().includes('state.root.uiState.weights')) {
-        return {
-          weightsCreation: {
-            isRunning: false,
-            error: null
-          },
-          distanceThresholds: {
-            maxPairDistance: 100,
-            minDistance: 0,
-            maxDistance: 50
-          }
-        };
+        return DefaultWeightsCreationUi;
       }
       // second useSelector call
       return {
@@ -150,27 +153,18 @@ describe('WeightsCreationComponent', () => {
   });
 
   it('weights error message', async () => {
-    (useSelector as unknown as jest.Mock).mockImplementation(selector => {
-      if (selector.toString().includes('state.root.uiState.weights')) {
-        return {
-          weightsCreation: {
-            isRunning: false,
-            error: 'weights.error.typeNotSupported'
-          },
-          distanceThresholds: {
-            maxPairDistance: 100,
-            minDistance: 0,
-            maxDistance: 50
-          }
-        };
-      }
-      // second useSelector call
+    (useSelector as unknown as jest.Mock).mockImplementation(()=> {
       return {
-        binaryGeometryType: 'point',
-        binaryGeometries: []
+        ...DefaultWeightsCreationUi,
+        weightsCreation: {
+          isRunning: false,
+          error: 'weights.error.typeNotSupported'
+        }
       };
     });
+
     renderComponent();
+
     expect(
       screen.getByText('Create weights failed. weights.error.typeNotSupported')
     ).toBeInTheDocument();
@@ -255,41 +249,6 @@ describe('WeightsCreationComponent', () => {
     expect(weightsUtils.createWeights).not.toHaveBeenCalled();
   });
 
-  // it('handles kernel weight creation', async () => {
-  //   const mockWeightsResult = {
-  //     weights: {},
-  //     weightsMeta: {}
-  //   };
-  //   (weightsUtils.createWeights as jest.Mock).mockResolvedValue(mockWeightsResult);
-  //   (weightsUtils.checkWeightsIdExist as jest.Mock).mockReturnValue(false);
-
-  //   renderComponent();
-
-  //   // Switch to distance weight tab and then kernel tab
-  //   const distanceTab = screen.getByText('Distance Weight');
-  //   fireEvent.click(distanceTab);
-  //   const kernelTab = screen.getByText('Kernel');
-  //   fireEvent.click(kernelTab);
-
-  //   // Change kernel function
-  //   const kernelSelect = screen.getByLabelText('Kernel function');
-  //   fireEvent.change(kernelSelect, {target: {value: 'gaussian'}});
-
-  //   // Click create button
-  //   const createButton = screen.getByText('Create Spatial Weights');
-  //   fireEvent.click(createButton);
-
-  //   await waitFor(() => {
-  //     expect(weightsUtils.createWeights).toHaveBeenCalledWith(
-  //       expect.objectContaining({
-  //         weightsType: 'kernel',
-  //         kernelFunction: 'gaussian',
-  //         datasetId: 'test-dataset'
-  //       })
-  //     );
-  //   });
-  // });
-
   it('handles contiguity order changes', async () => {
     (weightsUtils.createWeights as jest.Mock).mockResolvedValue(mockWeightsResult);
     (weightsUtils.checkWeightsIdExist as jest.Mock).mockReturnValue(false);
@@ -350,70 +309,26 @@ describe('WeightsCreationComponent', () => {
     });
   });
 
-  it.skip('validates input fields before creation', async () => {
-    renderComponent();
+  it('disables create button while processing', async () => {
+    const {rerender} = renderComponent();
 
-    // Switch to KNN tab
-    const knnTab = screen.getByText('K-Nearest neighbors');
-    fireEvent.click(knnTab);
-
-    // Set invalid K value
-    const kInput = screen.getByDisplayValue('4');
-    fireEvent.input(kInput, {target: {value: '-1'}});
-
-    // Click create button
-    const createButton = screen.getByText('Create Spatial Weights');
-    fireEvent.click(createButton);
-
-    // Should show validation error
-    await waitFor(() => {
-      expect(screen.getByText(/Invalid K value/i)).toBeInTheDocument();
-      expect(weightsUtils.createWeights).not.toHaveBeenCalled();
-    });
-  });
-
-  it.skip('handles row standardization toggle', async () => {
-    renderComponent();
-
-    // Find and click row standardization checkbox
-    const standardizeCheckbox = screen.getByLabelText('Row standardization');
-    fireEvent.click(standardizeCheckbox);
-
-    // Click create button
-    const createButton = screen.getByText('Create Spatial Weights');
-    fireEvent.click(createButton);
-
-    await waitFor(() => {
-      expect(weightsUtils.createWeights).toHaveBeenCalledWith(
-        expect.objectContaining({
-          weightsType: 'contiguity',
-          rowStandardize: true,
-          datasetId: 'test-dataset'
-        })
-      );
-    });
-  });
-
-  it.skip('disables create button while processing', async () => {
-    const mockWeightsResult = {
-      weights: {},
-      weightsMeta: {}
-    };
-    (weightsUtils.createWeights as jest.Mock).mockImplementation(
-      () => new Promise(resolve => setTimeout(() => resolve(mockWeightsResult), 100))
-    );
-
-    renderComponent();
+    // Initial state - button disabled
+    (useSelector as unknown as jest.Mock).mockImplementation(selector => ({
+      ...DefaultWeightsCreationUi,
+      weightsCreation: {isRunning: true, error: null}
+    }));
+    rerender(<WeightsCreationComponent {...defaultProps} />);
 
     const createButton = screen.getByText('Create Spatial Weights');
-    fireEvent.click(createButton);
-
-    // Button should be disabled immediately after click
     expect(createButton).toBeDisabled();
 
-    // Wait for processing to complete
-    await waitFor(() => {
-      expect(createButton).not.toBeDisabled();
-    });
+    // Update state - button enabled
+    (useSelector as unknown as jest.Mock).mockImplementation(selector => ({
+      ...DefaultWeightsCreationUi,
+      weightsCreation: {isRunning: false, error: null}
+    }));
+    rerender(<WeightsCreationComponent {...defaultProps} />);
+
+    expect(createButton).not.toBeDisabled();
   });
 });

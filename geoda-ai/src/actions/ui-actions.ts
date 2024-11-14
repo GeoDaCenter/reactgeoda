@@ -28,7 +28,8 @@ export enum UI_ACTIONS {
   SET_SHOW_WEIGHTS_PANEL = 'SET_SHOW_WEIGHTS_PANEL',
   SET_START_WEIGHTS_CREATION = 'SET_START_WEIGHTS_CREATION',
   SET_WEIGHTS_CREATION_ERROR = 'SET_WEIGHTS_CREATION_ERROR',
-  SET_WEIGHTS_DISTANCE_CONFIG = 'SET_WEIGHTS_DISTANCE_CONFIG'
+  SET_WEIGHTS_DISTANCE_CONFIG = 'SET_WEIGHTS_DISTANCE_CONFIG',
+  SET_DISTANCE_UNIT = 'SET_DISTANCE_UNIT'
 }
 
 export const setTheme = (payload: 'dark' | 'light') => ({
@@ -168,5 +169,10 @@ export const setWeightsCreationError = (payload: string | null) => ({
 
 export const setWeightsDistanceConfig = (payload: DistanceThresholdsProps) => ({
   type: UI_ACTIONS.SET_WEIGHTS_DISTANCE_CONFIG,
+  payload
+});
+
+export const setDistanceUnit = (payload: 'mile' | 'kilometer') => ({
+  type: UI_ACTIONS.SET_DISTANCE_UNIT,
   payload
 });

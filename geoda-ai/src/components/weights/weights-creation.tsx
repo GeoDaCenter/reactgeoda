@@ -1,4 +1,4 @@
-import React, {Key, useState} from 'react';
+import React, {Key, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   Tabs,
@@ -18,6 +18,7 @@ import {useIntl} from 'react-intl';
 import {
   calculateDistanceThresholdsAsync,
   createWeightsAsync,
+  setDistanceUnit,
   setWeightsCreationError
 } from '@/actions';
 import {WarningBox, WarningType} from '@/components/common/warning-box';
@@ -41,7 +42,7 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
   const dispatch = useDispatch<any>();
   const intl = useIntl();
 
-  const {weightsCreation, distanceThresholds} = useSelector(
+  const {weightsCreation, distanceThresholds, distanceUnit} = useSelector(
     (state: GeoDaState) => state.root.uiState.weights
   );
 
@@ -55,17 +56,19 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
   const [orderOfContiguity, setOrderContiguity] = useState<number>(1);
   const [precisionThreshold, setPrecisionThreshold] = useState<number>(0);
   const [includeLowerOrder, setIncludeLowerOrder] = useState<boolean>(false);
-  const [sliderValue, setSliderValue] = useState<number>(distanceThresholds.maxPairDistance);
+  const [sliderValue, setSliderValue] = useState<number>(distanceThresholds.maxDistance);
 
-  // TODO: add a switch to toggle between mile and kilometer
-  const isMile = false;
+  // update sliderValue when distanceThresholds change
+  useEffect(() => {
+    setSliderValue(distanceThresholds.maxDistance);
+  }, [distanceThresholds.maxDistance]);
 
   const onWeightsSelectionChange = (key: Key) => {
     setWeightsType(key as WeightsType);
-    if (weightsType === 'band' && binaryGeometries && binaryGeometryType) {
+    if (key === 'distance' && binaryGeometries && binaryGeometryType) {
       dispatch(
         calculateDistanceThresholdsAsync({
-          isMile,
+          isMile: distanceUnit === 'mile',
           binaryGeometryType,
           binaryGeometries
         })
@@ -99,6 +102,19 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
     }
   };
 
+  const onDistanceUnitChange = (value: string) => {
+    dispatch(setDistanceUnit(value as 'mile' | 'kilometer'));
+    if (binaryGeometryType && binaryGeometries) {
+      dispatch(
+        calculateDistanceThresholdsAsync({
+          isMile: distanceUnit === 'mile',
+          binaryGeometryType,
+          binaryGeometries
+        })
+      );
+    }
+  };
+
   const onCreateWeights = async () => {
     if (!binaryGeometryType || !binaryGeometries) {
       dispatch(setWeightsCreationError('weights.error.noGeometry'));
@@ -116,7 +132,7 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
       includeLowerOrder,
       k: inputK,
       distanceThreshold: sliderValue,
-      isMile
+      isMile: distanceUnit === 'mile'
     };
 
     dispatch(createWeightsAsync(weightsProps));
@@ -265,8 +281,11 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                           step={0.01}
                           maxValue={distanceThresholds.maxPairDistance}
                           minValue={distanceThresholds.minDistance}
-                          defaultValue={distanceThresholds.maxDistance}
-                          formatOptions={{style: 'unit', unit: isMile ? 'mile' : 'kilometer'}}
+                          value={sliderValue}
+                          formatOptions={{
+                            style: 'unit',
+                            unit: distanceUnit
+                          }}
                           className="max-w-md"
                           onChange={onSliderValueChange}
                         />
@@ -279,7 +298,7 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                           </Checkbox>
                           <Input
                             size="sm"
-                            className="flex w-32 shrink"
+                            className="flex w-24 shrink"
                             type="number"
                             label={intl.formatMessage({
                               id: 'weights.distance.power',
@@ -292,6 +311,18 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                         </div>
                       </Tab>
                     </Tabs>
+                    <div className="flex flex-row gap-2">
+                      <RadioGroup
+                        label="Distance unit"
+                        size="sm"
+                        orientation="horizontal"
+                        defaultValue={distanceUnit}
+                        onValueChange={onDistanceUnitChange}
+                      >
+                        <Radio value="mile">Mile</Radio>
+                        <Radio value="kilometer">Kilometer</Radio>
+                      </RadioGroup>
+                    </div>
                   </div>
                 </CardBody>
               </Card>
@@ -311,7 +342,7 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
         <CreateButton
           isRunning={weightsCreation.isRunning}
           onClick={onCreateWeights}
-          isDisabled={false}
+          isDisabled={weightsCreation.isRunning}
         >
           {intl.formatMessage({
             id: 'weights.create.button',
