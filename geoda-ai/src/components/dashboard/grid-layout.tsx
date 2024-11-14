@@ -17,7 +17,7 @@ import {
   createGridLayout,
   GRID_ITEM_TYPES
 } from '@/utils/grid-utils';
-import {WeightsMetaTable} from '../weights/weights-management';
+import {WeightsMetaTable} from '@/components/weights/weights-meta-table';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});

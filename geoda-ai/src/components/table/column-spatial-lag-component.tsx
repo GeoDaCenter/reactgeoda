@@ -1,12 +1,13 @@
 import {spatialLag} from 'geoda-wasm';
-import {VariableSelector} from '../common/variable-selector';
-import {WeightsSelector} from '../weights/weights-management';
+import {VariableSelector} from '@/components/common/variable-selector';
+import {WeightsSelector} from '@/components/weights/weights-selector';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {useState} from 'react';
 import KeplerTable from '@kepler.gl/table';
 import {useDatasetFields} from '@/hooks/use-dataset-fields';
+import {SharedSelection} from '@nextui-org/react';
 
 export type SpatialLagValueProps = {
   tableName: string;
@@ -42,7 +43,8 @@ export function SpatialLagValueComponent({keplerDataset, setValues}: SpatialLagV
   };
 
   // handle weights selection change
-  const onWeightsSelectionChange = (id: string) => {
+  const onWeightsSelectionChange = (value: SharedSelection) => {
+    const id = value.currentKey;
     const selectedW = weights.find(w => w.weightsMeta.id === id);
     if (selectedW) {
       setNeighbors(selectedW.weights);

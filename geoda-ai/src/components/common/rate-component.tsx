@@ -1,7 +1,7 @@
 import {RatesOptions} from 'geoda-wasm';
-import {Select, SelectItem, Selection} from '@nextui-org/react';
+import {Select, SelectItem, Selection, SharedSelection} from '@nextui-org/react';
 import {VariableSelector} from './variable-selector';
-import {WeightsSelector} from '../weights/weights-management';
+import {WeightsSelector} from '@/components/weights/weights-selector';
 import {useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
 import {DatasetSelector} from './dataset-selector';
@@ -53,8 +53,11 @@ export function RateUIComponent({props}: RateUIProps) {
   };
 
   // handle weights selection change
-  const onWeightsSelectionChange = (id: string) => {
-    setWeightsId(id);
+  const onWeightsSelectionChange = (value: SharedSelection) => {
+    const id = value.currentKey;
+    if (id) {
+      setWeightsId(id);
+    }
   };
 
   const onDatasetIdSelect = (datasetId: string) => {

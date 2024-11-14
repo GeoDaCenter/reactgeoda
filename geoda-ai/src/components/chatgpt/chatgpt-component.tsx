@@ -131,13 +131,13 @@ export const ChatGPTComponent = () => {
       ? [
           createMapFunctionDefinition({visState}),
           createPlotFunctionDefinition({visState}),
-          createWeightsFunctionDefinition({visState}),
+          createWeightsFunctionDefinition({visState, weights}),
           lisaFunctionDefinition(getFunctionContext)
         ]
       : [
           createMapFunctionDefinition({visState}),
           createPlotFunctionDefinition({visState}),
-          createWeightsFunctionDefinition({visState}),
+          createWeightsFunctionDefinition({visState, weights}),
           lisaFunctionDefinition(getFunctionContext),
           createVariableFunctionDefinition({visState, queryValues: queryValuesBySQL}),
           spatialRegressionFunctionDefinition({visState, weights})

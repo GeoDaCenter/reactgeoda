@@ -3,7 +3,11 @@ import {GeoDaState} from '.';
 import {MAP_ID} from '@/constants';
 import {getDataContainer} from '@/utils/data-utils';
 import {Layer} from '@kepler.gl/layers';
-import {Datasets as KeplerDatasets} from '@kepler.gl/table';
+import KeplerTable, {Datasets as KeplerDatasets} from '@kepler.gl/table';
+import {
+  getBinaryGeometriesFromLayer,
+  getBinaryGeometryTypeFromLayer
+} from '@/components/spatial-operations/spatial-join-utils';
 
 type StateSelector<R> = Selector<GeoDaState, R>;
 
@@ -47,6 +51,9 @@ export const keplerVisStateSelector = (state: GeoDaState) => state.keplerGl[MAP_
 
 export const keplerUIStateSelector = (state: GeoDaState) => state.keplerGl[MAP_ID].uiState;
 
+export const keplerLocaleSelector = (state: GeoDaState) =>
+  state.keplerGl[MAP_ID]?.uiState?.locale || 'en';
+
 export const keplerDatasetsSelector = (state: GeoDaState) =>
   state.keplerGl[MAP_ID].visState.datasets;
 
@@ -56,6 +63,8 @@ export const selectDefaultKeplerDataset = createSelector(
     return Object.values(datasets).length > 0 ? Object.values(datasets)[0] : null;
   }
 );
+
+export const selectDefaultWeightsId = (state: GeoDaState) => state.root.uiState.defaultWeightsId;
 
 export const selectKeplerDataset = (dataId?: string) =>
   createSelector(
@@ -74,3 +83,15 @@ export const selectSpatialAssignConfig = (state: GeoDaState) =>
   state.root.spatialJoin.spatialAssign;
 
 export const selectSpatialCountConfig = (state: GeoDaState) => state.root.spatialJoin.spatialCount;
+
+// create a memoized selector to get binary geometry type and binary geometries from the given layer and dataset
+export const selectGeometryData = createSelector(
+  [
+    (props: {state: GeoDaState; layer: Layer; dataset: KeplerTable}) => props.layer,
+    (props: {state: GeoDaState; layer: Layer; dataset: KeplerTable}) => props.dataset
+  ],
+  (layer, dataset) => ({
+    binaryGeometryType: getBinaryGeometryTypeFromLayer(layer),
+    binaryGeometries: getBinaryGeometriesFromLayer(layer, dataset)
+  })
+);

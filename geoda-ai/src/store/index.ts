@@ -36,8 +36,8 @@ const customizedKeplerGlReducer = keplerGlReducer
       currentModal: null,
       mapControls: {
         mapDraw: {
-          active: false,
-          show: true
+          show: true,
+          active: false
         },
         mapLegend: {
           show: true,
@@ -48,6 +48,10 @@ const customizedKeplerGlReducer = keplerGlReducer
           active: false
         },
         splitMap: {
+          show: true,
+          active: false
+        },
+        mapLocale: {
           show: true,
           active: false
         }

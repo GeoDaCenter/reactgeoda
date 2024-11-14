@@ -10,24 +10,26 @@ import {WeightsCreationComponent} from './weights-creation';
 import {getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
 import {
   selectDefaultKeplerDataset,
+  selectDefaultWeightsId,
   selectKeplerDataset,
   selectKeplerLayer,
   selectWeightsByDataId
 } from '@/store/selectors';
 import {DatasetSelector} from '../common/dataset-selector';
 import {WeightsProps} from '@/reducers/weights-reducer';
-
-const NO_MAP_LOADED_MESSAGE =
-  'Please load a map first before creating and managing spatial weights.';
+import {GeoDaState} from '@/store';
 
 export function WeightsPanel() {
   const intl = useIntl();
 
   const defaultKeplerDataset = useSelector(selectDefaultKeplerDataset);
+  const defaultWeightsId = useSelector(selectDefaultWeightsId);
   const [datasetId, setDatasetId] = useState(defaultKeplerDataset?.id || '');
+
   const keplerDataset = useSelector(selectKeplerDataset(datasetId));
   const keplerLayer = useSelector(selectKeplerLayer(datasetId));
   const weights = useSelector(selectWeightsByDataId(datasetId));
+  const weightsCreation = useSelector((state: GeoDaState) => state.root.uiState.weights);
 
   const validFieldNames = useMemo(() => {
     const fieldNames = keplerDataset ? getIntegerAndStringFieldNamesFromDataset(keplerDataset) : [];
@@ -36,9 +38,11 @@ export function WeightsPanel() {
 
   // check if there is any newly added weights, if there is, show weights management tab
   const newWeightsCount = weights.filter((weight: WeightsProps) => weight.isNew).length;
-  const [showWeightsManagement, setShowWeightsManagement] = useState(newWeightsCount > 0);
+  const [showWeightsManagement, setShowWeightsManagement] = useState(
+    newWeightsCount > 0 || weightsCreation.showWeightsPanel
+  );
 
-  // reset isNew flag of weights
+  // reset isNew flag of weights after switching to weights management tab
   useEffect(() => {
     if (newWeightsCount > 0) {
       weights.forEach((weight: WeightsProps) => {
@@ -49,13 +53,12 @@ export function WeightsPanel() {
     }
   }, [newWeightsCount, weights]);
 
-  // monitor state.root.weights, if weights.length changed, update the tab title
-  const weightsLength = weights?.length;
+  // show weights management tab if weights added from chatbot
   useEffect(() => {
-    if (weightsLength) {
+    if (defaultWeightsId || weights.length > 0) {
       setShowWeightsManagement(true);
     }
-  }, [weightsLength]);
+  }, [defaultWeightsId, weights.length]);
 
   const onTabChange = (key: React.Key) => {
     if (key === 'weights-creation') {
@@ -77,7 +80,13 @@ export function WeightsPanel() {
       })}
     >
       {!keplerDataset ? (
-        <WarningBox message={NO_MAP_LOADED_MESSAGE} type={WarningType.WARNING} />
+        <WarningBox
+          message={intl.formatMessage({
+            id: 'weights.noMap',
+            defaultMessage: 'Please load a map first before creating and managing spatial weights.'
+          })}
+          type={WarningType.WARNING}
+        />
       ) : (
         <div className="flex w-full flex-col p-4">
           <Tabs
@@ -93,7 +102,12 @@ export function WeightsPanel() {
               key="weights-creation"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Weights Creation</span>
+                  <span>
+                    {intl.formatMessage({
+                      id: 'weights.creation.title',
+                      defaultMessage: 'Weights Creation'
+                    })}
+                  </span>
                 </div>
               }
             >
@@ -104,6 +118,7 @@ export function WeightsPanel() {
                     validFieldNames={validFieldNames}
                     keplerLayer={keplerLayer}
                     keplerDataset={keplerDataset}
+                    weightsData={weights}
                   />
                 </CardBody>
               </Card>
@@ -112,7 +127,12 @@ export function WeightsPanel() {
               key="weights-management"
               title={
                 <div className="flex items-center space-x-2">
-                  <span>Weights Management</span>
+                  <span>
+                    {intl.formatMessage({
+                      id: 'weights.management.title',
+                      defaultMessage: 'Weights Management'
+                    })}
+                  </span>
                   {weights?.length > 0 && (
                     <Chip size="sm" variant="faded">
                       {weights.length}
@@ -122,7 +142,10 @@ export function WeightsPanel() {
               }
             >
               <DatasetSelector datasetId={datasetId} setDatasetId={setDatasetId} />
-              <WeightsManagementComponent datasetId={datasetId} />
+              <WeightsManagementComponent
+                weights={weights}
+                selectedWeightsId={defaultWeightsId || null}
+              />
             </Tab>
           </Tabs>
         </div>

@@ -5,12 +5,19 @@ const LOCAL_API_KEY = process.env.NEXT_PUBLIC_API_KEY || '';
 
 export type UiAction = {
   type: UI_ACTIONS;
-  payload: string | boolean;
+  payload: string | boolean | DistanceThresholdsProps;
+};
+
+export type DistanceThresholdsProps = {
+  minDistance: number;
+  maxDistance: number;
+  maxPairDistance: number;
 };
 
 export type UiStateProps = {
   theme: string;
   defaultDatasetId: string;
+  defaultWeightsId?: string;
   showPropertyPanel: boolean;
   showChatPanel: boolean;
   propertyPanelName: string;
@@ -38,6 +45,15 @@ export type UiStateProps = {
     queryCode?: string;
     showQueryBuilder: boolean;
   };
+  weights: {
+    showWeightsPanel: boolean;
+    weightsCreation: {
+      isRunning: boolean;
+      error: string | null;
+    };
+    distanceThresholds: DistanceThresholdsProps;
+    distanceUnit: 'mile' | 'kilometer';
+  };
 };
 
 export const INITIAL_UI_STATE = {
@@ -64,6 +80,19 @@ export const INITIAL_UI_STATE = {
   defaultPromptText: '',
   table: {
     showQueryBuilder: true
+  },
+  weights: {
+    showWeightsPanel: false,
+    weightsCreation: {
+      isRunning: false,
+      error: null
+    },
+    distanceThresholds: {
+      minDistance: 0,
+      maxDistance: 0,
+      maxPairDistance: 0
+    },
+    distanceUnit: 'mile' as 'mile' | 'kilometer'
   }
 };
 
@@ -78,6 +107,11 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
       return {
         ...state,
         defaultDatasetId: action.payload as string
+      };
+    case UI_ACTIONS.SET_DEFAULT_WEIGHTS_ID:
+      return {
+        ...state,
+        defaultWeightsId: action.payload as string
       };
     case UI_ACTIONS.SET_SCREEN_CAPTURED:
       return {
@@ -203,6 +237,49 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
       return {
         ...state,
         isPrompting: action.payload as boolean
+      };
+    case UI_ACTIONS.SET_SHOW_WEIGHTS_PANEL:
+      return {
+        ...state,
+        weights: {
+          ...state.weights,
+          showWeightsPanel: action.payload as boolean
+        }
+      };
+    case UI_ACTIONS.SET_START_WEIGHTS_CREATION:
+      return {
+        ...state,
+        weights: {
+          ...state.weights,
+          weightsCreation: {
+            ...state.weights.weightsCreation,
+            isRunning: action.payload as boolean
+          }
+        }
+      };
+    case UI_ACTIONS.SET_WEIGHTS_CREATION_ERROR:
+      return {
+        ...state,
+        weights: {
+          ...state.weights,
+          weightsCreation: {isRunning: false, error: action.payload as string | null}
+        }
+      };
+    case UI_ACTIONS.SET_WEIGHTS_DISTANCE_CONFIG:
+      return {
+        ...state,
+        weights: {
+          ...state.weights,
+          distanceThresholds: action.payload as DistanceThresholdsProps
+        }
+      };
+    case UI_ACTIONS.SET_DISTANCE_UNIT:
+      return {
+        ...state,
+        weights: {
+          ...state.weights,
+          distanceUnit: action.payload as 'mile' | 'kilometer'
+        }
       };
     default:
       return state;

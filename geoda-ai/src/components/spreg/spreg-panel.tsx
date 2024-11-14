@@ -1,19 +1,28 @@
 import {useIntl} from 'react-intl';
-import {Tabs, Tab, Card, CardBody, Chip, RadioGroup, Radio} from '@nextui-org/react';
+import {
+  Tabs,
+  Tab,
+  Card,
+  CardBody,
+  Chip,
+  RadioGroup,
+  Radio,
+  SharedSelection
+} from '@nextui-org/react';
 import {useDispatch, useSelector} from 'react-redux';
 import {Key, useEffect, useState} from 'react';
 
 import {GeoDaState} from '@/store';
-import {RightPanelContainer} from '../common/right-panel-template';
-import {MultiVariableSelector} from '../common/multivariable-selector';
-import {WarningBox, WarningType} from '../common/warning-box';
+import {RightPanelContainer} from '@/components/common/right-panel-template';
+import {MultiVariableSelector} from '@/components/common/multivariable-selector';
+import {WarningBox, WarningType} from '@/components/common/warning-box';
 import {runRegressionAsync, updateRegression} from '@/actions/regression-actions';
 import {RegressionReport} from './spreg-report';
-import {CreateButton} from '../common/create-button';
-import {WeightsSelector} from '../weights/weights-management';
+import {CreateButton} from '@/components/common/create-button';
+import {WeightsSelector} from '@/components/weights/weights-selector';
 import {selectWeightsByDataId} from '@/store/selectors';
-import {DatasetSelector} from '../common/dataset-selector';
-import {VariableSelector} from '../common/variable-selector';
+import {DatasetSelector} from '@/components/common/dataset-selector';
+import {VariableSelector} from '@/components/common/variable-selector';
 import {RegressionProps} from '@/reducers/regression-reducer';
 import {useDatasetFields} from '@/hooks/use-dataset-fields';
 
@@ -45,8 +54,11 @@ export function SpregPanel() {
   const [xVariables, setXVariables] = useState<string[]>([]);
 
   // handle select weights
-  const onSelectWeights = (id: string) => {
-    setWeightsId(id);
+  const onSelectWeights = (value: SharedSelection) => {
+    const id = value.currentKey;
+    if (id) {
+      setWeightsId(id);
+    }
   };
 
   // handle onRunRegression callback

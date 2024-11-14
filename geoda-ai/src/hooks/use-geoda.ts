@@ -7,7 +7,7 @@ import {
 } from 'geoda-wasm';
 
 // @ts-ignore we import geoda.wasm explicitly so it can be bundled by webpack
-import geodawasm from 'geoda-wasm/dist/geoda.wasm';
+import geodawasm from 'geoda-wasm/../dist/geoda.wasm';
 
 import {useCallback} from 'react';
 

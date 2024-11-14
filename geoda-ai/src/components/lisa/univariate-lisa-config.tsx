@@ -1,13 +1,19 @@
-import {Autocomplete, AutocompleteItem, Accordion, AccordionItem} from '@nextui-org/react';
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Accordion,
+  AccordionItem,
+  SharedSelection
+} from '@nextui-org/react';
 import {Key, useState} from 'react';
 import {accordionItemClasses} from '@/constants';
 import {useSelector} from 'react-redux';
-import {CreateButton} from '../common/create-button';
+import {CreateButton} from '@/components/common/create-button';
 import {selectWeightsByDataId} from '@/store/selectors';
 import KeplerTable from '@kepler.gl/table';
-import {DatasetSelector} from '../common/dataset-selector';
-import {WeightsSelector} from '../weights/weights-management';
-import {VariableSelector} from '../common/variable-selector';
+import {DatasetSelector} from '@/components/common/dataset-selector';
+import {WeightsSelector} from '@/components/weights/weights-selector';
+import {VariableSelector} from '@/components/common/variable-selector';
 import {useDatasetFields} from '@/hooks/use-dataset-fields';
 import {WeightsProps} from '@/reducers/weights-reducer';
 
@@ -38,8 +44,11 @@ export function UnivariateLisaConfig({runAnalysis}: UnivariateLisaConfigProps) {
   );
 
   // handle select weights
-  const onSelectWeights = (id: string) => {
-    setWeightsId(id);
+  const onSelectWeights = (value: SharedSelection) => {
+    const id = value.currentKey;
+    if (id) {
+      setWeightsId(id);
+    }
   };
 
   // handle onCreateMap

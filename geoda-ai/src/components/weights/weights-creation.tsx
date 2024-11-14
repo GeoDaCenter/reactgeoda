@@ -1,5 +1,5 @@
-import React, {Key, useMemo, useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, {Key, useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   Tabs,
   Tab,
@@ -13,66 +13,67 @@ import {
   Radio
 } from '@nextui-org/react';
 import {Layer} from '@kepler.gl/layers';
-import {BinaryGeometryType, getDistanceThresholds} from 'geoda-wasm';
+import {useIntl} from 'react-intl';
 
-import {addWeights} from '@/actions';
-import {WarningBox, WarningType} from '../common/warning-box';
-import {createWeights} from '@/utils/weights-utils';
-import {CreateButton} from '../common/create-button';
-import {BinaryFeatureCollection} from '@loaders.gl/schema';
 import {
-  getBinaryGeometryTypeFromLayer,
-  getBinaryGeometriesFromLayer
-} from '../spatial-operations/spatial-join-utils';
+  calculateDistanceThresholdsAsync,
+  createWeightsAsync,
+  setDistanceUnit,
+  setStartWeightsCreation,
+  setWeightsCreationError
+} from '@/actions';
+import {WarningBox, WarningType} from '@/components/common/warning-box';
+import {CreateWeightsProps} from '@/utils/weights-utils';
+import {CreateButton} from '@/components/common/create-button';
 import KeplerTable from '@kepler.gl/table';
+import {WeightsProps} from '@/reducers/weights-reducer';
+import {GeoDaState} from '@/store';
+import {selectGeometryData} from '@/store/selectors';
+
+export type WeightsType = 'contiguity' | 'knn' | 'band';
+
 type WeightsCreationProps = {
   validFieldNames?: Array<{label: string; value: string}>;
   keplerLayer: Layer;
   keplerDataset: KeplerTable;
+  weightsData: WeightsProps[];
 };
 
 export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCreationProps) {
   const dispatch = useDispatch<any>();
+  const intl = useIntl();
 
-  const [error, setError] = useState<string | null>(null);
-  const [weightsType, setWeightsType] = useState<'contiguity' | 'knn' | 'band'>('contiguity');
+  const {weightsCreation, distanceThresholds, distanceUnit} = useSelector(
+    (state: GeoDaState) => state.root.uiState.weights
+  );
+
+  const {binaryGeometryType, binaryGeometries} = useSelector((state: GeoDaState) =>
+    selectGeometryData({state, layer: keplerLayer, dataset: keplerDataset})
+  );
+
+  const [weightsType, setWeightsType] = useState<WeightsType>('contiguity');
   const [inputK, setInputK] = useState<number>(4);
   const [contiguityType, setContiguityType] = useState<string>('queen');
   const [orderOfContiguity, setOrderContiguity] = useState<number>(1);
   const [precisionThreshold, setPrecisionThreshold] = useState<number>(0);
   const [includeLowerOrder, setIncludeLowerOrder] = useState<boolean>(false);
+  const [sliderValue, setSliderValue] = useState<number>(distanceThresholds.maxDistance);
 
-  const [minSliderValue, setMinSliderValue] = useState<number>(0);
-  const [maxSliderValue, setMaxSliderValue] = useState<number>(0);
-  const [sliderValue, setSliderValue] = useState<number>(0);
+  // update sliderValue when distanceThresholds change
+  useEffect(() => {
+    setSliderValue(distanceThresholds.maxDistance);
+  }, [distanceThresholds.maxDistance]);
 
-  const binaryGeometryType: BinaryGeometryType = useMemo(
-    () => getBinaryGeometryTypeFromLayer(keplerLayer) as BinaryGeometryType,
-    [keplerLayer]
-  );
-
-  const binaryGeometries = useMemo(
-    () => getBinaryGeometriesFromLayer(keplerLayer, keplerDataset) as BinaryFeatureCollection[],
-    [keplerLayer, keplerDataset]
-  );
-
-  const datasetId = keplerLayer.config.dataId;
-
-  const isMile = false;
-
-  const onWeightsSelectionChange = async (key: Key) => {
-    setWeightsType(key as 'contiguity' | 'knn' | 'band');
+  const onWeightsSelectionChange = (key: Key) => {
+    setWeightsType(key as WeightsType);
     if (key === 'distance' && binaryGeometries && binaryGeometryType) {
-      // compute the distanceThreshold
-      const {minDistance, maxDistance, maxPairDistance} = await getDistanceThresholds({
-        isMile,
-        binaryGeometryType,
-        // @ts-ignore
-        binaryGeometries
-      });
-      setMinSliderValue(minDistance);
-      setSliderValue(maxDistance);
-      setMaxSliderValue(maxPairDistance);
+      dispatch(
+        calculateDistanceThresholdsAsync({
+          isMile: distanceUnit === 'mile',
+          binaryGeometryType,
+          binaryGeometries
+        })
+      );
     }
   };
 
@@ -84,32 +85,62 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
     setContiguityType(value);
   };
 
-  const onCreateWeights = async () => {
-    setError(null);
-    try {
-      const result = await createWeights({
-        datasetId,
-        weightsType,
-        contiguityType,
-        binaryGeometryType,
-        binaryGeometries,
-        precisionThreshold,
-        orderOfContiguity,
-        includeLowerOrder,
-        k: inputK,
-        distanceThreshold: sliderValue,
-        isMile
-      });
-      if (!result) {
-        throw new Error('weights type is not supported');
-      }
-      const {weights, weightsMeta} = result;
-      // dispatch action to update redux state state.root.weights
-      dispatch(addWeights({weights, weightsMeta, datasetId}));
-    } catch (e) {
-      console.error(e);
-      setError(`Create weights error: ${e}`);
+  const onOrderOfContiguityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.currentTarget.value);
+    if (value < 1) {
+      setOrderContiguity(1);
+    } else {
+      setOrderContiguity(value);
     }
+  };
+
+  const onKChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.currentTarget.value);
+    if (value < 1) {
+      setInputK(1);
+    } else {
+      setInputK(value);
+    }
+  };
+
+  const onDistanceUnitChange = (value: string) => {
+    dispatch(setDistanceUnit(value as 'mile' | 'kilometer'));
+    if (binaryGeometryType && binaryGeometries) {
+      dispatch(
+        calculateDistanceThresholdsAsync({
+          isMile: distanceUnit === 'mile',
+          binaryGeometryType,
+          binaryGeometries
+        })
+      );
+    }
+  };
+
+  const onCreateWeights = async () => {
+    if (!binaryGeometryType || !binaryGeometries) {
+      dispatch(setWeightsCreationError('weights.error.noGeometry'));
+      return;
+    }
+    dispatch(setStartWeightsCreation(true));
+
+    // wait for 100ms to show the loading state
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    const weightsProps: CreateWeightsProps = {
+      datasetId: keplerLayer.config.dataId,
+      weightsType,
+      contiguityType,
+      binaryGeometryType,
+      binaryGeometries,
+      precisionThreshold,
+      orderOfContiguity,
+      includeLowerOrder,
+      k: inputK,
+      distanceThreshold: sliderValue,
+      isMile: distanceUnit === 'mile'
+    };
+
+    dispatch(createWeightsAsync(weightsProps));
   };
 
   return (
@@ -121,7 +152,13 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
             onSelectionChange={onWeightsSelectionChange}
             defaultSelectedKey={weightsType || 'contiguity'}
           >
-            <Tab key="contiguity" title="Contiguity Weight">
+            <Tab
+              key="contiguity"
+              title={intl.formatMessage({
+                id: 'weights.contiguity.title',
+                defaultMessage: 'Contiguity Weight'
+              })}
+            >
               <Card className="rounded">
                 <CardBody>
                   <div className="flex flex-col gap-2 ">
@@ -131,19 +168,35 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                       defaultValue={contiguityType}
                       onValueChange={onContiguityTypeChange}
                     >
-                      <Radio value="queen">Queen contiguity</Radio>
-                      <Radio value="rook">Rook contiguity</Radio>
+                      <Radio value="queen">
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.queen',
+                          defaultMessage: 'Queen contiguity'
+                        })}
+                      </Radio>
+                      <Radio value="rook">
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.rook',
+                          defaultMessage: 'Rook contiguity'
+                        })}
+                      </Radio>
                     </RadioGroup>
                     <div className="flex flex-row items-center gap-2">
-                      <p className="text-small text-default-600 ">Order of contiguity</p>
+                      <p className="text-small text-default-600 ">
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.order',
+                          defaultMessage: 'Order of contiguity'
+                        })}
+                      </p>
                       <Input
                         size="sm"
                         type="number"
                         label=""
+                        data-testid="order-of-contiguity"
                         labelPlacement="outside-left"
                         className="w-[120px]"
                         value={`${orderOfContiguity}`}
-                        onInput={e => setOrderContiguity(parseInt(e.currentTarget.value))}
+                        onInput={onOrderOfContiguityChange}
                       />
                     </div>
                     <Checkbox
@@ -151,11 +204,17 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                       isSelected={includeLowerOrder}
                       onValueChange={e => setIncludeLowerOrder(e)}
                     >
-                      Include lower Orders
+                      {intl.formatMessage({
+                        id: 'weights.meta.incLowerOrder',
+                        defaultMessage: 'Include Lower Order'
+                      })}
                     </Checkbox>
                     <div className="flex flex-row items-center gap-2">
                       <Checkbox size="sm" className="grow">
-                        Precivion threshold
+                        {intl.formatMessage({
+                          id: 'weights.contiguity.precision',
+                          defaultMessage: 'Precision threshold'
+                        })}
                       </Checkbox>
                       <Input
                         size="sm"
@@ -173,44 +232,83 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                 </CardBody>
               </Card>
             </Tab>
-            <Tab key="distance" title="Distance Weight">
+            <Tab
+              key="distance"
+              title={intl.formatMessage({
+                id: 'weights.distance.title',
+                defaultMessage: 'Distance Weight'
+              })}
+            >
               <Card>
                 <CardBody>
                   <div className="flex flex-col gap-2 ">
                     <div className="space-y-1">
-                      <p className="text-small text-default-600">Method:</p>
+                      <p className="text-small text-default-600">
+                        {intl.formatMessage({
+                          id: 'weights.distance.method',
+                          defaultMessage: 'Method:'
+                        })}
+                      </p>
                     </div>
                     <Tabs aria-label="distance-method" onSelectionChange={onWeightsSelectionChange}>
-                      <Tab key="knn" title="K-Nearest neighbors">
+                      <Tab
+                        key="knn"
+                        title={intl.formatMessage({
+                          id: 'weights.distance.knn',
+                          defaultMessage: 'K-Nearest neighbors'
+                        })}
+                      >
                         <Input
                           type="number"
-                          label="Number of neighbors:"
+                          label={intl.formatMessage({
+                            id: 'weights.distance.neighbors',
+                            defaultMessage: 'Number of neighbors:'
+                          })}
                           placeholder="4"
                           defaultValue="4"
                           value={`${inputK}`}
-                          onInput={e => setInputK(parseInt(e.currentTarget.value))}
+                          onInput={onKChange}
                         />
                       </Tab>
-                      <Tab key="band" title="Distance band">
+                      <Tab
+                        key="band"
+                        title={intl.formatMessage({
+                          id: 'weights.distance.band',
+                          defaultMessage: 'Distance band'
+                        })}
+                      >
                         <Slider
-                          label="Specify bandwidth"
+                          data-testid="distance-band-slider"
+                          label={intl.formatMessage({
+                            id: 'weights.distance.bandwidth',
+                            defaultMessage: 'Specify bandwidth'
+                          })}
                           step={0.01}
-                          maxValue={maxSliderValue}
-                          minValue={minSliderValue}
-                          defaultValue={sliderValue}
-                          formatOptions={{style: 'unit', unit: isMile ? 'mile' : 'kilometer'}}
+                          maxValue={distanceThresholds.maxPairDistance}
+                          minValue={distanceThresholds.minDistance}
+                          value={sliderValue}
+                          formatOptions={{
+                            style: 'unit',
+                            unit: distanceUnit
+                          }}
                           className="max-w-md"
                           onChange={onSliderValueChange}
                         />
                         <div className="mt-6 flex flex-row gap-2">
                           <Checkbox className="flex grow" size="sm">
-                            Use inverse distance
+                            {intl.formatMessage({
+                              id: 'weights.distance.inverse',
+                              defaultMessage: 'Use inverse distance'
+                            })}
                           </Checkbox>
                           <Input
                             size="sm"
-                            className="flex w-32 shrink"
+                            className="flex w-24 shrink"
                             type="number"
-                            label="Power:"
+                            label={intl.formatMessage({
+                              id: 'weights.distance.power',
+                              defaultMessage: 'Power:'
+                            })}
                             placeholder="1"
                             defaultValue="1"
                             labelPlacement="outside-left"
@@ -218,16 +316,43 @@ export function WeightsCreationComponent({keplerLayer, keplerDataset}: WeightsCr
                         </div>
                       </Tab>
                     </Tabs>
+                    <div className="flex flex-row gap-2">
+                      <RadioGroup
+                        label="Distance unit"
+                        size="sm"
+                        orientation="horizontal"
+                        defaultValue={distanceUnit}
+                        onValueChange={onDistanceUnitChange}
+                      >
+                        <Radio value="mile">Mile</Radio>
+                        <Radio value="kilometer">Kilometer</Radio>
+                      </RadioGroup>
+                    </div>
                   </div>
                 </CardBody>
               </Card>
             </Tab>
           </Tabs>
         </div>
-        {error && <WarningBox type={WarningType.ERROR} message={error} />}
+        {weightsCreation.error && (
+          <WarningBox
+            type={WarningType.ERROR}
+            message={intl.formatMessage({
+              id: weightsCreation.error,
+              defaultMessage: `Create weights failed. ${weightsCreation.error}`
+            })}
+          />
+        )}
         <Spacer y={8} />
-        <CreateButton onClick={onCreateWeights} isDisabled={false}>
-          Create Spatial Weights
+        <CreateButton
+          isRunning={weightsCreation.isRunning}
+          onClick={onCreateWeights}
+          isDisabled={weightsCreation.isRunning}
+        >
+          {intl.formatMessage({
+            id: 'weights.create.button',
+            defaultMessage: 'Create Spatial Weights'
+          })}
         </CreateButton>
       </div>
     </>

@@ -7,6 +7,7 @@ import {
   getDistanceNeighborsFromBinaryGeometries
 } from 'geoda-wasm';
 import {BinaryFeatureCollection} from '@loaders.gl/schema';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 export type CreateWeightsOutputProps = {
   weights: number[][];
@@ -24,34 +25,28 @@ export type CreateContiguityWeightsProps = {
   includeLowerOrder: boolean;
 };
 
-export async function createContiguityWeights({
-  datasetId,
-  contiguityType,
-  binaryGeometryType,
-  binaryGeometries,
-  precisionThreshold,
-  orderOfContiguity,
-  includeLowerOrder
-}: CreateContiguityWeightsProps) {
-  const isQueen = contiguityType === 'queen';
-  const useCentroids = binaryGeometryType.point || binaryGeometryType.line;
+export async function createContiguityWeights(weightsProps: CreateContiguityWeightsProps) {
+  const id = getWeightsId(weightsProps);
+  const isQueen = weightsProps.contiguityType === 'queen';
+  const useCentroids =
+    weightsProps.binaryGeometryType.point || weightsProps.binaryGeometryType.line;
   const weights = await getContiguityNeighborsFromBinaryGeometries({
-    binaryGeometryType,
-    binaryGeometries,
+    binaryGeometryType: weightsProps.binaryGeometryType,
+    binaryGeometries: weightsProps.binaryGeometries,
     isQueen,
     useCentroids,
-    precisionThreshold,
-    orderOfContiguity,
-    includeLowerOrder
+    precisionThreshold: weightsProps.precisionThreshold,
+    orderOfContiguity: weightsProps.orderOfContiguity,
+    includeLowerOrder: weightsProps.includeLowerOrder
   });
   const weightsMeta: WeightsMeta = {
     ...getMetaFromWeights(weights),
-    id: `w-${datasetId}-${contiguityType}-${orderOfContiguity}${includeLowerOrder ? '-lower' : ''}`,
-    type: contiguityType === 'queen' ? 'queen' : 'rook',
+    id,
+    type: weightsProps.contiguityType === 'queen' ? 'queen' : 'rook',
     symmetry: 'symmetric',
-    order: orderOfContiguity,
-    includeLowerOrder,
-    threshold: precisionThreshold
+    order: weightsProps.orderOfContiguity,
+    includeLowerOrder: weightsProps.includeLowerOrder,
+    threshold: weightsProps.precisionThreshold
   };
   return {weights, weightsMeta};
 }
@@ -64,23 +59,19 @@ export type CreateKNNWeightsProps = {
   binaryGeometries: BinaryFeatureCollection[];
 };
 
-export async function createKNNWeights({
-  datasetId,
-  k,
-  binaryGeometryType,
-  binaryGeometries
-}: CreateKNNWeightsProps) {
+export async function createKNNWeights(weightsProps: CreateKNNWeightsProps) {
+  const id = getWeightsId(weightsProps);
   const weights = await getNearestNeighborsFromBinaryGeometries({
-    k,
-    binaryGeometryType,
-    binaryGeometries
+    k: weightsProps.k,
+    binaryGeometryType: weightsProps.binaryGeometryType,
+    binaryGeometries: weightsProps.binaryGeometries
   });
   const weightsMeta: WeightsMeta = {
     ...getMetaFromWeights(weights),
-    id: `w-${datasetId}-${k}-nn`,
+    id,
     type: 'knn',
     symmetry: 'symmetric',
-    k
+    k: weightsProps.k
   };
   return {weights, weightsMeta};
 }
@@ -94,29 +85,22 @@ export type CreateDistanceWeightsProps = {
   binaryGeometries: BinaryFeatureCollection[];
 };
 
-export async function createDistanceWeights({
-  datasetId,
-  distanceThreshold,
-  isMile,
-  binaryGeometryType,
-  binaryGeometries
-}: CreateDistanceWeightsProps): Promise<CreateWeightsOutputProps> {
+export async function createDistanceWeights(weightsProps: CreateDistanceWeightsProps) {
   const weights = await getDistanceNeighborsFromBinaryGeometries({
-    distanceThreshold,
-    isMile,
-    binaryGeometryType,
-    binaryGeometries
+    distanceThreshold: weightsProps.distanceThreshold,
+    isMile: weightsProps.isMile,
+    binaryGeometryType: weightsProps.binaryGeometryType,
+    binaryGeometries: weightsProps.binaryGeometries
   });
   // convert distanceThreshold to string and keep one decimal
-  const distanceThresholdString = distanceThreshold.toFixed(1);
-
+  const id = getWeightsId(weightsProps);
   const weightsMeta: WeightsMeta = {
     ...getMetaFromWeights(weights),
-    id: `w-${datasetId}-distance-${distanceThresholdString}${isMile ? '-mile' : 'km'}`,
+    id,
     type: 'threshold',
     symmetry: 'symmetric',
-    threshold: distanceThreshold,
-    isMile
+    threshold: weightsProps.distanceThreshold,
+    isMile: weightsProps.isMile
   };
   return {weights, weightsMeta};
 }
@@ -164,4 +148,24 @@ export async function createWeights(props: CreateWeightsProps) {
 
   // const {weights, weightsMeta} = result;
   return result;
+}
+
+export function getWeightsId(props: CreateWeightsProps) {
+  let id: string | null = null;
+  if (props.weightsType === 'contiguity') {
+    id = `w-${props.datasetId}-${props.contiguityType}-${props.orderOfContiguity}${props.includeLowerOrder ? '-lower' : ''}`;
+  } else if (props.weightsType === 'knn') {
+    id = `w-${props.datasetId}-${props.k}-nn`;
+  } else if (props.weightsType === 'band') {
+    const distanceThresholdString = props.distanceThreshold.toFixed(1);
+    id = `w-${props.datasetId}-distance-${distanceThresholdString}${props.isMile ? '-mile' : 'km'}`;
+  } else {
+    throw new Error('weights type is not supported');
+  }
+  return id;
+}
+
+export function checkWeightsIdExist(props: CreateWeightsProps, weights: WeightsProps[]) {
+  const id = getWeightsId(props);
+  return weights.find(w => w.weightsMeta.id === id);
 }

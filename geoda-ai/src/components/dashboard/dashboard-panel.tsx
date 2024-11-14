@@ -17,7 +17,7 @@ import {PlotWrapper} from '../plots/plot-management';
 import {KeplerMapContainer} from '../common/kepler-map-container';
 import {RegressionReport} from '../spreg/spreg-report';
 import {TextCell} from './text-cell';
-import {WeightsMetaTable} from '../weights/weights-management';
+import {WeightsMetaTable} from '@/components/weights/weights-meta-table';
 import {EditorState} from 'lexical';
 
 const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});

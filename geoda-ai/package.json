@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "cross-env BASE_PATH='' next dev",
     "copy-geoda-wasm": "cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/app/preview/geoda.wasm && cp ../../geoda-lib/src/js/dist/geoda.wasm out/_next/static/chunks/geoda.wasm",
-    "build-local": "cross-env NODE_ENV=production BASE_PATH='' next build && yarn copy-geoda-wasm",
+    "build-local": "cross-env NODE_ENV=production NODE_OPTIONS='--max_old_space_size=4096' BASE_PATH='' next build && yarn copy-geoda-wasm",
     "build-local-with-sentry": "cross-env BUILD_WITH_SENTRY=true yarn build-local",
     "get-kepler": "cd ../.. && git clone https://github.com/GeoDaCenter/kepler.gl.git --branch=xli/reactgeoda csds_kepler",
     "get-geoda-lib": "cd ../.. && git clone https://github.com/GeoDaCenter/geoda-lib.git geoda-lib",

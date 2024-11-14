@@ -17,29 +17,12 @@ import {ScatterplotPanel} from '../plots/scatterplot-panel';
 import {BubbleChartPanel} from '../plots/bubble-chart-panel';
 import {DashboardPanel} from '../dashboard/dashboard-panel';
 import {Splitter} from '../common/splitter';
-import {DEFAULT_PANEL_WIDTH} from '@/constants';
+import {DEFAULT_PANEL_WIDTH, PanelName} from '@/constants';
 import {SpatialJoinPanel} from '../spatial-operations/spatial-join-panel';
 import {Button} from '@nextui-org/react';
 
 const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
 const MappingPanel = dynamic(() => import('../mapping/mapping-panel'), {ssr: false});
-
-// define enum for panel names
-export enum PanelName {
-  SETTINGS = 'Settings',
-  TABLE = 'Table',
-  MAPPING = 'Mapping',
-  WEIGHTS = 'Weights',
-  LISA = 'Lisa',
-  HISTOGRAM = 'Histogram',
-  SCATTERPLOT = 'Scatterplot',
-  BOXPLOT = 'Boxplot',
-  SPREG = 'Spatial Regression',
-  PARALLEL_COORDINATE = 'Parallel Coordinate',
-  BUBBLE_CHART = 'Bubble Chart',
-  DASHBOARD = 'Dashboard',
-  SPATIAL_JOIN = 'Spatial Join'
-}
 
 export const PanelContainer = () => {
   const dispatch = useDispatch();

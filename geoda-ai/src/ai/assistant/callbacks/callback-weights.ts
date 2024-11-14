@@ -2,9 +2,11 @@ import {BinaryGeometryType, WeightsMeta} from 'geoda-wasm';
 import {createErrorResult} from '../custom-functions';
 import {isGeojsonLayer, isPointLayer} from '@/utils/data-utils';
 import {
+  checkWeightsIdExist,
   createContiguityWeights,
   createDistanceWeights,
-  createKNNWeights
+  createKNNWeights,
+  CreateWeightsProps
 } from '@/utils/weights-utils';
 import {VisState} from '@kepler.gl/schemas';
 import {CHAT_DATASET_NOT_FOUND} from '@/constants';
@@ -22,9 +24,10 @@ import {
   RegisterFunctionCallingProps
 } from 'soft-ai';
 import {customWeightsMessageCallback} from '@/components/chatgpt/custom-weights-message';
+import {WeightsProps} from '@/reducers/weights-reducer';
 
 export const createWeightsFunctionDefinition = (
-  context: CustomFunctionContext<VisState>
+  context: CustomFunctionContext<VisState | WeightsProps[]>
 ): RegisterFunctionCallingProps => ({
   name: 'createWeights',
   description:
@@ -118,7 +121,7 @@ export async function createWeightsCallback({
     isMile: inputIsMile,
     datasetName
   } = functionArgs as CreateWeightsCallbackProps;
-  const {visState} = functionContext as {visState: VisState};
+  const {visState, weights} = functionContext as {visState: VisState; weights: WeightsProps[]};
 
   // convert inputK to number if it is not
   let k = inputK;
@@ -185,9 +188,10 @@ export async function createWeightsCallback({
   let w = null;
 
   if (type === 'knn' && k && k > 0) {
-    w = await kNNWeights(keplerDataset.id, k, binaryGeometryType, binaryGeometries);
+    w = await kNNWeights(weights, keplerDataset.id, k, binaryGeometryType, binaryGeometries);
   } else if (type === 'queen' || type === 'rook') {
     w = await contiguityWeights(
+      weights,
       keplerDataset.id,
       type,
       orderOfContiguity || 1,
@@ -198,6 +202,7 @@ export async function createWeightsCallback({
     );
   } else if (type === 'distance' && distanceThreshold) {
     w = await distanceWeights(
+      weights,
       keplerDataset.id,
       distanceThreshold,
       isMile || false,
@@ -226,25 +231,45 @@ export async function createWeightsCallback({
   return createErrorResult({name: functionName, result: 'Error: weights type is not supported'});
 }
 
+function getWeightsFromWeightsData(
+  createWeightsProps: CreateWeightsProps,
+  weightsData: WeightsProps[]
+) {
+  const existingWeightData = checkWeightsIdExist(createWeightsProps, weightsData);
+  if (existingWeightData) {
+    return {weightsMeta: existingWeightData.weightsMeta, weights: existingWeightData.weights};
+  }
+  return null;
+}
+
 async function kNNWeights(
+  weightsData: WeightsProps[],
   datasetId: string,
   k: number,
   binaryGeometryType: BinaryGeometryType,
   binaryGeometries: BinaryFeatureCollection[]
 ) {
-  const {weights, weightsMeta} = await createKNNWeights({
+  const createWeightsProps: CreateWeightsProps = {
     weightsType: 'knn',
     datasetId,
     k,
     binaryGeometryType,
     // @ts-ignore
     binaryGeometries
-  });
+  };
+
+  const existingWeightData = getWeightsFromWeightsData(createWeightsProps, weightsData);
+  if (existingWeightData) {
+    return {weightsMeta: existingWeightData.weightsMeta, weights: existingWeightData.weights};
+  }
+
+  const {weights, weightsMeta} = await createKNNWeights(createWeightsProps);
 
   return {weightsMeta, weights};
 }
 
 async function contiguityWeights(
+  weightsData: WeightsProps[],
   datasetId: string,
   contiguityType: 'queen' | 'rook',
   orderOfContiguity: number,
@@ -253,7 +278,7 @@ async function contiguityWeights(
   binaryGeometryType: BinaryGeometryType,
   binaryGeometries: BinaryFeatureCollection[]
 ) {
-  const {weights, weightsMeta} = await createContiguityWeights({
+  const createWeightsProps: CreateWeightsProps = {
     weightsType: 'contiguity',
     datasetId,
     contiguityType,
@@ -263,19 +288,27 @@ async function contiguityWeights(
     precisionThreshold: precisionThreshold || 0,
     orderOfContiguity: orderOfContiguity || 1,
     includeLowerOrder: includeLowerOrder || false
-  });
+  };
+
+  const existingWeightData = getWeightsFromWeightsData(createWeightsProps, weightsData);
+  if (existingWeightData) {
+    return {weightsMeta: existingWeightData.weightsMeta, weights: existingWeightData.weights};
+  }
+
+  const {weights, weightsMeta} = await createContiguityWeights(createWeightsProps);
 
   return {weightsMeta, weights};
 }
 
 async function distanceWeights(
+  weightsData: WeightsProps[],
   datasetId: string,
   distanceThreshold: number,
   isMile: boolean,
   binaryGeometryType: BinaryGeometryType,
   binaryGeometries: BinaryFeatureCollection[]
 ) {
-  const {weights, weightsMeta} = await createDistanceWeights({
+  const createWeightsProps: CreateWeightsProps = {
     datasetId,
     weightsType: 'band',
     distanceThreshold,
@@ -283,7 +316,14 @@ async function distanceWeights(
     binaryGeometryType,
     // @ts-ignore
     binaryGeometries
-  });
+  };
+
+  const existingWeightData = getWeightsFromWeightsData(createWeightsProps, weightsData);
+  if (existingWeightData) {
+    return {weightsMeta: existingWeightData.weightsMeta, weights: existingWeightData.weights};
+  }
+
+  const {weights, weightsMeta} = await createDistanceWeights(createWeightsProps);
 
   return {weightsMeta, weights};
 }

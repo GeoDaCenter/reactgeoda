@@ -15,8 +15,10 @@ export const metadata = {
 // for <Providers> see https://nextui.org/docs/frameworks/nextjs
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
+  // suppressHydrationWarning is used to prevent the warning about the theme being set in the html tag
+  // script is used to fix the issue with the canvas context for screen capture feature
   return (
-    <html lang="en" className="light">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <script>
           {`
