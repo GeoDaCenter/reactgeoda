@@ -79,5 +79,8 @@
   "weights.management.title": "Weights Management",
   "weights.error.typeNotSupported": "weights type is not supported",
   "weights.error.create": "Create weights error.",
-  "weights.error.noGeometry": "No geometry data available."
+  "weights.error.noGeometry": "No geometry data available.",
+  "spatialJoin.title": "Spatial Join",
+  "spatialJoin.description": "Apply spatial count, assign and dissolve operations.",
+  "spatialJoin.warning": "Please load at least two datasets to perform spatial join."
 }

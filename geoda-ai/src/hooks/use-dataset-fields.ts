@@ -4,8 +4,11 @@ import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
 import {
   getIntegerFieldNamesFromDataset,
   getIntegerAndStringFieldNamesFromDataset,
-  getNumericFieldNamesFromDataset
+  getNumericFieldNamesFromDataset,
+  getJoinableFieldNameAndTypeFromDataset
 } from '@/utils/data-utils';
+import {GeoDaState} from '@/store';
+import {MAP_ID} from '@/constants';
 
 /**
  * Hook to get dataset fields
@@ -32,11 +35,34 @@ export function useDatasetFields(selectedDatasetId?: string) {
     [keplerDataset]
   );
 
+  const joinableFieldNames = useMemo(
+    () => getJoinableFieldNameAndTypeFromDataset(keplerDataset),
+    [keplerDataset]
+  );
+
   return {
     datasetId,
     keplerDataset,
     numericFieldNames,
     integerFieldNames,
-    integerOrStringFieldNames
+    integerOrStringFieldNames,
+    joinableFieldNames
+  };
+}
+
+export function useSpatialJoinFields(selectedDatasetId?: string) {
+  const keplerDataset = useSelector((state: GeoDaState) =>
+    selectedDatasetId ? state.keplerGl[MAP_ID].visState.datasets[selectedDatasetId] : null
+  );
+  const datasetId = keplerDataset?.id || '';
+
+  const joinableFieldNames = useMemo(
+    () => getJoinableFieldNameAndTypeFromDataset(keplerDataset),
+    [keplerDataset]
+  );
+
+  return {
+    datasetId,
+    joinableFieldNames
   };
 }

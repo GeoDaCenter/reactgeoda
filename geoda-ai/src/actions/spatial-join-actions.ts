@@ -1,17 +1,21 @@
 // thunk action creators
 
 import {DuckDB} from '@/hooks/use-duckdb';
-import {
-  spatialAssign,
-  SpatialAssignProps,
-  spatialCount,
-  SpatialCountProps
-} from '@/utils/spatial-join-utils';
+import {spatialAssign, SpatialAssignProps, spatialCount} from '@/utils/spatial-join-utils';
 import {addTableColumn} from '@kepler.gl/actions';
 import {Field} from '@kepler.gl/types';
 import {Dispatch, UnknownAction} from 'redux';
 import {setKeplerTableModal} from './ui-actions';
 import {ALL_FIELD_TYPES} from '@kepler.gl/constants';
+import {GeoDaState} from '@/store';
+import {
+  getColumnDataFromKeplerDataset,
+  getDatasetName,
+  getKeplerLayer,
+  getKeplerTable
+} from '@/utils/data-utils';
+import {MAP_ID} from '@/constants';
+import {applyOperation} from '@/utils/join-table-utils';
 
 export enum SPATIAL_JOIN_ACTIONS {
   RUN_SPATIAL_COUNT = 'RUN_SPATIAL_COUNT',
@@ -33,8 +37,7 @@ export type SpatialCountActionPayload = {
   type: 'spatial-count';
   leftDatasetId: string;
   rightDatasetId: string;
-  newColumnName: string;
-  values?: number[];
+  joinVariables: Array<{variableName: string; operation: string; newVariableName: string}>;
   errorMessage?: string;
   status?: 'success' | 'error';
 };
@@ -136,73 +139,86 @@ export function runSpatialAssignAsync(props: RunSpatialAssignAsyncProps) {
 
 export type RunSpatialCountAsyncProps = {
   leftDatasetId: string;
-  leftTableName: string;
-  newColumnName: string;
-} & SpatialCountProps;
+  rightDatasetId: string;
+  joinVariables: Array<{variableName: string; operation: string; newVariableName: string}>;
+};
 
 export function runSpatialCountAsync(props: RunSpatialCountAsyncProps) {
-  return async (dispatch: Dispatch<UnknownAction>) => {
-    const {
-      leftDatasetId,
-      leftTableName,
-      newColumnName,
-      leftLayer,
-      rightLayer,
-      leftDataset,
-      rightDataset
-    } = props;
+  return async (dispatch: Dispatch<UnknownAction>, getState: () => GeoDaState) => {
+    const {leftDatasetId, rightDatasetId, joinVariables} = props;
 
-    let values: number[] = [];
+    const datasets = getState().root.datasets;
+    const visState = getState().keplerGl[MAP_ID].visState;
+
+    const leftTableName = getDatasetName(datasets, leftDatasetId);
+    const leftLayer = getKeplerLayer(leftTableName, visState);
+    const leftDataset = getKeplerTable(leftTableName, visState);
+
+    const rightTableName = getDatasetName(datasets, rightDatasetId);
+    const rightLayer = getKeplerLayer(rightTableName, visState);
+    const rightDataset = getKeplerTable(rightTableName, visState);
+
+    if (!leftLayer || !rightLayer || !leftDataset || !rightDataset) {
+      throw new Error('Invalid layer.');
+    }
+
+    let joinResult: number[][] = [];
     let newField: Field | null = null;
     let errorMessage = '';
 
     try {
-      values = await spatialCount({
+      joinResult = await spatialCount({
         leftLayer,
         rightLayer,
         leftDataset,
         rightDataset
       });
 
-      // add new column to duckdb
-      // check if values are array of string
-      DuckDB.getInstance().addColumnWithValues({
-        tableName: leftTableName,
-        columnName: newColumnName,
-        columnValues: values,
-        columnType: 'NUMERIC'
-      });
+      joinVariables.forEach(variable => {
+        const {variableName, operation, newVariableName} = variable;
+        // get values of variableName from rightDataset
+        const originalValues = getColumnDataFromKeplerDataset(variableName, rightDataset);
+        // apply operation to originalValues
+        const joinedValues = applyOperation(joinResult, originalValues, operation);
 
-      // add new column to keplergl
-      newField = {
-        id: newColumnName,
-        name: newColumnName,
-        displayName: newColumnName,
-        format: '',
-        type: ALL_FIELD_TYPES.integer,
-        analyzerType: 'INTEGER',
-        fieldIdx: leftDataset.fields.length,
-        valueAccessor: (d: any) => {
-          return leftDataset.dataContainer.valueAt(d.index, leftDataset.fields.length);
+        // add new column to leftDataset in duckdb
+        // check if values are array of string
+        DuckDB.getInstance().addColumnWithValues({
+          tableName: leftTableName,
+          columnName: newVariableName,
+          columnValues: joinedValues,
+          columnType: 'NUMERIC'
+        });
+
+        // add new column to keplergl
+        newField = {
+          id: newVariableName,
+          name: newVariableName,
+          displayName: newVariableName,
+          format: '',
+          type: ALL_FIELD_TYPES.integer,
+          analyzerType: 'INTEGER',
+          fieldIdx: leftDataset.fields.length,
+          valueAccessor: (d: any) => {
+            return leftDataset.dataContainer.valueAt(d.index, leftDataset.fields.length);
+          }
+        };
+        if (newField && errorMessage === '') {
+          dispatch(addTableColumn(leftDatasetId, newField, joinedValues));
+          // show table
+          dispatch(setKeplerTableModal(true));
         }
-      };
+      });
     } catch (error) {
       errorMessage = error instanceof Error ? error.message : `${error}`;
-    }
-
-    if (newField && errorMessage === '') {
-      dispatch(addTableColumn(leftDatasetId, newField, values));
-      // show table
-      dispatch(setKeplerTableModal(true));
     }
     dispatch(
       runSpatialCount({
         type: 'spatial-count',
         leftDatasetId,
         rightDatasetId: rightDataset.id,
-        newColumnName,
+        joinVariables,
         errorMessage,
-        values,
         status: errorMessage.length > 0 ? 'error' : 'success'
       })
     );

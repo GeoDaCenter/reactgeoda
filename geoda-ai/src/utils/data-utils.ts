@@ -50,6 +50,11 @@ export function getKeplerLayer(tableName: string, visState: VisState): GeojsonLa
   return layer as GeojsonLayer;
 }
 
+export function getKeplerTable(tableName: string, visState: VisState): KeplerTable | null {
+  const dataset = Object.values(visState.datasets).find(dataset => dataset.label === tableName);
+  return dataset as KeplerTable;
+}
+
 export function getKeplerLayerByDataId(dataId: string, visState: VisState) {
   return visState.layers.find((layer: Layer) => layer.config.dataId === dataId);
 }
@@ -108,6 +113,17 @@ export function getIntegerAndStringFieldNamesFromDataset(dataset: KeplerTable): 
   return dataset.fields
     .filter(field => field.type === 'integer' || field.type === 'string')
     .map(field => field.name);
+}
+
+export function getJoinableFieldNameAndTypeFromDataset(dataset: KeplerTable): Array<{
+  variableName: string;
+  variableType: string;
+}> {
+  return dataset
+    ? dataset.fields
+        .filter(field => field.type === 'integer' || field.type === 'string')
+        .map(field => ({variableName: field.name, variableType: field.type}))
+    : [];
 }
 
 /**

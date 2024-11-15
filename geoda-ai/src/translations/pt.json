@@ -79,5 +79,8 @@
   "weights.management.title": "Gerenciamento de Pesos",
   "weights.error.typeNotSupported": "tipo de pesos não é suportado",
   "weights.error.create": "Erro ao criar pesos.",
-  "weights.error.noGeometry": "Não há dados de geometria disponíveis."
+  "weights.error.noGeometry": "Não há dados de geometria disponíveis.",
+  "spatialJoin.title": "Junção Espacial",
+  "spatialJoin.description": "Aplicar operações de contagem espacial, atribuição e dissolução.",
+  "spatialJoin.warning": "Por favor, carregue pelo menos dois conjuntos de dados para realizar a junção espacial."
 }

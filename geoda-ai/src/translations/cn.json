@@ -79,5 +79,8 @@
   "weights.management.title": "权重管理",
   "weights.error.typeNotSupported": "不支持该权重类型",
   "weights.error.create": "创建权重时出错。",
-  "weights.error.noGeometry": "没有可用的几何数据。"
+  "weights.error.noGeometry": "没有可用的几何数据。",
+  "spatialJoin.title": "空间连接",
+  "spatialJoin.description": "应用空间计数、分配和融合操作。",
+  "spatialJoin.warning": "请加载至少两个数据集以执行空间连接。"
 }

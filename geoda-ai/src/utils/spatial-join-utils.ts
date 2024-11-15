@@ -53,7 +53,7 @@ export async function spatialCount({
   rightLayer,
   leftDataset,
   rightDataset
-}: SpatialCountProps): Promise<number[]> {
+}: SpatialCountProps): Promise<number[][]> {
   // layer could be GeojsonLayer or PointLayer
   const left = getBinaryGeometriesFromLayer(leftLayer, leftDataset);
   const leftGeometryType = getBinaryGeometryTypeFromLayer(leftLayer);
@@ -67,7 +67,7 @@ export async function spatialCount({
   // @ts-ignore fix types
   const joinResult = await spatialJoin({left, leftGeometryType, right, rightGeometryType});
   // convert joinResult to counts
-  const values = joinResult.map(row => row.length);
+  // const values = joinResult.map(row => row.length);
 
-  return values;
+  return joinResult;
 }
