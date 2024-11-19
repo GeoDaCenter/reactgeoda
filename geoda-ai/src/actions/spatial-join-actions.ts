@@ -2,7 +2,7 @@
 
 import {DuckDB} from '@/hooks/use-duckdb';
 import {spatialAssign, SpatialAssignProps, spatialCount} from '@/utils/spatial-join-utils';
-import {addTableColumn} from '@kepler.gl/actions';
+import {addTableColumn, showDatasetTable} from '@kepler.gl/actions';
 import {Field} from '@kepler.gl/types';
 import {Dispatch, UnknownAction} from 'redux';
 import {setKeplerTableModal} from './ui-actions';
@@ -224,6 +224,8 @@ export function runSpatialCountAsync(props: RunSpatialCountAsyncProps) {
           dispatch(addTableColumn(leftDatasetId, newField, sanitizedValues));
           // show table
           dispatch(setKeplerTableModal(true));
+          // show dataset table
+          dispatch(showDatasetTable(leftDatasetId));
         }
       });
     } catch (error) {
