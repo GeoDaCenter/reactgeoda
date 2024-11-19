@@ -4,7 +4,7 @@ import {addWeights} from '@/actions';
 import {useDispatch} from 'react-redux';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {WeightsCallbackOutput} from '@/ai/assistant/callbacks/callback-weights';
-import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'react-ai-assist';
 
 /**
  * Type guard for Custom Weights Output

@@ -10,7 +10,7 @@ import {HistogramPlot} from '../plots/histogram-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {HistogramPlotStateProps} from '@/reducers/plot-reducer';
-import {ErrorCallbackResult, CustomFunctionOutputProps, CustomFunctionCall} from 'soft-ai';
+import {ErrorCallbackResult, CustomFunctionOutputProps, CustomFunctionCall} from 'react-ai-assist';
 
 export function customHistogramMessageCallback({
   functionArgs,

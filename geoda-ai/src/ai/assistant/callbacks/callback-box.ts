@@ -9,7 +9,7 @@ import {
   RegisterFunctionCallingProps,
   CustomFunctionOutputProps,
   ErrorCallbackResult
-} from 'soft-ai';
+} from 'react-ai-assist';
 import {VisState} from '@kepler.gl/schemas';
 import {customBoxPlotMessageCallback} from '@/components/chatgpt/custom-boxplot-message';
 

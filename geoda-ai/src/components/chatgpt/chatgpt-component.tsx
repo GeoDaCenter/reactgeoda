@@ -1,6 +1,11 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {AiAssistant, RegisterFunctionCallingProps, MessageModel, useAssistant} from 'soft-ai';
+import {
+  AiAssistant,
+  RegisterFunctionCallingProps,
+  MessageModel,
+  useAssistant
+} from 'react-ai-assist';
 import {GeoDaState} from '@/store';
 import {
   addDatasetMeta,

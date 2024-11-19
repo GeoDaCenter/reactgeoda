@@ -180,15 +180,31 @@ export function runSpatialCountAsync(props: RunSpatialCountAsyncProps) {
         const originalValues = getColumnDataFromKeplerDataset(variableName, rightDataset);
         // apply operation to originalValues
         const joinedValues = applyOperation(joinResult, originalValues, operation);
+        // sanitize joinedValues
+        const sanitizedValues = joinedValues.map(v => (Number.isNaN(v) ? null : v));
+        // check if values are array of string
+        const isStringArray = sanitizedValues.some(v => typeof v === 'string');
+        // check if values are array of float
+        const isFloatArray = sanitizedValues.some(v => Number.isFinite(v) && !Number.isInteger(v));
 
         // add new column to leftDataset in duckdb
         // check if values are array of string
         DuckDB.getInstance().addColumnWithValues({
           tableName: leftTableName,
           columnName: newVariableName,
-          columnValues: joinedValues,
-          columnType: 'NUMERIC'
+          columnValues: sanitizedValues,
+          columnType: isStringArray ? 'VARCHAR' : 'NUMERIC'
         });
+
+        // determine the field type
+        const fieldType = isStringArray
+          ? ALL_FIELD_TYPES.string
+          : isFloatArray
+            ? ALL_FIELD_TYPES.real
+            : ALL_FIELD_TYPES.integer;
+
+        // determine the analyzer type
+        const analyzerType = isStringArray ? 'STRING' : isFloatArray ? 'REAL' : 'INTEGER';
 
         // add new column to keplergl
         newField = {
@@ -196,15 +212,16 @@ export function runSpatialCountAsync(props: RunSpatialCountAsyncProps) {
           name: newVariableName,
           displayName: newVariableName,
           format: '',
-          type: ALL_FIELD_TYPES.integer,
-          analyzerType: 'INTEGER',
+          type: fieldType,
+          analyzerType: analyzerType,
           fieldIdx: leftDataset.fields.length,
           valueAccessor: (d: any) => {
             return leftDataset.dataContainer.valueAt(d.index, leftDataset.fields.length);
           }
         };
         if (newField && errorMessage === '') {
-          dispatch(addTableColumn(leftDatasetId, newField, joinedValues));
+          // add new column to keplergl
+          dispatch(addTableColumn(leftDatasetId, newField, sanitizedValues));
           // show table
           dispatch(setKeplerTableModal(true));
         }

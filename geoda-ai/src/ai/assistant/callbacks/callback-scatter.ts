@@ -8,7 +8,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'soft-ai';
+} from 'react-ai-assist';
 import {VisState} from '@kepler.gl/schemas';
 import {customScatterPlotMessageCallback} from '@/components/chatgpt/custom-scatter-message';
 

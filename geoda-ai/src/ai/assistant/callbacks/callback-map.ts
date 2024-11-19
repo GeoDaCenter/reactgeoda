@@ -19,7 +19,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'soft-ai';
+} from 'react-ai-assist';
 import {customMapMessageCallback} from '@/components/chatgpt/custom-map-message';
 
 export const createMapFunctionDefinition = (

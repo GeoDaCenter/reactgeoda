@@ -11,7 +11,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'soft-ai';
+} from 'react-ai-assist';
 import {customPCPMessageCallback} from '@/components/chatgpt/custom-parallel-coordinate-message';
 
 export const createPCPFunctionDefinition = (

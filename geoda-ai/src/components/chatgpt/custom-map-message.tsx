@@ -12,7 +12,7 @@ import {ColorRange} from '@kepler.gl/constants';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {MapCallbackOutput, MapCallbackResult} from '@/ai/assistant/callbacks/callback-map';
 import {selectKeplerDataset} from '@/store/selectors';
-import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'react-ai-assist';
 
 export function customMapMessageCallback({
   functionArgs,
