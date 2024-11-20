@@ -1,30 +1,44 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {datasetsSelector} from '@/store/selectors';
+import {
+  datasetsSelector,
+  selectSpatialAssignConfig,
+  selectSpatialCountConfig
+} from '@/store/selectors';
 import {WarningBox, WarningType} from '../common/warning-box';
 import React from 'react';
 import {Card, CardBody, Tab, Tabs} from '@nextui-org/react';
 import {SpatialCountPanel} from './spatial-count-panel';
 import {setAddDatasetModal} from '../../actions';
 import {SpatialAssignPanel} from './spatial-assign-panel';
+import {useIntl} from 'react-intl';
 
 export function SpatialJoinPanel() {
+  const dispatch = useDispatch<any>();
+  const intl = useIntl();
+
   const datasets = useSelector(datasetsSelector);
-  const dispatch = useDispatch();
+  const spatialCountConfig = useSelector(selectSpatialCountConfig);
+  const spatialAssignConfig = useSelector(selectSpatialAssignConfig);
 
   const onClickWarningBox = () => {
-    // dispatch to show add dataset modal
     dispatch(setAddDatasetModal(true));
   };
 
   return (
     <RightPanelContainer
-      title="Spatial Join"
-      description="Apply spatial count, assign and dissolve operations."
+      title={intl.formatMessage({id: 'spatialJoin.title', defaultMessage: 'Spatial Join'})}
+      description={intl.formatMessage({
+        id: 'spatialJoin.description',
+        defaultMessage: 'Apply spatial count, assign and dissolve operations.'
+      })}
     >
       {datasets?.length < 2 ? (
         <WarningBox
-          message="Please load at least two datasets to perform spatial count."
+          message={intl.formatMessage({
+            id: 'spatialJoin.warning',
+            defaultMessage: 'Please load at least two datasets to perform spatial join.'
+          })}
           type={WarningType.WARNING}
           onClick={onClickWarningBox}
         />
@@ -34,24 +48,25 @@ export function SpatialJoinPanel() {
             <Tab key="spatial-count" title="Spatial Count">
               <Card>
                 <CardBody>
-                  <SpatialCountPanel />
+                  <SpatialCountPanel
+                    datasets={datasets}
+                    spatialCountConfig={spatialCountConfig}
+                    dispatch={dispatch}
+                  />
                 </CardBody>
               </Card>
             </Tab>
             <Tab key="spatial-assign" title="Spatial Assign">
               <Card>
                 <CardBody>
-                  <SpatialAssignPanel />
+                  <SpatialAssignPanel
+                    datasets={datasets}
+                    spatialAssignConfig={spatialAssignConfig}
+                    dispatch={dispatch}
+                  />
                 </CardBody>
               </Card>
             </Tab>
-            {/* <Tab key="spatial-dissolve" title="Spatial Dissolve">
-              <Card>
-                <CardBody>
-                  <div>Content</div>
-                </CardBody>
-              </Card>
-            </Tab> */}
           </Tabs>
         </div>
       )}

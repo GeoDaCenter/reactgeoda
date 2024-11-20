@@ -79,5 +79,8 @@
   "weights.management.title": "Управление весами",
   "weights.error.typeNotSupported": "тип весов не поддерживается",
   "weights.error.create": "Ошибка создания весов.",
-  "weights.error.noGeometry": "Геометрические данные недоступны."
+  "weights.error.noGeometry": "Геометрические данные недоступны.",
+  "spatialJoin.title": "Пространственное Соединение",
+  "spatialJoin.description": "Применить операции пространственного подсчета, назначения и растворения.",
+  "spatialJoin.warning": "Пожалуйста, загрузите как минимум два набора данных для выполнения пространственного соединения."
 }

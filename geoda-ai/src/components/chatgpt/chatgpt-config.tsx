@@ -24,7 +24,7 @@ import {GeoDaState} from '../../store';
 import {setAIConfig, setIsOpenAIKeyChecked, setMessages} from '../../actions';
 import {accordionItemClasses} from '@/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {testApiKey} from 'soft-ai';
+import {testApiKey} from 'react-ai-assist';
 
 const PROVIDER_MODELS = {
   openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo-0125', 'gpt-3.5-turbo'],
@@ -125,22 +125,22 @@ export function ChatGPTConfigComponent({
     }
 
     setIsRunning(true);
-    if (provider !== 'ollama') {
-      // check if openai key is valid by trying to call testOpenAI function
-      // if key is not valid, show error message
-      const isValidKey = await testApiKey({
-        modelProvider: provider,
-        modelName: model,
-        apiKey: key,
-        baseUrl: baseUrl
-      });
-      dispatch(setIsOpenAIKeyChecked(isValidKey));
-      if (!isValidKey) {
-        setApiKeyError(true);
-        setErrorMessage('Incorrect API key provided. Please check your API key and try again.');
-      }
-    } else {
-      dispatch(setIsOpenAIKeyChecked(true));
+    // check if openai key is valid by trying to call testOpenAI function
+    // if key is not valid, show error message
+    const testResult = await testApiKey({
+      modelProvider: provider,
+      modelName: model,
+      apiKey: key,
+      baseUrl: baseUrl
+    });
+    dispatch(setIsOpenAIKeyChecked(testResult.success));
+    if (!testResult.success) {
+      setApiKeyError(true);
+      const message =
+        testResult.service === 'ollama'
+          ? 'Connection failed. Maybe incorrect base URL provided.'
+          : 'Connection failed. Maybe incorrect API key provided.';
+      setErrorMessage(message);
     }
 
     // if need restart, clear the messages

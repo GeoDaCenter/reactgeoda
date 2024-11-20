@@ -11,7 +11,7 @@ import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinateStateProps} from '@/reducers/plot-reducer';
 import {CustomFunctionCall, CustomFunctionOutputProps} from '@/ai/types';
-import {ErrorCallbackResult} from 'soft-ai';
+import {ErrorCallbackResult} from 'react-ai-assist';
 
 export function customPCPMessageCallback({
   functionArgs,

@@ -12,7 +12,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'soft-ai';
+} from 'react-ai-assist';
 import {customSpatialRegressionMessageCallback} from '@/components/chatgpt/custom-spreg-message';
 
 export const spatialRegressionFunctionDefinition = (

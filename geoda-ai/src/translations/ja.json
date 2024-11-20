@@ -79,5 +79,8 @@
   "weights.management.title": "重みの管理",
   "weights.error.typeNotSupported": "重みタイプはサポートされていません",
   "weights.error.create": "重みの作成エラー。",
-  "weights.error.noGeometry": "ジオメトリデータが利用できません。"
+  "weights.error.noGeometry": "ジオメトリデータが利用できません。",
+  "spatialJoin.title": "空間結合",
+  "spatialJoin.description": "空間カウント、割り当て、および融合操作を適用します。",
+  "spatialJoin.warning": "空間結合を実行するには、少なくとも2つのデータセットを読み込んでください。"
 }

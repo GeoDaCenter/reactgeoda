@@ -5,7 +5,7 @@ import {addRegression} from '@/actions/regression-actions';
 import {generateRandomId} from '@/utils/ui-utils';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {RegressionCallbackOutput} from '@/ai/assistant/callbacks/callback-regression';
-import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'react-ai-assist';
 
 export function isCustomRegressionOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>

@@ -27,7 +27,7 @@
       "@kepler.gl/*": ["../../csds_kepler/src/*/src"],
       "@kepler.gl/types": ["../../csds_kepler/src/types"],
       "@loaders.gl/*": ["../../loaders.gl/modules/*/src"],
-      "soft-ai": ["../../ai-assistant/src"]
+      "react-ai-assist": ["../../ai-assistant/src"]
     }
   },
   "include": [

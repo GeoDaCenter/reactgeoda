@@ -9,7 +9,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'soft-ai';
+} from 'react-ai-assist';
 import {customBubbleChartMessageCallback} from '@/components/chatgpt/custom-bubblechart-message';
 
 export const createBubbleChartFunctionDefinition = (

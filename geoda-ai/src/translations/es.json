@@ -71,5 +71,8 @@
   "weights.create.button": "Crear Pesos Espaciales",
   "weights.error.typeNotSupported": "el tipo de pesos no es compatible",
   "weights.error.create": "Error al crear pesos.",
-  "weights.error.noGeometry": "No hay datos de geometría disponibles."
+  "weights.error.noGeometry": "No hay datos de geometría disponibles.",
+  "spatialJoin.title": "Unión Espacial",
+  "spatialJoin.description": "Aplicar operaciones de conteo espacial, asignación y disolución.",
+  "spatialJoin.warning": "Por favor, cargue al menos dos conjuntos de datos para realizar la unión espacial."
 }

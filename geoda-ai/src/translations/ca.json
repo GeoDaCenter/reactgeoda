@@ -79,5 +79,8 @@
   "weights.management.title": "Gestió de Pesos",
   "weights.error.typeNotSupported": "el tipus de pesos no és compatible",
   "weights.error.create": "Error en crear pesos.",
-  "weights.error.noGeometry": "No hi ha dades de geometria disponibles."
+  "weights.error.noGeometry": "No hi ha dades de geometria disponibles.",
+  "spatialJoin.title": "Unió Espacial",
+  "spatialJoin.description": "Apliqueu operacions de recompte espacial, assignació i dissolució.",
+  "spatialJoin.warning": "Si us plau, carregueu almenys dos conjunts de dades per realitzar la unió espacial."
 }

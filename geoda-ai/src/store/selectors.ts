@@ -1,7 +1,7 @@
 import {Selector, createSelector} from 'reselect';
 import {GeoDaState} from '.';
 import {MAP_ID} from '@/constants';
-import {getDataContainer} from '@/utils/data-utils';
+import {getDataContainer, getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
 import {Layer} from '@kepler.gl/layers';
 import KeplerTable, {Datasets as KeplerDatasets} from '@kepler.gl/table';
 import {
@@ -95,3 +95,10 @@ export const selectGeometryData = createSelector(
     binaryGeometries: getBinaryGeometriesFromLayer(layer, dataset)
   })
 );
+
+// create a memorized selector to get variables from the given dataset id
+export const selectVariables = (datasetId: string) =>
+  createSelector([(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets], datasets => {
+    const dataset = datasets[datasetId];
+    return dataset ? getIntegerAndStringFieldNamesFromDataset(dataset) : [];
+  });

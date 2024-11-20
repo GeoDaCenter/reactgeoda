@@ -79,5 +79,8 @@
   "weights.management.title": "Painojen Hallinta",
   "weights.error.typeNotSupported": "painotyyppiä ei tueta",
   "weights.error.create": "Painojen luontivirhe.",
-  "weights.error.noGeometry": "Geometriatietoja ei ole saatavilla."
+  "weights.error.noGeometry": "Geometriatietoja ei ole saatavilla.",
+  "spatialJoin.title": "Spatiaalinen Liitos",
+  "spatialJoin.description": "Käytä spatiaalista laskentaa, määritystä ja sulautusoperaatioita.",
+  "spatialJoin.warning": "Lataa vähintään kaksi tietoaineistoa spatiaalisen liitoksen suorittamiseksi."
 }

@@ -11,7 +11,7 @@ import {GeoDaState} from '@/store';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {selectKeplerDataset} from '@/store/selectors';
 import {KeplerMapContainer} from '../common/kepler-map-container';
-import {CustomFunctionCall, CustomFunctionOutputProps} from 'soft-ai';
+import {CustomFunctionCall, CustomFunctionOutputProps} from 'react-ai-assist';
 
 export function isCustomLisaOutput(
   functionOutput: CustomFunctionOutputProps<unknown, unknown>
