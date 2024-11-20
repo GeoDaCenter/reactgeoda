@@ -95,6 +95,15 @@ export function getAllFieldNames(dataset: KeplerTable): Array<string> {
   return dataset.fields.map(field => field.name);
 }
 
+export function getAllFieldNameAndTypeFromDataset(dataset: KeplerTable): Array<{
+  variableName: string;
+  variableType: string;
+}> {
+  return dataset
+    ? dataset.fields.map(field => ({variableName: field.name, variableType: field.type}))
+    : [];
+}
+
 export function getNumericFieldNamesFromDataset(dataset: KeplerTable): Array<string> {
   return dataset.fields
     .filter(field => field.type === 'integer' || field.type === 'real')

@@ -129,6 +129,7 @@ export function JoinTable({joinVariables, onVariablesUpdated}: JoinTableProps) {
       }}
       isCompact={true}
       radius="none"
+      removeWrapper={true}
     >
       <TableHeader columns={COLUMNS}>
         {column => <TableColumn key={column.key}>{column.label}</TableColumn>}

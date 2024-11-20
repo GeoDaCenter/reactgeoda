@@ -66,3 +66,20 @@ export function useSpatialJoinFields(selectedDatasetId?: string) {
     joinableFieldNames
   };
 }
+
+export function useSpatialAssignFields(selectedDatasetId?: string) {
+  const keplerDataset = useSelector((state: GeoDaState) =>
+    selectedDatasetId ? state.keplerGl[MAP_ID].visState.datasets[selectedDatasetId] : null
+  );
+  const datasetId = keplerDataset?.id || '';
+
+  const allFieldNames = useMemo(
+    () => getJoinableFieldNameAndTypeFromDataset(keplerDataset),
+    [keplerDataset]
+  );
+
+  return {
+    datasetId,
+    fieldNames: allFieldNames
+  };
+}

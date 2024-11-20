@@ -1,49 +1,42 @@
-import React, {useState} from 'react';
-import {Input, Spacer} from '@nextui-org/react';
+import React, {Dispatch, useState} from 'react';
+import {Spacer} from '@nextui-org/react';
 import {DatasetSelector} from '../common/dataset-selector';
 import VerticalSteps from '../common/vertical-steps';
 import {CreateButton} from '../common/create-button';
-import {useDispatch, useSelector} from 'react-redux';
-import {
-  datasetsSelector,
-  selectKeplerDataset,
-  selectKeplerLayer,
-  selectSpatialAssignConfig
-} from '@/store/selectors';
-import {getDatasetName} from '@/utils/data-utils';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {VariableSelector} from '../common/variable-selector';
-import {runSpatialAssignAsync} from '@/actions/spatial-join-actions';
-import {useDatasetFields} from '@/hooks/use-dataset-fields';
+import {
+  AssignVariable,
+  runSpatialAssignAsync,
+  SpatialAssignActionPayload
+} from '@/actions/spatial-join-actions';
+import {useSpatialAssignFields} from '@/hooks/use-dataset-fields';
+import {DatasetProps} from '@/reducers/file-reducer';
+import {AssignTable} from './assign-table';
 
-export function SpatialAssignPanel() {
-  const dispatch = useDispatch<any>();
+type SpatialAssignPanelProps = {
+  datasets: DatasetProps[];
+  spatialAssignConfig?: SpatialAssignActionPayload;
+  dispatch: Dispatch<any>;
+};
 
-  // use selector
-  const datasets = useSelector(datasetsSelector);
-  const spatialAssignConfig = useSelector(selectSpatialAssignConfig);
-
+export function SpatialAssignPanel({
+  datasets,
+  spatialAssignConfig,
+  dispatch
+}: SpatialAssignPanelProps) {
   // use state
   const [firstDatasetId, setFirstDatasetId] = useState(
     spatialAssignConfig?.leftDatasetId || datasets?.[0]?.dataId || ''
   );
   const [secondDatasetId, setSecondDatasetId] = useState(spatialAssignConfig?.rightDatasetId || '');
-  const [secondVariable, setSecondVariable] = useState(spatialAssignConfig?.rightColumnName || '');
-  const [newColumnName, setNewColumnName] = useState(spatialAssignConfig?.newColumnName || '');
   const [status, setStatus] = useState(spatialAssignConfig?.status || '');
   const [errorMessage, setErrorMessage] = useState(spatialAssignConfig?.errorMessage || '');
   const [isRunning, setIsRunning] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [assignVariables, setAssignVariables] = useState<AssignVariable[]>([]);
 
-  // get layers and datasets
-  const leftLayer = useSelector(selectKeplerLayer(firstDatasetId));
-  const rightLayer = useSelector(selectKeplerLayer(secondDatasetId));
-  const leftDataset = useSelector(selectKeplerDataset(firstDatasetId));
-  const rightDataset = useSelector(selectKeplerDataset(secondDatasetId));
-
-  // get integer or string field names from the second dataset
-  const {integerOrStringFieldNames: secondDatasetIntegerOrStringFieldNames} =
-    useDatasetFields(secondDatasetId);
+  const {fieldNames: leftFieldNames} = useSpatialAssignFields(firstDatasetId);
+  const {fieldNames: rightFieldNames} = useSpatialAssignFields(secondDatasetId);
 
   const resetRunningState = () => {
     setIsRunning(false);
@@ -64,16 +57,9 @@ export function SpatialAssignPanel() {
     resetRunningState();
   };
 
-  const onSelectSecondVariable = (variable: string) => {
-    setSecondVariable(variable);
+  const onAssignVariablesUpdated = (variables: AssignVariable[]) => {
+    setAssignVariables(variables);
     setCurrentStep(3);
-    resetRunningState();
-  };
-
-  const onNewColumnNameChange = (value: string) => {
-    setNewColumnName(value);
-    // check if column name not existed in first dataset
-    setCurrentStep(4);
     resetRunningState();
   };
 
@@ -84,13 +70,8 @@ export function SpatialAssignPanel() {
     dispatch(
       runSpatialAssignAsync({
         leftDatasetId: firstDatasetId,
-        leftTableName: getDatasetName(datasets, firstDatasetId),
-        newColumnName,
-        leftLayer,
-        rightLayer,
-        leftDataset,
-        rightDataset,
-        rightColumnName: secondVariable
+        rightDatasetId: secondDatasetId,
+        assignVariables
       })
     );
     resetRunningState();
@@ -132,25 +113,10 @@ export function SpatialAssignPanel() {
               description:
                 'The column in the second dataset that contains the values (e.g. zip codes or city names) to be assigned to the geometries in the first dataset.',
               element: (
-                <VariableSelector
-                  variables={secondDatasetIntegerOrStringFieldNames}
-                  setVariable={onSelectSecondVariable}
-                  isInvalid={secondVariable === null || secondVariable.length === 0}
-                />
-              )
-            },
-            {
-              title: 'Input the new column name',
-              description:
-                'The new column name that will be created in the first dataset with the assigned value.',
-              element: (
-                <Input
-                  type="text"
-                  label="New column"
-                  placeholder="Enter the new column name"
-                  onValueChange={onNewColumnNameChange}
-                  value={newColumnName}
-                  isInvalid={newColumnName?.length === 0}
+                <AssignTable
+                  originalVariables={leftFieldNames}
+                  assignVariables={rightFieldNames}
+                  onVariablesUpdated={onAssignVariablesUpdated}
                 />
               )
             }
@@ -167,7 +133,7 @@ export function SpatialAssignPanel() {
       <CreateButton
         onClick={onSpatialAssign}
         isDisabled={
-          newColumnName?.length === 0 ||
+          assignVariables?.length === 0 ||
           secondDatasetId?.length === 0 ||
           firstDatasetId?.length === 0
         }

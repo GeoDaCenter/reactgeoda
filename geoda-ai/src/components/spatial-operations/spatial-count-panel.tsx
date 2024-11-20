@@ -9,6 +9,11 @@ import {DatasetProps} from '@/reducers/file-reducer';
 import {useSpatialJoinFields} from '@/hooks/use-dataset-fields';
 import {JoinTable} from './join-table';
 
+type JoinVariable = {
+  variableName: string;
+  operation: string;
+  newVariableName: string;
+};
 export type SpatialCountPanelProps = {
   datasets: DatasetProps[];
   spatialCountConfig?: SpatialCountActionPayload;
@@ -28,9 +33,7 @@ export function SpatialCountPanel({
   const [status, setStatus] = useState(spatialCountConfig?.status || '');
   const [currentStep, setCurrentStep] = useState(1);
   const [isRunning, setIsRunning] = useState(false);
-  const [joinVariables, setJoinVariables] = useState<
-    Array<{variableName: string; operation: string; newVariableName: string}>
-  >([]);
+  const [joinVariables, setJoinVariables] = useState<JoinVariable[]>([]);
 
   const {joinableFieldNames} = useSpatialJoinFields(secondDatasetId);
 
@@ -54,9 +57,7 @@ export function SpatialCountPanel({
     resetRunningState();
   };
 
-  const onJoinVariablesUpdated = (
-    variables: Array<{variableName: string; operation: string; newVariableName: string}>
-  ) => {
+  const onJoinVariablesUpdated = (variables: JoinVariable[]) => {
     setJoinVariables(variables);
     setCurrentStep(3);
     resetRunningState();

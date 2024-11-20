@@ -1,6 +1,10 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {RightPanelContainer} from '../common/right-panel-template';
-import {datasetsSelector, selectSpatialCountConfig} from '@/store/selectors';
+import {
+  datasetsSelector,
+  selectSpatialAssignConfig,
+  selectSpatialCountConfig
+} from '@/store/selectors';
 import {WarningBox, WarningType} from '../common/warning-box';
 import React from 'react';
 import {Card, CardBody, Tab, Tabs} from '@nextui-org/react';
@@ -15,6 +19,7 @@ export function SpatialJoinPanel() {
 
   const datasets = useSelector(datasetsSelector);
   const spatialCountConfig = useSelector(selectSpatialCountConfig);
+  const spatialAssignConfig = useSelector(selectSpatialAssignConfig);
 
   const onClickWarningBox = () => {
     dispatch(setAddDatasetModal(true));
@@ -54,7 +59,11 @@ export function SpatialJoinPanel() {
             <Tab key="spatial-assign" title="Spatial Assign">
               <Card>
                 <CardBody>
-                  <SpatialAssignPanel />
+                  <SpatialAssignPanel
+                    datasets={datasets}
+                    spatialAssignConfig={spatialAssignConfig}
+                    dispatch={dispatch}
+                  />
                 </CardBody>
               </Card>
             </Tab>

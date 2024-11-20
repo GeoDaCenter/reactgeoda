@@ -2,10 +2,10 @@ import {median} from 'd3-array';
 
 export function generateNewColumnName(
   variableName: string,
-  operation: string,
-  existingVariables: Array<{variableName: string; variableType: string}>
+  operation: string | null,
+  existingVariables: Array<{variableName: string}>
 ): string {
-  const newName = `${operation}_${variableName}`;
+  const newName = operation ? `${operation}_${variableName}` : variableName;
   return existingVariables.some(variable => variable.variableName === newName)
     ? `${newName}_1`
     : newName;
