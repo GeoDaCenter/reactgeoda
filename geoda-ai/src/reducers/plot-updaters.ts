@@ -6,11 +6,13 @@ import {
   ScatterPlotStateProps,
   BoxPlotStateProps,
   BubbleChartStateProps,
-  ParallelCoordinateStateProps
+  ParallelCoordinateStateProps,
+  MoranScatterPlotStateProps
 } from './plot-reducer';
 import {
   BoxPlotActionProps,
   BubbleChartActionProps,
+  MoranScatterPlotActionProps,
   HistogramPlotActionProps,
   ParallelCoordinateActionProps,
   PlotActionProps,
@@ -116,6 +118,17 @@ function addBubbleChartUpdater(
   return [...state, plotState];
 }
 
+function addMoranScatterPlotUpdater(
+  payload: MoranScatterPlotActionProps,
+  _keplerDataset: KeplerTable,
+  state: PlotStateProps[]
+) {
+  const {id} = payload;
+  // create moran scatter plot state
+  const plotState: MoranScatterPlotStateProps = {...payload, id: id || generateRandomId()};
+  return [...state, plotState];
+}
+
 export function addPlotUpdater(
   state: PlotStateProps[],
   action: PlotAction,
@@ -134,6 +147,8 @@ export function addPlotUpdater(
     return addBubbleChartUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'parallel-coordinate') {
     return addParallelCoordinatePlotUpdater(payload, keplerDataset, state);
+  } else if (payload.type === 'moranscatter') {
+    return addMoranScatterPlotUpdater(payload, keplerDataset, state);
   }
 
   console.error('Plot type not supported');

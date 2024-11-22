@@ -16,7 +16,8 @@ import {
   IconWeights,
   IconSpreg,
   IconSave,
-  IconSpatialJoin
+  IconSpatialJoin,
+  IconMoranScatterplot
 } from './navitagor-icons';
 import {
   setAddDatasetModal,
@@ -358,7 +359,7 @@ export function Navigator() {
               onClick={onClickIconCallback}
               isDisabled={!uiState.isFileLoaded}
             >
-              <IconScatterplot />
+              <IconMoranScatterplot />
             </Button>
           </Tooltip>
         </Badge>

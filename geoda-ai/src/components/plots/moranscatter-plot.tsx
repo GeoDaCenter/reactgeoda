@@ -1,6 +1,6 @@
 import React, {useRef, useMemo, useState} from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import {ScatterChart} from 'echarts/charts';
+import {LineChart, ScatterChart} from 'echarts/charts';
 import * as echarts from 'echarts/core';
 import {useDispatch, useSelector} from 'react-redux';
 import {GeoDaState} from '@/store';
@@ -20,6 +20,7 @@ import {selectKeplerDataset} from '@/store/selectors';
 import {ChartInsightButton} from '../common/chart-insight';
 import {MoranScatterPlotStateProps} from '@/reducers/plot-reducer';
 import {spatialLag} from 'geoda-wasm';
+import {standardize} from '@/utils/math-utils';
 
 // Register the required ECharts components
 echarts.use([
@@ -28,7 +29,8 @@ echarts.use([
   ScatterChart,
   CanvasRenderer,
   BrushComponent,
-  ToolboxComponent
+  ToolboxComponent,
+  LineChart
 ]);
 
 export const MoranScatterPlot = ({props}: {props: MoranScatterPlotStateProps}) => {
@@ -48,9 +50,10 @@ export const MoranScatterPlot = ({props}: {props: MoranScatterPlotStateProps}) =
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
     const data = getColumnDataFromKeplerDataset(variable, keplerDataset);
-    const lagData = selectedWeights?.weights ? spatialLag(data, selectedWeights.weights) : [];
-    // Note: You'll need to implement getMoranScatterChartOption and calculate spatial lag
-    return getScatterChartOption(variable, data, 'spatial lag', lagData);
+    const x = standardize(data);
+    const y = selectedWeights?.weights ? spatialLag(x, selectedWeights.weights) : [];
+    const showRegressionLine = true;
+    return getScatterChartOption(variable, x, 'spatial lag', y, showRegressionLine);
   }, [keplerDataset, variable, selectedWeights]);
 
   const bindEvents = useMemo(
