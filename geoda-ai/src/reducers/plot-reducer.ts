@@ -2,6 +2,7 @@ import {
   BoxPlotActionProps,
   BubbleChartActionProps,
   HistogramPlotActionProps,
+  MoranScatterPlotActionProps,
   ParallelCoordinateActionProps,
   PLOT_ACTIONS,
   PlotActionProps,
@@ -40,12 +41,14 @@ export type ParallelCoordinateStateProps = BasePlotStateProps & ParallelCoordina
 
 export type BubbleChartStateProps = BasePlotStateProps & BubbleChartActionProps;
 
+export type MoranScatterPlotStateProps = BasePlotStateProps & MoranScatterPlotActionProps;
 export type PlotStateProps =
   | HistogramPlotStateProps
   | ScatterPlotStateProps
   | BoxPlotStateProps
   | ParallelCoordinateStateProps
-  | BubbleChartStateProps;
+  | BubbleChartStateProps
+  | MoranScatterPlotStateProps;
 
 export const plotReducer = (
   state = initialState,

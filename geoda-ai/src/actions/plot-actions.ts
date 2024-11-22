@@ -48,6 +48,12 @@ export type BubbleChartActionProps = BasePlotActionProps & {
   variableColor?: string; // optionally, color
 };
 
+export type MoranScatterPlotActionProps = BasePlotActionProps & {
+  type: 'moranscatter';
+  variableX: string;
+  variableY: string;
+};
+
 export type PlotActionProps =
   | HistogramPlotActionProps
   | ScatterPlotActionProps
