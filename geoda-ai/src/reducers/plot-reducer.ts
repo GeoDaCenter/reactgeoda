@@ -42,6 +42,7 @@ export type ParallelCoordinateStateProps = BasePlotStateProps & ParallelCoordina
 export type BubbleChartStateProps = BasePlotStateProps & BubbleChartActionProps;
 
 export type MoranScatterPlotStateProps = BasePlotStateProps & MoranScatterPlotActionProps;
+
 export type PlotStateProps =
   | HistogramPlotStateProps
   | ScatterPlotStateProps

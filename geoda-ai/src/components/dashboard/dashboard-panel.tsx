@@ -190,6 +190,8 @@ export function DashboardPanel() {
                       {plotIds &&
                         plots.map(
                           (plot: PlotActionProps) =>
+                            plot &&
+                            plot.id &&
                             gridItems?.find(l => l.id === plot.id && l.show === false) && (
                               <DraggableElement key={plot.id} id={plot.id}>
                                 {PlotWrapper(plot, false)}

@@ -11,10 +11,12 @@ import {
   ParallelCoordinateStateProps,
   PlotStateProps,
   ScatterPlotStateProps,
-  BubbleChartStateProps
+  BubbleChartStateProps,
+  MoranScatterPlotStateProps
 } from '@/reducers/plot-reducer';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
+import {MoranScatterPlot} from './moranscatter-plot';
 
 // type guard function to check if the plot is a histogram plot
 export function isHistogramPlot(plot: PlotStateProps): plot is HistogramPlotStateProps {
@@ -41,6 +43,11 @@ export function isBubbleChart(plot: PlotStateProps): plot is BubbleChartStatePro
   return plot.type === 'bubble';
 }
 
+// type guard function to check if the plot is a moran scatter plot
+export function isMoranScatterPlot(plot: PlotStateProps): plot is MoranScatterPlotStateProps {
+  return plot.type === 'moranscatter';
+}
+
 // PlotWrapper component with fixed height
 export function PlotWrapper(plot: PlotStateProps, isFixedHeight = true) {
   return (
@@ -55,6 +62,8 @@ export function PlotWrapper(plot: PlotStateProps, isFixedHeight = true) {
         <BubbleChart key={plot.id} props={plot} />
       ) : isScatterPlot(plot) ? (
         <Scatterplot key={plot.id} props={plot} />
+      ) : isMoranScatterPlot(plot) ? (
+        <MoranScatterPlot key={plot.id} props={plot} />
       ) : null}
     </div>
   );
@@ -93,6 +102,9 @@ export const PlotManagementPanel = () => {
         </Tab>
         <Tab key="parallel-coordinate" title="Parallel Coordinate">
           <PlotsWrapper plots={plots} plotType="parallel-coordinate" />
+        </Tab>
+        <Tab key="moranscatter" title="Moran Scatter Plot">
+          <PlotsWrapper plots={plots} plotType="moranscatter" />
         </Tab>
       </Tabs>
     </div>

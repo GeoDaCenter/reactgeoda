@@ -50,13 +50,15 @@ export type BubbleChartActionProps = BasePlotActionProps & {
 
 export type MoranScatterPlotActionProps = BasePlotActionProps & {
   type: 'moranscatter';
-  variableX: string;
-  variableY: string;
+  datasetId: string;
+  variable: string;
+  weightsId: string;
 };
 
 export type PlotActionProps =
   | HistogramPlotActionProps
   | ScatterPlotActionProps
+  | MoranScatterPlotActionProps
   | BoxPlotActionProps
   | BubbleChartActionProps
   | ParallelCoordinateActionProps;

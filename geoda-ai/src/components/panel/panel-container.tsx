@@ -20,6 +20,7 @@ import {Splitter} from '../common/splitter';
 import {DEFAULT_PANEL_WIDTH, PanelName} from '@/constants';
 import {SpatialJoinPanel} from '../spatial-operations/spatial-join-panel';
 import {Button} from '@nextui-org/react';
+import {MoranScatterPanel} from '../plots/moranscatter-panel';
 
 const TablePanel = dynamic(() => import('../table/table-panel'), {ssr: false});
 const MappingPanel = dynamic(() => import('../mapping/mapping-panel'), {ssr: false});
@@ -83,6 +84,7 @@ export const PanelContainer = () => {
           {propertyPanelName === PanelName.DASHBOARD && <DashboardPanel />}
           {propertyPanelName === PanelName.TABLE && <TablePanel />}
           {propertyPanelName === PanelName.SPATIAL_JOIN && <SpatialJoinPanel />}
+          {propertyPanelName === PanelName.MORAN_SCATTERPLOT && <MoranScatterPanel />}
         </div>
       </div>
     </div>
