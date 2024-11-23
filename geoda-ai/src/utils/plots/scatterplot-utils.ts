@@ -1,4 +1,5 @@
 import {numericFormatter} from './format-utils';
+import {calculateLoessRegression} from '../math-utils';
 
 export type ScatPlotDataProps = {
   variableX: string;
@@ -31,20 +32,31 @@ export function getScatterChartOption(
   xData: number[],
   yVariableName: string,
   yData: number[],
-  showRegressionLine: boolean = false
+  showRegressionLine: boolean = false,
+  showLoess: boolean = false
 ) {
   const seriesData = xData.map((x, i) => [x, yData[i]]);
 
-  // Calculate regression line
-  const {slope, intercept} = calculateLinearRegression(xData, yData);
-  // Extend regression line to entire plot
-  const padding = (Math.max(...xData) - Math.min(...xData)) * 0.2;
-  const extendedMinX = Math.min(...xData) - padding;
-  const extendedMaxX = Math.max(...xData) + padding;
-  const regressionLineData = [
-    [extendedMinX, slope * extendedMinX + intercept],
-    [extendedMaxX, slope * extendedMaxX + intercept]
-  ];
+  // Calculate regression line based on type
+  let regressionLineData: [number, number][] = [];
+  let slope = 0;
+  let loessResult;
+
+  if (showRegressionLine) {
+    const regression = calculateLinearRegression(xData, yData);
+    slope = regression.slope;
+    const intercept = regression.intercept;
+    const padding = (Math.max(...xData) - Math.min(...xData)) * 0.2;
+    const extendedMinX = Math.min(...xData) - padding;
+    const extendedMaxX = Math.max(...xData) + padding;
+    regressionLineData = [
+      [extendedMinX, slope * extendedMinX + intercept],
+      [extendedMaxX, slope * extendedMaxX + intercept]
+    ];
+  }
+  if (showLoess) {
+    loessResult = calculateLoessRegression(xData, yData);
+  }
 
   const option = {
     ...(showRegressionLine
@@ -106,6 +118,52 @@ export function getScatterChartOption(
               lineStyle: {
                 width: 2,
                 type: 'dashed'
+              }
+            }
+          ]
+        : []),
+      ...(showLoess
+        ? [
+            {
+              type: 'line',
+              data: loessResult?.fitted,
+              showSymbol: false,
+              itemStyle: {
+                color: '#0000ff'
+              },
+              lineStyle: {
+                width: 2,
+                type: 'solid'
+              }
+            },
+            {
+              type: 'line',
+              data: loessResult?.lower.map((lowerValue, index) => [
+                loessResult?.fitted[index][0],
+                lowerValue[1]
+              ]),
+              showSymbol: false,
+              lineStyle: {
+                opacity: 0.5,
+                type: 'dotted'
+              },
+              itemStyle: {
+                color: '#ffffff'
+              }
+            },
+            {
+              type: 'line',
+              data: loessResult?.upper.map((upperValue, index) => [
+                loessResult?.fitted[index][0],
+                upperValue[1]
+              ]),
+              showSymbol: false,
+              lineStyle: {
+                opacity: 0.5,
+                type: 'dotted'
+              },
+              itemStyle: {
+                color: '#ffffff'
               }
             }
           ]

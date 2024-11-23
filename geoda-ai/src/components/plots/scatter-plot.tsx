@@ -14,7 +14,7 @@ import {
   //DataZoomComponent
 } from 'echarts/components';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
-import {Card, CardHeader, CardBody} from '@nextui-org/react';
+import {Card, CardHeader, CardBody, CardFooter} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
@@ -22,6 +22,7 @@ import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {selectKeplerDataset} from '@/store/selectors';
 import {ChartInsightButton} from '../common/chart-insight';
 import {ScatterPlotStateProps} from '@/reducers/plot-reducer';
+import {Icon} from '@iconify/react/dist/iconify.js';
 
 // Register the required ECharts components
 echarts.use([
@@ -54,7 +55,9 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
     const xData = getColumnDataFromKeplerDataset(variableX, keplerDataset);
     const yData = getColumnDataFromKeplerDataset(variableY, keplerDataset);
 
-    return getScatterChartOption(variableX, xData, variableY, yData);
+    const showRegressionLine = true;
+    const showLoess = true;
+    return getScatterChartOption(variableX, xData, variableY, yData, showRegressionLine, showLoess);
   }, [keplerDataset, variableX, variableY]);
 
   const bindEvents = useMemo(
@@ -100,6 +103,12 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
                   <EChartsUpdater dataId={datasetId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
+              <CardFooter className="justify-end gap-2 px-4 py-2">
+                <Icon icon="material-symbols-light:query-stats" width="18" height="18" />
+                <span className="text-tiny">Show Stats</span>
+                <Icon icon="mynaui:config" width="18" height="18" />
+                <span className="text-tiny">Settings</span>
+              </CardFooter>
             </Card>
           </div>
         )}

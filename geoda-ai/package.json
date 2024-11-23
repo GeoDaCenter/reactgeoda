@@ -46,6 +46,7 @@
     "echarts-stat": "^1.2.0",
     "framer-motion": "^11.11.10",
     "html2canvas": "^1.4.1",
+    "jstat": "^1.9.6",
     "lexical": "0.14.2",
     "next": "14.0.4",
     "next-themes": "^0.3.0",

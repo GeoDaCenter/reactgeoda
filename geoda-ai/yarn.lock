@@ -14132,6 +14132,7 @@ __metadata:
     jest-dom: ^4.0.0
     jest-environment-jsdom: ^29.7.0
     jsonp: ^0.2.1
+    jstat: ^1.9.6
     lexical: 0.14.2
     markdown-to-jsx: ^7.4.7
     mersenne-twister: ^1.1.0
@@ -16474,6 +16475,13 @@ __metadata:
     json-schema: 0.4.0
     verror: 1.10.0
   checksum: 2ad1b9fdcccae8b3d580fa6ced25de930eaa1ad154db21bbf8478a4d30bbbec7925b5f5ff29b933fba9412b16a17bd484a8da4fdb3663b5e27af95dd693bab2a
+  languageName: node
+  linkType: hard
+
+"jstat@npm:^1.9.6":
+  version: 1.9.6
+  resolution: "jstat@npm:1.9.6"
+  checksum: 4aadd3cea7c304ffa76c525647f2eb7fd25c07bdd8681ba0fa2a00d7145b37934b9b00b02d0eead317e981cf3d356fede247c847a45678c4e1d978f9fb6e1c4e
   languageName: node
   linkType: hard
 
