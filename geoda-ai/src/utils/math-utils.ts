@@ -78,3 +78,64 @@ export function calculateLoessRegression(
 
   return {fitted, upper, lower};
 }
+
+/**
+ * Performs Chow test to check for structural break in linear regression
+ * @param x1 First subset x values
+ * @param y1 First subset y values
+ * @param x2 Second subset x values
+ * @param y2 Second subset y values
+ * @returns Object containing F-statistic and p-value
+ */
+export type ChowTestResult = {
+  fStat: number;
+  pValue: number;
+};
+
+function calculateSSR(x: number[], y: number[]): number {
+  const n = x.length;
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+  
+  for (let i = 0; i < n; i++) {
+    sumX += x[i];
+    sumY += y[i];
+    sumXY += x[i] * y[i];
+    sumXX += x[i] * x[i];
+  }
+  
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+  
+  let ssr = 0;
+  for (let i = 0; i < n; i++) {
+    const predicted = slope * x[i] + intercept;
+    ssr += Math.pow(y[i] - predicted, 2);
+  }
+  
+  return ssr;
+}
+
+export function chowTest(x1: number[], y1: number[], x2: number[], y2: number[]): ChowTestResult {
+  // Calculate SSR for pooled data
+  const xPooled = [...x1, ...x2];
+  const yPooled = [...y1, ...y2];
+  const ssrPooled = calculateSSR(xPooled, yPooled);
+  
+  // Calculate SSR for each subset
+  const ssr1 = calculateSSR(x1, y1);
+  const ssr2 = calculateSSR(x2, y2);
+  
+  const n1 = x1.length;
+  const n2 = x2.length;
+  const k = 2; // number of parameters (slope and intercept)
+  
+  // Calculate F-statistic
+  const numerator = (ssrPooled - (ssr1 + ssr2)) / k;
+  const denominator = (ssr1 + ssr2) / (n1 + n2 - 2 * k);
+  const fStat = numerator / denominator;
+  
+  // Calculate p-value using F-distribution
+  const pValue = 1 - jStat.f.cdf(fStat, k, n1 + n2 - 2 * k);
+  
+  return { fStat, pValue };
+}
