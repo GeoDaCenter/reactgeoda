@@ -26,6 +26,7 @@ export type ScatterPlotActionProps = BasePlotActionProps & {
   type: 'scatter';
   variableX: string;
   variableY: string;
+  showMore?: boolean;
 };
 
 export type BoxPlotActionProps = BasePlotActionProps & {

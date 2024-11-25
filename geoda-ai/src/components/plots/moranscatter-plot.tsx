@@ -11,7 +11,7 @@ import {
   ToolboxComponent
 } from 'echarts/components';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
-import {Card, CardHeader, CardBody, CardFooter, Button} from '@nextui-org/react';
+import {Card, CardHeader, CardBody, CardFooter} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
@@ -54,7 +54,18 @@ export const MoranScatterPlot = ({props}: {props: MoranScatterPlotStateProps}) =
     const y = selectedWeights?.weights ? spatialLag(x, selectedWeights.weights) : [];
     const showRegressionLine = true;
     const showLoess = false;
-    return getScatterChartOption(variable, x, 'spatial lag', y, showRegressionLine, showLoess);
+    const isPadded = true;
+    const showMoransI = true;
+    return getScatterChartOption(
+      variable,
+      x,
+      'spatial lag',
+      y,
+      isPadded,
+      showRegressionLine,
+      showLoess,
+      showMoransI
+    );
   }, [keplerDataset, variable, selectedWeights]);
 
   const bindEvents = useMemo(
@@ -98,9 +109,7 @@ export const MoranScatterPlot = ({props}: {props: MoranScatterPlotStateProps}) =
                   <EChartsUpdater dataId={datasetId} eChartsRef={eChartsRef} />
                 )}
               </CardBody>
-              <CardFooter className="flex justify-end">
-                <Button isIconOnly size="sm" isDisabled></Button>
-              </CardFooter>
+              <CardFooter className="flex justify-end"></CardFooter>
             </Card>
           </div>
         )}

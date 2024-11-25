@@ -1,4 +1,4 @@
-interface RegressionResults {
+export type RegressionResults = {
   rSquared: number;
   intercept: {
     estimate: number;
@@ -12,11 +12,17 @@ interface RegressionResults {
     tStatistic: number;
     pValue: number;
   };
-}
+};
 
 export function linearRegression(x: number[], y: number[]): RegressionResults {
   if (x.length !== y.length || x.length < 2) {
-    throw new Error('Input arrays must have the same length and contain at least 2 points');
+    // Input arrays must have the same length and contain at least 2 points'
+    // return zero regression results
+    return {
+      rSquared: 0,
+      intercept: {estimate: 0, standardError: 0, tStatistic: 0, pValue: 0},
+      slope: {estimate: 0, standardError: 0, tStatistic: 0, pValue: 0}
+    };
   }
 
   const n = x.length;

@@ -32,8 +32,10 @@ export function getScatterChartOption(
   xData: number[],
   yVariableName: string,
   yData: number[],
+  isPadded: boolean = false,
   showRegressionLine: boolean = false,
-  showLoess: boolean = false
+  showLoess: boolean = false,
+  showMoransI: boolean = false
 ) {
   const seriesData = xData.map((x, i) => [x, yData[i]]);
 
@@ -46,7 +48,7 @@ export function getScatterChartOption(
     const regression = calculateLinearRegression(xData, yData);
     slope = regression.slope;
     const intercept = regression.intercept;
-    const padding = (Math.max(...xData) - Math.min(...xData)) * 0.2;
+    const padding = isPadded ? (Math.max(...xData) - Math.min(...xData)) * 0.2 : 0;
     const extendedMinX = Math.min(...xData) - padding;
     const extendedMaxX = Math.max(...xData) + padding;
     regressionLineData = [
@@ -59,7 +61,7 @@ export function getScatterChartOption(
   }
 
   const option = {
-    ...(showRegressionLine
+    ...(showMoransI
       ? {
           title: {
             text: `Moran's I ${slope.toFixed(3)}`,

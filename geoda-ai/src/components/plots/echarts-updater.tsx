@@ -49,7 +49,8 @@ export function onBrushSelected(
   dispatch: Dispatch<any>,
   dataId: string,
   id: string,
-  eChart?: EChartsType
+  eChart?: EChartsType,
+  onSelected?: ({dataId, filteredIndex}: {dataId: string; filteredIndex: number[]}) => void
 ) {
   if (!id || !params.batch || params.batch.length === 0) {
     return;
@@ -73,4 +74,5 @@ export function onBrushSelected(
 
   // Dispatch action to highlight selected in other components
   dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: brushed}));
+  onSelected?.({dataId, filteredIndex: brushed});
 }

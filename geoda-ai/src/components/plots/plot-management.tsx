@@ -1,5 +1,7 @@
 import {useSelector} from 'react-redux';
 import {Tab, Tabs} from '@nextui-org/react';
+import {ResizableBox} from 'react-resizable';
+import 'react-resizable/css/styles.css';
 
 import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
@@ -49,9 +51,9 @@ export function isMoranScatterPlot(plot: PlotStateProps): plot is MoranScatterPl
 }
 
 // PlotWrapper component with fixed height
-export function PlotWrapper(plot: PlotStateProps, isFixedHeight = true) {
+export function PlotWrapper(plot: PlotStateProps) {
   return (
-    <div className={isFixedHeight ? 'h-[280px] w-full p-1' : 'h-full w-full'}>
+    <div className={'h-full w-full'}>
       {isHistogramPlot(plot) ? (
         <HistogramPlot key={plot.id} props={plot} />
       ) : isBoxPlot(plot) ? (
@@ -73,7 +75,32 @@ const PlotsWrapper = ({plots, plotType}: {plots: PlotStateProps[]; plotType?: st
   const filteredPlots = plotType ? plots.filter(plot => plot.type === plotType) : plots;
   return (
     <div className="flow flow-col space-y-2">
-      {filteredPlots.toReversed().map(plot => PlotWrapper(plot))}
+      {filteredPlots.toReversed().map(plot => (
+        <ResizableBox
+          key={plot.id}
+          width={Infinity}
+          height={280}
+          minConstraints={[Infinity, 280]}
+          maxConstraints={[Infinity, 600]}
+          resizeHandles={['se']}
+          handle={
+            <div className="group absolute bottom-0 right-0 h-6 w-6 cursor-se-resize">
+              <div className="flex h-full w-full items-center justify-center transition-colors hover:bg-gray-100/10">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  className="text-gray-300 group-hover:text-gray-400"
+                >
+                  <path d="M11 6V11H6" stroke="currentColor" strokeWidth="2" fill="none" />
+                </svg>
+              </div>
+            </div>
+          }
+        >
+          {PlotWrapper(plot)}
+        </ResizableBox>
+      ))}
     </div>
   );
 };
