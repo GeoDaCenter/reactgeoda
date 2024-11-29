@@ -5,6 +5,7 @@ import {GeoDaState} from '@/store';
 import {geodaBrushLink} from '@/actions';
 import {EChartsType} from 'echarts';
 import {selectKeplerDataset} from '@/store/selectors';
+import debounce from 'lodash/debounce';
 
 type EChartsUpdaterProps = {
   dataId: string;
@@ -44,6 +45,16 @@ export const EChartsUpdater = ({dataId, eChartsRef, seriesIndex}: EChartsUpdater
   return null;
 };
 
+// Define the type first
+type OnSelectedCallback = (params: {dataId: string; filteredIndex: number[]}) => void;
+
+const debouncedOnSelected = debounce(
+  (params: {dataId: string; filteredIndex: number[]}, callback?: OnSelectedCallback) => {
+    callback?.(params);
+  },
+  500
+);
+
 export function onBrushSelected(
   params: any,
   dispatch: Dispatch<any>,
@@ -74,5 +85,9 @@ export function onBrushSelected(
 
   // Dispatch action to highlight selected in other components
   dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: brushed}));
-  onSelected?.({dataId, filteredIndex: brushed});
+
+  if (brushed.length > 0) {
+    // Debounce the onSelected callback
+    debouncedOnSelected({dataId, filteredIndex: brushed}, onSelected);
+  }
 }

@@ -14,7 +14,7 @@ export type RegressionResults = {
   };
 };
 
-export function linearRegression(x: number[], y: number[]): RegressionResults {
+export function linearRegression(x: number[], y: number[], showStats: boolean): RegressionResults {
   if (x.length !== y.length || x.length < 2) {
     // Input arrays must have the same length and contain at least 2 points'
     // return zero regression results

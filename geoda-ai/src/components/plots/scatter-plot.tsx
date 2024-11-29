@@ -66,6 +66,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
     unselected: RegressionResults | null;
   } | null>(null);
   const [chowTestResults, setChowTestResults] = useState<ChowTestResult | null>(null);
+  const [brushCoords, setBrushCoords] = useState<[[number, number], [number, number]] | null>(null);
 
   const {id, datasetId, variableX, variableY} = props;
 
@@ -84,7 +85,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
 
   // get chart option by calling getChartOption only once
   const option = useMemo(() => {
-    const isPadded = false;
     const showRegressionLine = true;
     const showLoess = true;
     return getScatterChartOption(
@@ -92,11 +92,13 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       xData,
       variableY,
       yData,
-      isPadded,
       showRegressionLine,
-      showLoess
+      showLoess,
+      regressionResults?.all,
+      regressionResults?.selected,
+      regressionResults?.unselected
     );
-  }, [variableX, variableY, xData, yData]);
+  }, [variableX, variableY, xData, yData, regressionResults]);
 
   const onSelected = useCallback(
     ({filteredIndex}: {filteredIndex: number[]}) => {
@@ -122,10 +124,11 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       setYUnselected(unselectedY);
 
       // update regression results
-      const allResults = linearRegression(xData, yData);
-      const selectedResults = selectedX.length > 0 ? linearRegression(selectedX, selectedY) : null;
+      const allResults = linearRegression(xData, yData, showMore);
+      const selectedResults =
+        selectedX.length > 0 ? linearRegression(selectedX, selectedY, showMore) : null;
       const unselectedResults =
-        unselectedX.length > 0 ? linearRegression(unselectedX, unselectedY) : null;
+        unselectedX.length > 0 ? linearRegression(unselectedX, unselectedY, showMore) : null;
       setRegressionResults({
         all: allResults,
         selected: selectedResults,
@@ -133,19 +136,41 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       });
 
       // Calculate Chow test results if both selected and unselected data exist
-      if (selectedX.length > 0 && unselectedX.length > 0) {
+      if (showMore && selectedX.length > 0 && unselectedX.length > 0) {
         const chowResults = chowTest(selectedX, selectedY, unselectedX, unselectedY);
         setChowTestResults(chowResults);
       } else {
         setChowTestResults(null);
       }
+
+      // dipatch action to echarts
+      // eChartsRef.current?.getEchartsInstance()?.dispatchAction({
+      //   type: 'takeGlobalCursor',
+      //   key: 'brush',
+      //   brushOption: {
+      //     brushType: 'rect',
+      //     coordRange: brushCoords
+      //   }
+      // });
+      
+      // highlight selected points
+      eChartsRef.current?.getEchartsInstance()?.dispatchAction({
+        type: 'highlight',
+        dataIndex: filteredIndex,
+        data: 'scatter-selected'
+      });
     },
-    [xData, yData]
+    [xData, yData, showMore]
   );
 
   const bindEvents = useMemo(
     () => ({
       brushSelected: function (params: any) {
+        // Save brush coordinates if available
+        if (params.areas?.[0]?.coordRange) {
+          setBrushCoords(params.areas[0].coordRange);
+        }
+        
         onBrushSelected(
           params,
           dispatch,
@@ -154,6 +179,13 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
           eChartsRef.current?.getEchartsInstance(),
           onSelected
         );
+      },
+      highlight: function (params: any) {
+        console.log(params);
+        if (!params.data) {
+          // trigger onSelected
+          onSelected({filteredIndex: params.dataIndex});
+        }
       }
     }),
     [dispatch, datasetId, id, onSelected]
@@ -166,10 +198,11 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
 
   const handleMorePress = useCallback(() => {
     if (!showMore) {
-      const allResults = linearRegression(xData, yData);
-      const selectedResults = xSelected.length > 0 ? linearRegression(xSelected, ySelected) : null;
+      const allResults = linearRegression(xData, yData, showMore);
+      const selectedResults =
+        xSelected.length > 0 ? linearRegression(xSelected, ySelected, showMore) : null;
       const unselectedResults =
-        xUnselected.length > 0 ? linearRegression(xUnselected, yUnselected) : null;
+        xUnselected.length > 0 ? linearRegression(xUnselected, yUnselected, showMore) : null;
 
       setRegressionResults({
         all: allResults,
@@ -186,7 +219,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       <AutoSizer>
         {({height, width}) => (
           <div style={{height, width}}>
-            <Card className="h-full w-full" shadow="none" id={chartId}>
+            <Card className="h-full w-full mb-8" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">{title}</p>
                 <small className="text-default-500">{keplerDataset.label}</small>
@@ -220,7 +253,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
                     }
                     endContent={
                       showMore && (
-                        <Icon icon="material-symbols-light:check" width="18" height="18" />
+                        <Icon icon="solar:alt-arrow-up-line-duotone" width="18" height="18" />
                       )
                     }
                     onPress={handleMorePress}
@@ -247,7 +280,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
                         table: 'p-0 m-0 text-tiny',
                         wrapper: 'p-0 pr-2',
                         th: 'text-tiny',
-                        td: 'text-tiny'
+                        td: 'text-[9px]'
                       }}
                       isCompact={true}
                       removeWrapper={true}

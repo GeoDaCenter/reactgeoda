@@ -14144,6 +14144,7 @@ __metadata:
     jsonp: ^0.2.1
     jstat: ^1.9.6
     lexical: 0.14.2
+    lodash: ^4.17.21
     markdown-to-jsx: ^7.4.7
     mersenne-twister: ^1.1.0
     monaco-editor: ^0.45.0

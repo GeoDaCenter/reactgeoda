@@ -13,7 +13,7 @@ import {
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import {Card, CardHeader, CardBody, CardFooter} from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
-import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
+import {getMoranScatterChartOption} from '@/utils/plots/moran-scatterplot-utils';
 import {EChartsUpdater, onBrushSelected} from './echarts-updater';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {selectKeplerDataset} from '@/store/selectors';
@@ -52,20 +52,7 @@ export const MoranScatterPlot = ({props}: {props: MoranScatterPlotStateProps}) =
     const data = getColumnDataFromKeplerDataset(variable, keplerDataset);
     const x = standardize(data);
     const y = selectedWeights?.weights ? spatialLag(x, selectedWeights.weights) : [];
-    const showRegressionLine = true;
-    const showLoess = false;
-    const isPadded = true;
-    const showMoransI = true;
-    return getScatterChartOption(
-      variable,
-      x,
-      'spatial lag',
-      y,
-      isPadded,
-      showRegressionLine,
-      showLoess,
-      showMoransI
-    );
+    return getMoranScatterChartOption(variable, x, 'spatial lag', y);
   }, [keplerDataset, variable, selectedWeights]);
 
   const bindEvents = useMemo(

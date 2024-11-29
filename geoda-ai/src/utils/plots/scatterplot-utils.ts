@@ -1,30 +1,25 @@
 import {numericFormatter} from './format-utils';
 import {calculateLoessRegression} from '../math-utils';
+import {RegressionResults} from '../math/linear-regression';
 
 export type ScatPlotDataProps = {
   variableX: string;
   variableY: string;
 };
 
-// Add these helper functions for linear regression calculation
-function calculateLinearRegression(xData: number[], yData: number[]) {
-  const n = xData.length;
-  let sumX = 0,
-    sumY = 0,
-    sumXY = 0,
-    sumXX = 0;
-
-  for (let i = 0; i < n; i++) {
-    sumX += xData[i];
-    sumY += yData[i];
-    sumXY += xData[i] * yData[i];
-    sumXX += xData[i] * xData[i];
-  }
-
-  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
-
-  return {slope, intercept};
+function getRegressionLineData(
+  allRegressionResults: RegressionResults,
+  dataMinX: number,
+  dataMaxX: number
+) {
+  const regression = allRegressionResults;
+  const slope = regression.slope.estimate;
+  const intercept = regression.intercept.estimate;
+  const regressionLineData: [number, number][] = [
+    [dataMinX, slope * dataMinX + intercept],
+    [dataMaxX, slope * dataMaxX + intercept]
+  ];
+  return regressionLineData;
 }
 
 export function getScatterChartOption(
@@ -32,47 +27,44 @@ export function getScatterChartOption(
   xData: number[],
   yVariableName: string,
   yData: number[],
-  isPadded: boolean = false,
   showRegressionLine: boolean = false,
   showLoess: boolean = false,
-  showMoransI: boolean = false
+  allRegressionResults: RegressionResults | null = null,
+  selectedRegressionResults: RegressionResults | null = null,
+  unselectedRegressionResults: RegressionResults | null = null
 ) {
   const seriesData = xData.map((x, i) => [x, yData[i]]);
 
   // Calculate regression line based on type
+  const extendedMinX = Math.min(...xData);
+  const extendedMaxX = Math.max(...xData);
   let regressionLineData: [number, number][] = [];
-  let slope = 0;
+  let selectedRegressionLineData: [number, number][] = [];
+  let unselectedRegressionLineData: [number, number][] = [];
   let loessResult;
 
-  if (showRegressionLine) {
-    const regression = calculateLinearRegression(xData, yData);
-    slope = regression.slope;
-    const intercept = regression.intercept;
-    const padding = isPadded ? (Math.max(...xData) - Math.min(...xData)) * 0.2 : 0;
-    const extendedMinX = Math.min(...xData) - padding;
-    const extendedMaxX = Math.max(...xData) + padding;
-    regressionLineData = [
-      [extendedMinX, slope * extendedMinX + intercept],
-      [extendedMaxX, slope * extendedMaxX + intercept]
-    ];
+  if (showRegressionLine && allRegressionResults) {
+    regressionLineData = getRegressionLineData(allRegressionResults, extendedMinX, extendedMaxX);
+    if (selectedRegressionResults) {
+      selectedRegressionLineData = getRegressionLineData(
+        selectedRegressionResults,
+        extendedMinX,
+        extendedMaxX
+      );
+    }
+    if (unselectedRegressionResults) {
+      unselectedRegressionLineData = getRegressionLineData(
+        unselectedRegressionResults,
+        extendedMinX,
+        extendedMaxX
+      );
+    }
   }
   if (showLoess) {
     loessResult = calculateLoessRegression(xData, yData);
   }
 
   const option = {
-    ...(showMoransI
-      ? {
-          title: {
-            text: `Moran's I ${slope.toFixed(3)}`,
-            left: 'center',
-            top: 10,
-            textStyle: {
-              fontSize: 10
-            }
-          }
-        }
-      : {}),
     xAxis: {
       type: 'value',
       axisLabel: {
@@ -110,16 +102,39 @@ export function getScatterChartOption(
       },
       ...(showRegressionLine
         ? [
+            ...(selectedRegressionResults
+              ? [
+                  {
+                    type: 'line',
+                    data: selectedRegressionLineData,
+                    showSymbol: false,
+                    itemStyle: {
+                      color: '#ff0000'
+                    }
+                  }
+                ]
+              : []),
+            ...(unselectedRegressionResults
+              ? [
+                  {
+                    type: 'line',
+                    showSymbol: false,
+                    data: unselectedRegressionLineData,
+                    itemStyle: {
+                      color: '#00ff00'
+                    }
+                  }
+                ]
+              : []),
             {
               type: 'line',
               data: regressionLineData,
               showSymbol: false,
               itemStyle: {
-                color: '#ff6666'
+                color: '#800080'
               },
               lineStyle: {
-                width: 2,
-                type: 'dashed'
+                width: 2
               }
             }
           ]
@@ -147,7 +162,8 @@ export function getScatterChartOption(
               showSymbol: false,
               lineStyle: {
                 opacity: 0.5,
-                type: 'dotted'
+                type: 'dotted',
+                width: 1
               },
               itemStyle: {
                 color: '#ffffff'
@@ -162,7 +178,8 @@ export function getScatterChartOption(
               showSymbol: false,
               lineStyle: {
                 opacity: 0.5,
-                type: 'dotted'
+                type: 'dotted',
+                width: 1
               },
               itemStyle: {
                 color: '#ffffff'
@@ -184,7 +201,14 @@ export function getScatterChartOption(
     brush: {
       toolbox: ['rect', 'polygon', 'clear'],
       xAxisIndex: 0,
-      yAxisIndex: 0
+      yAxisIndex: 0,
+      brushOption: {
+        brushType: 'rect',
+        coordRange: [
+          [0, 100],
+          [0, 100]
+        ]
+      }
     },
     grid: {
       left: '3%',
