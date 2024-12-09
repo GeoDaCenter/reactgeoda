@@ -20,8 +20,8 @@ import ThemeProviderWrapper from '@/components/theme-provider-wrapper';
 import {useSearchParams} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {DuckDB} from '@/hooks/use-duckdb';
-import {useGeoDa} from '@/hooks/use-geoda';
 import {GeoDaLogo} from '@/components/navigator/geoda-logo';
+import {initGeoDa} from 'geoda-wasm';
 const MainConatiner = dynamic(() => import('@/components/main-container'), {ssr: false});
 // import MainConatiner from '@/components/main-container';
 
@@ -32,12 +32,12 @@ export default function Home() {
   const [isDuckDBReady, setIsDuckDBReady] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
 
-  useGeoDa();
-
-  // Initialize DuckDB and set ready state
+  // Initialize DuckDB and GeoDa WASM and set ready state
   useEffect(() => {
     async function initDuckDB() {
       await DuckDB.getInstance().initDuckDB();
+      // init GeoDa WASM
+      await initGeoDa();
       setIsDuckDBReady(true);
     }
     initDuckDB();
