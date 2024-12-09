@@ -53,7 +53,7 @@ export function isMoranScatterPlot(plot: PlotStateProps): plot is MoranScatterPl
 // PlotWrapper component with fixed height
 export function PlotWrapper(plot: PlotStateProps) {
   return (
-    <div className='h-full w-full mb-4'>
+    <div className="mb-4 h-full w-full">
       {isHistogramPlot(plot) ? (
         <HistogramPlot key={plot.id} props={plot} />
       ) : isBoxPlot(plot) ? (

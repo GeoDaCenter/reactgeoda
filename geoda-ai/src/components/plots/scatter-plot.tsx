@@ -66,6 +66,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
     unselected: RegressionResults | null;
   } | null>(null);
   const [chowTestResults, setChowTestResults] = useState<ChowTestResult | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [brushCoords, setBrushCoords] = useState<[[number, number], [number, number]] | null>(null);
 
   const {id, datasetId, variableX, variableY} = props;
@@ -152,7 +153,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       //     coordRange: brushCoords
       //   }
       // });
-      
+
       // highlight selected points
       eChartsRef.current?.getEchartsInstance()?.dispatchAction({
         type: 'highlight',
@@ -170,7 +171,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
         if (params.areas?.[0]?.coordRange) {
           setBrushCoords(params.areas[0].coordRange);
         }
-        
+
         onBrushSelected(
           params,
           dispatch,
@@ -219,7 +220,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       <AutoSizer>
         {({height, width}) => (
           <div style={{height, width}}>
-            <Card className="h-full w-full mb-8" shadow="none" id={chartId}>
+            <Card className="mb-8 h-full w-full" shadow="none" id={chartId}>
               <CardHeader className="flex-col items-start px-4 pb-0 pt-2">
                 <p className="text-tiny font-bold uppercase">{title}</p>
                 <small className="text-default-500">{keplerDataset.label}</small>
