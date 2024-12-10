@@ -155,7 +155,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
   const bindEvents = useMemo(
     () => ({
       highlight: function (params: any) {
-        console.log(params);
         if (!params.data) {
           // trigger onSelected
           onSelected({filteredIndex: params.dataIndex});

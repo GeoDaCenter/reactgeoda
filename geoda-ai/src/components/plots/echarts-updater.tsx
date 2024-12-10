@@ -83,11 +83,10 @@ export function onBrushSelected(
     }
   }, 100);
 
-  // Dispatch action to highlight selected in other components
-  dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: brushed}));
-
   if (brushed.length > 0) {
     // Debounce the onSelected callback
     debouncedOnSelected({dataId, filteredIndex: brushed}, onSelected);
+    // Dispatch action to highlight selected in other components
+    dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: brushed}));
   }
 }

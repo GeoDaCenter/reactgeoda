@@ -46,6 +46,10 @@ function getRegressionLineData(
     points.push([dataMaxX, y2]);
   }
 
+  // if there is Infinity or NaN return []
+  if (points.some(point => !isFinite(point[0]) || !isFinite(point[1]))) {
+    return [];
+  }
   return points;
 }
 

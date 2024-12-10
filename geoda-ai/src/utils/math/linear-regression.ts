@@ -1,4 +1,5 @@
 export type RegressionResults = {
+  valid: boolean;
   rSquared: number;
   intercept: {
     estimate: number;
@@ -19,6 +20,7 @@ export function linearRegression(x: number[], y: number[]): RegressionResults {
     // Input arrays must have the same length and contain at least 2 points'
     // return zero regression results
     return {
+      valid: false,
       rSquared: 0,
       intercept: {estimate: 0, standardError: 0, tStatistic: 0, pValue: 0},
       slope: {estimate: 0, standardError: 0, tStatistic: 0, pValue: 0}
@@ -69,6 +71,7 @@ export function linearRegression(x: number[], y: number[]): RegressionResults {
   const interceptPValue = 2 * (1 - tCDF(Math.abs(interceptTStat), n - 2));
 
   return {
+    valid: true,
     rSquared,
     intercept: {
       estimate: intercept,
