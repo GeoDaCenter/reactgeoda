@@ -26,6 +26,7 @@ export type ScatterPlotActionProps = BasePlotActionProps & {
   type: 'scatter';
   variableX: string;
   variableY: string;
+  showMore?: boolean;
 };
 
 export type BoxPlotActionProps = BasePlotActionProps & {
@@ -48,9 +49,24 @@ export type BubbleChartActionProps = BasePlotActionProps & {
   variableColor?: string; // optionally, color
 };
 
+export type MoranScatterPlotActionProps = BasePlotActionProps & {
+  type: 'moranscatter';
+  datasetId: string;
+  variable: string;
+  weightsId: string;
+};
+
+export type SimpleScatterPlotActionProps = BasePlotActionProps & {
+  type: 'simplescatter';
+  datasetId: string;
+  variableX: string;
+  variableY: string;
+};
+
 export type PlotActionProps =
   | HistogramPlotActionProps
   | ScatterPlotActionProps
+  | MoranScatterPlotActionProps
   | BoxPlotActionProps
   | BubbleChartActionProps
   | ParallelCoordinateActionProps;

@@ -16,7 +16,8 @@ import {
   IconWeights,
   IconSpreg,
   IconSave,
-  IconSpatialJoin
+  IconSpatialJoin,
+  IconMoranScatterplot
 } from './navitagor-icons';
 import {
   setAddDatasetModal,
@@ -35,77 +36,49 @@ import {IconAddDataset} from '@/components/icons/add';
 export function Navigator() {
   const dispatch = useDispatch();
 
-  const showOpenModal = useSelector(
-    (state: GeoDaState) => state.root.uiState.openFileModal.showOpenFileModal
-  );
-  const showSaveProjectModal = useSelector(
-    (state: GeoDaState) => state.root.uiState.showSaveProjectModal
-  );
-  const showAddDatasetModal = useSelector(
-    (state: GeoDaState) => state.root.uiState.openFileModal.showAddDatasetModal
-  );
-  const isFileLoaded = useSelector((state: GeoDaState) => state.root.datasets?.length > 0);
+  const uiState = useSelector((state: GeoDaState) => ({
+    isFileLoaded: state.root.datasets?.length > 0,
+    showOpenModal: state.root.uiState.openFileModal.showOpenFileModal,
+    showSaveProjectModal: state.root.uiState.showSaveProjectModal,
+    showAddDatasetModal: state.root.uiState.openFileModal.showAddDatasetModal,
+    showChatPanel: state.root.uiState.showChatPanel
+  }));
 
-  const showChatPanel = useSelector((state: GeoDaState) => state.root.uiState.showChatPanel);
-
-  // get number of newly added weights from state.root.weights
-  const newWeightsCount = useSelector(
-    (state: GeoDaState) => state.root.weights.filter(weight => weight.isNew).length
-  );
-
-  // get number of newly added plots from state.root.plots
-  const newHistogramCount = useSelector(
-    (state: GeoDaState) =>
-      state.root.plots.filter(plot => plot.isNew && plot.type === 'histogram').length
-  );
-
-  // get number of newly added regressions from state.root.regressions
-  const newRegressionCount = useSelector(
-    (state: GeoDaState) => state.root.regressions.filter(reg => reg.isNew).length
-  );
-
-  // get number of newly added scatterplots from state.root.plots
-  const newScatterplotCount = useSelector(
-    (state: GeoDaState) =>
-      state.root.plots.filter(plot => plot.isNew && plot.type === 'scatter').length
-  );
-
-  // get number of newly added bubble charts from state.root.plots
-  const newBubbleChartCount = useSelector(
-    (state: GeoDaState) =>
-      state.root.plots.filter(plot => plot.isNew && plot.type === 'bubble').length
-  );
-
-  // get number of newly added boxplots from state.root.plots
-  const newBoxplotCount = useSelector(
-    (state: GeoDaState) =>
-      state.root.plots.filter(plot => plot.isNew && plot.type === 'boxplot').length
-  );
+  const newItemCounts = useSelector((state: GeoDaState) => ({
+    weights: state.root.weights.filter(weight => weight.isNew).length,
+    histogram: state.root.plots.filter(plot => plot.isNew && plot.type === 'histogram').length,
+    regression: state.root.regressions.filter(reg => reg.isNew).length,
+    scatterplot: state.root.plots.filter(plot => plot.isNew && plot.type === 'scatter').length,
+    bubbleChart: state.root.plots.filter(plot => plot.isNew && plot.type === 'bubble').length,
+    boxplot: state.root.plots.filter(plot => plot.isNew && plot.type === 'boxplot').length,
+    moranScatterplot: state.root.plots.filter(plot => plot.isNew && plot.type === 'moranscatter')
+      .length
+  }));
 
   const onOpenCallback = useCallback(
     (event: React.MouseEvent) => {
       // dispatch action to open modal, update redux state state.root.uiState.showOpenFileModal
-      dispatch(setOpenFileModal(!showOpenModal));
+      dispatch(setOpenFileModal(!uiState.showOpenModal));
       event.preventDefault();
       event.stopPropagation();
     },
-    [dispatch, showOpenModal]
+    [dispatch, uiState.showOpenModal]
   );
 
   const onSaveCallback = useCallback(
     (event: React.MouseEvent) => {
-      dispatch(setSaveProjectModal(!showSaveProjectModal));
+      dispatch(setSaveProjectModal(!uiState.showSaveProjectModal));
       event.stopPropagation();
     },
-    [dispatch, showSaveProjectModal]
+    [dispatch, uiState.showSaveProjectModal]
   );
 
   const onAddCallback = useCallback(
     (event: React.MouseEvent) => {
-      dispatch(setAddDatasetModal(!showAddDatasetModal));
+      dispatch(setAddDatasetModal(!uiState.showAddDatasetModal));
       event.stopPropagation();
     },
-    [dispatch, showAddDatasetModal]
+    [dispatch, uiState.showAddDatasetModal]
   );
 
   const onTableCallback = useCallback(
@@ -128,7 +101,7 @@ export function Navigator() {
           dispatch(setPropertyPanel(PanelName.MAPPING));
           break;
         case 'icon-chatgpt':
-          dispatch(setShowChatPanel(!showChatPanel));
+          dispatch(setShowChatPanel(!uiState.showChatPanel));
           break;
         case 'icon-settings':
           dispatch(setPropertyPanel(PanelName.SETTINGS));
@@ -157,10 +130,13 @@ export function Navigator() {
         case 'icon-spatial-join':
           dispatch(setPropertyPanel(PanelName.SPATIAL_JOIN));
           break;
+        case 'icon-moran-scatterplot':
+          dispatch(setPropertyPanel(PanelName.MORAN_SCATTERPLOT));
+          break;
       }
       event.stopPropagation();
     },
-    [dispatch, showChatPanel]
+    [dispatch, uiState.showChatPanel]
   );
 
   const buttonClassName = 'bg-transparent active:outline-none active:ring-0';
@@ -175,7 +151,7 @@ export function Navigator() {
             size="sm"
             className={buttonClassName}
             onClick={onOpenCallback}
-            isDisabled={isFileLoaded}
+            isDisabled={uiState.isFileLoaded}
           >
             <IconOpen />
           </Button>
@@ -185,7 +161,7 @@ export function Navigator() {
             isIconOnly
             size="sm"
             className={buttonClassName}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
             onClick={onSaveCallback}
           >
             <IconSave />
@@ -197,7 +173,7 @@ export function Navigator() {
             size="sm"
             className={buttonClassName}
             onClick={onAddCallback}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
           >
             <IconAddDataset />
           </Button>
@@ -207,7 +183,7 @@ export function Navigator() {
             isIconOnly
             size="sm"
             className={buttonClassName}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
             onClick={onTableCallback}
           >
             <IconTable />
@@ -220,15 +196,15 @@ export function Navigator() {
             className={buttonClassName}
             id="icon-mapping"
             onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
           >
             <IconMap />
           </Button>
         </Tooltip>
         <Badge
           color="danger"
-          content={newWeightsCount}
-          isInvisible={newWeightsCount === 0}
+          content={newItemCounts.weights}
+          isInvisible={newItemCounts.weights === 0}
           size="sm"
           placement="bottom-right"
           isOneChar
@@ -240,7 +216,7 @@ export function Navigator() {
               className={buttonClassName}
               id="icon-weights"
               onClick={onClickIconCallback}
-              isDisabled={!isFileLoaded}
+              isDisabled={!uiState.isFileLoaded}
             >
               <IconWeights />
             </Button>
@@ -253,7 +229,7 @@ export function Navigator() {
             className={buttonClassName}
             id="icon-spatial-join"
             onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
           >
             <IconSpatialJoin />
           </Button>
@@ -272,8 +248,8 @@ export function Navigator() {
         </Tooltip> */}
         <Badge
           color="danger"
-          content={newHistogramCount}
-          isInvisible={newHistogramCount === 0}
+          content={newItemCounts.histogram}
+          isInvisible={newItemCounts.histogram === 0}
           size="sm"
           placement="bottom-right"
           isOneChar
@@ -285,7 +261,7 @@ export function Navigator() {
               className={buttonClassName}
               id="icon-histogram"
               onClick={onClickIconCallback}
-              isDisabled={!isFileLoaded}
+              isDisabled={!uiState.isFileLoaded}
             >
               <IconHistogram />
             </Button>
@@ -293,8 +269,8 @@ export function Navigator() {
         </Badge>
         <Badge
           color="danger"
-          content={newScatterplotCount}
-          isInvisible={newScatterplotCount === 0}
+          content={newItemCounts.scatterplot}
+          isInvisible={newItemCounts.scatterplot === 0}
           size="sm"
           placement="bottom-right"
           isOneChar
@@ -306,7 +282,7 @@ export function Navigator() {
               className={buttonClassName}
               id="icon-scatterplot"
               onClick={onClickIconCallback}
-              isDisabled={!isFileLoaded}
+              isDisabled={!uiState.isFileLoaded}
             >
               <IconScatterplot />
             </Button>
@@ -314,8 +290,8 @@ export function Navigator() {
         </Badge>
         <Badge
           color="danger"
-          content={newBoxplotCount}
-          isInvisible={newBoxplotCount === 0}
+          content={newItemCounts.boxplot}
+          isInvisible={newItemCounts.boxplot === 0}
           size="sm"
           placement="bottom-right"
           isOneChar
@@ -327,7 +303,7 @@ export function Navigator() {
               className={buttonClassName}
               id="icon-boxplot"
               onClick={onClickIconCallback}
-              isDisabled={!isFileLoaded}
+              isDisabled={!uiState.isFileLoaded}
             >
               <IconBoxplot />
             </Button>
@@ -335,8 +311,8 @@ export function Navigator() {
         </Badge>
         <Badge
           color="danger"
-          content={newBubbleChartCount}
-          isInvisible={newBubbleChartCount === 0}
+          content={newItemCounts.bubbleChart}
+          isInvisible={newItemCounts.bubbleChart === 0}
           size="sm"
           placement="bottom-right"
           isOneChar
@@ -348,7 +324,7 @@ export function Navigator() {
               className={buttonClassName}
               id="icon-cartogram"
               onClick={onClickIconCallback}
-              isDisabled={!isFileLoaded}
+              isDisabled={!uiState.isFileLoaded}
             >
               <IconBubbleChart />
             </Button>
@@ -361,11 +337,32 @@ export function Navigator() {
             className={buttonClassName}
             id="icon-pcp"
             onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
           >
             <IconParallel />
           </Button>
         </Tooltip>
+        <Badge
+          color="danger"
+          content={newItemCounts.moranScatterplot}
+          isInvisible={newItemCounts.moranScatterplot === 0}
+          size="sm"
+          placement="bottom-right"
+          isOneChar
+        >
+          <Tooltip key="moran-scatterplotTooltip" placement="right" content="Moran Scatter Plot">
+            <Button
+              isIconOnly
+              size="sm"
+              className={buttonClassName}
+              id="icon-moran-scatterplot"
+              onClick={onClickIconCallback}
+              isDisabled={!uiState.isFileLoaded}
+            >
+              <IconMoranScatterplot />
+            </Button>
+          </Tooltip>
+        </Badge>
         <Tooltip
           key="lisaTooltip"
           placement="right"
@@ -377,15 +374,15 @@ export function Navigator() {
             className={buttonClassName}
             id="icon-lisa"
             onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
           >
             <IconLisa />
           </Button>
         </Tooltip>
         <Badge
           color="danger"
-          content={newRegressionCount}
-          isInvisible={newRegressionCount === 0}
+          content={newItemCounts.regression}
+          isInvisible={newItemCounts.regression === 0}
           size="sm"
           placement="bottom-right"
           isOneChar
@@ -397,7 +394,7 @@ export function Navigator() {
               className={buttonClassName}
               id="icon-spreg"
               onClick={onClickIconCallback}
-              isDisabled={!isFileLoaded}
+              isDisabled={!uiState.isFileLoaded}
             >
               <IconSpreg />
             </Button>
@@ -412,12 +409,12 @@ export function Navigator() {
             className={buttonClassName}
             id="icon-chatgpt"
             onClick={onClickIconCallback}
-            isDisabled={!isFileLoaded}
+            isDisabled={!uiState.isFileLoaded}
           >
             <Icon icon="hugeicons:ai-chat-02" width={24} style={{color: '#fff'}} />
           </Button>
         </Tooltip>
-        <DashboardSwitcher isDisabled={!isFileLoaded} />
+        <DashboardSwitcher isDisabled={!uiState.isFileLoaded} />
         <ThemeSwitcher />
         <Button
           isIconOnly

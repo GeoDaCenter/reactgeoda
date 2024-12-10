@@ -8,7 +8,6 @@ import {
 } from 'react-ai-assist';
 import {GeoDaState} from '@/store';
 import {
-  addDatasetMeta,
   setDefaultPromptText,
   setMessages,
   setScreenCaptured,
@@ -23,8 +22,6 @@ import {
   MetaDataCallbackOutput
 } from '@/ai/assistant/callbacks/callback-metadata';
 import {ErrorOutput} from '@/ai/assistant/custom-functions';
-import {WarningBox, WarningType} from '../common/warning-box';
-import {CONNECT_OPENAI_API} from './chatgpt-panel';
 import {createMapFunctionDefinition} from '@/ai/assistant/callbacks/callback-map';
 import {lisaFunctionDefinition} from '@/ai/assistant/callbacks/callback-lisa';
 import {createWeightsFunctionDefinition} from '@/ai/assistant/callbacks/callback-weights';
@@ -38,7 +35,7 @@ export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Setti
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const GEODA_INSTRUCTIONS =
-  "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local indicators of spatial association (LISA) analysis, including local morn, local G, local G*, local Geary and Quantile LISA\n5. Apply spatial regression analysis, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTeX symbols for mathematical and scientific text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.\nFor lisa function, please use the existing spatial weights. If no spatial weights can be found, please call two function tools: one tool to create spatial weights and one tool to apply lisa statistics.\n Please try to correct the variable name using the metadata of the datasets. \n Please don't return any code snippet.";
+  "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local indicators of spatial association (LISA) analysis, including local morn, local G, local G*, local Geary and Quantile LISA\n5. Apply spatial regression analysis, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTeX symbols for mathematical and scientific text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.\nFor lisa function, please use the existing spatial weights. If no spatial weights can be found, please call two function tools: one tool to create spatial weights and one tool to apply lisa statistics.\n Please try to correct the variable name using the metadata of the datasets. \n Please always return plain text and don't return any code.";
 
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI agent! Let's do spatial analysis! How can I help you today?";
@@ -148,79 +145,59 @@ export const ChatGPTComponent = () => {
           spatialRegressionFunctionDefinition({visState, weights})
         ];
 
-  const {initializeAssistant, addAdditionalContext, apiKeyStatus} = useAssistant({
+  const assistantProps = {
     modelProvider: llmConfig?.provider || 'openai',
     model: llmConfig?.model || 'gpt-4o',
     apiKey: llmConfig?.apiKey || '',
     instructions: GEODA_INSTRUCTIONS,
-    functions: functions
-  });
+    functions: functions,
+    name: 'GeoDa.AI',
+    version: '1.0'
+  };
+
+  const {initializeAssistant, addAdditionalContext} = useAssistant(assistantProps);
 
   const datasets = useSelector(datasetsSelector);
 
-  const datasetMeta = useSelector((state: GeoDaState) => state.root.ai.datasetMeta);
+  const initializeAssistantWithContext = async () => {
+    await initializeAssistant();
+    // get meta data of the dataset
+    const metaData = datasets.map(dataset => {
+      if (!dataset.fileName || !dataset.dataId) {
+        return null;
+      }
+      const datasetName = dataset.fileName;
+      const datasetId = dataset.dataId;
+      const newMetaData: MetaDataCallbackOutput | ErrorOutput = getMetaDataCallback(
+        {datasetName, datasetId},
+        {tableName: datasetName, visState}
+      );
+      const metaData = newMetaData.result as {
+        datasetName: string;
+        datasetId: string;
+        columns: Record<string, string>;
+      };
+      return `datasetName: ${metaData.datasetName}, datasetId: ${metaData.datasetId}, columns: ${JSON.stringify(Object.keys(metaData.columns))}.\n`;
+    });
+    const context = `Please remember the following dataset context:\n${JSON.stringify(metaData)}`;
+    addAdditionalContext({context});
+  };
 
   // add dataset metadata to AI model as additional instructions/context
   useEffect(() => {
-    async function addDatasetToAI() {
-      await initializeAssistant();
-      // check if datasets are processed as additional instructions for AI model
-      if (apiKeyStatus === 'success') {
-        // find datasetIds from datasets that are not in datasetMeta
-        const datasetIds = datasets.map(dataset => dataset.dataId);
-        const datasetIdsNotInMeta = datasetIds.filter(
-          datasetId => !datasetMeta?.find(meta => meta.datasetId === datasetId)
-        );
-        // add dataset to AI
-        datasetIdsNotInMeta.forEach(async datasetId => {
-          const datasetName = datasets.find(dataset => dataset.dataId === datasetId)?.fileName;
-          if (datasetName && datasetId) {
-            // get meta data of the dataset
-            const newMetaData: MetaDataCallbackOutput | ErrorOutput = getMetaDataCallback(
-              {datasetName, datasetId},
-              {tableName: datasetName, visState}
-            );
-            if (newMetaData.type === 'metadata') {
-              const textDatasetMeta = JSON.stringify(newMetaData);
-              const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Note: please do not respond to this prompt.`;
-
-              // add dataset metadata as additional instructions for AI model
-              await addAdditionalContext({
-                context: message
-              });
-
-              dispatch(addDatasetMeta(newMetaData.result));
-            }
-          }
-        });
-      }
-    }
-    addDatasetToAI();
-    // only run this effect when datasets or apiKeyStatus change
+    initializeAssistantWithContext();
+    // only run this effect when datasets
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasets, apiKeyStatus]);
+  }, [datasets]);
 
-  // check if datasetMeta has all the datasetIds from datasets
-  const isDatasetMetaComplete = datasets.every(dataset => {
-    return datasetMeta?.find(meta => meta.datasetId === dataset.dataId);
-  });
-
-  return !isDatasetMetaComplete ? (
-    <WarningBox message={CONNECT_OPENAI_API} type={WarningType.WAIT} />
-  ) : (
+  return (
     <AiAssistant
+      {...assistantProps}
       theme={theme as 'dark' | 'light'}
-      modelProvider={llmConfig?.provider || 'openai'}
-      model={llmConfig?.model || 'gpt-4o'}
-      apiKey={llmConfig?.apiKey || ''}
-      temperature={llmConfig?.temperature}
-      topP={llmConfig?.topP}
       welcomeMessage={welcomeMessage}
       historyMessages={messages}
-      instructions={GEODA_INSTRUCTIONS}
       ideas={DEFAULT_PROMPT_IDEAS}
       assistantAvatar="/img/geoda-ai-chat.png"
-      functions={functions}
       isMessageDraggable={isMessageDraggable}
       screenCapturedBase64={screenCaptured}
       screenCapturedPrompt={screenCapturedPrompt}

@@ -127,5 +127,6 @@ export enum PanelName {
   PARALLEL_COORDINATE = 'Parallel Coordinate',
   BUBBLE_CHART = 'Bubble Chart',
   DASHBOARD = 'Dashboard',
-  SPATIAL_JOIN = 'Spatial Join'
+  SPATIAL_JOIN = 'Spatial Join',
+  MORAN_SCATTERPLOT = 'Moran Scatterplot'
 }

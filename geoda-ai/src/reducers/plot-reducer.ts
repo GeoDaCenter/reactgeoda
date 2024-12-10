@@ -2,11 +2,13 @@ import {
   BoxPlotActionProps,
   BubbleChartActionProps,
   HistogramPlotActionProps,
+  MoranScatterPlotActionProps,
   ParallelCoordinateActionProps,
   PLOT_ACTIONS,
   PlotActionProps,
   RemovePlotActionProps,
-  ScatterPlotActionProps
+  ScatterPlotActionProps,
+  SimpleScatterPlotActionProps
 } from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
 import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
@@ -40,12 +42,17 @@ export type ParallelCoordinateStateProps = BasePlotStateProps & ParallelCoordina
 
 export type BubbleChartStateProps = BasePlotStateProps & BubbleChartActionProps;
 
+export type MoranScatterPlotStateProps = BasePlotStateProps & MoranScatterPlotActionProps;
+
+export type SimpleScatterPlotStateProps = BasePlotStateProps & SimpleScatterPlotActionProps;
+
 export type PlotStateProps =
   | HistogramPlotStateProps
   | ScatterPlotStateProps
   | BoxPlotStateProps
   | ParallelCoordinateStateProps
-  | BubbleChartStateProps;
+  | BubbleChartStateProps
+  | MoranScatterPlotStateProps;
 
 export const plotReducer = (
   state = initialState,

@@ -577,7 +577,7 @@ export const IconTable = () => {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M4.24097 7.38354H19.5759V8.24138H4.24097V7.38354Z"
-        fill="#0E0E0E"
+        fill="#DDDDDD"
       />
       <path
         fillRule="evenodd"
@@ -607,13 +607,13 @@ export const IconTable = () => {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M8.78073 3.61487H9.63856V7.38354H8.78073V3.61487Z"
-        fill="#0E0E0E"
+        fill="#DDDDDD"
       />
       <path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M14.1783 3.61487H15.0361V7.38354H14.1783V3.61487Z"
-        fill="#0E0E0E"
+        fill="#DDDDDD"
       />
       <defs>
         <linearGradient
@@ -718,6 +718,105 @@ export const IconSpatialJoin = () => {
         rx={4}
         ry={4}
       ></rect>
+    </svg>
+  );
+};
+
+export const IconMoranScatterplot = () => {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 238 238"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M208.1 213H8.99998C6.79098 213 4.09998 211.209 4.09998 208.1V8.99998C4.09998 6.79098 6.79098 4.09998 8.99998 4.09998C11.209 4.09998 12.1 6.79098 12.1 8.99998V205H208.1C211.209 205 213 206.791 213 208.1C213 211.209 211.209 213 208.1 213Z"
+        fill="#DDDDDD"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M208.1 213C206.791 213 205 211.209 205 208.1V12.1H8.99998C6.79098 12.1 4.09998 11.209 4.09998 8.99998C4.09998 6.79098 6.79098 4.09998 8.99998 4.09998H208.1C211.209 4.09998 213 6.79098 213 8.99998V208.1C213 211.209 211.209 213 208.1 213Z"
+        fill="#DDDDDD"
+      />
+      <path
+        opacity="0.302"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M109 4.09998C113.418 4.09998 117 8.58198 117 12.1V205C117 209.418 113.418 213 109 213C104.582 213 100.1 209.418 100.1 205V12.1C100.1 8.58198 104.582 4.09998 109 4.09998Z"
+        fill="#EEEEEE"
+      />
+      <path
+        opacity="0.302"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M12.1 100.1H205C209.418 100.1 213 104.582 213 109C213 113.418 209.418 117 205 117H12.1C8.58198 117 4.09998 113.418 4.09998 109C4.09998 104.582 8.58198 100.1 12.1 100.1Z"
+        fill="#EEEEEE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M113 20.1C119.627 20.1 125 26.373 125 33C125 39.627 119.627 45 113 45C106.373 45 100.1 39.627 100.1 33C100.1 26.373 106.373 20.1 113 20.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M153 28.1C159.627 28.1 165 34.373 165 41C165 47.627 159.627 53 153 53C146.373 53 140.1 47.627 140.1 41C140.1 34.373 146.373 28.1 153 28.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M185 164.1C191.627 164.1 197 170.373 197 177C197 183.627 191.627 189 185 189C178.373 189 172.1 183.627 172.1 177C172.1 170.373 178.373 164.1 185 164.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M33 100.1C39.627 100.1 45 106.373 45 113C45 119.627 39.627 125 33 125C26.373 125 20.1 119.627 20.1 113C20.1 106.373 26.373 100.1 33 100.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M73 164.1C79.627 164.1 85 170.373 85 177C85 183.627 79.627 189 73 189C66.373 189 60.1 183.627 60.1 177C60.1 170.373 66.373 164.1 73 164.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M145 164.1C151.627 164.1 157 170.373 157 177C157 183.627 151.627 189 145 189C138.373 189 132.1 183.627 132.1 177C132.1 170.373 138.373 164.1 145 164.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M161 124.1C167.627 124.1 173 130.373 173 137C173 143.627 167.627 149 161 149C154.373 149 148.1 143.627 148.1 137C148.1 130.373 154.373 124.1 161 124.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M185 84.1C191.627 84.1 197 90.373 197 97C197 103.627 191.627 109 185 109C178.373 109 172.1 103.627 172.1 97C172.1 90.373 178.373 84.1 185 84.1Z"
+        fill="#AEAEAE"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M20.058 156.804L191.942 50.804C194.812 49.147 198.482 50.13 200.138 52.1C201.795 55.87 200.812 59.539 197.942 61.196L26.058 167.196C23.188 168.853 19.518 167.87 17.862 165C16.205 162.13 17.188 158.461 20.058 156.804Z"
+        fill="#FFFFFF"
+      />
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M38.406 28.1L56.1 69.906L75.85 29.057H84.932V84.99L77.1 85V43L59.604 83.897H54.299L35.1 43V85L28.971 84.99L28.1 28.1H38.406Z"
+        fill="#DDDDDD"
+      />
     </svg>
   );
 };

@@ -1,5 +1,5 @@
 import {getDataContainer} from '@/utils/data-utils';
-import {ErrorOutput, createErrorResult} from '../custom-functions';
+import {ErrorOutput} from '../custom-functions';
 import {VisState} from '@kepler.gl/schemas';
 
 export type MetaDataCallbackOutput = {
@@ -8,10 +8,7 @@ export type MetaDataCallbackOutput = {
   result: {
     datasetName: string;
     datasetId: string;
-    numberOfRows: number;
-    numberOfColumns: number;
-    columnNames: string[];
-    columnDataTypes: string[];
+    columns: Record<string, string>;
   };
 };
 
@@ -20,21 +17,27 @@ export function getMetaDataCallback(
   {tableName, visState}: {tableName: string; visState: VisState}
 ): MetaDataCallbackOutput | ErrorOutput {
   if (!tableName) {
-    return createErrorResult({name: 'Error', result: 'table name is empty'});
+    return {
+      type: 'error',
+      name: 'Error',
+      result: {success: false, details: 'table name is empty'}
+    };
   }
 
   const dataContainer = getDataContainer(tableName, visState.datasets);
   if (!dataContainer) {
-    return createErrorResult({name: 'Error', result: 'data container is empty'});
+    return {
+      type: 'error',
+      name: 'Error',
+      result: {success: false, details: 'data container is empty'}
+    };
   }
 
-  const columnNames: string[] = [];
-  const columnDataTypes: string[] = [];
+  const columns: Record<string, string> = {};
   for (let i = 0; i < dataContainer.numColumns(); i++) {
     const field = dataContainer.getField?.(i);
     if (field) {
-      columnNames.push(field.name);
-      columnDataTypes.push(field.type);
+      columns[field.name] = field.type;
     }
   }
 
@@ -44,10 +47,7 @@ export function getMetaDataCallback(
     result: {
       datasetName,
       datasetId,
-      numberOfRows: dataContainer.numRows(),
-      numberOfColumns: dataContainer.numColumns(),
-      columnNames,
-      columnDataTypes
+      columns
     }
   };
 }

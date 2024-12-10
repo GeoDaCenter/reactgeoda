@@ -109,7 +109,7 @@ export function SpatialAssignPanel({
               )
             },
             {
-              title: 'Select the column in the second dataset',
+              title: 'Select the variables in the second dataset',
               description:
                 'The column in the second dataset that contains the values (e.g. zip codes or city names) to be assigned to the geometries in the first dataset.',
               element: (
