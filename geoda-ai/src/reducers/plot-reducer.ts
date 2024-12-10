@@ -7,7 +7,8 @@ import {
   PLOT_ACTIONS,
   PlotActionProps,
   RemovePlotActionProps,
-  ScatterPlotActionProps
+  ScatterPlotActionProps,
+  SimpleScatterPlotActionProps
 } from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
 import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
@@ -42,6 +43,8 @@ export type ParallelCoordinateStateProps = BasePlotStateProps & ParallelCoordina
 export type BubbleChartStateProps = BasePlotStateProps & BubbleChartActionProps;
 
 export type MoranScatterPlotStateProps = BasePlotStateProps & MoranScatterPlotActionProps;
+
+export type SimpleScatterPlotStateProps = BasePlotStateProps & SimpleScatterPlotActionProps;
 
 export type PlotStateProps =
   | HistogramPlotStateProps

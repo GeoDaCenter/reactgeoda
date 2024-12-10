@@ -10,16 +10,43 @@ export type ScatPlotDataProps = {
 function getRegressionLineData(
   allRegressionResults: RegressionResults,
   dataMinX: number,
-  dataMaxX: number
+  dataMaxX: number,
+  dataMinY: number,
+  dataMaxY: number
 ) {
   const regression = allRegressionResults;
   const slope = regression.slope.estimate;
   const intercept = regression.intercept.estimate;
-  const regressionLineData: [number, number][] = [
-    [dataMinX, slope * dataMinX + intercept],
-    [dataMaxX, slope * dataMaxX + intercept]
-  ];
-  return regressionLineData;
+
+  // Calculate Y values for min and max X
+  const y1 = slope * dataMinX + intercept;
+  const y2 = slope * dataMaxX + intercept;
+
+  // Find X values where the line intersects Y bounds
+  const xAtMinY = (dataMinY - intercept) / slope;
+  const xAtMaxY = (dataMaxY - intercept) / slope;
+
+  // Initialize points array
+  let points: [number, number][] = [];
+
+  // Add points based on which bounds they intersect
+  if (y1 < dataMinY) {
+    points.push([xAtMinY, dataMinY]);
+  } else if (y1 > dataMaxY) {
+    points.push([xAtMaxY, dataMaxY]);
+  } else {
+    points.push([dataMinX, y1]);
+  }
+
+  if (y2 < dataMinY) {
+    points.push([xAtMinY, dataMinY]);
+  } else if (y2 > dataMaxY) {
+    points.push([xAtMaxY, dataMaxY]);
+  } else {
+    points.push([dataMaxX, y2]);
+  }
+
+  return points;
 }
 
 export function getScatterChartOption(
@@ -38,25 +65,37 @@ export function getScatterChartOption(
   // Calculate regression line based on type
   const extendedMinX = Math.min(...xData);
   const extendedMaxX = Math.max(...xData);
+  const extendedMinY = Math.min(...yData);
+  const extendedMaxY = Math.max(...yData);
   let regressionLineData: [number, number][] = [];
   let selectedRegressionLineData: [number, number][] = [];
   let unselectedRegressionLineData: [number, number][] = [];
   let loessResult;
 
   if (showRegressionLine && allRegressionResults) {
-    regressionLineData = getRegressionLineData(allRegressionResults, extendedMinX, extendedMaxX);
+    regressionLineData = getRegressionLineData(
+      allRegressionResults,
+      extendedMinX,
+      extendedMaxX,
+      extendedMinY,
+      extendedMaxY
+    );
     if (selectedRegressionResults) {
       selectedRegressionLineData = getRegressionLineData(
         selectedRegressionResults,
         extendedMinX,
-        extendedMaxX
+        extendedMaxX,
+        extendedMinY,
+        extendedMaxY
       );
     }
     if (unselectedRegressionResults) {
       unselectedRegressionLineData = getRegressionLineData(
         unselectedRegressionResults,
         extendedMinX,
-        extendedMaxX
+        extendedMaxX,
+        extendedMinY,
+        extendedMaxY
       );
     }
   }
@@ -102,7 +141,7 @@ export function getScatterChartOption(
       },
       ...(showRegressionLine
         ? [
-            ...(selectedRegressionResults
+            ...(selectedRegressionResults && selectedRegressionLineData.length > 0
               ? [
                   {
                     type: 'line',
@@ -114,7 +153,7 @@ export function getScatterChartOption(
                   }
                 ]
               : []),
-            ...(unselectedRegressionResults
+            ...(unselectedRegressionResults && unselectedRegressionLineData.length > 0
               ? [
                   {
                     type: 'line',
@@ -196,18 +235,6 @@ export function getScatterChartOption(
       },
       axisPointer: {
         type: 'cross'
-      }
-    },
-    brush: {
-      toolbox: ['rect', 'polygon', 'clear'],
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-      brushOption: {
-        brushType: 'rect',
-        coordRange: [
-          [0, 100],
-          [0, 100]
-        ]
       }
     },
     grid: {

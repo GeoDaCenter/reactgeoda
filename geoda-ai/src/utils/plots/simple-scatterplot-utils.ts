@@ -1,12 +1,11 @@
 import {numericFormatter} from './format-utils';
-import {calculateLinearRegression} from '../math-utils';
 
-export type MoranScatPlotDataProps = {
+export type SimpleScatPlotDataProps = {
   variableX: string;
   variableY: string;
 };
 
-export function getMoranScatterChartOption(
+export function getSimpleScatterChartOption(
   xVariableName: string,
   xData: number[],
   yVariableName: string,
@@ -14,22 +13,9 @@ export function getMoranScatterChartOption(
 ) {
   const seriesData = xData.map((x, i) => [x, yData[i]]);
 
-  // Calculate regression line based on type
-  const regression = calculateLinearRegression(xData, yData);
-  const slope = regression.slope;
-  const intercept = regression.intercept;
-
-  const padding = (Math.max(...xData) - Math.min(...xData)) * 0.2;
-  const extendedMinX = Math.min(...xData) - padding;
-  const extendedMaxX = Math.max(...xData) + padding;
-  const regressionLineData = [
-    [extendedMinX, slope * extendedMinX + intercept],
-    [extendedMaxX, slope * extendedMaxX + intercept]
-  ];
-
   const option = {
     title: {
-      text: `Moran's I ${slope.toFixed(3)}`,
+      text: ``,
       left: 'center',
       top: 10,
       textStyle: {
@@ -70,18 +56,6 @@ export function getMoranScatterChartOption(
           }
         },
         animationDelay: 0
-      },
-      {
-        type: 'line',
-        data: regressionLineData,
-        showSymbol: false,
-        itemStyle: {
-          color: '#ff6666'
-        },
-        lineStyle: {
-          width: 2,
-          type: 'dashed'
-        }
       }
     ],
     tooltip: {

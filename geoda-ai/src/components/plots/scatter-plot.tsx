@@ -38,6 +38,7 @@ import {Icon} from '@iconify/react/dist/iconify.js';
 import {linearRegression, RegressionResults} from '../../utils/math/linear-regression';
 import {updatePlot} from '@/actions/plot-actions';
 import {ChowTestResult, chowTest} from '@/utils/math-utils';
+import {SimpleScatterPlot} from './simple-scatter-plot';
 
 // Register the required ECharts components
 echarts.use([
@@ -66,8 +67,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
     unselected: RegressionResults | null;
   } | null>(null);
   const [chowTestResults, setChowTestResults] = useState<ChowTestResult | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [brushCoords, setBrushCoords] = useState<[[number, number], [number, number]] | null>(null);
 
   const {id, datasetId, variableX, variableY} = props;
 
@@ -125,11 +124,10 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       setYUnselected(unselectedY);
 
       // update regression results
-      const allResults = linearRegression(xData, yData, showMore);
-      const selectedResults =
-        selectedX.length > 0 ? linearRegression(selectedX, selectedY, showMore) : null;
+      const allResults = linearRegression(xData, yData);
+      const selectedResults = selectedX.length > 0 ? linearRegression(selectedX, selectedY) : null;
       const unselectedResults =
-        unselectedX.length > 0 ? linearRegression(unselectedX, unselectedY, showMore) : null;
+        unselectedX.length > 0 ? linearRegression(unselectedX, unselectedY) : null;
       setRegressionResults({
         all: allResults,
         selected: selectedResults,
@@ -144,16 +142,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
         setChowTestResults(null);
       }
 
-      // dipatch action to echarts
-      // eChartsRef.current?.getEchartsInstance()?.dispatchAction({
-      //   type: 'takeGlobalCursor',
-      //   key: 'brush',
-      //   brushOption: {
-      //     brushType: 'rect',
-      //     coordRange: brushCoords
-      //   }
-      // });
-
       // highlight selected points
       eChartsRef.current?.getEchartsInstance()?.dispatchAction({
         type: 'highlight',
@@ -166,21 +154,6 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
 
   const bindEvents = useMemo(
     () => ({
-      brushSelected: function (params: any) {
-        // Save brush coordinates if available
-        if (params.areas?.[0]?.coordRange) {
-          setBrushCoords(params.areas[0].coordRange);
-        }
-
-        onBrushSelected(
-          params,
-          dispatch,
-          datasetId,
-          id,
-          eChartsRef.current?.getEchartsInstance(),
-          onSelected
-        );
-      },
       highlight: function (params: any) {
         console.log(params);
         if (!params.data) {
@@ -189,7 +162,7 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
         }
       }
     }),
-    [dispatch, datasetId, id, onSelected]
+    [onSelected]
   );
 
   const title = `X: ${variableX} vs Y: ${variableY}`;
@@ -199,11 +172,10 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
 
   const handleMorePress = useCallback(() => {
     if (!showMore) {
-      const allResults = linearRegression(xData, yData, showMore);
-      const selectedResults =
-        xSelected.length > 0 ? linearRegression(xSelected, ySelected, showMore) : null;
+      const allResults = linearRegression(xData, yData);
+      const selectedResults = xSelected.length > 0 ? linearRegression(xSelected, ySelected) : null;
       const unselectedResults =
-        xUnselected.length > 0 ? linearRegression(xUnselected, yUnselected, showMore) : null;
+        xUnselected.length > 0 ? linearRegression(xUnselected, yUnselected) : null;
 
       setRegressionResults({
         all: allResults,
@@ -226,23 +198,36 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
                 <small className="text-default-500">{keplerDataset.label}</small>
                 <ChartInsightButton parentElementId={chartId} />
               </CardHeader>
-              <CardBody className="py-2">
-                <ReactEChartsCore
-                  echarts={echarts}
-                  option={option}
-                  notMerge={true}
-                  lazyUpdate={false}
-                  theme={theme}
-                  onEvents={bindEvents}
-                  style={{height: '100%', width: '100%'}}
-                  ref={eChartsRef}
-                  onChartReady={() => {
-                    setRendered(true);
-                  }}
-                />
-                {rendered && sourceId && sourceId !== id && (
-                  <EChartsUpdater dataId={datasetId} eChartsRef={eChartsRef} />
-                )}
+              <CardBody className="relative py-2">
+                <div className="absolute left-0 top-0 h-full w-full">
+                  <ReactEChartsCore
+                    echarts={echarts}
+                    option={option}
+                    notMerge={true}
+                    lazyUpdate={false}
+                    theme={theme}
+                    onEvents={bindEvents}
+                    style={{height: '100%', width: '100%'}}
+                    ref={eChartsRef}
+                    onChartReady={() => {
+                      setRendered(true);
+                    }}
+                  />
+                  {rendered && sourceId && sourceId !== id && (
+                    <EChartsUpdater dataId={datasetId} eChartsRef={eChartsRef} />
+                  )}
+                </div>
+                <div className="absolute left-0 top-0 h-full w-full">
+                  <SimpleScatterPlot
+                    props={{
+                      id,
+                      datasetId,
+                      variableX,
+                      variableY,
+                      type: 'simplescatter'
+                    }}
+                  />
+                </div>
               </CardBody>
               <CardFooter className="flex flex-col gap-2 px-4 py-2">
                 <div className="flex w-full justify-end">
@@ -433,9 +418,11 @@ export const Scatterplot = ({props}: {props: ScatterPlotStateProps}) => {
       sourceId,
       id,
       datasetId,
+      variableX,
+      variableY,
       showMore,
-      regressionResults,
       handleMorePress,
+      regressionResults,
       chowTestResults,
       xData.length
     ]

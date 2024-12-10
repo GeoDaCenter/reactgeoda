@@ -56,6 +56,13 @@ export type MoranScatterPlotActionProps = BasePlotActionProps & {
   weightsId: string;
 };
 
+export type SimpleScatterPlotActionProps = BasePlotActionProps & {
+  type: 'simplescatter';
+  datasetId: string;
+  variableX: string;
+  variableY: string;
+};
+
 export type PlotActionProps =
   | HistogramPlotActionProps
   | ScatterPlotActionProps
