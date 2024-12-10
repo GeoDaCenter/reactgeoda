@@ -14,7 +14,7 @@
     "start": "next start",
     "prettier": "prettier --ignore-path ./.prettierignore . '**/*.{js,jsx,ts,tsx}' --check",
     "lint": "next lint",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "test:watch": "jest --watch",
     "storybook": "storybook dev -p 6006"
   },
