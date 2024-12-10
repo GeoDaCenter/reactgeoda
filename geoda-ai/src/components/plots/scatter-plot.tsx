@@ -29,7 +29,7 @@ import {
 } from '@nextui-org/react';
 import {CanvasRenderer} from 'echarts/renderers';
 import {getScatterChartOption} from '@/utils/plots/scatterplot-utils';
-import {EChartsUpdater, onBrushSelected} from './echarts-updater';
+import {EChartsUpdater} from './echarts-updater';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {selectKeplerDataset} from '@/store/selectors';
 import {ChartInsightButton} from '../common/chart-insight';
