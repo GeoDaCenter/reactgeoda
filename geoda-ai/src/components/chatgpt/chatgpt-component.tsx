@@ -205,6 +205,8 @@ export const ChatGPTComponent = () => {
       onRemoveScreenshot={() => onRemoveScreenshot()}
       onFeedback={onFeedback}
       onMessagesUpdated={onMessagesUpdated}
+      enableScreenCapture={llmConfig?.provider !== 'ollama'}
+      enableVoice={llmConfig?.provider !== 'ollama'}
     />
   );
 };
