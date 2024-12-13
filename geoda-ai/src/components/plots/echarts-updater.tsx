@@ -55,6 +55,11 @@ const debouncedOnSelected = debounce(
   500
 );
 
+// Move the debounced dispatch outside the function to avoid recreating it on every call
+const debouncedDispatch = debounce((dispatch: Dispatch<any>, action: any) => {
+  dispatch(action);
+}, 100);
+
 export function onBrushSelected(
   params: any,
   dispatch: Dispatch<any>,
@@ -86,7 +91,7 @@ export function onBrushSelected(
   if (brushed.length > 0) {
     // Debounce the onSelected callback
     debouncedOnSelected({dataId, filteredIndex: brushed}, onSelected);
-    // Dispatch action to highlight selected in other components
-    dispatch(geodaBrushLink({sourceId: id, dataId, filteredIndex: brushed}));
+    // Debounce the dispatch
+    debouncedDispatch(dispatch, geodaBrushLink({sourceId: id, dataId, filteredIndex: brushed}));
   }
 }
