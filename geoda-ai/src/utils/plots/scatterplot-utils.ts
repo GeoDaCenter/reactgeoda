@@ -249,6 +249,7 @@ export function getScatterChartOption(
     },
     // avoid flickering when brushing
     animation: false,
+    // to disable progressive rendering permanently
     progressive: 0
   };
 
