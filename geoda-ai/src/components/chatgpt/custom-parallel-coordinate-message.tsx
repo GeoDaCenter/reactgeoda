@@ -10,8 +10,11 @@ import {ParallelCoordinatePlot} from '../plots/parallel-coordinate-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ParallelCoordinateStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionCall, CustomFunctionOutputProps} from '@/ai/types';
-import {ErrorCallbackResult} from 'react-ai-assist';
+import {
+  CustomFunctionCall,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult
+} from '@openassistant/core';
 
 export function customPCPMessageCallback({
   functionArgs,

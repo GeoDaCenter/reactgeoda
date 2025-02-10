@@ -9,10 +9,10 @@ import {MAP_ID, MappingTypes} from '@/constants';
 import {ColorSelector} from '../common/color-selector';
 import {getDefaultColorRange} from '@/utils/color-utils';
 import {ColorRange} from '@kepler.gl/constants';
-import {CustomCreateButton} from '../common/custom-create-button';
 import {MapCallbackOutput, MapCallbackResult} from '@/ai/assistant/callbacks/callback-map';
 import {selectKeplerDataset} from '@/store/selectors';
-import {CustomFunctionCall, CustomFunctionOutputProps} from 'react-ai-assist';
+import {CustomFunctionCall, CustomFunctionOutputProps} from '@openassistant/core';
+import {CustomCreateButton} from '../common/custom-create-button';
 
 export function customMapMessageCallback({
   functionArgs,

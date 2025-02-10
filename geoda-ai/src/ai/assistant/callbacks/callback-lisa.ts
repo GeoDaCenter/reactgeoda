@@ -27,7 +27,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {customLisaMessageCallback} from '@/components/chatgpt/custom-lisa-message';
 
 export const lisaFunctionDefinition = (

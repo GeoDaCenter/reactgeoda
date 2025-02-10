@@ -14,7 +14,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {GreenCheckIcon} from '../icons/green-check';
 import {GeoDaState} from '@/store';
 import {BoxPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionCall} from '@/ai/types';
+import {CustomFunctionCall} from '@openassistant/core';
 
 export function customBoxPlotMessageCallback({
   functionArgs,
