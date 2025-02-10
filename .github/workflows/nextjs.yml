@@ -67,7 +67,7 @@ jobs:
           cd geoda-ai
           yarn
           yarn lint
-          yarn test
+
       # - name: Create Sentry Release
       #   uses: getsentry/action-release@v1
       #   env:

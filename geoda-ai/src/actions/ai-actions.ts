@@ -82,8 +82,8 @@ export const addDatasetToAI =
         );
 
         if (newMetaData.type === 'metadata') {
-          const textDatasetMeta = JSON.stringify(newMetaData);
-          const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Please try to correct the variable names if they are not correct.`;
+          // const textDatasetMeta = JSON.stringify(newMetaData);
+          // const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Please try to correct the variable names if they are not correct.`;
 
           // // add dataset metadata as additional instructions for AI model
           // await initOpenAI(
