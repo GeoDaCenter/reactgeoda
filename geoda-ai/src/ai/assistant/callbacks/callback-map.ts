@@ -19,7 +19,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {customMapMessageCallback} from '@/components/chatgpt/custom-map-message';
 
 export const createMapFunctionDefinition = (

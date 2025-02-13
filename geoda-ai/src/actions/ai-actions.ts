@@ -2,18 +2,11 @@ import {
   getMetaDataCallback,
   MetaDataCallbackOutput
 } from '@/ai/assistant/callbacks/callback-metadata';
-import {
-  GEODA_AI_ASSISTANT_BODY,
-  GEODA_AI_ASSISTANT_NAME,
-  GEODA_AI_ASSISTANT_VERSION
-} from '@/ai/assistant/geoda-assistant';
 import {ErrorOutput} from '@/ai/assistant/custom-functions';
-import {initOpenAI, setAdditionalInstructions} from '@/ai/openai-utils';
 import {MAP_ID} from '@/constants';
 import {GeoDaState} from '@/store';
-import {MessageModel} from '@chatscope/chat-ui-kit-react';
+import {MessageModel, UserActionProps} from '@openassistant/core';
 import {Dispatch, UnknownAction} from 'redux';
-import {UserActionProps} from '@/ai/types';
 
 export enum AI_ACTIONS {
   SET_MESSAGES = 'SET_MESSAGES',
@@ -89,20 +82,20 @@ export const addDatasetToAI =
         );
 
         if (newMetaData.type === 'metadata') {
-          const textDatasetMeta = JSON.stringify(newMetaData);
-          const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Please try to correct the variable names if they are not correct.`;
+          // const textDatasetMeta = JSON.stringify(newMetaData);
+          // const message = `Please use the metadata of the following datasets to help users applying spatial data analysis: ${textDatasetMeta}. Please try to correct the variable names if they are not correct.`;
 
-          // add dataset metadata as additional instructions for AI model
-          await initOpenAI(
-            openAIKey,
-            GEODA_AI_ASSISTANT_NAME,
-            GEODA_AI_ASSISTANT_BODY,
-            GEODA_AI_ASSISTANT_VERSION
-          );
-          await setAdditionalInstructions(message);
+          // // add dataset metadata as additional instructions for AI model
+          // await initOpenAI(
+          //   openAIKey,
+          //   GEODA_AI_ASSISTANT_NAME,
+          //   GEODA_AI_ASSISTANT_BODY,
+          //   GEODA_AI_ASSISTANT_VERSION
+          // );
+          // await setAdditionalInstructions(message);
 
           // update datasetMeta in the store
-          dispatch(addDatasetMeta(newMetaData.result));
+          dispatch(addDatasetMeta(newMetaData.result as unknown as DatasetMetaProps));
         }
       }
     }

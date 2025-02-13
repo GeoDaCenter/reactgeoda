@@ -1,11 +1,7 @@
 import React, {useCallback, useEffect, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {
-  AiAssistant,
-  RegisterFunctionCallingProps,
-  MessageModel,
-  useAssistant
-} from 'react-ai-assist';
+import {RegisterFunctionCallingProps, MessageModel, useAssistant} from '@openassistant/core';
+import {AiAssistant} from '@openassistant/ui';
 import {GeoDaState} from '@/store';
 import {
   setDefaultPromptText,
@@ -29,8 +25,6 @@ import {createVariableFunctionDefinition} from '@/ai/assistant/callbacks/callbac
 import {spatialRegressionFunctionDefinition} from '@/ai/assistant/callbacks/callback-regression';
 import {WeightsProps} from '@/reducers/weights-reducer';
 import {createPlotFunctionDefinition} from '@/ai/assistant/callbacks/callback-plot';
-
-export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
@@ -161,8 +155,9 @@ export const ChatGPTComponent = () => {
 
   const initializeAssistantWithContext = async () => {
     await initializeAssistant();
+    let context = `Please remember the following dataset context:\n`;
     // get meta data of the dataset
-    const metaData = datasets.map(dataset => {
+    datasets.forEach(dataset => {
       if (!dataset.fileName || !dataset.dataId) {
         return null;
       }
@@ -177,16 +172,15 @@ export const ChatGPTComponent = () => {
         datasetId: string;
         columns: Record<string, string>;
       };
-      return `datasetName: ${metaData.datasetName}, datasetId: ${metaData.datasetId}, columns: ${JSON.stringify(Object.keys(metaData.columns))}.\n`;
+      context += `datasetName: ${metaData.datasetName}, datasetId: ${metaData.datasetId}, columns: ${JSON.stringify(Object.keys(metaData.columns))}.\n`;
     });
-    const context = `Please remember the following dataset context:\n${JSON.stringify(metaData)}`;
     addAdditionalContext({context});
   };
 
   // add dataset metadata to AI model as additional instructions/context
   useEffect(() => {
     initializeAssistantWithContext();
-    // only run this effect when datasets
+    // only run this effect when datasets change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasets]);
 

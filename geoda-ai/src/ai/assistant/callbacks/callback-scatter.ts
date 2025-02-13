@@ -8,7 +8,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {VisState} from '@kepler.gl/schemas';
 import {customScatterPlotMessageCallback} from '@/components/chatgpt/custom-scatter-message';
 

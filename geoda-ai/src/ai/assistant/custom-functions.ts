@@ -1,5 +1,5 @@
 // define a type of custom function that is an object contains key-value pairs
-import {CustomFunctionOutputProps, CustomFunctions} from '../types';
+import {CustomFunctionOutputProps, CustomFunctions} from '@openassistant/core';
 
 export type ErrorOutput = CustomFunctionOutputProps<unknown, unknown> & {
   type: 'error';

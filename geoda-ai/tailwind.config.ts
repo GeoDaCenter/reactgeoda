@@ -7,8 +7,8 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     // apply tailwind to ai-assistant sub-packages
-    '../../ai-assistant/src/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}'
+    './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@openassistant/ui/dist/**/*.{js,ts,jsx,tsx}'
   ],
   theme: {
     extend: {

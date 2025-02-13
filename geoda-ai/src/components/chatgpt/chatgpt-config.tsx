@@ -11,36 +11,14 @@ import {
   Select,
   SelectItem,
   Slider,
-  Selection,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure
+  Selection
 } from '@nextui-org/react';
 import {Icon} from '@iconify/react';
 import {GeoDaState} from '../../store';
-import {setAIConfig, setIsOpenAIKeyChecked, setMessages} from '../../actions';
-import {accordionItemClasses} from '@/constants';
+import {setAIConfig, setIsOpenAIKeyChecked} from '../../actions';
+import {accordionItemClasses, MODEL_PROVIDERS} from '@/constants';
 import {WarningBox, WarningType} from '../common/warning-box';
-import {testApiKey} from 'react-ai-assist';
-
-const PROVIDER_MODELS = {
-  openai: ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo-0125', 'gpt-3.5-turbo'],
-  google: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.0-pro'],
-  ollama: [
-    'qwen2.5-coder',
-    'llama3.2',
-    'llama3.1',
-    'llama3.1:70b',
-    'qwen2',
-    'llava',
-    'mistral',
-    'gemma2',
-    'phi3.5'
-  ]
-};
+import {GetAssistantModelByProvider} from '@openassistant/core';
 
 export function ChatGPTConfigComponent({
   setShowConfig
@@ -48,10 +26,6 @@ export function ChatGPTConfigComponent({
   setShowConfig: (showConfig: boolean) => void;
 }) {
   const dispatch = useDispatch();
-
-  const {isOpen, onOpen: onShowRestart, onOpenChange} = useDisclosure();
-
-  const [showModalRestart, setShowModalRestart] = useState(false);
 
   // state for openAIKey error
   const [apiKeyError, setApiKeyError] = useState(false);
@@ -97,11 +71,11 @@ export function ChatGPTConfigComponent({
 
   const checkInputsAreValid = () => {
     // check if provider is valid
-    if (!(provider in PROVIDER_MODELS)) {
+    if (!(provider in MODEL_PROVIDERS)) {
       return false;
     }
     // check if model is valid
-    if (!PROVIDER_MODELS[provider as keyof typeof PROVIDER_MODELS].includes(model)) {
+    if (!MODEL_PROVIDERS[provider as keyof typeof MODEL_PROVIDERS].models.includes(model)) {
       return false;
     }
     // check if apiKey is valid
@@ -112,22 +86,6 @@ export function ChatGPTConfigComponent({
     return true;
   };
 
-  const checkIfNeedRestart = () => {
-    if (
-      aiConfig?.provider !== undefined &&
-      aiConfig?.model !== undefined &&
-      aiConfig?.temperature !== undefined &&
-      aiConfig?.topP !== undefined &&
-      (provider !== aiConfig?.provider ||
-        model !== aiConfig?.model ||
-        temperature !== aiConfig?.temperature ||
-        topP !== aiConfig?.topP)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
   const onConfirmClick = async () => {
     if (checkInputsAreValid() === false) {
       setErrorMessage('Please check your model configuration and try again.');
@@ -135,27 +93,23 @@ export function ChatGPTConfigComponent({
     }
 
     setIsRunning(true);
+
     // check if openai key is valid by trying to call testOpenAI function
     // if key is not valid, show error message
-    const testResult = await testApiKey({
-      modelProvider: provider,
-      modelName: model,
-      apiKey: key,
-      baseUrl: baseUrl
+    const AssistantModel = GetAssistantModelByProvider({
+      provider: provider
     });
-    dispatch(setIsOpenAIKeyChecked(testResult.success));
-    if (!testResult.success) {
+    const testResult = await AssistantModel?.testConnection(key, model);
+
+    dispatch(setIsOpenAIKeyChecked(testResult || false));
+
+    if (!testResult) {
       setApiKeyError(true);
       const message =
-        testResult.service === 'ollama'
+        provider === 'ollama'
           ? 'Connection failed. Maybe incorrect base URL provided.'
           : 'Connection failed. Maybe incorrect API key provided.';
       setErrorMessage(message);
-    }
-
-    // if need restart, clear the messages
-    if (checkIfNeedRestart() === true) {
-      dispatch(setMessages([]));
     }
 
     // set ai config, and start the chat
@@ -181,27 +135,13 @@ export function ChatGPTConfigComponent({
     setShowConfig(true);
   };
 
-  const onModelChange = () => {
-    // if model is changed, tell users that they need to restart the chat
-    if (
-      showModalRestart === false &&
-      aiConfig?.provider !== undefined &&
-      aiConfig?.model !== undefined
-    ) {
-      onShowRestart();
-      // don't show the modal again
-      setShowModalRestart(true);
-    }
-  };
-
   const onProviderChange = (selection: Selection) => {
     if (typeof selection === 'object' && 'currentKey' in selection) {
       const provider = selection.currentKey as 'openai' | 'google' | 'ollama';
-      if (provider in PROVIDER_MODELS) {
+      if (provider in MODEL_PROVIDERS) {
         setProvider(provider);
-        const defaultModel = PROVIDER_MODELS[provider][0];
+        const defaultModel = MODEL_PROVIDERS[provider].models[0];
         setModel(defaultModel);
-        onModelChange();
       }
     }
   };
@@ -209,7 +149,6 @@ export function ChatGPTConfigComponent({
   const onLlmModelInputChange = (value: Selection) => {
     // @ts-ignore
     setModel(value.currentKey as string);
-    onModelChange();
   };
 
   const onTemparatureChange = (value: number | number[]) => {
@@ -217,7 +156,6 @@ export function ChatGPTConfigComponent({
       return;
     }
     setTemperature(value);
-    onModelChange();
   };
 
   const onTopPChange = (value: number | number[]) => {
@@ -225,7 +163,6 @@ export function ChatGPTConfigComponent({
       return;
     }
     setTopP(value);
-    onModelChange();
   };
 
   return (
@@ -246,19 +183,21 @@ export function ChatGPTConfigComponent({
                 className="max-w-full"
                 onSelectionChange={onProviderChange}
               >
-                <SelectItem key="openai">OpenAI ChatGPT</SelectItem>
-                <SelectItem key="google">Google Gemini</SelectItem>
-                <SelectItem key="ollama">Ollama</SelectItem>
+                {Object.keys(MODEL_PROVIDERS).map(provider => (
+                  <SelectItem key={provider}>
+                    {MODEL_PROVIDERS[provider as keyof typeof MODEL_PROVIDERS].name}
+                  </SelectItem>
+                ))}
               </Select>
               <Select
                 label="LLM Model"
                 placeholder="Select LLM model"
                 className="max-w-full"
                 onSelectionChange={onLlmModelInputChange}
-                isInvalid={!PROVIDER_MODELS[provider].includes(model)}
+                isInvalid={!MODEL_PROVIDERS[provider].models.includes(model)}
                 selectedKeys={model ? [model] : []}
               >
-                {PROVIDER_MODELS[provider].map(model => (
+                {MODEL_PROVIDERS[provider].models.map(model => (
                   <SelectItem key={model}>{model}</SelectItem>
                 ))}
               </Select>
@@ -332,28 +271,6 @@ export function ChatGPTConfigComponent({
         >
           Let&apos;s Chat
         </Button>
-        <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange}>
-          <ModalContent>
-            {onClose => (
-              <>
-                <ModalHeader className="flex flex-col gap-2">Restart Chat</ModalHeader>
-                <ModalBody>
-                  <p>Changing the AI provider or model requires restarting the chat.</p>
-                </ModalBody>
-                <ModalFooter>
-                  <Button
-                    color="primary"
-                    onPress={() => {
-                      onClose();
-                    }}
-                  >
-                    OK
-                  </Button>
-                </ModalFooter>
-              </>
-            )}
-          </ModalContent>
-        </Modal>
       </div>
     </>
   );

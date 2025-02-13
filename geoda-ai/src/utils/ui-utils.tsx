@@ -14,41 +14,6 @@ export async function takeSnapshot(element: HTMLElement) {
   return dataUrl;
 }
 
-// take a snapshot of the entire document and crop at the specified position and size
-export async function takeSnapshotWithCrop(
-  cropPositionLeft: number,
-  cropPositionTop: number,
-  cropWidth: number,
-  cropHeight: number
-) {
-  const scale = window.devicePixelRatio;
-  const body = document.body;
-
-  const canvas = await html2canvas(body, {scale});
-  const croppedCanvas = document.createElement('canvas');
-  const croppedCanvasContext = croppedCanvas.getContext('2d');
-
-  croppedCanvas.width = cropWidth;
-  croppedCanvas.height = cropHeight;
-
-  if (croppedCanvasContext) {
-    croppedCanvasContext.drawImage(
-      canvas,
-      cropPositionLeft * scale,
-      cropPositionTop * scale,
-      cropWidth * scale,
-      cropHeight * scale,
-      0,
-      0,
-      cropWidth,
-      cropHeight
-    );
-  }
-
-  const dataURL = croppedCanvas.toDataURL();
-  return dataURL;
-}
-
 /**
  * Format a number according to the current locale
  * @param value - The number to format
