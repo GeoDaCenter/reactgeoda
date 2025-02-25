@@ -6368,7 +6368,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nextui-org/theme@npm:2.4.5":
+"@nextui-org/theme@npm:2.4.5, @nextui-org/theme@npm:^2.4.4":
   version: 2.4.5
   resolution: "@nextui-org/theme@npm:2.4.5"
   dependencies:
@@ -7025,6 +7025,30 @@ __metadata:
   peerDependencies:
     react: ">=18.2"
   checksum: 3a0070d3280b9be79ee16b03b5564516cfddc2105b0bf108749b2e63364e8bcd9518114eb3c33c4e48b6f3bbfa19903a8d9b40a0a4fe808587b4ee05d151eeae
+  languageName: node
+  linkType: hard
+
+"@openassistant/echarts@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@openassistant/echarts@npm:0.1.5"
+  dependencies:
+    "@iconify/react": ^5.1.0
+    "@nextui-org/react": ^2.6.10
+    "@nextui-org/theme": ^2.4.4
+    echarts: ^5.5.1
+    echarts-for-react: ^3.0.2
+    framer-motion: ^11.15.0
+    jstat: ^1.9.6
+    next-themes: ^0.4.4
+    re-resizable: ^6.10.3
+    react-virtualized-auto-sizer: ^1.0.24
+    simple-statistics: ^7.8.7
+    tailwindcss: ^3.4.17
+  peerDependencies:
+    "@openassistant/core": "*"
+    react: ">=18.2"
+    react-dom: ">=18.2"
+  checksum: 69ec03ad17815f4384aae7aee733c4d8522c5600fbd2929dc2d4c68a4d79401da9e2b9d26174c887efa48e5cd8f718ea7dedba2e2f1f231d65e2f64e01cd173e
   languageName: node
   linkType: hard
 
@@ -16187,6 +16211,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"echarts@npm:^5.5.1":
+  version: 5.6.0
+  resolution: "echarts@npm:5.6.0"
+  dependencies:
+    tslib: 2.3.0
+    zrender: 5.6.1
+  checksum: 4b545444155f9457daa89a4ea45f9e08177a9a59d9df7e5ea5206f66e290964fb0a1a273b0dfdeb24a4aa264f6afc925918aa2b76190917abf390bef092ba95c
+  languageName: node
+  linkType: hard
+
 "electron-to-chromium@npm:^1.4.668":
   version: 1.4.721
   resolution: "electron-to-chromium@npm:1.4.721"
@@ -17697,6 +17731,7 @@ __metadata:
     "@nextui-org/react": ^2.4.8
     "@nextui-org/use-clipboard": ^2.0.7
     "@openassistant/core": ^0.1.4
+    "@openassistant/echarts": ^0.1.5
     "@openassistant/ui": ^0.1.4
     "@sentry/browser": ^8.25.0
     "@sentry/nextjs": ^8.25.0
@@ -23502,6 +23537,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"re-resizable@npm:^6.10.3":
+  version: 6.11.2
+  resolution: "re-resizable@npm:6.11.2"
+  peerDependencies:
+    react: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 6e754c459f5e3b878184a4f3bffaef2f64ee32e4375e6a93f5f302eecc55d15f91fc7970d28a3ceb17b36292b421039b9cfcfe2ecef7785f44aeeb2d1baefa1a
+  languageName: node
+  linkType: hard
+
 "react-audio-visualize@npm:^1.1.3":
   version: 1.1.3
   resolution: "react-audio-visualize@npm:1.1.3"
@@ -23838,6 +23883,16 @@ __metadata:
     react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
     react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0
   checksum: e7d98563735dabbd1c58727c9d3e9f08f6a60a9964d25507cf4ef08f8964b6e421491c892ee0a99e47630118fdca42f1c60cef15ebda3659face58025dba3e98
+  languageName: node
+  linkType: hard
+
+"react-virtualized-auto-sizer@npm:^1.0.24":
+  version: 1.0.25
+  resolution: "react-virtualized-auto-sizer@npm:1.0.25"
+  peerDependencies:
+    react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 1d325db5bf78fd4a6a8df90fccc9a50b29c648d899d2ce779159903c7eaba2a98254e6436ca6d366b89c44c8b2de7042425dd36d17874d2b51a2455557423c3a
   languageName: node
   linkType: hard
 
@@ -27425,6 +27480,15 @@ __metadata:
   dependencies:
     tslib: 2.3.0
   checksum: 89e4f9e95b586af66ebf5c0504d5f8da73678e18c5b888124943ca81ecea7cff12f23009d64048df91e4dc670e9c51fa66c357834d9347e367f3b5cc02a24d35
+  languageName: node
+  linkType: hard
+
+"zrender@npm:5.6.1":
+  version: 5.6.1
+  resolution: "zrender@npm:5.6.1"
+  dependencies:
+    tslib: 2.3.0
+  checksum: 01caeac2d30f0083009aafa531ccb7fe991b6ac0ddd8134dc7b0015f794ed7e3d4fbfe5d32f61cb591014245eca15aeebcfc962cdebfe3829598f0c94ba3dc29
   languageName: node
   linkType: hard
 

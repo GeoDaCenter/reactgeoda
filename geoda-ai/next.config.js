@@ -45,6 +45,10 @@ const nextConfig = {
     // Configure to use local version of Kepler.gl
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@openassistant/echarts': resolve(
+        __dirname,
+        '../../openassistant/packages/echarts/src/index'
+      ),
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
       'styled-components': resolve(__dirname, '../../csds_kepler/node_modules/styled-components'),
       // 'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js/src'),

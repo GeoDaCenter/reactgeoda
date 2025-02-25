@@ -27,25 +27,19 @@ export function ChatGPTConfigComponent({
 }) {
   const dispatch = useDispatch();
 
-  // state for openAIKey error
   const [apiKeyError, setApiKeyError] = useState(false);
 
-  // state for error message
   const [errorMessage, setErrorMessage] = useState('');
 
-  // ai config
   const aiConfig = useSelector((state: GeoDaState) => state.root.ai.config);
 
-  // define useState for key
   const [temperature, setTemperature] = useState<number>(aiConfig?.temperature || 1.0);
 
   const [topP, setTopP] = useState<number>(aiConfig?.topP || 0.8);
 
   const [key, setKey] = React.useState(aiConfig?.apiKey || '');
 
-  const [provider, setProvider] = useState<'openai' | 'google' | 'ollama'>(
-    (aiConfig?.provider as 'openai' | 'google' | 'ollama') || 'openai'
-  );
+  const [provider, setProvider] = useState<string>(aiConfig?.provider || 'openai');
 
   const [model, setModel] = useState<string>(aiConfig?.model || 'gpt-4o');
 
@@ -94,11 +88,11 @@ export function ChatGPTConfigComponent({
 
     setIsRunning(true);
 
-    // check if openai key is valid by trying to call testOpenAI function
-    // if key is not valid, show error message
+    // check if token key is valid by trying to call testOpenAI function
     const AssistantModel = GetAssistantModelByProvider({
       provider: provider
     });
+
     const testResult = await AssistantModel?.testConnection(key, model);
 
     dispatch(setIsOpenAIKeyChecked(testResult || false));

@@ -131,7 +131,7 @@ export enum PanelName {
   MORAN_SCATTERPLOT = 'Moran Scatterplot'
 }
 
-export const MODEL_PROVIDERS = {
+export const MODEL_PROVIDERS: Record<string, {name: string; models: string[]}> = {
   deepseek: {
     name: 'DeepSeek',
     models: ['deepseek-chat']

@@ -14,6 +14,7 @@ import {GeoDaState} from '@/store';
 import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
 import {HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {addPlotUpdater} from './plot-updaters';
+import {DatasetProps} from './file-reducer';
 
 const initialState: Array<PlotStateProps> = [];
 
@@ -57,11 +58,12 @@ export type PlotStateProps =
 export const plotReducer = (
   state = initialState,
   action: PlotAction,
-  keplerState: GeoDaState['keplerGl']
+  keplerState: GeoDaState['keplerGl'],
+  datasets: DatasetProps[]
 ) => {
   switch (action.type) {
     case PLOT_ACTIONS.ADD_PLOT:
-      return addPlotUpdater(state, action, keplerState);
+      return addPlotUpdater(state, action, datasets, keplerState);
     case PLOT_ACTIONS.REMOVE_PLOT: {
       const payload = action.payload as RemovePlotActionProps;
       return state.filter(plot => plot.id !== payload.id);

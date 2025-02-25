@@ -2,8 +2,8 @@ import {useSelector} from 'react-redux';
 import {Tab, Tabs} from '@nextui-org/react';
 import {ResizableBox} from 'react-resizable';
 import 'react-resizable/css/styles.css';
+import {BoxplotComponent} from '@openassistant/echarts';
 
-import {BoxPlot} from './box-plot';
 import {HistogramPlot} from './histogram-plot';
 import {BubbleChart} from './bubble-chart-plot';
 import {Scatterplot} from './scatter-plot';
@@ -19,6 +19,8 @@ import {
 import {GeoDaState} from '@/store';
 import {ParallelCoordinatePlot} from './parallel-coordinate-plot';
 import {MoranScatterPlot} from './moranscatter-plot';
+import {selectRawData} from '@/store/selectors';
+import {useTheme} from 'next-themes';
 
 // type guard function to check if the plot is a histogram plot
 export function isHistogramPlot(plot: PlotStateProps): plot is HistogramPlotStateProps {
@@ -50,6 +52,23 @@ export function isMoranScatterPlot(plot: PlotStateProps): plot is MoranScatterPl
   return plot.type === 'moranscatter';
 }
 
+function BoxPlotWrapper(plot: BoxPlotStateProps) {
+  const rawData = useSelector(selectRawData(plot.datasetId, plot.variables));
+  const {theme} = useTheme();
+
+  return (
+    <BoxplotComponent
+      id={plot.id}
+      datasetName={plot.datasetId}
+      variables={plot.variables}
+      boxplotData={plot.data}
+      isExpanded={false}
+      boundIQR={plot.boundIQR}
+      data={rawData}
+      theme={theme}
+    />
+  );
+}
 // PlotWrapper component with fixed height
 export function PlotWrapper(plot: PlotStateProps) {
   return (
@@ -57,7 +76,7 @@ export function PlotWrapper(plot: PlotStateProps) {
       {isHistogramPlot(plot) ? (
         <HistogramPlot key={plot.id} props={plot} />
       ) : isBoxPlot(plot) ? (
-        <BoxPlot key={plot.id} props={plot} />
+        <BoxPlotWrapper key={plot.id} {...plot} />
       ) : isParallelCoordinate(plot) ? (
         <ParallelCoordinatePlot key={plot.id} props={plot} />
       ) : isBubbleChart(plot) ? (

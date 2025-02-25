@@ -2,6 +2,7 @@ import {Selector, createSelector} from 'reselect';
 import {GeoDaState} from '.';
 import {MAP_ID} from '@/constants';
 import {getDataContainer, getIntegerAndStringFieldNamesFromDataset} from '@/utils/data-utils';
+import {getColumnDataFromArrowTable} from '@/utils/arrow-table-utils';
 import {Layer} from '@kepler.gl/layers';
 import KeplerTable, {Datasets as KeplerDatasets} from '@kepler.gl/table';
 import {
@@ -11,13 +12,28 @@ import {
 
 type StateSelector<R> = Selector<GeoDaState, R>;
 
+/**
+ * Selector that retrieves the default dataset ID from the application state.
+ * @param {GeoDaState} state - The global application state
+ * @returns {string} The default dataset ID
+ */
 export const defaultDatasetIdSelector: StateSelector<string> = (state: GeoDaState) =>
   state.root.uiState.defaultDatasetId;
 
+/**
+ * Selector that retrieves all datasets from the application state.
+ * @param {GeoDaState} state - The global application state
+ * @returns {GeoDaState['root']['datasets']} Array of all datasets
+ */
 export const datasetsSelector: StateSelector<GeoDaState['root']['datasets']> = (
   state: GeoDaState
 ) => state.root.datasets;
 
+/**
+ * Selector that retrieves the filename of the main table (first dataset).
+ * @param {GeoDaState} state - The global application state
+ * @returns {string} The filename of the main table, or empty string if no datasets exist
+ */
 export const mainTableNameSelector: StateSelector<string> = (state: GeoDaState) =>
   state.root.datasets?.length > 0 ? state.root.datasets[0].fileName : '';
 
@@ -28,7 +44,11 @@ export const geodaUIStateSelector: StateSelector<GeoDaState['root']['uiState']> 
   state: GeoDaState
 ) => state.root.uiState;
 
-// create a memoized selector to get kepler data container
+/**
+ * Memoized selector that retrieves the Kepler data container for the main table.
+ * @param {GeoDaState} state - The global application state
+ * @returns {Object} The data container for the specified table name
+ */
 export const keplerDataContainerSelector = createSelector(
   [
     (state: GeoDaState) => state.root.datasets[0].fileName,
@@ -37,7 +57,11 @@ export const keplerDataContainerSelector = createSelector(
   (tableName, datasets) => getDataContainer(tableName, datasets)
 );
 
-// create a memorized selector to get kepler layer based on input parameter: dataId
+/**
+ * Creates a memoized selector to retrieve a Kepler layer by its data ID.
+ * @param {string} [dataId] - Optional data ID to filter the layer
+ * @returns {Function} Selector function that returns the matching Kepler layer
+ */
 export const selectKeplerLayer = (dataId?: string) =>
   createSelector([(state: GeoDaState) => state.keplerGl[MAP_ID].visState.layers], layers => {
     // assume only one layer for now
@@ -84,7 +108,14 @@ export const selectSpatialAssignConfig = (state: GeoDaState) =>
 
 export const selectSpatialCountConfig = (state: GeoDaState) => state.root.spatialJoin.spatialCount;
 
-// create a memoized selector to get binary geometry type and binary geometries from the given layer and dataset
+/**
+ * Creates a memoized selector to retrieve geometry data from a layer and dataset.
+ * @param {Object} props - Props containing state, layer, and dataset
+ * @param {GeoDaState} props.state - The global application state
+ * @param {Layer} props.layer - The Kepler layer
+ * @param {KeplerTable} props.dataset - The Kepler dataset
+ * @returns {Object} Object containing binary geometry type and geometries
+ */
 export const selectGeometryData = createSelector(
   [
     (props: {state: GeoDaState; layer: Layer; dataset: KeplerTable}) => props.layer,
@@ -96,9 +127,39 @@ export const selectGeometryData = createSelector(
   })
 );
 
-// create a memorized selector to get variables from the given dataset id
+/**
+ * Creates a memoized selector to retrieve variables from a dataset.
+ * @param {string} datasetId - The ID of the dataset to get variables from
+ * @returns {Function} Selector function that returns array of integer and string field names
+ */
 export const selectVariables = (datasetId: string) =>
   createSelector([(state: GeoDaState) => state.keplerGl[MAP_ID].visState.datasets], datasets => {
     const dataset = datasets[datasetId];
     return dataset ? getIntegerAndStringFieldNamesFromDataset(dataset) : [];
   });
+
+/**
+ * Creates a memoized selector to retrieve raw data for specified variables from a dataset.
+ * @param {string} datasetId - The ID of the dataset to get data from
+ * @param {string[]} variableNames - Array of variable names to retrieve
+ * @returns {Function} Selector function that returns object mapping variable names to their data arrays
+ */
+export const selectRawData = (datasetId: string, variableNames: string[]) =>
+  createSelector([(state: GeoDaState) => state.root.datasets], datasets => {
+    const dataset = datasets.find(dataset => dataset.dataId === datasetId);
+    // get the raw data from the arrow table
+    const rawData: {
+      [key: string]: number[];
+    } = {};
+    if (dataset) {
+      const arrowTable = dataset.arrowTable;
+      variableNames.forEach(variableName => {
+        const data = getColumnDataFromArrowTable({arrowTable, columnName: variableName});
+        rawData[variableName] = data;
+      });
+    }
+
+    return rawData;
+  });
+
+export const selectTheme = (state: GeoDaState) => state.root.uiState.theme;

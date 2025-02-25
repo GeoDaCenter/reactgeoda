@@ -1,5 +1,5 @@
-import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
 import {HistogramDataProps} from '@/utils/plots/histogram-utils';
+import {BoxplotDataProps} from '@openassistant/echarts';
 
 export enum PLOT_ACTIONS {
   ADD_PLOT = 'ADD_PLOT',
@@ -10,6 +10,7 @@ export enum PLOT_ACTIONS {
 type BasePlotActionProps = {
   id?: string;
   datasetId: string;
+  datasetName: string;
   type: string;
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
   isNew?: boolean;

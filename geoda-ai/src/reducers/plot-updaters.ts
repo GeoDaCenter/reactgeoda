@@ -23,7 +23,9 @@ import KeplerTable from '@kepler.gl/table';
 import {MAP_ID} from '@/constants';
 import {getColumnDataFromKeplerDataset} from '@/utils/data-utils';
 import {createHistogram} from '@/utils/plots/histogram-utils';
-import {createBoxplot, CreateBoxplotProps} from '@/utils/plots/boxplot-utils';
+import {createBoxplot, CreateBoxplotProps} from '@openassistant/echarts';
+import {DatasetProps} from './file-reducer';
+import {getColumnDataFromArrowTable} from '@/utils/arrow-table-utils';
 
 function addHistogramPlotUpdater(
   payload: HistogramPlotActionProps,
@@ -66,14 +68,17 @@ function addScatterPlotUpdater(
 
 function addBoxPlotUpdater(
   payload: BoxPlotActionProps,
-  keplerDataset: KeplerTable,
+  dataset: DatasetProps,
   state: PlotStateProps[]
 ) {
+  const arrowTable = dataset.arrowTable;
   const {id, variables, boundIQR, data} = payload;
+
   let boxplot = data;
+
   if (!boxplot) {
     const values = variables.reduce((prev: CreateBoxplotProps['data'], columnName: string) => {
-      const values = getColumnDataFromKeplerDataset(columnName, keplerDataset);
+      const values = getColumnDataFromArrowTable({arrowTable, columnName});
       prev[columnName] = values;
       return prev;
     }, {});
@@ -132,17 +137,19 @@ function addMoranScatterPlotUpdater(
 export function addPlotUpdater(
   state: PlotStateProps[],
   action: PlotAction,
+  datasets: DatasetProps[],
   keplerState: GeoDaState['keplerGl']
 ) {
   const payload = action.payload as PlotActionProps;
+  const dataset = datasets.find(d => d.dataId === payload.datasetId);
   const keplerDataset: KeplerTable = keplerState[MAP_ID].visState.datasets[payload.datasetId];
 
   if (payload.type === 'histogram') {
     return addHistogramPlotUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'scatter') {
     return addScatterPlotUpdater(payload, keplerDataset, state);
-  } else if (payload.type === 'boxplot') {
-    return addBoxPlotUpdater(payload, keplerDataset, state);
+  } else if (payload.type === 'boxplot' && dataset) {
+    return addBoxPlotUpdater(payload, dataset, state);
   } else if (payload.type === 'bubble') {
     return addBubbleChartUpdater(payload, keplerDataset, state);
   } else if (payload.type === 'parallel-coordinate') {
