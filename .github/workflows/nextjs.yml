@@ -50,6 +50,10 @@ jobs:
           cd csds_kepler
           yarn
           cd ..
+      - name: Install OpenAssistant
+        run: |
+          cd ..
+          git clone https://github.com/openassistant/openassistant.git openassistant
       - name: Install GeoDa-Lib
         run: |
           cd ..

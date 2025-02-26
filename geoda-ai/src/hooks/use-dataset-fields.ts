@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {useSelector} from 'react-redux';
-import {datasetsSelector, defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {datasetsSelector, selectKeplerDataset} from '@/store/selectors';
 import {
   getIntegerFieldNamesFromDataset,
   getIntegerAndStringFieldNamesFromDataset,
