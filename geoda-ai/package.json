@@ -30,7 +30,7 @@
     "@monaco-editor/react": "^4.6.0",
     "@nextui-org/react": "^2.4.8",
     "@openassistant/common": "^0.1.5",
-    "@openassistant/core": "^0.1.4",
+    "@openassistant/core": "^0.1.9",
     "@openassistant/echarts": "^0.1.5",
     "@openassistant/ui": "^0.1.4",
     "@sentry/browser": "^8.25.0",
