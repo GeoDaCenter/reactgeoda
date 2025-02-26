@@ -85,7 +85,12 @@ function addBoxPlotUpdater(
     boxplot = createBoxplot({data: values, boundIQR});
   }
   // create boxplot plot state
-  const plotState: BoxPlotStateProps = {...payload, id: id || generateRandomId(), data: boxplot};
+  const plotState: BoxPlotStateProps = {
+    ...payload,
+    id: id || generateRandomId(),
+    data: boxplot,
+    datasetId: dataset.dataId || ''
+  };
 
   return [...state, plotState];
 }

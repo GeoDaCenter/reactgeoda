@@ -45,6 +45,7 @@ const nextConfig = {
     // Configure to use local version of Kepler.gl
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@openassistant/common': resolve(__dirname, '../../openassistant/packages/common/src/index'),
       '@openassistant/echarts': resolve(
         __dirname,
         '../../openassistant/packages/echarts/src/index'

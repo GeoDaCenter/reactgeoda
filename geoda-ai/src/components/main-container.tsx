@@ -1,6 +1,9 @@
-import {setScreenCaptured, setStartScreenCapture} from '@/actions';
+import {geodaBrushLink, setScreenCaptured, setStartScreenCapture} from '@/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import {ScreenshotWrapper} from '@openassistant/ui';
+import {useBrushLink} from '@openassistant/common';
+import {debounce} from 'lodash';
+import {Dispatch} from 'react';
 
 import {Navigator} from '@/components/navigator';
 import {TableContainer} from '@/components/table/table-container';
@@ -13,6 +16,11 @@ const OpenFileModal = dynamic(() => import('@/components/open-file-modal'), {ssr
 const GridLayout = dynamic(() => import('@/components/dashboard/grid-layout'), {ssr: false});
 import {AddDatasetModal} from '@/components/open-file-modal';
 import {GeoDaState} from '@/store';
+
+// Move the debounced dispatch outside the function to avoid recreating it on every call
+const debouncedDispatch = debounce((dispatch: Dispatch<any>, action: any) => {
+  dispatch(action);
+}, 100);
 
 export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl: string | null}) {
   const dispatch = useDispatch();
@@ -29,6 +37,22 @@ export default function MainContainerWithScreenCapture({projectUrl}: {projectUrl
   const onSetStartScreenCapture = (value: boolean) => {
     dispatch(setStartScreenCapture(value));
   };
+
+  const {componentId} = useBrushLink({
+    componentId: 'main-container',
+    onLink: (highlightedRows, sourceDataId) => {
+      if (componentId !== sourceDataId) {
+        debouncedDispatch(
+          dispatch,
+          geodaBrushLink({
+            sourceId: componentId,
+            dataId: sourceDataId,
+            filteredIndex: highlightedRows
+          })
+        );
+      }
+    }
+  });
 
   return (
     <ScreenshotWrapper

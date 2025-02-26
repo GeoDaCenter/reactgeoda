@@ -7007,6 +7007,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openassistant/common@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@openassistant/common@npm:0.1.5"
+  dependencies:
+    "@iconify/react": ^5.1.0
+    "@nextui-org/react": ^2.6.10
+    framer-motion: ^11.15.0
+    re-resizable: ^6.10.3
+  peerDependencies:
+    react: ">=18.2"
+    react-dom: ">=18.2"
+  checksum: 7e9f96164b0d3cd8406a804dcf6b137d1497c710f86cb0603a231f05d4055b681b2f3f96c5420be53b3c7055a0bb2ce5340222350d0cb27421e81eb23ce367a9
+  languageName: node
+  linkType: hard
+
 "@openassistant/core@npm:^0.1.4":
   version: 0.1.4
   resolution: "@openassistant/core@npm:0.1.4"
@@ -17730,6 +17745,7 @@ __metadata:
     "@next/third-parties": 14.0.5-canary.64
     "@nextui-org/react": ^2.4.8
     "@nextui-org/use-clipboard": ^2.0.7
+    "@openassistant/common": ^0.1.5
     "@openassistant/core": ^0.1.4
     "@openassistant/echarts": ^0.1.5
     "@openassistant/ui": ^0.1.4

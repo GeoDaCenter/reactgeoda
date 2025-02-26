@@ -1,8 +1,7 @@
 import {useSelector} from 'react-redux';
 import {Tab, Tabs} from '@nextui-org/react';
-import {ResizableBox} from 'react-resizable';
 import 'react-resizable/css/styles.css';
-import {BoxplotComponent} from '@openassistant/echarts';
+import {BoxplotComponentContainer} from '@openassistant/echarts';
 
 import {HistogramPlot} from './histogram-plot';
 import {BubbleChart} from './bubble-chart-plot';
@@ -57,18 +56,48 @@ function BoxPlotWrapper(plot: BoxPlotStateProps) {
   const {theme} = useTheme();
 
   return (
-    <BoxplotComponent
+    <BoxplotComponentContainer
       id={plot.id}
-      datasetName={plot.datasetId}
+      datasetId={plot.datasetId}
+      datasetName={plot.datasetName}
       variables={plot.variables}
       boxplotData={plot.data}
-      isExpanded={false}
-      boundIQR={plot.boundIQR}
       data={rawData}
+      boundIQR={plot.boundIQR}
       theme={theme}
+      isExpanded={false}
+      isDraggable={false}
     />
   );
 }
+
+const PlotsWrapper = ({plots, plotType}: {plots: PlotStateProps[]; plotType?: string}) => {
+  const filteredPlots = plotType ? plots.filter(plot => plot.type === plotType) : plots;
+  return (
+    <div className="flow flow-col space-y-2">
+      {filteredPlots.toReversed().map(plot => (
+        <div className="mb-4 h-full w-full" key={plot.id}>
+          {isHistogramPlot(plot) ? (
+            <HistogramPlot key={plot.id} props={plot} />
+          ) : isBoxPlot(plot) ? (
+            <BoxPlotWrapper key={plot.id} {...plot} />
+          ) : isParallelCoordinate(plot) ? (
+            <ParallelCoordinatePlot key={plot.id} props={plot} />
+          ) : isBubbleChart(plot) ? (
+            <BubbleChart key={plot.id} props={plot} />
+          ) : isScatterPlot(plot) ? (
+            <Scatterplot key={plot.id} props={plot} />
+          ) : isMoranScatterPlot(plot) ? (
+            <MoranScatterPlot key={plot.id} props={plot} />
+          ) : (
+            <></>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // PlotWrapper component with fixed height
 export function PlotWrapper(plot: PlotStateProps) {
   return (
@@ -89,40 +118,6 @@ export function PlotWrapper(plot: PlotStateProps) {
     </div>
   );
 }
-
-const PlotsWrapper = ({plots, plotType}: {plots: PlotStateProps[]; plotType?: string}) => {
-  const filteredPlots = plotType ? plots.filter(plot => plot.type === plotType) : plots;
-  return (
-    <div className="flow flow-col space-y-2">
-      {filteredPlots.toReversed().map(plot => (
-        <ResizableBox
-          key={plot.id}
-          width={Infinity}
-          height={280}
-          minConstraints={[Infinity, 280]}
-          maxConstraints={[Infinity, 600]}
-          resizeHandles={['se']}
-          handle={
-            <div className="group absolute bottom-0 right-0 h-6 w-6 cursor-se-resize">
-              <div className="flex h-full w-full items-center justify-center transition-colors hover:bg-gray-100/10">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  className="text-gray-300 group-hover:text-gray-400"
-                >
-                  <path d="M11 6V11H6" stroke="currentColor" strokeWidth="2" fill="none" />
-                </svg>
-              </div>
-            </div>
-          }
-        >
-          {PlotWrapper(plot)}
-        </ResizableBox>
-      ))}
-    </div>
-  );
-};
 
 export const PlotManagementPanel = () => {
   // use selector to get plots

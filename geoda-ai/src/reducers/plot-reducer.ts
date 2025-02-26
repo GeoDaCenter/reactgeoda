@@ -25,6 +25,7 @@ export type PlotAction = {
 
 type BasePlotStateProps = {
   id: string;
+  theme?: string;
 };
 
 export type HistogramPlotStateProps = BasePlotStateProps &

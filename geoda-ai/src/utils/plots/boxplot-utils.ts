@@ -9,7 +9,7 @@ export type CreateBoxplotProps = {
 };
 
 // Boxplot data output props, which is compatible with eCharts boxplot series data
-export type BoxplotDataProps = {
+type BoxplotDataProps = {
   // the boxData which will be rendred as boxplot by eCharts
   // [low, Q1, Q2, Q3, high]
   boxData: Array<{name: string; value: [number, number, number, number, number]}>;

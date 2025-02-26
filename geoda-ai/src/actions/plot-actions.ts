@@ -14,6 +14,7 @@ type BasePlotActionProps = {
   type: string;
   // isNew is used to determine if the plots are newly added by chatbot, so a number badge can be shown on the plot icon
   isNew?: boolean;
+  theme?: string;
 };
 
 export type HistogramPlotActionProps = BasePlotActionProps & {
