@@ -55,6 +55,7 @@ jobs:
           cd ..
           git clone https://github.com/GeoDaCenter/openassistant.git openassistant
           cd openassistant
+          yarn set version 4.6.0
           yarn
           yarn build
           cd ..
