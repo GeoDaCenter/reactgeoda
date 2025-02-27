@@ -9,7 +9,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {customCreateVariableMessageCallback} from '@/components/chatgpt/custom-create-variable-message';
 
 export const createVariableFunctionDefinition = (

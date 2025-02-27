@@ -22,7 +22,7 @@ export function BoxplotPanel() {
   const dispatch = useDispatch();
 
   // use custom hook
-  const {datasetId, keplerDataset, numericFieldNames} = useDatasetFields();
+  const {datasetId, datasetName, keplerDataset, numericFieldNames} = useDatasetFields();
 
   // use state
   const [variables, setVariables] = useState<string[]>([]);
@@ -38,7 +38,7 @@ export function BoxplotPanel() {
       // get hinge value as number
       const boundIQR = parseFloat(hingeValue);
       // dispatch action to create boxplot and add to store
-      dispatch(addPlot({type: 'boxplot', variables, datasetId, boundIQR}));
+      dispatch(addPlot({type: 'boxplot', variables, datasetId, boundIQR, datasetName}));
       // show plots management tab
       setShowPlotsManagement(true);
     }

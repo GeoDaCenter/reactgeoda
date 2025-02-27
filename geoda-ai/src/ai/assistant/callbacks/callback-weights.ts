@@ -22,7 +22,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {customWeightsMessageCallback} from '@/components/chatgpt/custom-weights-message';
 import {WeightsProps} from '@/reducers/weights-reducer';
 

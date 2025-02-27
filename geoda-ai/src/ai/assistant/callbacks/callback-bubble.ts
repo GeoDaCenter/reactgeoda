@@ -9,7 +9,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {customBubbleChartMessageCallback} from '@/components/chatgpt/custom-bubblechart-message';
 
 export const createBubbleChartFunctionDefinition = (

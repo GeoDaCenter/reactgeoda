@@ -21,6 +21,7 @@ import {useSearchParams} from 'next/navigation';
 import dynamic from 'next/dynamic';
 import {DuckDB} from '@/hooks/use-duckdb';
 import {GeoDaLogo} from '@/components/navigator/geoda-logo';
+
 import {initGeoDa} from 'geoda-wasm';
 const MainConatiner = dynamic(() => import('@/components/main-container'), {ssr: false});
 // import MainConatiner from '@/components/main-container';

@@ -9,7 +9,7 @@ import {
   CustomFunctionOutputProps,
   ErrorCallbackResult,
   RegisterFunctionCallingProps
-} from 'react-ai-assist';
+} from '@openassistant/core';
 import {VisState} from '@kepler.gl/schemas';
 import {customHistogramMessageCallback} from '@/components/chatgpt/custom-histogram-message';
 

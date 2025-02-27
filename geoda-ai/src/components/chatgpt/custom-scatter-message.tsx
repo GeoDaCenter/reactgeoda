@@ -10,8 +10,11 @@ import {Scatterplot} from '../plots/scatter-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {ScatterPlotStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionCall, CustomFunctionOutputProps} from '@/ai/types';
-import {ErrorCallbackResult} from 'react-ai-assist';
+import {
+  CustomFunctionCall,
+  CustomFunctionOutputProps,
+  ErrorCallbackResult
+} from '@openassistant/core';
 
 export function customScatterPlotMessageCallback({
   functionArgs,

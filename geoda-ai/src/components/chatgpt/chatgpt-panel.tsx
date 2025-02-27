@@ -10,11 +10,6 @@ import {datasetsSelector} from '@/store/selectors';
 import {ChatGPTConfigComponent} from './chatgpt-config';
 import {Button, Tooltip} from '@nextui-org/react';
 
-export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
-export const INVALID_OPENAI_KEY_MESSAGE =
-  'The OpenAI API key is invalid. Please change your OpenAI API key in Settings.';
-export const CONNECT_OPENAI_API = 'Connecting and initializing ...';
-
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
 const ChatGPTPanel = () => {

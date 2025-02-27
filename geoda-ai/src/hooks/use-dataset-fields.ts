@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {useSelector} from 'react-redux';
-import {defaultDatasetIdSelector, selectKeplerDataset} from '@/store/selectors';
+import {datasetsSelector, selectKeplerDataset} from '@/store/selectors';
 import {
   getIntegerFieldNamesFromDataset,
   getIntegerAndStringFieldNamesFromDataset,
@@ -16,9 +16,13 @@ import {MAP_ID} from '@/constants';
  * @returns
  */
 export function useDatasetFields(selectedDatasetId?: string) {
-  const defaultDatasetId = useSelector(defaultDatasetIdSelector);
-  const keplerDataset = useSelector(selectKeplerDataset(selectedDatasetId || defaultDatasetId));
-  const datasetId = keplerDataset?.id || '';
+  const datasets = useSelector(datasetsSelector);
+  const datasetId = selectedDatasetId || datasets[0].dataId || '';
+  const dataset = datasets.find(dataset => dataset.dataId === datasetId);
+
+  const datasetName = dataset?.fileName || '';
+
+  const keplerDataset = useSelector(selectKeplerDataset(datasetId));
 
   const numericFieldNames = useMemo(
     () => getNumericFieldNamesFromDataset(keplerDataset),
@@ -42,6 +46,7 @@ export function useDatasetFields(selectedDatasetId?: string) {
 
   return {
     datasetId,
+    datasetName,
     keplerDataset,
     numericFieldNames,
     integerFieldNames,

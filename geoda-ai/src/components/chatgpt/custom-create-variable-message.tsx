@@ -8,7 +8,7 @@ import {PreviewDataTable} from '../table/preview-data-table';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {selectKeplerDataset} from '@/store/selectors';
 import {addTableColumn} from '@kepler.gl/actions';
-import {CustomFunctionCall, CustomFunctionOutputProps} from 'react-ai-assist';
+import {CustomFunctionCall, CustomFunctionOutputProps} from '@openassistant/core';
 
 export function customCreateVariableMessageCallback({
   functionArgs,

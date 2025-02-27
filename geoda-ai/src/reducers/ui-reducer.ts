@@ -49,7 +49,7 @@ export type UiStateProps = {
     showWeightsPanel: boolean;
     weightsCreation: {
       isRunning: boolean;
-      error: string | null;
+      error: null;
     };
     distanceThresholds: DistanceThresholdsProps;
     distanceUnit: 'mile' | 'kilometer';
@@ -262,7 +262,7 @@ export const uiReducer = (state = INITIAL_UI_STATE, action: UiAction): UiStatePr
         ...state,
         weights: {
           ...state.weights,
-          weightsCreation: {isRunning: false, error: action.payload as string | null}
+          weightsCreation: {isRunning: false, error: action.payload}
         }
       };
     case UI_ACTIONS.SET_WEIGHTS_DISTANCE_CONFIG:

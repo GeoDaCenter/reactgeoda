@@ -22,14 +22,19 @@ export function handleGeoDaBrushLink(state: KeplerGlState, action: UnknownAction
     return state;
   }
 
-  const {sourceId, dataId, filteredIndex} = action.payload;
+  const {sourceId, dataId: datasetName, filteredIndex} = action.payload;
   if (sourceId === 'kepler') {
     return state;
   }
 
   const visState = state.visState;
   const datasets = visState.datasets;
-  const dataset = datasets[dataId];
+  const dataset = Object.values(datasets).find(d => d.label === datasetName);
+  const dataId = dataset?.id;
+
+  if (!dataset) {
+    return state;
+  }
 
   if (filteredIndex) {
     dataset.filteredIndex = filteredIndex.length === 0 ? dataset.allIndexes : filteredIndex;

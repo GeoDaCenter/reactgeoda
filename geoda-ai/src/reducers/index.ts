@@ -37,7 +37,7 @@ const rootReducer = (state: GeoDaRootState, action: UnknownAction, keplerState: 
     maps: mapsReducer(state?.maps, action as MapsAction),
     uiState: uiReducer(state?.uiState, action as UiAction),
     weights: weightsReducer(state?.weights, action as WeightsAction),
-    plots: plotReducer(state?.plots, action as PlotAction, keplerState),
+    plots: plotReducer(state?.plots, action as PlotAction, keplerState, state?.datasets),
     regressions: regressionReducer(state?.regressions, action as RegressionAction),
     ai: aiReducer(state?.ai, action as AiAction),
     dashboard: dashboardReducer(state?.dashboard, action as DashboardAction),

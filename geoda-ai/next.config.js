@@ -45,10 +45,15 @@ const nextConfig = {
     // Configure to use local version of Kepler.gl
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@openassistant/common': resolve(__dirname, '../../openassistant/packages/common/src/index'),
+      '@openassistant/echarts': resolve(
+        __dirname,
+        '../../openassistant/packages/echarts/src/index'
+      ),
       'apache-arrow': resolve(__dirname, './node_modules/apache-arrow'),
       'styled-components': resolve(__dirname, '../../csds_kepler/node_modules/styled-components'),
-      'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js/src'),
-      'react-ai-assist': resolve(__dirname, '../../ai-assistant/src'),
+      // 'geoda-wasm': resolve(__dirname, '../../geoda-lib/src/js/src'),
+      // 'react-ai-assist': resolve(__dirname, '../../ai-assistant/src'),
       // '@dnd-kit/core': resolve(__dirname, '../node_modules/@dnd-kit/core'),
       '@mapbox/tiny-sdf': resolve(
         __dirname,

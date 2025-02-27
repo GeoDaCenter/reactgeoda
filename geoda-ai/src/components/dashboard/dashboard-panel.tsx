@@ -19,6 +19,7 @@ import {RegressionReport} from '../spreg/spreg-report';
 import {TextCell} from './text-cell';
 import {WeightsMetaTable} from '@/components/weights/weights-meta-table';
 import {EditorState} from 'lexical';
+import {PlotStateProps} from '@/reducers/plot-reducer';
 
 const DuckDBTable = dynamic(() => import('../table/duckdb-table'), {ssr: false});
 
@@ -194,7 +195,7 @@ export function DashboardPanel() {
                             plot.id &&
                             gridItems?.find(l => l.id === plot.id && l.show === false) && (
                               <DraggableElement key={plot.id} id={plot.id}>
-                                {PlotWrapper(plot, false)}
+                                {PlotWrapper(plot as PlotStateProps)}
                               </DraggableElement>
                             )
                         )}

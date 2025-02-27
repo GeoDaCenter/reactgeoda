@@ -12,7 +12,7 @@ import {BubbleChart} from '../plots/bubble-chart-plot';
 import {CustomCreateButton} from '../common/custom-create-button';
 import {GeoDaState} from '@/store';
 import {BubbleChartStateProps} from '@/reducers/plot-reducer';
-import {CustomFunctionCall} from '@/ai/types';
+import {CustomFunctionCall} from '@openassistant/core';
 
 export function customBubbleChartMessageCallback({
   functionArgs,

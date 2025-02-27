@@ -18,6 +18,7 @@ import {
   GRID_ITEM_TYPES
 } from '@/utils/grid-utils';
 import {WeightsMetaTable} from '@/components/weights/weights-meta-table';
+import {PlotStateProps} from '@/reducers/plot-reducer';
 
 // import KeplerMap from './kepler-map';
 const KeplerMap = dynamic(() => import('../kepler-map'), {ssr: false});
@@ -201,7 +202,7 @@ const GridLayout = () => {
           return plot ? (
             <div key={l.i} style={cellStyle} className={l.i}>
               <GridCell id={l.i} mode={mode}>
-                {PlotWrapper(plot, false)}
+                {PlotWrapper(plot as PlotStateProps)}
               </GridCell>
             </div>
           ) : null;

@@ -1,11 +1,7 @@
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {
-  AiAssistant,
-  RegisterFunctionCallingProps,
-  MessageModel,
-  useAssistant
-} from 'react-ai-assist';
+import {RegisterFunctionCallingProps, MessageModel} from '@openassistant/core';
+import {AiAssistant} from '@openassistant/ui';
 import {GeoDaState} from '@/store';
 import {
   setDefaultPromptText,
@@ -17,25 +13,38 @@ import {DuckDB} from '@/hooks/use-duckdb';
 import {MAP_ID} from '@/constants';
 import {useIntl} from 'react-intl';
 import {datasetsSelector} from '@/store/selectors';
-import {
-  getMetaDataCallback,
-  MetaDataCallbackOutput
-} from '@/ai/assistant/callbacks/callback-metadata';
-import {ErrorOutput} from '@/ai/assistant/custom-functions';
 import {createMapFunctionDefinition} from '@/ai/assistant/callbacks/callback-map';
 import {lisaFunctionDefinition} from '@/ai/assistant/callbacks/callback-lisa';
 import {createWeightsFunctionDefinition} from '@/ai/assistant/callbacks/callback-weights';
 import {createVariableFunctionDefinition} from '@/ai/assistant/callbacks/callback-table';
 import {spatialRegressionFunctionDefinition} from '@/ai/assistant/callbacks/callback-regression';
 import {WeightsProps} from '@/reducers/weights-reducer';
-import {createPlotFunctionDefinition} from '@/ai/assistant/callbacks/callback-plot';
-
-export const NO_OPENAI_KEY_MESSAGE = 'Please config your OpenAI API key in Settings.';
+import {boxplotTool} from '@openassistant/echarts';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
-const GEODA_INSTRUCTIONS =
-  "You are a spatial data analyst. You are helping analyzing the spatial  data. You are capable of:\n1. create basic maps and rates maps, including quantile map, natural breaks map, equal intervals map, percentile map, box map with hinge=1.5, box map with hinge=3.0, standard deviation map, and unique values map\n2. create plots or charts, including histogram, scatter plot, box plot, parallel coordinates plot and bubble chart\n3. create spatial weights, including queen contiguity weights, rook contiguity weights, distance based weights and kernel weights\n4. apply local indicators of spatial association (LISA) analysis, including local morn, local G, local G*, local Geary and Quantile LISA\n5. Apply spatial regression analysis, including classic linear regression model with spatial diagnostics if weights provided, spatial lag model and spatial error model \nPlease don't say you are unable to display the actual plot or map directly in this text-based interface.\nPlease don't use LaTeX symbols for mathematical and scientific text. \nPlease don't ask to load the data to understand its content.\nPlease try to create plot or map for only one variable at a time.\nPlease list first 10 variables if possible.\nFor lisa function, please use the existing spatial weights. If no spatial weights can be found, please call two function tools: one tool to create spatial weights and one tool to apply lisa statistics.\n Please try to correct the variable name using the metadata of the datasets. \n Please always return plain text and don't return any code.";
+const GEODA_INSTRUCTIONS = `You are a spatial data analyst using GeoDa library. You are helping analyzing the spatial  data.
+You have following tools using function calling:
+- create basic maps and rates maps
+- create plots or charts
+- create spatial weights
+- apply local indicators of spatial association (LISA) analysis
+- apply spatial regression analysis
+
+When responding to user queries:
+1. Analyze if the task requires one or multiple function calls
+2. For each required function:
+   - Identify the appropriate function to call
+   - Determine all required parameters
+   - If parameters are missing, ask the user to provide them
+   - Please ask the user to confirm the parameters
+   - If the user doesn't agree, try to provide variable functions to the user
+   - Execute functions in a sequential order
+3. For SQL query, please help to generate select query clause using the content of the dataset:
+   - please use double quotes for table name
+   - please only use the columns that are in the dataset context
+   - please try to use the aggregate functions if possible
+`;
 
 const DEFAULT_WELCOME_MESSAGE =
   "Hello, I'm GeoDa.AI agent! Let's do spatial analysis! How can I help you today?";
@@ -119,7 +128,6 @@ export const ChatGPTComponent = () => {
     dispatch(setDefaultPromptText(''));
   }, [dispatch]);
 
-  // handle report question
   const onFeedback = (question: string) => {
     // report the question
     // open this link in a new tab
@@ -128,67 +136,53 @@ export const ChatGPTComponent = () => {
   };
 
   // NOTE: ollama with e.g. llama3.1 cannot support more than 4 complex functions
-  const functions: RegisterFunctionCallingProps[] =
-    llmConfig?.provider === 'ollama'
-      ? [
-          createMapFunctionDefinition({visState}),
-          createPlotFunctionDefinition({visState}),
-          createWeightsFunctionDefinition({visState, weights}),
-          lisaFunctionDefinition(getFunctionContext)
-        ]
-      : [
-          createMapFunctionDefinition({visState}),
-          createPlotFunctionDefinition({visState}),
-          createWeightsFunctionDefinition({visState, weights}),
-          lisaFunctionDefinition(getFunctionContext),
-          createVariableFunctionDefinition({visState, queryValues: queryValuesBySQL}),
-          spatialRegressionFunctionDefinition({visState, weights})
-        ];
-
-  const assistantProps = {
-    modelProvider: llmConfig?.provider || 'openai',
-    model: llmConfig?.model || 'gpt-4o',
-    apiKey: llmConfig?.apiKey || '',
-    instructions: GEODA_INSTRUCTIONS,
-    functions: functions,
-    name: 'GeoDa.AI',
-    version: '1.0'
-  };
-
-  const {initializeAssistant, addAdditionalContext} = useAssistant(assistantProps);
+  const functions: RegisterFunctionCallingProps[] = useMemo(
+    () => [
+      createMapFunctionDefinition({visState}),
+      // createPlotFunctionDefinition({visState}),
+      createWeightsFunctionDefinition({visState, weights}),
+      lisaFunctionDefinition(getFunctionContext),
+      createVariableFunctionDefinition({visState, queryValues: queryValuesBySQL}),
+      spatialRegressionFunctionDefinition({visState, weights}),
+      boxplotTool({
+        getValues: async (datasetName: string, variableName: string) => {
+          const db = DuckDB.getInstance();
+          const values = await db.getColumnData(datasetName, variableName);
+          return values;
+        }
+      })
+    ],
+    [queryValuesBySQL, visState, weights]
+  );
 
   const datasets = useSelector(datasetsSelector);
 
-  const initializeAssistantWithContext = async () => {
-    await initializeAssistant();
+  const assistantProps = useMemo(() => {
+    // get data context
+    let context = `\nPlease remember the following dataset context:\n`;
     // get meta data of the dataset
-    const metaData = datasets.map(dataset => {
+    datasets.forEach(dataset => {
       if (!dataset.fileName || !dataset.dataId) {
         return null;
       }
       const datasetName = dataset.fileName;
       const datasetId = dataset.dataId;
-      const newMetaData: MetaDataCallbackOutput | ErrorOutput = getMetaDataCallback(
-        {datasetName, datasetId},
-        {tableName: datasetName, visState}
-      );
-      const metaData = newMetaData.result as {
-        datasetName: string;
-        datasetId: string;
-        columns: Record<string, string>;
-      };
-      return `datasetName: ${metaData.datasetName}, datasetId: ${metaData.datasetId}, columns: ${JSON.stringify(Object.keys(metaData.columns))}.\n`;
+      const arrowTable = dataset.arrowTable;
+      const tableSchema = arrowTable.schema;
+      const tableColumns = tableSchema.fields.map(field => field.name);
+      context += `datasetName: ${datasetName}, datasetId: ${datasetId}, columns: ${JSON.stringify(tableColumns)}.\n`;
     });
-    const context = `Please remember the following dataset context:\n${JSON.stringify(metaData)}`;
-    addAdditionalContext({context});
-  };
 
-  // add dataset metadata to AI model as additional instructions/context
-  useEffect(() => {
-    initializeAssistantWithContext();
-    // only run this effect when datasets
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasets]);
+    return {
+      modelProvider: llmConfig?.provider || 'openai',
+      model: llmConfig?.model || 'gpt-4o',
+      apiKey: llmConfig?.apiKey || '',
+      instructions: GEODA_INSTRUCTIONS + context,
+      functions: functions,
+      name: 'GeoDa.AI',
+      version: '1.0'
+    };
+  }, [llmConfig, functions, datasets]);
 
   return (
     <AiAssistant

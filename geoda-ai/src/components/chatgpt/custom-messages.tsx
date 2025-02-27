@@ -1,23 +1,24 @@
 import React, {useMemo} from 'react';
 
 import {CustomWeightsMessage, isCustomWeightsOutput} from './custom-weights-message';
-import {CustomLocalMoranMessage, isCustomLisaOutput} from './custom-lisa-message';
+import {CustomLisaMessage, isCustomLisaOutput} from './custom-lisa-message';
 import {CustomHistogramMessage, isCustomHistogramOutput} from './custom-histogram-message';
 import {CustomScatterPlotMessage, isCustomScatterPlotOutput} from './custom-scatter-message';
-import {CustomBubbleChartMessage, isCustomBubbleChartOutput} from './custom-bubblechart-message';
-import {CustomBoxplotMessage, isCustomBoxPlotOutput} from './custom-boxplot-message';
+import {CustomBubbleChartMessage} from './custom-bubblechart-message';
+import {CustomBoxplotMessage} from './custom-boxplot-message';
+import {isCustomBoxPlotOutput} from '@/ai/assistant/callbacks/callback-box';
+import {isCustomBubbleChartOutput} from '@/ai/assistant/callbacks/callback-bubble';
 import {
   CustomParallelCoordinateMessage,
   isCustomParallelCoordinateOutput
 } from './custom-parallel-coordinate-message';
-import {CustomSpregMessage, isCustomRegressionOutput} from './custom-spreg-message';
-import {MessagePayload} from '@chatscope/chat-ui-kit-react';
+import {CustomSpatialRegressionMessage, isCustomRegressionOutput} from './custom-spreg-message';
 import {CustomMapMessage, isCustomMapOutput} from './custom-map-message';
 import {
   CustomCreateVariableMessage,
   isCustomCreateVariableOutput
 } from './custom-create-variable-message';
-import {CustomFunctionOutputProps} from '@/ai/types';
+import {CustomFunctionOutputProps, MessagePayload} from '@openassistant/core';
 
 export type CustomMessagePayload = {
   type: string;
@@ -71,7 +72,7 @@ export function CustomMessage({props}: {props: CustomMessagePayload}) {
     ) : isCustomWeightsOutput(output) ? (
       <CustomWeightsMessage functionOutput={output} functionArgs={functionArgs} />
     ) : isCustomLisaOutput(output) ? (
-      <CustomLocalMoranMessage functionOutput={output} functionArgs={functionArgs} />
+      <CustomLisaMessage functionOutput={output} functionArgs={functionArgs} />
     ) : isCustomHistogramOutput(output) ? (
       <CustomHistogramMessage functionOutput={output} functionArgs={functionArgs} />
     ) : isCustomScatterPlotOutput(output) ? (
@@ -83,7 +84,7 @@ export function CustomMessage({props}: {props: CustomMessagePayload}) {
     ) : isCustomParallelCoordinateOutput(output) ? (
       <CustomParallelCoordinateMessage functionOutput={output} functionArgs={functionArgs} />
     ) : isCustomRegressionOutput(output) ? (
-      <CustomSpregMessage functionOutput={output} functionArgs={functionArgs} />
+      <CustomSpatialRegressionMessage functionOutput={output} functionArgs={functionArgs} />
     ) : isCustomCreateVariableOutput(output) ? (
       <CustomCreateVariableMessage functionOutput={output} functionArgs={functionArgs} />
     ) : null;

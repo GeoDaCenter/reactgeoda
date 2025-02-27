@@ -4,7 +4,6 @@ import {
   checkWeightsIdExist,
   CreateWeightsProps
 } from '@/utils/weights-utils';
-import {WeightsMeta} from 'geoda-wasm';
 import {WeightsProps} from '@/reducers/weights-reducer';
 import {binaryPointGeometries} from '../data/binary-geometries';
 

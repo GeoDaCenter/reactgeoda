@@ -55,7 +55,11 @@ export function DefaultValueComponent({
   };
 
   // when default value selection changes
-  const onDefaultValueSelectionChange = (value: Key) => {
+  const onDefaultValueSelectionChange = (value: Key | null) => {
+    if (value === null) {
+      setDefaultValueOption('');
+      return;
+    }
     const defaultOption = value as string;
     setDefaultValueOption(defaultOption);
     if (defaultOption === 'uniform_random') {

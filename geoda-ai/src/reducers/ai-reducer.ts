@@ -1,6 +1,6 @@
 import {AI_ACTIONS, AIConfigProps, DatasetMetaPayloadProps} from '@/actions';
 import {GUIDENCE_INSTRUCTIONS} from '@/ai/constants';
-import {UserActionProps, MessageModel} from '@/ai/types';
+import {UserActionProps, MessageModel} from '@openassistant/core';
 
 export const DEFAULT_GUIDENCE_MESSAGES: UserActionProps[] = [
   {
