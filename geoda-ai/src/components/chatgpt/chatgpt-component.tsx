@@ -1,6 +1,6 @@
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {RegisterFunctionCallingProps, MessageModel, useAssistant} from '@openassistant/core';
+import {RegisterFunctionCallingProps, MessageModel} from '@openassistant/core';
 import {AiAssistant} from '@openassistant/ui';
 import {GeoDaState} from '@/store';
 import {
@@ -13,18 +13,13 @@ import {DuckDB} from '@/hooks/use-duckdb';
 import {MAP_ID} from '@/constants';
 import {useIntl} from 'react-intl';
 import {datasetsSelector} from '@/store/selectors';
-import {
-  getMetaDataCallback,
-  MetaDataCallbackOutput
-} from '@/ai/assistant/callbacks/callback-metadata';
-import {ErrorOutput} from '@/ai/assistant/custom-functions';
 import {createMapFunctionDefinition} from '@/ai/assistant/callbacks/callback-map';
 import {lisaFunctionDefinition} from '@/ai/assistant/callbacks/callback-lisa';
 import {createWeightsFunctionDefinition} from '@/ai/assistant/callbacks/callback-weights';
 import {createVariableFunctionDefinition} from '@/ai/assistant/callbacks/callback-table';
 import {spatialRegressionFunctionDefinition} from '@/ai/assistant/callbacks/callback-regression';
 import {WeightsProps} from '@/reducers/weights-reducer';
-import {createPlotFunctionDefinition} from '@/ai/assistant/callbacks/callback-plot';
+import {boxplotTool} from '@openassistant/echarts';
 
 export const NO_MAP_LOADED_MESSAGE = 'Please load a map first before chatting.';
 
@@ -141,32 +136,30 @@ export const ChatGPTComponent = () => {
   };
 
   // NOTE: ollama with e.g. llama3.1 cannot support more than 4 complex functions
-  const functions: RegisterFunctionCallingProps[] = [
-    createMapFunctionDefinition({visState}),
-    createPlotFunctionDefinition({visState}),
-    createWeightsFunctionDefinition({visState, weights}),
-    lisaFunctionDefinition(getFunctionContext),
-    createVariableFunctionDefinition({visState, queryValues: queryValuesBySQL}),
-    spatialRegressionFunctionDefinition({visState, weights})
-  ];
-
-  const assistantProps = {
-    modelProvider: llmConfig?.provider || 'openai',
-    model: llmConfig?.model || 'gpt-4o',
-    apiKey: llmConfig?.apiKey || '',
-    instructions: GEODA_INSTRUCTIONS,
-    functions: functions,
-    name: 'GeoDa.AI',
-    version: '1.0'
-  };
-
-  const {initializeAssistant, addAdditionalContext} = useAssistant(assistantProps);
+  const functions: RegisterFunctionCallingProps[] = useMemo(
+    () => [
+      createMapFunctionDefinition({visState}),
+      // createPlotFunctionDefinition({visState}),
+      createWeightsFunctionDefinition({visState, weights}),
+      lisaFunctionDefinition(getFunctionContext),
+      createVariableFunctionDefinition({visState, queryValues: queryValuesBySQL}),
+      spatialRegressionFunctionDefinition({visState, weights}),
+      boxplotTool({
+        getValues: async (datasetName: string, variableName: string) => {
+          const db = DuckDB.getInstance();
+          const values = await db.getColumnData(datasetName, variableName);
+          return values;
+        }
+      })
+    ],
+    [queryValuesBySQL, visState, weights]
+  );
 
   const datasets = useSelector(datasetsSelector);
 
-  const initializeAssistantWithContext = async () => {
-    await initializeAssistant();
-    let context = `Please remember the following dataset context:\n`;
+  const assistantProps = useMemo(() => {
+    // get data context
+    let context = `\nPlease remember the following dataset context:\n`;
     // get meta data of the dataset
     datasets.forEach(dataset => {
       if (!dataset.fileName || !dataset.dataId) {
@@ -174,25 +167,22 @@ export const ChatGPTComponent = () => {
       }
       const datasetName = dataset.fileName;
       const datasetId = dataset.dataId;
-      const newMetaData: MetaDataCallbackOutput | ErrorOutput = getMetaDataCallback(
-        {datasetName, datasetId},
-        {tableName: datasetName, visState}
-      );
-      const metaData = newMetaData.result as {
-        datasetName: string;
-        datasetId: string;
-        columns: Record<string, string>;
-      };
-      context += `datasetName: ${metaData.datasetName}, datasetId: ${metaData.datasetId}, columns: ${JSON.stringify(Object.keys(metaData.columns))}.\n`;
+      const arrowTable = dataset.arrowTable;
+      const tableSchema = arrowTable.schema;
+      const tableColumns = tableSchema.fields.map(field => field.name);
+      context += `datasetName: ${datasetName}, datasetId: ${datasetId}, columns: ${JSON.stringify(tableColumns)}.\n`;
     });
-    addAdditionalContext({context});
-  };
 
-  // update dataset metadata to AI model as additional instructions/context
-  useEffect(() => {
-    initializeAssistantWithContext();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [datasets]);
+    return {
+      modelProvider: llmConfig?.provider || 'openai',
+      model: llmConfig?.model || 'gpt-4o',
+      apiKey: llmConfig?.apiKey || '',
+      instructions: GEODA_INSTRUCTIONS + context,
+      functions: functions,
+      name: 'GeoDa.AI',
+      version: '1.0'
+    };
+  }, [llmConfig, functions, datasets]);
 
   return (
     <AiAssistant

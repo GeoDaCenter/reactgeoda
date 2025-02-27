@@ -11,10 +11,10 @@ import {
   SimpleScatterPlotActionProps
 } from '@/actions/plot-actions';
 import {GeoDaState} from '@/store';
-import {BoxplotDataProps} from '@/utils/plots/boxplot-utils';
 import {HistogramDataProps} from '@/utils/plots/histogram-utils';
 import {addPlotUpdater} from './plot-updaters';
 import {DatasetProps} from './file-reducer';
+import {BoxplotDataProps} from '@openassistant/echarts';
 
 const initialState: Array<PlotStateProps> = [];
 
@@ -25,7 +25,6 @@ export type PlotAction = {
 
 type BasePlotStateProps = {
   id: string;
-  theme?: string;
 };
 
 export type HistogramPlotStateProps = BasePlotStateProps &

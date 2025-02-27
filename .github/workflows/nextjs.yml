@@ -54,6 +54,10 @@ jobs:
         run: |
           cd ..
           git clone https://github.com/GeoDaCenter/openassistant.git openassistant
+          cd openassistant
+          yarn
+          yarn build
+          cd ..
       - name: Install GeoDa-Lib
         run: |
           cd ..
